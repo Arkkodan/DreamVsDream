@@ -1,0 +1,93 @@
+[2 4 A]
+@DarkDiaryA
+onground
+
+[2 4 B]
+@DarkDiaryB
+onground
+
+[2 4 C]
+@DarkDiaryC
+onground
+
+[2 6 A]
+@YukiA
+onground
+
+[2 6 B]
+@YukiB
+onground
+
+[2 6 C]
+@YukiC
+onground
+
+[6 ~6 6]
+@BDashF
+onground
+@JDashF
+!onground
+!airdash
+
+[4 ~4 4]
+@HopB
+onground
+@JDashB
+!onground
+!airdash
+
+[bC]
+@4C
+onground
+
+[dA]
+@2A
+onground
+
+[dB]
+@2B
+onground
+
+[dC]
+@2C
+onground
+@j2C
+!onground
+
+[fB]
+@j6B
+!onground
+
+[A]
+@5A
+onground
+@j5A
+!onground
+
+[B]
+@5B
+onground
+@j5B
+!onground
+
+[C]
+@5C
+onground
+
+[7]
+@BeginJumpB
+onground
+@BeginJumpB
+!doublejump
+
+[9]
+@BeginJumpF
+onground
+@BeginJumpF
+!doublejump
+
+[8]
+@BeginJump
+onground
+@BeginJump
+!doublejump

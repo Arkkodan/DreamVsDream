@@ -1,0 +1,27 @@
+//Options menu definition file
+
+//Sound: move, select, back, invalid
+SOUND *menu, *select, *back, *invalid
+
+//Sub-definition files. Used for different themes in the options menu.
+//They're parsed after this one, of course.
+THEMES 5
+//Theme: definition file
+THEME candle
+THEME mural
+THEME neon
+THEME graffiti
+THEME poniko
+
+//Font
+FONT *32x32
+//Active/inactive: red, green, blue
+//Active: ...xOffset
+INACTIVE 255, 255, 255
+ACTIVE 180, 120, 190, 10
+
+//Madotsuki, the accompanying character sprite.
+//Madotsuki: spritesheet, footstep sfx, pinch sfx
+MADOTSUKI madotsuki, step, pinch
+
+VOICES dame, muri

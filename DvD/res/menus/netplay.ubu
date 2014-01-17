@@ -1,0 +1,8 @@
+BGM bgm, waiting, connection
+SFX_CONNECT get1, get2
+SOUND menu, select, back, *invalid
+
+MENU nes, cursor
+LOGO neslogo
+SFX_TV on, off
+SCANLINES scanlines, static

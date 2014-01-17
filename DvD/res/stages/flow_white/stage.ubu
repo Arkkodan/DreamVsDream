@@ -1,0 +1,12 @@
+BGM bgm
+THUMBNAIL thumbnail
+
+IMAGE_B 1.0, 1
+
+//Height from bottom of stage that chars will stand on
+HEIGHT 30
+//Width from center of stage to one side
+WIDTH 448
+//Absolute width/height of stage
+WIDTH_ABS 896
+HEIGHT_ABS 672

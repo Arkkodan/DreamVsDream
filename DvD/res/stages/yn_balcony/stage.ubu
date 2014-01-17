@@ -1,0 +1,21 @@
+BGM intro, loop
+THUMBNAIL thumbnail
+
+IMAGE_B 0.0, 0
+IMAGE_B tv_blank, 0.6, 1
+IMAGE_B tv_test, 0.6, 2
+IMAGE_B tv_eyeball, 0.6, 3
+IMAGE_B tv_kalimba1, 0.6, 4
+IMAGE_B tv_kalimba2, 0.6, 5
+IMAGE_B bg, 1
+
+IMAGE_A fg, 1
+IMAGE_A fg2, 1
+
+//Height from bottom of stage that chars will stand on
+HEIGHT 40
+//Width from center of stage to one side
+WIDTH 320
+//Absolute width/height of stage
+WIDTH_ABS 640
+HEIGHT_ABS 960

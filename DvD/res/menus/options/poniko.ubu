@@ -1,0 +1,13 @@
+//Music, self explainatory
+BGM poniko_bgm
+
+//Images: filename, x, y, [rendermode, x velocity, y velocity, wrap]
+//Image positions and velocities can be floating point values (e.g. 0.5, 3.4)
+IMAGE poniko_bg, 0, 0
+
+//Font
+FONT *32x32
+//Active/inactive: red, green, blue
+//Active: ...xOffset
+INACTIVE 100, 100, 100
+ACTIVE 180, 120, 190, 10

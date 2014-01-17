@@ -1,0 +1,5 @@
+Rotting Chamber mother event notes:
+
+Monitor: The screens of the monitors has to be in an animated, looped sequence.
+
+Static: The rusted static can flicker erratically, but not too much, along with sound effect.

@@ -1,0 +1,1 @@
+Note: The Front glitches appear like the Foreground Layer. To keep it 2D, the speed is the same as the Ground layer.

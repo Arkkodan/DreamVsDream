@@ -1,0 +1,7 @@
+//Music, self explainatory
+BGM graffiti_bgm
+
+//IMAGE filename, x, y, [rendermode, x velocity, y velocity, wrap]
+//Image positions and velocities can be floating point values (e.g. 0.5, 3.4)
+IMAGE graffiti_bg, 0, 0, normal, 0.1, -0.1, true
+IMAGE graffiti_fg, 0, 0

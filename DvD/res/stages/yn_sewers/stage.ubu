@@ -1,0 +1,17 @@
+BGM loop
+THUMBNAIL thumbnail
+
+IMAGE_B 1, 0.6, 2
+IMAGE_B 2, 0.6, 3
+IMAGE_B 3, 0.6, 4
+IMAGE_B 4, 0.6, 5
+IMAGE_B 0.6, 0.6
+IMAGE_B 1.0, 1
+
+//Height from bottom of stage that chars will stand on
+HEIGHT 30
+//Width from center of stage to one side
+WIDTH 640
+//Absolute width/height of stage
+WIDTH_ABS 1280
+HEIGHT_ABS 960

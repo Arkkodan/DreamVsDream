@@ -1,0 +1,11 @@
+//Title definition file
+
+//Sub-definition files. Used for different themes in the options menu.
+//They're parsed after this one, of course.
+THEMES 4
+//Theme: definition file
+//The first one is weighted (gets five extra "points")
+THEME yn
+THEME 2kki
+THEME flow
+THEME lsd

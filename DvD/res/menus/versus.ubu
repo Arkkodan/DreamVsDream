@@ -1,0 +1,8 @@
+BGM bgm
+
+//Background video!
+VIDEO bgv
+
+//Image bg, 0, 0
+//Image kalimba1, 0, 0, normal, -1, 0, true
+//Image kalimba2, 0, 0, normal, 1, 0, true

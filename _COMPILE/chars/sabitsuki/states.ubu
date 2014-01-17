@@ -1,0 +1,619 @@
+//STANDARD STATES
+
+[Stand]
+type N, S
+ctrl true
+sprite stand00, 12
+sprite stand01, 12
+sprite stand02, 12
+sprite stand03, 12
+sprite stand04, 12
+sprite stand05, 12
+
+[WalkF]
+type N, S
+ctrl true
+sprite wc00, 6
+move 23, 0
+sprite wc01, 6
+move 7, 0
+sprite wc02, 6
+move 17, 0
+sprite wc03, 6
+move 12, 0
+sprite wc04, 6
+move 28, 0
+sprite wc02, 6
+move 11, 0
+sprite wc03, 6
+move 22, 0
+
+[WalkB]
+type N, S
+ctrl true
+sprite wb00, 8
+move -10, 0
+sprite wb01, 8
+move -20, 0
+sprite wb02, 8
+move -10, 0
+
+[BeginCrouch]
+type N, C
+ctrl true
+sprite crouch00, 4
+sprite crouch01, 4
+sprite crouch02, 4
+
+[BeginStand]
+type N, S
+ctrl true
+sprite crouch02, 4
+sprite crouch01, 4
+sprite crouch00, 4
+
+[Crouch]
+type N, C
+ctrl true
+sprite crouching, 4
+
+[BeginFall]
+type N, J
+ctrl true
+sprite falling00, 6
+
+[Falling]
+type N, J
+sprite falling00, 6
+
+[Land]
+type N, S
+ctrl true
+invincible false
+sprite jump_begin01, 4
+sprite jump_begin00, 4
+
+//Get hits
+[HitHigh]
+type H, S
+ctrl false
+say Hurt
+sprite hitH00, 3
+sprite hitH01, 1
+
+[HitMid]
+type H, S
+ctrl false
+say Hurt
+sprite hitM00, 3
+sprite hitM01, 1
+
+[HitLow]
+type H, S
+ctrl false
+say Hurt
+sprite hitL00, 3
+sprite hitL01, 1
+
+//KNOCKPRONE
+[KP]
+type H, J
+ctrl false
+sprite fallp00, 4
+
+[KPFall]
+type H, J
+ctrl false
+sprite fallp01, 10
+
+[KPFalling]
+type H, J
+ctrl false
+sprite fallp02, 4
+
+[KPLand]
+type H, S
+ctrl false
+sprite fallp03, 2
+
+[Prone]
+type H, S
+ctrl false
+sprite prone, 30
+
+[RecoverProne]
+type N, S
+ctrl false
+say Recover
+sprite recoverp00, 4
+sprite recoverp01, 4
+sprite recoverp02, 4
+ctrl true
+
+//KNOCKBACK
+[KB]
+type H, J
+ctrl false
+sprite fallb00, 4
+sprite fallb001, 4
+
+[KBFall]
+type H, J
+ctrl false
+sprite fallb01, 10
+
+[KBFalling]
+type H, J
+ctrl false
+sprite fallb02, 4
+
+[KBBounce]
+type H, J
+ctrl false
+sprite fallb01, 2
+
+[KBBouncing]
+type H, J
+ctrl false
+sprite fallb03, 2
+
+[KBLand]
+type H, S
+ctrl false
+sprite fallb01, 4
+
+[OnBack]
+type H, S
+ctrl false
+sprite onback, 30
+
+[RecoverBack]
+type N, S
+ctrl false
+say Recover
+sprite recoverb00, 4
+sprite recoverb01, 2
+sprite recoverb02, 2
+sprite recoverb03, 4
+ctrl true
+
+//Win!
+[Victory]
+type N, S
+say Win
+sprite win00, 32
+sprite win01, 6
+sound pinch
+sprite win02, 20
+sprite win03, 2
+sprite win04, 2
+sprite win05, 2
+sprite win06, 2
+sprite win07, 2
+sprite win08, 2
+sprite win07, 2
+sprite win06, 2
+sprite win05, 2
+sprite win04, 2
+sprite win03, 2
+sprite win04, 2
+sprite win05, 2
+sprite win06, 2
+sprite win07, 2
+sprite win08, 2
+visible false
+sprite win08, 1000
+
+[Defeat]
+type N, S
+say Lose
+sprite lose00, 4
+sprite lose01, 4
+sprite lose02, 4
+sprite lose03, 4
+sprite lose04, 4
+sprite lose05, 4
+sprite lose06, 4
+sprite lose07, 4
+sprite lose08, 4
+sprite lose09, 1000
+
+//Jump
+[Jumping]
+type N, J
+sprite jumping00, 1
+
+[BeginJump]
+type N, J
+ctrl false
+doublejump true
+sprite jump_begin00, 2
+sprite jump_begin01, 2
+say Grunt
+ctrl true
+force 0, 18
+sprite jump_begin02, 2
+
+[BeginJumpB]
+type N, J
+ctrl false
+doublejump true
+sprite jump_begin00, 2
+sprite jump_begin01, 2
+say Grunt
+ctrl true
+force -3, 18
+sprite jump_begin02, 2
+
+[BeginJumpF]
+type N, J
+ctrl false
+doublejump true
+sprite jump_begin00, 2
+sprite jump_begin01, 2
+say Grunt
+ctrl true
+force 3, 18
+sprite jump_begin02, 2
+
+//Techs
+[JTech]
+type T, J
+sprite falling00, 1
+
+//Dashes
+[BDashF]
+type D, S
+force 8, 0
+gravity false
+sprite dash00, 4
+sprite dash01, 4
+
+[DashF]
+type D, S
+gravity false
+ctrl true
+sprite dash02, 4
+sprite dash03, 4
+
+[EDashF]
+type D, S
+gravity true
+sprite dash01, 4
+sprite dash00, 4
+
+[BDashB]
+type D, S
+sprite bdash00, 4
+sprite bdash01, 4
+sprite bdash02, 4
+
+[DashB]
+force -10, 0
+gravity false
+sprite bdash03, 2
+sprite bdash04, 2
+sprite bdash05, 2
+sprite bdash06, 2
+
+[EDashB]
+type D, S
+gravity true
+sprite bdash02, 4
+sprite bdash01, 4
+sprite bdash00, 4
+
+[JDashF]
+type D, J
+force 8, 0
+gravity false
+airdash true
+sprite dash_air00, 2
+sprite dash_air01, 2
+sprite dash_air02, 2
+sprite dash_air03, 2
+
+sprite dash_air04, 2
+sprite dash_air05, 2
+sprite dash_air04, 2
+sprite dash_air05, 2
+
+gravity true
+
+sprite dash_air03, 2
+sprite dash_air02, 2
+sprite dash_air01, 2
+sprite dash_air00, 2
+
+[JDashB]
+type D, J
+force -8, 0
+gravity false
+airdash true
+mirror true
+sprite dash_air00, 2
+sprite dash_air01, 2
+sprite dash_air02, 2
+sprite dash_air03, 2
+
+sprite dash_air04, 2
+sprite dash_air05, 2
+sprite dash_air04, 2
+sprite dash_air05, 2
+
+gravity true
+
+sprite dash_air03, 2
+sprite dash_air02, 2
+sprite dash_air01, 2
+sprite dash_air00, 2
+
+[CBlock]
+type B, C
+ctrl false
+sprite block00, 2
+
+[Block]
+type B, S
+ctrl false
+sprite block00, 2
+sprite block01, 10
+
+[5A]
+cancel 3C
+cancel 5C
+
+type A, S
+ctrl false
+sprite c5A00, 4
+sprite c5A01, 8
+sprite c5A02, 2
+hitspark 1
+attack 5, mid, 5, 0, HitMid, true
+sprite c5A03, 2
+sprite c5A04, 6
+ctrl true
+
+[5C]
+type A, S
+ctrl false
+sprite f5C00, 4
+sprite f5C01, 4
+sprite f5C02, 2
+hitspark 1
+attack 5, mid, 5, 0, HitMid, true
+sprite f5C03, 2
+sprite f5C04, 2
+sprite f5C03, 2
+sprite f5C04, 2
+sprite f5C01, 4
+sprite f5C00, 4
+ctrl true
+
+[3C]
+cancel 5C
+
+type A, S
+ctrl false
+hitspark 1
+sprite 3C00, 4
+sprite 3C01, 4
+sprite 3C02, 4
+attack 4, mid, -1, 17, HitMid, true
+sprite 3C03, 4
+sprite 3C04, 4
+sprite 3C05, 4
+sprite 3C06, 4
+sprite 3C07, 4
+sprite 3C03, 4
+sprite 3C02, 4
+sprite 3C01, 4
+sprite 3C00, 4
+ctrl true
+
+[2A]
+cancel 5A
+cancel 3C
+cancel 5C
+
+type A, C
+ctrl false
+hitspark 1
+sprite 2C00, 4
+sprite 2C01, 6
+sprite 2C02, 3
+attack 4, mid, -1, 17, HitMid, true
+sprite 2C03, 4
+sprite 2C02, 2
+sprite 2C01, 2
+ctrl true
+
+//Jump normals
+[j5A]
+cancel j5A
+
+type A, J
+ctrl false
+sprite j5A00, 2
+sprite j5A01, 4
+attack 2.5, high, 2, 0, HitMid, true
+sprite j5A02, 3
+
+[DarkDiaryC]
+type A, S
+ctrl false
+sprite dd_1_00, 2
+sprite dd_1_01, 2
+sprite dd_1_02, 2
+sprite dd_1_03, 2
+sprite dd_1_04, 2
+sprite dd_1_05, 2
+sprite dd_1_04, 2
+sprite dd_1_05, 2
+sprite dd_1_04, 2
+sprite dd_1_06, 2
+sprite dd_1_07, 2
+sprite dd_1_08, 2
+sprite dd_1_00, 2
+
+[DarkDiaryA]
+type A, S
+ctrl false
+sprite dd_2_00, 2
+sprite dd_2_01, 2
+sprite dd_2_02, 2
+sprite dd_2_03, 2
+sprite dd_2_02, 2
+sprite dd_2_04, 2
+sprite dd_2_05, 2
+shoot DDBullet, 7, 0
+sprite dd_2_06, 2
+sprite dd_2_07, 2
+sprite dd_2_08, 2
+sprite dd_2_00, 2
+
+[DarkDiaryB]
+type A, S
+ctrl false
+sprite dd_3_00, 2
+sprite dd_3_01, 2
+sprite dd_3_02, 2
+sprite dd_3_03, 2
+sprite dd_3_02, 2
+sprite dd_3_04, 2
+sprite dd_3_05, 2
+sprite dd_3_06, 2
+sprite dd_3_07, 2
+sprite dd_3_08, 2
+
+[DDBullet]
+type A, J
+hitspark -1
+attack 2, mid, 5, 0, HitMid, false
+onhit DDBulletDie
+sprite dd_bullet00, 2
+sprite dd_bullet01, 2
+sprite dd_bullet02, 2
+sprite dd_bullet03, 2
+sprite dd_bullet04, 2
+sprite dd_bullet05, 2
+sprite dd_bullet06, 2
+sprite dd_bullet07, 2
+
+[DDBulletDie]
+type A, J
+force 0, 0
+sprite dd_bullet_impact00, 2
+sprite dd_bullet_impact01, 2
+sprite dd_bullet_impact02, 2
+sprite dd_bullet_impact03, 2
+sprite dd_bullet_impact04, 2
+sprite dd_bullet_impact05, 2
+sprite dd_bullet_impact06, 2
+sprite dd_bullet_impact07, 2
+sprite dd_bullet_impact08, 2
+sprite dd_bullet_impact09, 2
+sprite dd_bullet_impact10, 2
+destroy
+
+[YukiA]
+type A, S
+ctrl false
+sprite yuki00, 4
+sprite yuki01, 6
+say Cold
+sprite yuki02, 4
+shoot Snowball, 12, 0
+sprite yuki03, 6
+sprite yuki04, 8
+move 50, 0
+ctrl true
+
+[YukiB]
+type A, S
+ctrl false
+sprite yuki00, 4
+sprite yuki01, 6
+say Cold
+sprite yuki02, 4
+shoot SnowballArc, 10, 17
+sprite yuki03, 6
+sprite yuki04, 8
+move 50, 0
+ctrl true
+
+[YukiC]
+type A, S
+ctrl false
+say Frozen
+special false
+sprite yuki01, 1
+sprite yuki02, 4
+shoot SnowballFast, 16, 0
+sprite yuki03, 3
+sprite yuki04, 3
+sprite yuki02, 4
+shoot SnowballFast, 16, 0
+sprite yuki03, 3
+sprite yuki04, 3
+sprite yuki02, 4
+shoot SnowballFast, 16, 0
+sprite yuki03, 3
+sprite yuki04, 3
+sprite yuki01, 8
+sprite yuki02, 4
+shoot SnowballSuper, 32, 0
+sprite yuki03, 6
+sprite yuki04, 12
+move 50, 0
+ctrl true
+
+[Snowball]
+type A, J
+onhit SnowballDie
+attack 4.5, mid, 5, 0, HitMid, false
+hitspark -1
+sprite snowball, 16
+
+[SnowballArc]
+type A, J
+onhit SnowballDie
+gravity true
+attack 4.5, high, 5, 0, HitMid, false
+hitspark -1
+sprite snowball, 16
+
+[SnowballFast]
+type A, J
+onhit SnowballDie
+attack 3.5, mid, 5, 0, HitMid, false
+hitspark -1
+sprite snowball_fast, 16
+
+[SnowballSuper]
+type A, J
+onhit SnowballDie
+knockdown
+attack 3.5, mid, 5, 5, HitMid, false
+hitspark -1
+sprite snowball_fast, 16
+
+[SnowballDie]
+type A, J
+force 0, 0
+sprite snowball_splat, 2
+destroy
+
+[NeonRaveA]
+type A, S
+sprite neonrave00, 4
+sprite neonrave01, 4
+sprite neonrave02, 4
+sprite neonrave03, 4
+sprite neonrave04, 4
+sprite neonrave05, 8
+sprite neonrave04, 4
+sprite neonrave03, 4
+sprite neonrave02, 4
+sprite neonrave01, 4
+sprite neonrave00, 4

@@ -1,0 +1,47 @@
+//Define sound groups here; use the group id's in states and such to determine which
+//group of random sounds to play
+
+[Block]
+block1
+block2
+block3
+block4
+block5
+
+//Generic hit sounds
+[HitMid]
+mid1
+mid2
+//mid3
+mid4
+
+//Swipes
+[Swipe]
+lSwipe1
+lSwipe2
+
+//Diary sounds
+[HitDiary]
+DiaryHit1
+DiaryHit2
+
+//Diary paper sounds
+[Papers]
+papers1
+papers2
+papers3
+papers4
+
+//Knife
+[HitKnife]
+KnifeHit1
+
+//Hand
+[Hand]
+hand
+
+[Frog]
+frog
+
+[Pinch]
+pinch

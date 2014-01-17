@@ -1,0 +1,24 @@
+//Title menu definition file
+//The * on a resource indicates it can be found in common/ instead of a named directory.
+
+//Music, self explainatory
+//BGM bgm
+
+//Sound move, select, back
+SOUND *menu_lsd, *select_lsd, *select_lsd, *select_lsd
+
+//Images defined first will be drawn below Images defined last.
+//Render modes are normal, additive, subtractive, multiply
+//Images: filename, x, y, [rendermode, x velocity, y velocity, wrap]
+//Image positions and velocities can be floating point values (e.g. 0.5, 3.4)
+IMAGE bg_lsd, 0, 0, normal
+//Image logo, 145, 0, normal
+
+//Active/inactive: red, green, blue
+//Active: ...xOffset
+INACTIVE 156, 156, 156
+ACTIVE 255, 255, 0, 0
+
+//There can only be one of these, and it can only be in the title screen.
+//Menu: font, x, y, xOffset
+MENU *32x32, 342, 180, 0

@@ -1,0 +1,8 @@
+Notes for YN Balcony:
+
+There are two floors: the floor where the fighters stand on and the front floor.
+
+The TV layer may count as a background since it's behind the first floor layer. As seen on the Balcony Sample, the TV layers fit inside the largest space in the door's window.
+
+Lets see how it goes. Enjoy! :)
+~Sesaka

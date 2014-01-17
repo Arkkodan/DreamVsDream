@@ -1,0 +1,7 @@
+Note for the Sky layers.
+
+1st sky is 10 sec long
+
+2nd sky is 1 second long
+
+3rd sky is 2 seconds long

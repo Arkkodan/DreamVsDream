@@ -1,0 +1,6 @@
+//Music, self explainatory
+BGM mural_bgm
+
+//Images: filename, x, y, [rendermode, x velocity, y velocity, wrap]
+//Image positions and velocities can be floating point values (e.g. 0.5, 3.4)
+IMAGE mural_fg, 0, 0

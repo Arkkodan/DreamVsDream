@@ -1,0 +1,13 @@
+//Generic stuff
+NAME Madotsuki
+//Group (1-4), referring to position on select screen
+GROUP 1
+//Defense is a percent which modifies HP
+DEFENSE 100
+HEIGHT 100
+//Width: size left of origin, size right of origin
+WIDTH 15, 15
+//A value of 1.0 is standard for gravity
+GRAVITY 1.0
+//Number of palettes
+PALETTES 6

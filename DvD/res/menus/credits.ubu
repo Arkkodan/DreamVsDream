@@ -1,0 +1,12 @@
+BGM intro, loop
+
+LOGO logo
+CREDITS *32x32, credits
+
+//Header RGB, text RGB
+COLOR 180, 120, 190, 255, 255, 255
+
+//BG stuff
+IMAGE bg, 0, 0, normal
+IMAGE dots, 0, 0, multiply, 0, -0.5, true
+IMAGE fg, 0, 0, normal

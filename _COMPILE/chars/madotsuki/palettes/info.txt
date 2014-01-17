@@ -1,0 +1,5 @@
+1: Normal
+2: Poniko
+3: Ib
+4: Kawaii
+5: grayscale

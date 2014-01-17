@@ -1,0 +1,68 @@
+//Character select definition file
+
+BGM intro, loop
+SOUND *menu, *select, *back, *invalid
+
+IMAGE bg, 0, 0, normal, 0.5, 0.5, true
+
+//Same as image definition; needed so that the hud displays above the portraits, etc
+SELECT select, 0, 0, normal
+
+//The grid isn't physically a grid, but its used for the control of the player cursor.
+//Grid: width, height, group width, group height
+GRID 4, 6, 2, 3
+
+//Cursor: group, image, xOffset, yOffset, effect image, effect image frames
+//effect animation speed, effect image grow, select sound, deselect sound
+CURSOR 1, cursor_yn, -6, -6, select_yn, 12, 1, true, select_yn, deselect_yn
+CURSOR 2, cursor_y2, -6, -6, select_y2, 5, 2, false, select_y2, deselect_y2
+CURSOR 3, cursor_fl, -6, -6, select_fl, 12, 1, true, select_fl, deselect_fl
+CURSOR 4, cursor_yn, -6, -6, select_etc, 15, 1, true, select_etc, deselect_etc
+
+//Player: number (1-4?), default X, default Y, red, green, blue
+PLAYER 1, 0, 1, 180, 120, 190
+PLAYER 2, 3, 1, 180, 120, 190
+
+//Character definitions go below. They fill up the logical grid from left-right,
+//then down a row, like a text editor. Btw, size of mugshots should be 26x28 for now.
+//Char: name, x, y
+
+//YN, row 1
+CHAR null
+CHAR nothing, 290, 133
+//Y2, row 1
+CHAR nothing, 330, 133
+CHAR null
+//YN, row 2
+CHAR madotsuki, 251, 166
+CHAR nothing, 290, 174
+//Y2, row 2
+CHAR nothing, 330, 174
+CHAR nothing, 369, 166
+//YN, row 3
+CHAR nothing, 251, 207
+CHAR nothing, 290, 215
+//Y2, row 3
+CHAR nothing, 330, 215
+CHAR nothing, 369, 207
+
+//fl, row 1
+CHAR nothing, 251, 265
+CHAR nothing, 290, 257
+//etc, row 1
+CHAR nothing, 330, 257
+CHAR nothing, 369, 265
+//fl, row 2
+CHAR sabitsuki, 251, 306
+CHAR nothing, 290, 298
+//etc, row 2
+CHAR nothing, 330, 298
+CHAR nothing, 369, 306
+//fl, row 3
+CHAR null
+CHAR nothing, 290, 339
+//etc, row 3
+CHAR secret, 330, 339
+CHAR null
+
+STAGES *32x32

@@ -1,0 +1,7 @@
+Sorry about all of that clutter on the Middleground layer. There are 3 variables in that layer: The flickering lamppost on the left, the hanging body in the background and the sailor on the right. They are each independent of one another so I saved a picture for each possible pairing of events. Here’s a key.
+Lights_On: Flickering light is on.
+Lights_Off: Flickering light is off.
+Hanging: The girl is hanging. If this is absent the girl is not there.
+Sailor: The sailor is off to the right. If this is absent the sailor is not there.
+I didn’t do anything with that car that drives off to nowhere, but if it’s really requested I suppose I can edit it in the future, though I’d have to save more middle ground layers or something and maybe use gifs to animate the car? I’m not really sure how that works.
+The sailor should only spawn once ever few times the map is played, and when the fight progresses to the right side of the screen he disappears.

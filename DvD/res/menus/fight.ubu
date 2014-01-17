@@ -1,0 +1,30 @@
+HUD		1
+HUD_TAG		1_tag
+PORTRAITS	3
+PORTRAITS_TAG	3_tag
+TIMER		4, timer
+SHINE		5
+SHINE_TAG	5_tag
+
+HP hp, 28, 36
+SUPER super, 69, 67
+TAG tag, 128, 79
+PORTRAIT_POS 218, 10
+
+WIN_ORBS round_null, round_win, round_draw, 195, 75
+
+STUN stun, 221, 97
+GUARD guard, 255, 97
+
+DPM dpm, 60, 461
+
+STATIC static, static
+FADE fadein, fadeout
+
+ROUND_HUD round1, round2, round3, round4, round5, 295, 75
+ROUND_SPLASH PHASE1, PHASE2, PHASE3, PHASE4, FINALPHASE
+KO KO, timeout, draw
+
+COMBO combo, combo0, combo1
+
+WIN win, *32x32, win

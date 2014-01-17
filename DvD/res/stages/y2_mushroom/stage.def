@@ -1,0 +1,17 @@
+BGM: intro, loop
+Thumbnail: thumbnail
+
+ImageB: 0.0, 0, 0, 0
+ImageB: 0.4, 0, 0, 0.4
+ImageB: 0.8, 0, 0, 0.8
+ImageB: 1.0, 0, 0, 1
+
+ImageA: 1.2, 0, 0, 1.2
+
+;Height from bottom of stage that chars will stand on
+Height: 30
+;Width from center of stage to one side
+Width: 640
+;Absolute width/height of stage
+WidthAbs: 1280
+HeightAbs: 960
