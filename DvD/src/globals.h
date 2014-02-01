@@ -9,7 +9,7 @@
 #ifdef SPRTOOL
 #define WINDOW_TITLE "Dream vs. Dream Sprite Tool"
 #else
-#define WINDOW_TITLE "Dream vs. Dream v0.12 <TEST VERSION rev 2>"
+#define WINDOW_TITLE "Dream vs. Dream v0.2>"
 #endif
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480

@@ -1,12 +1,6 @@
 #ifndef OS_H_INCLUDED
 #define OS_H_INCLUDED
 
-/*#ifdef _WIN32
-#include "os-windows.h"
-#else
-#include "os-linux.h"
-#endif*/
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,23 +14,22 @@
 
 #include "types.h"
 
-namespace OS
-{
-    void init();
-    void deinit();
+namespace os {
+	void init();
+	void deinit();
 
-    void setTitle(const char* title);
-    void refresh();
+	void setTitle(const char* title);
+	void refresh();
 
-    void getClipboard(char* b_sz, size_t size);
+	void getClipboard(char* b_sz, size_t size);
 
-    void toggleFullscreen();
-	
+	void toggleFullscreen();
+
 	void sleep(unsigned int time);
 
-    unsigned long getTime();
+	unsigned long getTime();
 
-    extern unsigned int gameFrame;
+	extern unsigned int gameFrame;
 }
 
 #endif // OS_H_INCLUDED

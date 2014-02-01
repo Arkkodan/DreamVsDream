@@ -10,9 +10,9 @@ CXXSRC		:= $(addprefix $(SRCPATH)/, $(addsuffix .cpp, $(CXXFILES)))
 CSRC		:= $(addprefix $(SRCPATH)/, $(addsuffix .c, $(CFILES)))
 OBJ		:= $(addprefix $(OBJPATH)/, $(addsuffix .o, $(CXXFILES) $(CFILES)))
 
-.PHONY: all clean checkdirs
+.PHONY: all clean
 
-all: checkdirs $(TARGET)
+all: $(TARGET)
 
 # Binary
 $(TARGET): $(OBJ)
@@ -20,11 +20,11 @@ $(TARGET): $(OBJ)
 	@$(LD) -o $@ $(OBJ) $(LDFLAGS)
 
 # Objects
-$(OBJPATH)/%.o: $(SRCPATH)/%.cpp
+$(OBJPATH)/%.o: $(SRCPATH)/%.cpp | $(OBJPATH)
 	@echo CXX $<
 	@$(CXX) -c -o $@ $(CXXFLAGS) $<
 
-$(OBJPATH)/%.o: $(SRCPATH)/%.c
+$(OBJPATH)/%.o: $(SRCPATH)/%.c | $(OBJPATH)
 	@echo CC $<
 	@$(CC) -c -o $@ $(CFLAGS) $<
 
@@ -32,7 +32,5 @@ clean:
 	rm -rf $(OBJPATH) $(TARGET)
 	rm -rf DvD.data DvD.js DvD.html DvD.html.map
 
-checkdirs:
-	@echo "making directories"
-	@echo $(CSRC)
+$(OBJPATH):
 	@mkdir -p $(OBJPATH)

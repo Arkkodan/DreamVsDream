@@ -1,30 +1,29 @@
 #ifndef VIDEO_H_INCLUDED
 #define VIDEO_H_INCLUDED
 
-class Video
-{
+class Video {
 public:
-    double frameTimer;
+	double frameTimer;
 
-    void think();
-    void draw(int x, int y);
-    void reset();
+	void think();
+	void draw(int x, int y);
+	void reset();
 
-    Video(avi_t* _avi, char _compressor);
-    ~Video();
+	Video(avi_t* avi, char compressor);
+	~Video();
 
-    static Video* create(const char* filename);
-    //static Video* createFromMemory(const char* data);
+	static Video* create(const char* filename);
+	//static Video* createFromMemory(const char* data);
 
 private:
-    avi_t* avi;
+	avi_t* avi;
 
-    int tw, th;
+	int tw, th;
 
-    unsigned int texture;
-    unsigned char* texBuff;
+	unsigned int texture;
+	unsigned char* texBuff;
 
-    char compressor;
+	char compressor;
 };
 
 #endif // VIDEO_H_INCLUDED

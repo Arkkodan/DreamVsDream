@@ -24,113 +24,102 @@ static bool versus = false;
 static bool fullscreen = false;
 static int input_delay = 0;
 
-void parseArgs(int argc, char** argv)
-{
-    extern Player madotsuki;
-    extern Player poniko;
-    extern int madotsuki_palette;
-    extern int poniko_palette;
+void parseArgs(int argc, char** argv) {
+	extern fighter::Player madotsuki;
+	extern fighter::Player poniko;
+	extern int madotsuki_palette;
+	extern int poniko_palette;
 
-    madotsuki.fighter = &fighters[0];
-    poniko.fighter = &fighters[0];
+	madotsuki.fighter = &fighter::fighters[0];
+	poniko.fighter = &fighter::fighters[0];
 
-    for(int i = 1; i < argc; i++)
-    {
-        if(!strcasecmp(argv[i], "--disable-shaders"))
-            disable_shaders = true;
-        else if(!strcasecmp(argv[i], "--disable-sound"))
-            disable_sound = true;
-        else if(!strcasecmp(argv[i], "--training"))
-            menu = MENU_FIGHT;
-        else if(!strcasecmp(argv[i], "--versus"))
-        {
-            menu = MENU_FIGHT;
-            versus = true;
-        }
-        else if(!strcasecmp(argv[i], "--fullscreen"))
-            fullscreen = true;
-        else if(!strcasecmp(argv[i], "-char1"))
-        {
-            if(++i < argc)
-                madotsuki.fighter = &fighters[atoi(argv[i])];
-        }
-        else if(!strcasecmp(argv[i], "-char2"))
-        {
-            if(++i < argc)
-                poniko.fighter = &fighters[atoi(argv[i])];
-        }
-        else if(!strcasecmp(argv[i], "-pal1"))
-        {
-            if(++i < argc)
-                madotsuki_palette = atoi(argv[i]);
-        }
-        else if(!strcasecmp(argv[i], "-pal2"))
-        {
-            if(++i < argc)
-                poniko_palette = atoi(argv[i]);
-        }
-        else if(!strcasecmp(argv[i], "-stage"))
-        {
-            if(++i < argc)
-                stage = atoi(argv[i]);
-        }
-        else if(!strcasecmp(argv[i], "-input-delay"))
-        {
-            if(++i < argc)
-                input_delay = atoi(argv[i]);
-        }
-        else if(!strcasecmp(argv[i], "-max-texture-size"))
-        {
-            if(++i < argc)
-                max_texture_size = atoi(argv[i]);
-        }
-    }
+	for(int i = 1; i < argc; i++) {
+		if(!strcasecmp(argv[i], "--disable-shaders")) {
+			disable_shaders = true;
+		} else if(!strcasecmp(argv[i], "--disable-sound")) {
+			disable_sound = true;
+		} else if(!strcasecmp(argv[i], "--training")) {
+			menu = MENU_FIGHT;
+		} else if(!strcasecmp(argv[i], "--versus")) {
+			menu = MENU_FIGHT;
+			versus = true;
+		} else if(!strcasecmp(argv[i], "--fullscreen")) {
+			fullscreen = true;
+		} else if(!strcasecmp(argv[i], "-char1")) {
+			if(++i < argc) {
+				madotsuki.fighter = &fighter::fighters[atoi(argv[i])];
+			}
+		} else if(!strcasecmp(argv[i], "-char2")) {
+			if(++i < argc) {
+				poniko.fighter = &fighter::fighters[atoi(argv[i])];
+			}
+		} else if(!strcasecmp(argv[i], "-pal1")) {
+			if(++i < argc) {
+				madotsuki_palette = atoi(argv[i]);
+			}
+		} else if(!strcasecmp(argv[i], "-pal2")) {
+			if(++i < argc) {
+				poniko_palette = atoi(argv[i]);
+			}
+		} else if(!strcasecmp(argv[i], "-stage")) {
+			if(++i < argc) {
+				stage = atoi(argv[i]);
+			}
+		} else if(!strcasecmp(argv[i], "-input-delay")) {
+			if(++i < argc) {
+				input_delay = atoi(argv[i]);
+			}
+		} else if(!strcasecmp(argv[i], "-max-texture-size")) {
+			if(++i < argc) {
+				max_texture_size = atoi(argv[i]);
+			}
+		}
+	}
 }
 
 #ifndef EMSCRIPTEN
-void optionsLoad()
-{
-    File file;
-    if(!file.open(FILE_READ_NORMAL, szConfigPath + "options.dat"))
-        return;
+void optionsLoad() {
+	File file;
+	if(!file.open(FILE_READ_NORMAL, szConfigPath + "options.dat")) {
+		return;
+	}
 
-    optionDifficulty = file.readByte();
-    optionWins = file.readByte();
-    optionTime = file.readByte();
-    optionSfxVolume = file.readByte();
-    optionMusVolume = file.readByte();
-    optionVoiceVolume = file.readByte();
-    optionEpilepsy = file.readByte();
-    optionSecretCharacter = file.readByte();
+	optionDifficulty = file.readByte();
+	optionWins = file.readByte();
+	optionTime = file.readByte();
+	optionSfxVolume = file.readByte();
+	optionMusVolume = file.readByte();
+	optionVoiceVolume = file.readByte();
+	optionEpilepsy = file.readByte();
+	optionSecretCharacter = file.readByte();
 
-    file.close();
+	file.close();
 }
 
-void optionsSave()
-{
-    File file;
-    if(!file.open(FILE_WRITE_NORMAL, szConfigPath + "options.dat"))
-        return;
+void optionsSave() {
+	File file;
+	if(!file.open(FILE_WRITE_NORMAL, szConfigPath + "options.dat")) {
+		return;
+	}
 
-    file.writeByte(optionDifficulty);
-    file.writeByte(optionWins);
-    file.writeByte(optionTime);
-    file.writeByte(optionSfxVolume);
-    file.writeByte(optionMusVolume);
-    file.writeByte(optionVoiceVolume);
-    file.writeByte(optionEpilepsy);
-    file.writeByte(optionSecretCharacter);
+	file.writeByte(optionDifficulty);
+	file.writeByte(optionWins);
+	file.writeByte(optionTime);
+	file.writeByte(optionSfxVolume);
+	file.writeByte(optionMusVolume);
+	file.writeByte(optionVoiceVolume);
+	file.writeByte(optionEpilepsy);
+	file.writeByte(optionSecretCharacter);
 
-    file.close();
+	file.close();
 }
 #endif
 
-void init()
-{
-    void deinit();
-    atexit(deinit);
+void init() {
+	void deinit();
+	atexit(deinit);
 
-    srand(time(NULL));
+	srand(time(NULL));
 
 #ifndef EMSCRIPTEN
 	//Create settings path first
@@ -138,22 +127,24 @@ void init()
 #if defined _WIN32
 #define CONFIG_PATH "\\dreamvsdream\\"
 	wchar_t* env16 = _wgetenv(L"AppData");
-	if(!env16)
+	if(!env16) {
 		die("Cannot find settings directory.");
+	}
 	char* env = utf16to8(env16);
 #elif defined __APPLE__
 #define CONFIG_PATH "/Library/Application Support/dreamvsdream/"
 	char* env = getenv("HOME");
-	if(!env)
+	if(!env) {
 		die("Cannot find settings directory.");
+	}
 #else
 #define CONFIG_PATH "/dreamvsdream/"
 	char* env = getenv("XDG_CONFIG_HOME");
-	if(!env)
-	{
+	if(!env) {
 		env = getenv("HOME");
-		if(!env)
+		if(!env) {
 			die("Cannot find settings directory.");
+		}
 	}
 #endif
 
@@ -170,42 +161,44 @@ void init()
 	mkdir(szConfigPath.c_str(), 0777);
 #endif
 
-    optionsLoad();
+	optionsLoad();
 #endif
 
-    OS::init();
-    Input::init();
-    if(!disable_sound)
-        Sound::init();
-    Network::init(input_delay);
-    Graphics::init(disable_shaders, max_texture_size);
-    Fighter::init();
-    Menu::ginit(); //TODO fix this
-    Stage::ginit();
-    Effect::init();
+	os::init();
+	input::init();
+	if(!disable_sound) {
+		audio::init();
+	}
+	net::init(input_delay);
+	graphics::init(disable_shaders, max_texture_size);
+	fighter::init();
+	Menu::ginit(); //TODO fix this
+	Stage::ginit();
+	sprite::init();
 
-    if(versus)
-        FIGHT->gametype = GAMETYPE_VERSUS;
-    //if(fullscreen)
-        //OS::toggleFullscreen();
+	if(versus) {
+		FIGHT->gametype = GAMETYPE_VERSUS;
+	}
+	//if(fullscreen)
+	//OS::toggleFullscreen();
 
-    if(menu == MENU_FIGHT && stage == -1)
-        stage = 0;
+	if(menu == MENU_FIGHT && stage == -1) {
+		stage = 0;
+	}
 }
 
-void deinit()
-{
-    Effect::deinit();
-    Stage::deinit();
-    Menu::deinit();
-    Fighter::deinit();
-    Graphics::deinit();
-    Network::deinit();
-    Sound::deinit();
+void deinit() {
+	sprite::deinit();
+	Stage::deinit();
+	Menu::deinit();
+	fighter::deinit();
+	graphics::deinit();
+	net::deinit();
+	audio::deinit();
 
-    OS::deinit();
+	os::deinit();
 
 #ifndef EMSCRIPTEN
-    optionsSave();
+	optionsSave();
 #endif
 }

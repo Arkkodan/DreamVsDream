@@ -6,44 +6,43 @@
 extern int stage;
 #define STAGE stages[stage]
 
-class Stage
-{
+class Stage {
 public:
-    std::string name;
-    MenuImage* imagesAbove;
-    MenuImage* imagesBelow;
-    Music bgm;
-    Music bgm2;
-	
+	std::string name;
+	MenuImage* imagesAbove;
+	MenuImage* imagesBelow;
+	audio::Music bgm;
+	audio::Music bgm2;
+
 	bool initialized;
 
-    int width;
-    int height;
-    int widthAbs;
-    int heightAbs;
+	int width;
+	int height;
+	int widthAbs;
+	int heightAbs;
 
-    Stage();
-    //Stage(const char* _name);
-    ~Stage();
+	Stage();
+	//Stage(const char* name);
+	~Stage();
 
-    void create(std::string _name);
-	
+	void create(std::string name);
+
 	void init();
 
-    void think();
-    void reset();
-    void draw(bool _above);
+	void think();
+	void reset();
+	void draw(bool above);
 
-    void bgmPlay();
+	void bgmPlay();
 
-    void parseFile(std::string szFileName);
+	void parseFile(std::string szFileName);
 	std::string getResource(std::string szFileName, std::string extension);
 
-    static void ginit();
-    static void deinit();
+	static void ginit();
+	static void deinit();
 };
 
 extern Stage stages[];
-extern const char* sz_stages[];
+extern const char* szStages[];
 
 #endif // STAGE_H_INCLUDED

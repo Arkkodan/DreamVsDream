@@ -9,182 +9,171 @@
 #include "file.h"
 #include "util.h"
 
-File::File()
-{
-    fp = NULL;
-    flags = 0;
+File::File() {
+	fp = NULL;
+	flags = 0;
 }
 
-File::~File()
-{
-    close();
+File::~File() {
+	close();
 }
 
-bool File::open(int flags_, std::string szFileName_)
-{
-    //Prepare the correct flag string
-    const char* szFlags = "rb";
-    if(flags_ & FILE_IO_WRITE)
-        szFlags = "wb";
+bool File::open(int flags, std::string szFileName) {
+	//Prepare the correct flag string
+	const char* szFlags = "rb";
+	if(flags & FILE_IO_WRITE) {
+		szFlags = "wb";
+	}
 
-    szFileName = szFileName_;
+	this->szFileName = szFileName;
+	this->flags = flags;
 
-    //Open either a FILE* or a gzFile
+	//Open either a FILE* or a gzFile
 #ifndef NO_ZLIB
-    if(flags_ & FILE_COMPRESS_GZ)
-    {
-        FILE* _fp = fopen8(szFileName_ + ".gz", szFlags);
-        fp = (void*)gzdopen(fileno(_fp), szFlags);
-        if(_fp && !fp)
-            fclose(_fp);
-    }
-    else
+	if(flags & FILE_COMPRESS_GZ) {
+		FILE* f = util::fopen8(szFileName + ".gz", szFlags);
+		fp = (void*)gzdopen(fileno(f), szFlags);
+		if(f && !fp) {
+			fclose(f);
+		}
+	} else
 #endif
-        fp = (void*)fopen8(szFileName, szFlags);
-    if(!fp) return false;
-    flags = flags_;
-    return true;
+		fp = (void*)util::fopen8(szFileName, szFlags);
+	if(!fp) {
+		return false;
+	}
+	return true;
 }
 
-void File::close()
-{
-    szFileName = "";
-	
-    if(fp)
-    {
+void File::close() {
+	szFileName = "";
+
+	if(fp) {
 #ifndef NO_ZLIB
-        if(flags & FILE_COMPRESS_GZ)
-            gzclose((gzFile)fp);
-        else
+		if(flags & FILE_COMPRESS_GZ) {
+			gzclose((gzFile)fp);
+		} else
 #endif
-            fclose((FILE*)fp);
-        fp = NULL;
-    }
+			fclose((FILE*)fp);
+		fp = NULL;
+	}
 }
 
 //READ OPERATIONS
-bool File::read(void* data_, size_t size_)
-{
+bool File::read(void* data, size_t size) {
 #ifndef NO_ZLIB
-    if(flags & FILE_COMPRESS_GZ)
-        return gzread((gzFile)fp, data_, size_) == (int)size_;
+	if(flags & FILE_COMPRESS_GZ) {
+		return gzread((gzFile)fp, data, size) == (int)size;
+	}
 #endif
-    return fread(data_, 1, size_, (FILE*)fp) == size_;
+	return fread(data, 1, size, (FILE*)fp) == size;
 }
 
-int8_t File::readByte()
-{
-    int8_t _value = 0;
-    read(&_value, 1);
-    return _value;
+int8_t File::readByte() {
+	int8_t _value = 0;
+	read(&_value, 1);
+	return _value;
 }
 
-int16_t File::readWord()
-{
-    int16_t _value = 0;
-    read(&_value, 2);
-    return _value;
+int16_t File::readWord() {
+	int16_t _value = 0;
+	read(&_value, 2);
+	return _value;
 }
 
-int32_t File::readDword()
-{
-    int32_t _value = 0;
-    read(&_value, 4);
-    return _value;
+int32_t File::readDword() {
+	int32_t _value = 0;
+	read(&_value, 4);
+	return _value;
 }
 
-float File::readFloat()
-{
-    int32_t _value_int = 0;
-    read(&_value_int, 4);
-    return _value_int / (float)FLOAT_ACCURACY;
+float File::readFloat() {
+	int32_t _value_int = 0;
+	read(&_value_int, 4);
+	return _value_int / (float)FLOAT_ACCURACY;
 }
 
-std::string File::readStr()
-{
-    uint8_t size = readByte();
-	if(!size)
+std::string File::readStr() {
+	uint8_t size = readByte();
+	if(!size) {
 		return "";
+	}
 	char* sz = (char*)malloc(size + 1);
-    sz[size] = 0;
-    read(sz, size);
+	sz[size] = 0;
+	read(sz, size);
 	std::string str(sz);
 	free(sz);
 	return str;
 }
 
 //WRITE OPERATIONS
-bool File::write(const void* data_, size_t size_)
-{
+bool File::write(const void* data, size_t size) {
 #ifndef NO_ZLIB
-    if(flags & FILE_COMPRESS_GZ)
-        return gzwrite((gzFile)fp, data_, size_) == (int)size_;
+	if(flags & FILE_COMPRESS_GZ) {
+		return gzwrite((gzFile)fp, data, size) == (int)size;
+	}
 #endif
-    return fwrite(data_, 1, size_, (FILE*)fp) == size_;
+	return fwrite(data, 1, size, (FILE*)fp) == size;
 }
 
-bool File::writeByte(int8_t value_)
-{
-    return write(&value_, 1);
+bool File::writeByte(int8_t value) {
+	return write(&value, 1);
 }
 
-bool File::writeWord(int16_t value_)
-{
-    return write(&value_, 2);
+bool File::writeWord(int16_t value) {
+	return write(&value, 2);
 }
 
-bool File::writeDword(int32_t value_)
-{
-    return write(&value_, 4);
+bool File::writeDword(int32_t value) {
+	return write(&value, 4);
 }
 
-bool File::writeFloat(float value_)
-{
-    int32_t valueInt = value_ * FLOAT_ACCURACY;
-    return write(&valueInt, 4);
+bool File::writeFloat(float value) {
+	int32_t valueInt = value * FLOAT_ACCURACY;
+	return write(&valueInt, 4);
 }
 
-bool File::writeStr(std::string value_)
-{
-    uint8_t size = value_.length();
-    if(!write(&size, 1))
+bool File::writeStr(std::string value) {
+	uint8_t size = value.length();
+	if(!write(&size, 1)) {
 		return false;
-	if(!size)
+	}
+	if(!size) {
 		return true;
-    return write(value_.c_str(), size);
+	}
+	return write(value.c_str(), size);
 }
 
-void File::seek(long index_)
-{
+void File::seek(long index) {
 #ifndef NO_ZLIB
-    if(flags & FILE_COMPRESS_GZ)
-        gzseek((gzFile)fp, index_, SEEK_SET);
-    else
+	if(flags & FILE_COMPRESS_GZ) {
+		gzseek((gzFile)fp, index, SEEK_SET);
+	} else
 #endif
-        fseek((FILE*)fp, index_, SEEK_SET);
+		fseek((FILE*)fp, index, SEEK_SET);
 
 }
 
-long File::tell()
-{
+long File::tell() {
 #ifndef NO_ZLIB
-    if(flags & FILE_COMPRESS_GZ)
-        return gztell((gzFile)fp);
+	if(flags & FILE_COMPRESS_GZ) {
+		return gztell((gzFile)fp);
+	}
 #endif
-    return ftell((FILE*)fp);
+	return ftell((FILE*)fp);
 }
 
-size_t File::size()
-{
-    if(flags & FILE_COMPRESS_GZ) return -1;
-    long _pos = ftell((FILE*)fp);
-    fseek((FILE*)fp, 0, SEEK_END);
-    size_t _size = ftell((FILE*)fp);
-    fseek((FILE*)fp, _pos, SEEK_SET);
-    return _size;
+size_t File::size() {
+	if(flags & FILE_COMPRESS_GZ) {
+		return -1;
+	}
+	long pos = ftell((FILE*)fp);
+	fseek((FILE*)fp, 0, SEEK_END);
+	size_t size = ftell((FILE*)fp);
+	fseek((FILE*)fp, pos, SEEK_SET);
+	return size;
 }
 
-std::string File::getFilename()
-{
-    return szFileName;
+std::string File::getFilename() {
+	return szFileName;
 }

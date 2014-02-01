@@ -9,83 +9,74 @@
 #include <SDL_image.h>
 #endif
 
-extern Player madotsuki;
-extern Player poniko;
+extern fighter::Player madotsuki;
+extern fighter::Player poniko;
 
-namespace OS
-{
+namespace os {
 	unsigned int gameFrame = 0;
-	
-	void init()
-	{
+
+	void init() {
 		//Initialize SDL
-		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
+		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
 			die("Failed to initialize SDL.");
-		
+		}
+
 		//Create Window
 		SDL_WM_SetCaption(WINDOW_TITLE, NULL);
-		if(SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 24, SDL_OPENGL) == NULL)
+		if(SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 24, SDL_OPENGL) == NULL) {
 			die("Failed to initialize SDL.");
+		}
 #ifdef EMSCRIPTEN
 		IMG_Init(IMG_INIT_PNG);
 #endif
 	}
-	
-	void deinit()
-	{
+
+	void deinit() {
 		SDL_Quit();
 	}
-	
-	void sleep(unsigned int time)
-	{
+
+	void sleep(unsigned int time) {
 		SDL_Delay(time);
 	}
-	
-	unsigned long getTime()
-	{
+
+	unsigned long getTime() {
 		return SDL_GetTicks();
 	}
-	
-	void refresh()
-	{
+
+	void refresh() {
 #ifdef GAME
-        madotsuki.frameInput = 0;
-        poniko.frameInput = 0;
+		madotsuki.frameInput = 0;
+		poniko.frameInput = 0;
 #endif
 
 		SDL_GL_SwapBuffers();
 
 		SDL_Event e;
-		while(SDL_PollEvent(&e))
-		{
-			if(e.type == SDL_QUIT)
+		while(SDL_PollEvent(&e)) {
+			if(e.type == SDL_QUIT) {
 				exit(0);
-			else if(e.type == SDL_KEYDOWN)
-			{
+			} else if(e.type == SDL_KEYDOWN) {
 #ifndef EMSCRIPTEN
-				if(e.key.keysym.sym == SDLK_ESCAPE)
+				if(e.key.keysym.sym == SDLK_ESCAPE) {
 					exit(0);
-				else
+				} else
 #endif
-					Input::keyPress(e.key.keysym.sym, true);
-			}
-			else if(e.type == SDL_KEYUP)
-			{
-				Input::keyPress(e.key.keysym.sym, false);
+					input::keyPress(e.key.keysym.sym, true);
+			} else if(e.type == SDL_KEYUP) {
+				input::keyPress(e.key.keysym.sym, false);
 			}
 		}
-		
+
 #ifdef GAME
-        Network::refresh();
-        Input::refresh();
-        Sound::refresh();
+		net::refresh();
+		input::refresh();
+		audio::refresh();
 #endif
-        Graphics::refresh();
-        gameFrame++;
+		graphics::refresh();
+		gameFrame++;
 	}
-	
-	void getClipboard(char* sz, size_t size)
-	{
+
+	void getClipboard(char* sz, size_t size) {
 		*sz = 0;
 	}
 }

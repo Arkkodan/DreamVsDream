@@ -12,490 +12,475 @@
 
 extern Image imgLoading;
 
-enum
-{
-    MENU_FIGHT,
+enum {
+	MENU_FIGHT,
 
-    MENU_INTRO,
+	MENU_INTRO,
 
-    MENU_TITLE,
-    MENU_SELECT,
-    MENU_VERSUS,
+	MENU_TITLE,
+	MENU_SELECT,
+	MENU_VERSUS,
 
-    MENU_OPTIONS,
+	MENU_OPTIONS,
 
 #ifndef NO_NETWORK
-    MENU_NETPLAY,
+	MENU_NETPLAY,
 #endif
 
-    MENU_CREDITS,
+	MENU_CREDITS,
 
-    MENU_MAX,
+	MENU_MAX,
 
 #ifndef EMSCRIPTEN
-    MENU_QUIT, //Dummy menu for quitting
+	MENU_QUIT, //Dummy menu for quitting
 #endif
 };
 
-class MenuImage
-{
+class MenuImage {
 public:
-    MenuImage(Image* _image, float _x, float _y, float _parallax, char _render, float _xvel, float _yvel, bool wrap, int round);
-    ~MenuImage();
+	MenuImage(Image* _image, float _x, float _y, float _parallax, char _render, float _xvel, float _yvel, bool wrap, int round);
+	~MenuImage();
 
-    Image image;
-    float x, y;
-    float parallax; //for stages
-    float xOrig, yOrig;
-    float xvel, yvel;
-    char render;
-    bool wrap;
-    int round;
+	Image image;
+	float x, y;
+	float parallax; //for stages
+	float xOrig, yOrig;
+	float xvel, yvel;
+	char render;
+	bool wrap;
+	int round;
 
-    MenuImage* next;
+	MenuImage* next;
 
-    void think();
-    void reset();
-    void draw(bool _stage);
+	void think();
+	void reset();
+	void draw(bool _stage);
 };
 
-class Menu
-{
+class Menu {
 public:
-    Menu(std::string name_);
-    virtual ~Menu();
+	Menu(std::string name_);
+	virtual ~Menu();
 
-    //Members
-    std::string name;
-    MenuImage* images;
-	
+	//Members
+	std::string name;
+	MenuImage* images;
+
 	bool initialized;
 
-    Music bgm;
-    bool bgmPlaying;
+	audio::Music bgm;
+	bool bgmPlaying;
 
-    //Video
-    //Video* video;
+	//Video
+	//Video* video;
 
-    //Sounds
-    Sound sndMenu;
-    Sound sndSelect;
-    Sound sndBack;
-    Sound sndInvalid;
+	//audio::Sounds
+	audio::Sound sndMenu;
+	audio::Sound sndSelect;
+	audio::Sound sndBack;
+	audio::Sound sndInvalid;
 
-    //Functions
-    virtual void init();
+	//Functions
+	virtual void init();
 
-    virtual void think();
-    virtual void reset();
-    virtual void draw();
+	virtual void think();
+	virtual void reset();
+	virtual void draw();
 
-    void parseFile(std::string szFileName);
-    virtual void parseLine(Parser& parser);
+	void parseFile(std::string szFileName);
+	virtual void parseLine(Parser& parser);
 
-    std::string getResource(std::string szFileName, std::string extension);
+	std::string getResource(std::string szFileName, std::string extension);
 
-    //Static stuff
-    static float fade;
-    static bool fadeIn;
-    static void drawFade();
+	//Static stuff
+	static float fade;
+	static bool fadeIn;
+	static void drawFade();
 
-    static void setMenu(int _menu);
+	static void setMenu(int _menu);
 
-    static bool input(uint16_t in);
+	static bool input(uint16_t in);
 
-    //Init/deinit
-    static void ginit();
-    static void deinit();
+	//Init/deinit
+	static void ginit();
+	static void deinit();
 };
 
-class MenuIntro : public Menu
-{
+class MenuIntro : public Menu {
 public:
-    MenuIntro();
-    ~MenuIntro();
+	MenuIntro();
+	~MenuIntro();
 
-    Sound sfx;
-    Image instructions;
-    Image disclaimer_en;
-    Image disclaimer_ja;
-    Image shader_error;
+	audio::Sound sfx;
+	Image instructions;
+	Image disclaimer_en;
+	Image disclaimer_ja;
+	Image shader_error;
 
-    int timer;
-    int state;
+	int timer;
+	int state;
 
-    void think();
-    void draw();
+	void think();
+	void draw();
 
-    void parseLine(Parser& parser);
+	void parseLine(Parser& parser);
 };
 
-class MenuTitle : public Menu
-{
+class MenuTitle : public Menu {
 public:
-    MenuTitle();
-    ~MenuTitle();
+	MenuTitle();
+	~MenuTitle();
 
-    void init();
+	void init();
 
-    std::string* themes;
-    int nThemes;
+	std::string* themes;
+	int nThemes;
 
-    //Members
-    int menuX, menuY;
-    Font menuFont;
-    int menuXOffset;
+	//Members
+	int menuX, menuY;
+	Font menuFont;
+	int menuXOffset;
 
-    ubyte_t iR, iG, iB, aR, aG, aB;
-    int aXOffset;
+	ubyte_t iR, iG, iB, aR, aG, aB;
+	int aXOffset;
 
-    int choiceTimer;
-    ubyte_t choiceLast;
-    ubyte_t choice;
-    ubyte_t submenu;
+	int choiceTimer;
+	ubyte_t choiceLast;
+	ubyte_t choice;
+	ubyte_t submenu;
 
-    //Functions
-    void think();
-    void reset();
-    void draw();
+	//Functions
+	void think();
+	void reset();
+	void draw();
 
-    void parseLine(Parser& parser);
+	void parseLine(Parser& parser);
 };
 
-class CursorData
-{
+class CursorData {
 public:
-    Vector off;
-    Image img;
-    Image imgSelect;
-    Sound sndSelect;
-    Sound sndDeselect;
+	util::Vector off;
+	Image img;
+	Image imgSelect;
+	audio::Sound sndSelect;
+	audio::Sound sndDeselect;
 
-    int frameC;
-    int speed;
-    bool grow;
+	int frameC;
+	int speed;
+	bool grow;
 
-    CursorData();
-    ~CursorData();
+	CursorData();
+	~CursorData();
 };
 
-class Cursor
-{
+class Cursor {
 public:
-    int pos;
-    int posOld;
-    int posDefault;
+	int pos;
+	int posOld;
+	int posDefault;
 
-    int frame;
-    int timer;
+	int frame;
+	int timer;
 
-    int timerPortrait;
+	int timerPortrait;
 
-    bool locked;
+	bool locked;
 
-    ubyte_t r;
-    ubyte_t g;
-    ubyte_t b;
+	ubyte_t r;
+	ubyte_t g;
+	ubyte_t b;
 
-    //int sprFrame;
-    //int sprTimer;
+	//int sprFrame;
+	//int sprTimer;
 
-    Cursor();
+	Cursor();
 
-    int getGroup(int w, int gW, int gH);
+	int getGroup(int w, int gW, int gH);
 };
 
-class MenuSelect : public Menu
-{
+class MenuSelect : public Menu {
 public:
-    MenuSelect();
-    ~MenuSelect();
+	MenuSelect();
+	~MenuSelect();
 
-    void init();
+	void init();
 
-    //Members
-    int width, height;
-    int gWidth, gHeight;
-    //Image* sprites;
-    MenuImage* gui;
-    Vector* grid;
-    int* gridFighters;
-    int gridC;
+	//Members
+	int width, height;
+	int gWidth, gHeight;
+	//Image* sprites;
+	MenuImage* gui;
+	util::Vector* grid;
+	int* gridFighters;
+	int gridC;
 
-    Cursor cursors[2];
+	Cursor cursors[2];
 
-    CursorData* curData;
+	CursorData* curData;
 
-    int state;
+	int state;
 
-    Font font_stage;
-    int cursor_stage;
+	Font font_stage;
+	int cursor_stage;
 
-    //Functions
-    void think();
-    void reset();
-    void draw();
+	//Functions
+	void think();
+	void reset();
+	void draw();
 
-    void newEffect(int player, int group);
-    void drawEffect(int player, int group, int _x, int _y, bool spr = false);
+	void newEffect(int player, int group);
+	void drawEffect(int player, int group, int _x, int _y, bool spr = false);
 
-    void parseLine(Parser& parser);
+	void parseLine(Parser& parser);
 };
 
-class MenuVersus : public Menu
-{
+class MenuVersus : public Menu {
 public:
-    MenuVersus();
-    ~MenuVersus();
+	MenuVersus();
+	~MenuVersus();
 
-    void init();
+	void init();
 
-    //Members
-    Image* portraits[2];
-    int timer1;
-    int timer2;
-    int timer3;
-    int timer4;
-    int timer5;
-    int timer6;
+	//Members
+	Image* portraits[2];
+	int timer1;
+	int timer2;
+	int timer3;
+	int timer4;
+	int timer5;
+	int timer6;
 
-    float timerF;
+	float timerF;
 
-    //Functions
-    void think();
-    void reset();
-    void draw();
+	//Functions
+	void think();
+	void reset();
+	void draw();
 
-    void parseLine(Parser& parser);
+	void parseLine(Parser& parser);
 };
 
 
-class MenuOptions : public Menu
-{
+class MenuOptions : public Menu {
 public:
-    MenuOptions();
-    ~MenuOptions();
+	MenuOptions();
+	~MenuOptions();
 
-    void init();
+	void init();
 
-    //Members
-    Font menuFont;
+	//Members
+	Font menuFont;
 
-    ubyte_t cursor;
-    ubyte_t cursorLast;
-    int cursorTimer;
+	ubyte_t cursor;
+	ubyte_t cursorLast;
+	int cursorTimer;
 
-    int madoPos;
-    int madoDir;
-    int madoFrame;
+	int madoPos;
+	int madoDir;
+	int madoFrame;
 
-    Image madoImg;
-    Sound madoSfxStep;
-    Sound madoSfxPinch;
+	Image madoImg;
+	audio::Sound madoSfxStep;
+	audio::Sound madoSfxPinch;
 
-    Voice dame;
-    Voice muri;
+	audio::Voice dame;
+	audio::Voice muri;
 
-    int madoWakeTimer;
+	int madoWakeTimer;
 
-    ubyte_t iR, iG, iB, aR, aG, aB;
-    int aXOffset;
+	ubyte_t iR, iG, iB, aR, aG, aB;
+	int aXOffset;
 
-    std::string* themes;
-    int nThemes;
+	std::string* themes;
+	int nThemes;
 
-    //Functions
-    void think();
-    void reset();
-    void draw();
+	//Functions
+	void think();
+	void reset();
+	void draw();
 
-    void parseLine(Parser& parser);
+	void parseLine(Parser& parser);
 };
 
-class MenuMeter
-{
+class MenuMeter {
 public:
-    MenuMeter();
-    ~MenuMeter();
+	MenuMeter();
+	~MenuMeter();
 
-    void draw(float pct, bool mirror, bool flip);
+	void draw(float pct, bool mirror, bool flip);
 
-    Image img;
-    Vector pos;
+	Image img;
+	util::Vector pos;
 };
 
-enum
-{
-    GAMETYPE_VERSUS,
-    GAMETYPE_TRAINING,
+enum {
+	GAMETYPE_VERSUS,
+	GAMETYPE_TRAINING,
 };
 
-class MenuFight : public Menu
-{
+class MenuFight : public Menu {
 public:
-    MenuFight();
-    ~MenuFight();
+	MenuFight();
+	~MenuFight();
 
-    void init();
+	void init();
 
-    Image hud;
-    Image hud_tag;
-    Image portraits;
-    Image portraits_tag;
-    Image timer;
-    Font timer_font;
-    Image shine;
-    Image shine_tag;
+	Image hud;
+	Image hud_tag;
+	Image portraits;
+	Image portraits_tag;
+	Image timer;
+	Font timer_font;
+	Image shine;
+	Image shine_tag;
 
-    //Bars and stuff
-    MenuMeter meterHp;
-    MenuMeter meterSuper;
-    MenuMeter meterTag;
-    MenuMeter meterStun;
-    MenuMeter meterGuard;
-    MenuMeter meterDpm;
+	//Bars and stuff
+	MenuMeter meterHp;
+	MenuMeter meterSuper;
+	MenuMeter meterTag;
+	MenuMeter meterStun;
+	MenuMeter meterGuard;
+	MenuMeter meterDpm;
 
-    Image staticImg;
-    Sound staticSnd;
-    Sound fadeinSnd;
-    Sound fadeoutSnd;
+	Image staticImg;
+	audio::Sound staticSnd;
+	audio::Sound fadeinSnd;
+	audio::Sound fadeoutSnd;
 
-    Image round_splash[5];
-    Image round_hud[5];
-    int x_round_hud;
-    int y_round_hud;
+	Image round_splash[5];
+	Image round_hud[5];
+	int x_round_hud;
+	int y_round_hud;
 
-    Image ko[3]; //KO, timeout, draw
+	Image ko[3]; //KO, timeout, draw
 
-    Font combo;
-    Image comboLeft;
-    Image comboRight;
-    int comboLeftOff;
-    int comboRightOff;
-    int comboLeftLast;
-    int comboRightLast;
-    int comboLeftTimer;
-    int comboRightTimer;
+	Font combo;
+	Image comboLeft;
+	Image comboRight;
+	int comboLeftOff;
+	int comboRightOff;
+	int comboLeftLast;
+	int comboRightLast;
+	int comboLeftTimer;
+	int comboRightTimer;
 
-    Vector portraitPos;
+	util::Vector portraitPos;
 
-    Image win;
-    Font win_font;
-    Music win_bgm;
+	Image win;
+	Font win_font;
+	audio::Music win_bgm;
 
-    Image orb_null;
-    Image orb_win;
-    Image orb_draw;
-    Vector orb_pos;
+	Image orb_null;
+	Image orb_win;
+	Image orb_draw;
+	util::Vector orb_pos;
 
-    //Timers for various effects
-    int timer_flash;
-    int timer_round_in;
-    int timer_round_out;
-    int timer_ko; //timeout/draw too
+	//Timers for various effects
+	int timer_flash;
+	int timer_round_in;
+	int timer_round_out;
+	int timer_ko; //timeout/draw too
 
-    //Logic
-    int round; //What round is it?
-    int wins[2]; //How many times each player has on (including draws)
-    int win_types[2][3]; //What type of win was it? Win or draw?
-    int winner; //Who won the game?
+	//Logic
+	int round; //What round is it?
+	int wins[2]; //How many times each player has on (including draws)
+	int win_types[2][3]; //What type of win was it? Win or draw?
+	int winner; //Who won the game?
 
-    int ko_player; //Which player was ko'd/lost? 2 = draw
-    int ko_type;   //Was it a ko or was it a timeout?
+	int ko_player; //Which player was ko'd/lost? 2 = draw
+	int ko_type;   //Was it a ko or was it a timeout?
 
-    int game_timer; //this is the actual game timer
+	int game_timer; //this is the actual game timer
 
-    int gametype;
+	int gametype;
 
-    //Functions
-    void think();
-    void draw();
-    void reset();
+	//Functions
+	void think();
+	void draw();
+	void reset();
 
-    void knockout(int player);
+	void knockout(int player);
 
-    void parseLine(Parser& parser);
+	void parseLine(Parser& parser);
 };
 
-class MenuNetplay : public Menu
-{
+class MenuNetplay : public Menu {
 public:
-    MenuNetplay();
-    ~MenuNetplay();
+	MenuNetplay();
+	~MenuNetplay();
 
-    int choice;
-    int mode;
-    int digit;
-    bool waiting;
+	int choice;
+	int mode;
+	int digit;
+	bool waiting;
 
-    char portStr[5];
-    uint16_t port;
-    char ipStr[12];
-    uint32_t ip;
+	char portStr[5];
+	uint16_t port;
+	char ipStr[12];
+	uint32_t ip;
 
-    int flashTimer;
-    int flashDir;
-    int drawShake;
-    int barPos;
+	int flashTimer;
+	int flashDir;
+	int drawShake;
+	int barPos;
 
-    Image imgScanlines;
-    Image imgStatic;
-    Image imgLogo;
+	Image imgScanlines;
+	Image imgStatic;
+	Image imgLogo;
 
-    Image imgCursor;
-    Font menuFont;
+	Image imgCursor;
+	Font menuFont;
 
-    Sound sndOn;
-    Sound sndOff;
+	audio::Sound sndOn;
+	audio::Sound sndOff;
 
-    Sound sndConStart;
-    Sound sndConSuccess;
+	audio::Sound sndConStart;
+	audio::Sound sndConSuccess;
 
-    Music bgmWait;
+	audio::Music bgmWait;
 
-    //void init();
+	//void init();
 
-    void updatePort(bool toint);
-    void updateIp(bool toint);
+	void updatePort(bool toint);
+	void updateIp(bool toint);
 
-    void think();
-    void draw();
-    void reset();
-    void parseLine(Parser& parser);
+	void think();
+	void draw();
+	void reset();
+	void parseLine(Parser& parser);
 };
 
-class MenuCredits : public Menu
-{
+class MenuCredits : public Menu {
 public:
 
-    MenuCredits();
-    ~MenuCredits();
+	MenuCredits();
+	~MenuCredits();
 
-    //Logic
-    bool done;
-    float oy;
-    int timer_start;
-    int timer_scroll;
-    float secret_alpha;
+	//Logic
+	bool done;
+	float oy;
+	int timer_start;
+	int timer_scroll;
+	float secret_alpha;
 
-    //Data
-    Image logo;
-    Font font;
-    int c_lines;
-    char** sz_lines;
+	//Data
+	Image logo;
+	Font font;
+	int c_lines;
+	char** sz_lines;
 
-    ubyte_t title_r;
-    ubyte_t title_g;
-    ubyte_t title_b;
+	ubyte_t title_r;
+	ubyte_t title_g;
+	ubyte_t title_b;
 
-    ubyte_t name_r;
-    ubyte_t name_g;
-    ubyte_t name_b;
+	ubyte_t name_r;
+	ubyte_t name_g;
+	ubyte_t name_b;
 
-    void think();
-    void draw();
-    void reset();
-    void parseLine(Parser& parser);
+	void think();
+	void draw();
+	void reset();
+	void parseLine(Parser& parser);
 };
 
 extern Menu* menus[MENU_MAX];

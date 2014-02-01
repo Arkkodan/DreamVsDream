@@ -17,44 +17,42 @@
 #define EXT_VIDEO "avi"
 #define EXT_TEXT "txt"
 
-class ParserLine
-{
+class ParserLine {
 public:
 	ParserLine();
 	~ParserLine();
-	
+
 	bool group;
 	int argc;
 	char* argv[ARGV_SIZE];
 };
 
-class Parser
-{
+class Parser {
 public:
-    bool open(std::string szFileName);
-    void reset();
-    bool exists();
+	bool open(std::string szFileName);
+	void reset();
+	bool exists();
 
-    Parser();
-    Parser(std::string szFileName);
-    ~Parser();
+	Parser();
+	Parser(std::string szFileName);
+	~Parser();
 
-    bool parseLine();
-	
+	bool parseLine();
+
 	bool isGroup();
-    int getArgC();
-	
-    const char* getArg(int arg);
+	int getArgC();
+
+	const char* getArg(int arg);
 	int getArgInt(int arg);
 	float getArgFloat(int arg);
 	bool getArgBool(int arg, bool def);
-	
-    bool is(std::string szTest, int argc);
+
+	bool is(std::string szTest, int argc);
 
 protected:
 	int iLine;
 	int nLines;
-    char** szLines;
+	char** szLines;
 	ParserLine* lines;
 };
 

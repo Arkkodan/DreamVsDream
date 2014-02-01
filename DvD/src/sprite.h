@@ -8,159 +8,153 @@
 #include "image.h"
 #include "atlas.h"
 
-class HitBox
-{
-public:
-    Vector pos;
-    Vector size;
+namespace sprite {
+	void init();
+	void deinit();
 
-    HitBox();
-    HitBox(int x, int y, int w, int h);
+	class HitBox {
+	public:
+		util::Vector pos;
+		util::Vector size;
 
-    bool collideOther(HitBox* other, Vector* colpos);
+		HitBox();
+		HitBox(int x, int y, int w, int h);
 
-    HitBox adjust(int _x, int _y, bool m, float scale);
+		bool collideOther(HitBox* other, util::Vector* colpos);
 
-    bool collidePoint(int pX, int pY);
-    void draw(int _x, int _y, bool attack, bool selected);
-};
+		HitBox adjust(int x, int y, bool m, float scale);
 
-class HitBoxGroup
-{
-public:
-    int size;
-    HitBox* boxes;
+		bool collidePoint(int pX, int pY);
+		void draw(int x, int y, bool attack, bool selected);
+	};
 
-    HitBoxGroup();
-    ~HitBoxGroup();
+	class HitBoxGroup {
+	public:
+		int size;
+		HitBox* boxes;
 
-    void init(int _size);
+		HitBoxGroup();
+		~HitBoxGroup();
+
+		void init(int size);
 
 #ifdef SPRTOOL
-    HitBox* newHitbox();
-    void deleteHitbox(HitBox* box);
+		HitBox* newHitbox();
+		void deleteHitbox(HitBox* box);
 #endif
-};
+	};
 
-enum
-{
-    HIT_NOT,
-    HIT_HIT,
-    HIT_ATTACK,
-};
+	enum {
+		HIT_NOT,
+		HIT_HIT,
+		HIT_ATTACK,
+	};
 
-class Sprite
-{
-public:
-    Sprite();
-    ~Sprite();
+	class Sprite {
+	public:
+		Sprite();
+		~Sprite();
 
 #ifndef COMPILER
-    void draw(int _x, int _y, bool mirror, float scale);
-    void drawShadow(int _x, bool mirror, float scale);
+		void draw(int x, int y, bool mirror, float scale);
+		void drawShadow(int x, bool mirror, float scale);
 #endif
 
-    int collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1, float scale2, Sprite* other, Vector* colpos);
+		int collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1, float scale2, Sprite* other, util::Vector* colpos);
 
-    int x;
-    int y;
+		int x;
+		int y;
 
-    //Each program has its own way of representing an image.
+		//Each program has its own way of representing an image.
 #ifdef SPRTOOL
-    Image img;
+		Image img;
 #endif
 
 #ifdef GAME
-    Atlas* atlas;
-    int atlas_sprite;
+		Atlas* atlas;
+		int atlas_sprite;
 #else
-    std::string name;
+		std::string name;
 #endif
-    //Image img;
+		//Image img;
 
-    HitBoxGroup hitBoxes;
-    HitBoxGroup aHitBoxes;
-};
+		HitBoxGroup hitBoxes;
+		HitBoxGroup aHitBoxes;
+	};
 
 #ifdef GAME
 
-enum
-{
-    EFFECT_NORMAL,
-    EFFECT_SCATTER,
-    EFFECT_HORIZONTAL,
-    EFFECT_VERTICAL,
-};
+	enum {
+		EFFECT_NORMAL,
+		EFFECT_SCATTER,
+		EFFECT_HORIZONTAL,
+		EFFECT_VERTICAL,
+	};
 
-//Effects
-class Effect
-{
-public:
-    Effect();
-    ~Effect();
+	//Effects
+	class Effect {
+	public:
+		Effect();
+		~Effect();
 
-    void init(int _frameC);
-    void draw(int x, int y, int frame, bool mirror, int type, unsigned int inception);
+		void init(int nFrames);
+		void draw(int x, int y, int frame, bool mirror, int type, unsigned int inception);
 
-    Image img;
-    int frameC;
-    int* frames;
-    int* speeds;
+		Image img;
+		int frameC;
+		int* frames;
+		int* speeds;
+	};
 
-    static void init();
-    static void deinit();
-};
+	class EffectGroup {
+	public:
+		EffectGroup();
+		~EffectGroup();
 
-class EffectGroup
-{
-public:
-    EffectGroup();
-    ~EffectGroup();
+		void init(int size);
+		int id;
+		int type;
 
-    void init(int _size);
-    int id;
-    int type;
+		int size;
+		Effect* effects;
+	};
 
-    int size;
-    Effect* effects;
-};
+	//An in-game effect
+	class Spark {
+	public:
+		Spark();
 
-//An in-game effect
-class Spark
-{
-public:
-    Spark();
+		void think();
+		void draw();
 
-    void think();
-    void draw();
+		int group;
+		int effect;
 
-    int group;
-    int effect;
+		util::Vector pos;
+		util::Vector vel;
+		int frame;
+		int timer;
+		bool mirror;
 
-    Vector pos;
-    Vector vel;
-    int frame;
-    int timer;
-    bool mirror;
+		float alpha;
+		unsigned int inception;
 
-    float alpha;
-    unsigned int inception;
+		/*ubyte_t r;
+		ubyte_t g;
+		ubyte_t b;*/
+	};
 
-    /*ubyte_t r;
-    ubyte_t g;
-    ubyte_t b;*/
-};
+	void newSpark(int x, int y, int group, bool mirror);
+	void newSpark(int x, int y, int vx, int vy, int group, bool mirror);
+	//void newSpark(int x, int y, int vx, int vy, int group, bool mirror, ubyte_t r, ubyte_t g, ubyte_t b);
+	void think();
+	void draw();
 
-void newSpark(int x, int y, int group, bool mirror);
-void newSpark(int x, int y, int vx, int vy, int group, bool mirror);
-//void newSpark(int x, int y, int vx, int vy, int group, bool mirror, ubyte_t r, ubyte_t g, ubyte_t b);
-void thinkSparks();
-void drawSparks();
-
-extern EffectGroup* effects;
+	extern EffectGroup* effects;
 
 #define SPARK_COUNT 64
-extern Spark sparks[SPARK_COUNT];
+	extern Spark sparks[SPARK_COUNT];
 #endif
+}
 
 #endif // SPRITE_H_INCLUDED

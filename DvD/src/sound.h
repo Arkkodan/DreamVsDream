@@ -8,96 +8,92 @@
 #include <string>
 #include "globals.h"
 
-class Sound
-{
-public:
-    Sound();
-    ~Sound();
-    void play();
-    void play(float freq);
-    void stop();
+namespace audio {
+	void init();
+	void deinit();
+	void refresh();
 
-    bool playing();
+	extern bool enabled;
 
-    void createFromFile(std::string filename);
-    bool exists();
-    void destroy();
+	class Sound {
+	public:
+		Sound();
+		~Sound();
+		void play();
+		void play(float freq);
+		void stop();
+
+		bool playing();
+
+		void createFromFile(std::string filename);
+		bool exists();
+		void destroy();
 
 #ifdef EMSCRIPTEN
-    Mix_Chunk* sound;
-    int channel;
+		Mix_Chunk* sound;
+		int channel;
 #else
-    float* samples;
-    unsigned int c_samples;
-    unsigned int sample_rate;
-    int channels;
+		float* samples;
+		unsigned int c_samples;
+		unsigned int sample_rate;
+		int channels;
 #endif
-
-    //Init/deinit
-    static void init();
-    static void deinit();
-
-    static void refresh();
-
-    static bool enabled;
-};
+	};
 
 #define AUDIO_STREAM_BUFFER_MAX 3
 
-class Music
-{
-public:
-	Music();
-	~Music();
+	class Music {
+	public:
+		Music();
+		~Music();
 
-	void play();
+		void play();
 
-	static void stop();
+		static void stop();
 
-	void createFromFile(std::string szIntro, std::string szLoop);
-	bool exists();
+		void createFromFile(std::string szIntro, std::string szLoop);
+		bool exists();
 
-	bool isPlaying();
+		bool isPlaying();
 
 #ifdef EMSCRIPTEN
-	Mix_Music* intro;
-	Mix_Music* loop;
+		Mix_Music* intro;
+		Mix_Music* loop;
 #else
-	Sound intro;
-	Sound loop;
+		Sound intro;
+		Sound loop;
 #endif
-};
+	};
 
-/*
-class Voice
-{
-public:
-    Voice();
-    ~Voice();
+	/*
+	class Voice
+	{
+	public:
+	    Voice();
+	    ~Voice();
 
-    void createFromFile(const char* filename);
-    bool exists();
+	    void createFromFile(const char* filename);
+	    bool exists();
 
-    Sound sound;
-};
-*/
+	    Sound sound;
+	};
+	*/
 
-typedef Sound Voice;
+	typedef Sound Voice;
 
-class Speaker
-{
-public:
-    Speaker();
-    ~Speaker();
+	class Speaker {
+	public:
+		Speaker();
+		~Speaker();
 
 #ifdef EMSCRIPTEN
-    int channel;
+		int channel;
 #endif
 
-    void init();
-    void play(Voice* voice, bool randomize = false);
-    void stop();
-};
-
+		void init();
+		void play(Voice* voice, bool randomize = false);
+		void stop();
+	};
+}
 
 #endif // SOUND_H_INCLUDED

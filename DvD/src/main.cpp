@@ -15,166 +15,158 @@
 #include <emscripten/emscripten.h>
 #endif
 
-Player madotsuki;
-Player poniko;
-Vector cameraPos(0,0);
-Vector idealCameraPos(0,0);
-Vector cameraShake(0,0);
+fighter::Player madotsuki;
+fighter::Player poniko;
+util::Vector cameraPos(0,0);
+util::Vector idealCameraPos(0,0);
+util::Vector cameraShake(0,0);
 
-extern Fighter fighters[];
+extern fighter::Fighter fighters[];
 extern Stage stages[];
 
 int framePauseTimer = 0;
-void pause(int frames)
-{
-    framePauseTimer += frames;
+void pause(int frames) {
+	framePauseTimer += frames;
 }
 
 int frameShakeTimer = 0;
-void shake(int frames)
-{
-    frameShakeTimer += frames;
+void shake(int frames) {
+	frameShakeTimer += frames;
 }
 
 extern void parseArgs(int, char**);
 int madotsuki_palette = 0;
 int poniko_palette = 1;
 
-void mainLoop()
-{
-	OS::refresh();
+void mainLoop() {
+	os::refresh();
 
-	if(menu == MENU_FIGHT)
-	{
-	    if(frameShakeTimer)
-	    {
-		cameraShake.x = (roll(frameShakeTimer * 2)) - frameShakeTimer;
-		cameraShake.y = (roll(frameShakeTimer * 2)) - frameShakeTimer;
-		frameShakeTimer--;
-	    }
-	    else
-	    {
-		cameraShake.x = cameraShake.y = 0;
-	    }
-
-	    idealCameraPos.x = (madotsuki.pos.x + poniko.pos.x) / 2;
-	    idealCameraPos.y = (madotsuki.pos.y + poniko.pos.y) / 3 - 30;
-
-	    if(idealCameraPos.y < 0) idealCameraPos.y = 0;
-	    if(idealCameraPos.y > STAGE.heightAbs - WINDOW_HEIGHT) idealCameraPos.y = STAGE.heightAbs - WINDOW_HEIGHT;
-
-	    if(idealCameraPos.x < STAGE.widthAbs / -2 + WINDOW_WIDTH / 2) idealCameraPos.x = STAGE.widthAbs / -2 + WINDOW_WIDTH / 2;
-	    else if(idealCameraPos.x > STAGE.widthAbs / 2 - WINDOW_WIDTH / 2) idealCameraPos.x = STAGE.widthAbs / 2 - WINDOW_WIDTH / 2;
-
-	    cameraPos.x = (cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
-	    cameraPos.y = (cameraPos.y * 0.8 + idealCameraPos.y * 0.2);
-
-	    cameraPos.x += cameraShake.x;
-	    cameraPos.y += cameraShake.y;
-
-	    if(madotsuki.pos.x < poniko.pos.x)
-	    {
-		//if(madotsuki.inStandardState(STATE_STAND))
-		if(madotsuki.isIdle())
-		    madotsuki.setDir(RIGHT);
-		//if(poniko.inStandardState(STATE_STAND))
-		if(poniko.isIdle())
-		    poniko.setDir(LEFT);
-	    }
-	    else if(madotsuki.pos.x > poniko.pos.x)
-	    {
-		//if(madotsuki.inStandardState(STATE_STAND))
-		if(madotsuki.isIdle())
-		    madotsuki.setDir(LEFT);
-		//if(poniko.inStandardState(STATE_STAND))
-		if(poniko.isIdle())
-		    poniko.setDir(RIGHT);
-	    }
-
-	    STAGE.think();
-
-	    madotsuki.think();
-	    poniko.think();
-
-	    if(!framePauseTimer)
-	    {
-
-		madotsuki.interact(&poniko);
-		poniko.interact(&madotsuki);
-
-		for(int i = 0; i < MAX_PROJECTILES; i++)
-		{
-		    if(madotsuki.projectiles[i].state != STATE_NONE)
-		        madotsuki.projectiles[i].interact(&poniko);
-		    if(poniko.projectiles[i].state != STATE_NONE)
-		        poniko.projectiles[i].interact(&madotsuki);
+	if(menu == MENU_FIGHT) {
+		if(frameShakeTimer) {
+			cameraShake.x = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
+			cameraShake.y = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
+			frameShakeTimer--;
+		} else {
+			cameraShake.x = cameraShake.y = 0;
 		}
-	    }
-	    else framePauseTimer--;
 
-	    thinkSparks();
+		idealCameraPos.x = (madotsuki.pos.x + poniko.pos.x) / 2;
+		idealCameraPos.y = (madotsuki.pos.y + poniko.pos.y) / 3 - 30;
 
-
-	    //DRAW
-
-	    STAGE.draw(false);
-
-	    madotsuki.drawSpecial();
-	    poniko.drawSpecial();
-
-	    if(stage != 3)
-	    {
-		madotsuki.draw(true, 0);
-		poniko.draw(true, 0);
-	    }
-
-	    //Which order do we draw these in?
-	    int _pal_off_mado = 0;
-	    int _pal_off_poni = 0;
-	    if(Graphics::shader_support && stage == 3)
-	    {
-		_pal_off_mado = madotsuki.fighter->c_palettes;
-		_pal_off_poni = poniko.fighter->c_palettes;
-	    }
-	    if(madotsuki.drawPriorityFrame < poniko.drawPriorityFrame)
-	    {
-		madotsuki.draw(false, madotsuki_palette + _pal_off_mado);
-		poniko.draw(false, poniko_palette + _pal_off_poni);
-	    }
-	    else
-	    {
-		poniko.draw(false, poniko_palette + _pal_off_poni);
-		madotsuki.draw(false, madotsuki_palette + _pal_off_mado);
-	    }
-
-	    //Draw projectiles
-	    for(int i = 0; i < MAX_PROJECTILES; i++)
-	    {
-		if(madotsuki.projectiles[i].state != STATE_NONE)
-		{
-		    madotsuki.projectiles[i].draw(false);
+		if(idealCameraPos.y < 0) {
+			idealCameraPos.y = 0;
 		}
-		if(poniko.projectiles[i].state != STATE_NONE)
-		{
-		    poniko.projectiles[i].draw(false, 1);
+		if(idealCameraPos.y > STAGE.heightAbs - WINDOW_HEIGHT) {
+			idealCameraPos.y = STAGE.heightAbs - WINDOW_HEIGHT;
 		}
-	    }
 
-	    STAGE.draw(true);
+		if(idealCameraPos.x < STAGE.widthAbs / -2 + WINDOW_WIDTH / 2) {
+			idealCameraPos.x = STAGE.widthAbs / -2 + WINDOW_WIDTH / 2;
+		} else if(idealCameraPos.x > STAGE.widthAbs / 2 - WINDOW_WIDTH / 2) {
+			idealCameraPos.x = STAGE.widthAbs / 2 - WINDOW_WIDTH / 2;
+		}
 
-	    drawSparks();
+		cameraPos.x = (cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
+		cameraPos.y = (cameraPos.y * 0.8 + idealCameraPos.y * 0.2);
 
-	    MENU->think();
-	    MENU->draw();
-	    Menu::drawFade();
+		cameraPos.x += cameraShake.x;
+		cameraPos.y += cameraShake.y;
 
-	    ((MenuSelect*)menus[MENU_SELECT])->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x, madotsuki.pos.y + madotsuki.fighter->height, true);
-	}
-	else
-	{
-	    MENU->think();
-	    MENU->draw();
-	    Menu::drawFade();
+		if(madotsuki.pos.x < poniko.pos.x) {
+			//if(madotsuki.inStandardState(STATE_STAND))
+			if(madotsuki.isIdle()) {
+				madotsuki.setDir(RIGHT);
+			}
+			//if(poniko.inStandardState(STATE_STAND))
+			if(poniko.isIdle()) {
+				poniko.setDir(LEFT);
+			}
+		} else if(madotsuki.pos.x > poniko.pos.x) {
+			//if(madotsuki.inStandardState(STATE_STAND))
+			if(madotsuki.isIdle()) {
+				madotsuki.setDir(LEFT);
+			}
+			//if(poniko.inStandardState(STATE_STAND))
+			if(poniko.isIdle()) {
+				poniko.setDir(RIGHT);
+			}
+		}
+
+		STAGE.think();
+
+		madotsuki.think();
+		poniko.think();
+
+		if(!framePauseTimer) {
+
+			madotsuki.interact(&poniko);
+			poniko.interact(&madotsuki);
+
+			for(int i = 0; i < MAX_PROJECTILES; i++) {
+				if(madotsuki.projectiles[i].state != STATE_NONE) {
+					madotsuki.projectiles[i].interact(&poniko);
+				}
+				if(poniko.projectiles[i].state != STATE_NONE) {
+					poniko.projectiles[i].interact(&madotsuki);
+				}
+			}
+		} else {
+			framePauseTimer--;
+		}
+
+		sprite::think();
+
+
+		//DRAW
+
+		STAGE.draw(false);
+
+		madotsuki.drawSpecial();
+		poniko.drawSpecial();
+
+		if(stage != 3) {
+			madotsuki.draw(true, 0);
+			poniko.draw(true, 0);
+		}
+
+		//Which order do we draw these in?
+		int _pal_off_mado = 0;
+		int _pal_off_poni = 0;
+		if(graphics::shader_support && stage == 3) {
+			_pal_off_mado = madotsuki.fighter->c_palettes;
+			_pal_off_poni = poniko.fighter->c_palettes;
+		}
+		if(madotsuki.drawPriorityFrame < poniko.drawPriorityFrame) {
+			madotsuki.draw(false, madotsuki_palette + _pal_off_mado);
+			poniko.draw(false, poniko_palette + _pal_off_poni);
+		} else {
+			poniko.draw(false, poniko_palette + _pal_off_poni);
+			madotsuki.draw(false, madotsuki_palette + _pal_off_mado);
+		}
+
+		//Draw projectiles
+		for(int i = 0; i < MAX_PROJECTILES; i++) {
+			if(madotsuki.projectiles[i].state != STATE_NONE) {
+				madotsuki.projectiles[i].draw(false);
+			}
+			if(poniko.projectiles[i].state != STATE_NONE) {
+				poniko.projectiles[i].draw(false, 1);
+			}
+		}
+
+		STAGE.draw(true);
+
+		sprite::draw();
+
+		MENU->think();
+		MENU->draw();
+		Menu::drawFade();
+
+		((MenuSelect*)menus[MENU_SELECT])->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x, madotsuki.pos.y + madotsuki.fighter->height, true);
+	} else {
+		MENU->think();
+		MENU->draw();
+		Menu::drawFade();
 	}
 }
 
@@ -189,43 +181,37 @@ int main(int argc, char** argv)
 	int argc;
 	wchar_t** argv16 = CommandLineToArgvW(GetCommandLineW(), &argc);
 	char** argv = (char**)malloc(argc * sizeof(char*));
-	for(int i = 0; i < argc; i++)
+	for(int i = 0; i < argc; i++) {
 		argv[i] = utf16to8(argv16[i]);
+	}
 	LocalFree(argv16);
 #endif
 
-    parseArgs(argc, (char**)argv);
+	parseArgs(argc, (char**)argv);
 
 #ifdef _WIN32
-    for(int i = 0; i < argc; i++)
+	for(int i = 0; i < argc; i++) {
 		free(argv[i]);
+	}
 	free(argv);
 #endif
 #endif
 	extern void init();
-    init();
+	init();
 
-    madotsuki.playerNum = 0;
-    madotsuki.speaker.init();
+	madotsuki.playerNum = 0;
+	madotsuki.speaker.init();
 
-    poniko.playerNum = 1;
-    poniko.speaker.init();
-
-    //menu = MENU_CREDITS;
-
-    //FIGHT->gametype = GAMETYPE_VERSUS;
-    //optionWins = 3;
-
-    //stage = 0;
+	poniko.playerNum = 1;
+	poniko.speaker.init();
 
 #ifdef EMSCRIPTEN
-    emscripten_set_main_loop(mainLoop, FPS, 1);
+	emscripten_set_main_loop(mainLoop, FPS, 1);
 #else
-    for(;;)
-    {
-        mainLoop();
-    }
+	for(;;) {
+		mainLoop();
+	}
 #endif
 
-    return 0;
+	return 0;
 }
