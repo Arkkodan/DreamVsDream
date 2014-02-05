@@ -1,9 +1,6 @@
 #ifndef IMAGE_H_INCLUDED
 #define IMAGE_H_INCLUDED
 
-#include <stdlib.h>
-#include <string>
-
 #include "globals.h"
 
 enum {

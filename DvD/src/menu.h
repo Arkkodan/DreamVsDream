@@ -1,11 +1,12 @@
 #ifndef MENU_H_INCLUDED
 #define MENU_H_INCLUDED
 
-#include "util.h"
-#include "image.h"
-#include "font.h"
+#include "globals.h"
+
 #include "sound.h"
 #include "parser.h"
+#include "font.h"
+#include "util.h"
 
 #define MENU menus[menu]
 #define FIGHT ((MenuFight*)menus[MENU_FIGHT])

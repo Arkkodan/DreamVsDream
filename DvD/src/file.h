@@ -1,11 +1,7 @@
 #ifndef FILE_H_INCLUDED
 #define FILE_H_INCLUDED
 
-#include <stdio.h>
-#include <stdint.h>
-#include <string>
-
-#include "types.h"
+#include "globals.h"
 
 #define FILE_IO_READ 0
 #define FILE_IO_WRITE (1<<0)

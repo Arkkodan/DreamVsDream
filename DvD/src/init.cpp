@@ -14,6 +14,7 @@
 #include "network.h"
 #include "file.h"
 #include "input.h"
+#include "effect.h"
 
 std::string szConfigPath;
 
@@ -25,13 +26,13 @@ static bool fullscreen = false;
 static int input_delay = 0;
 
 void parseArgs(int argc, char** argv) {
-	extern fighter::Player madotsuki;
-	extern fighter::Player poniko;
+	extern game::Player madotsuki;
+	extern game::Player poniko;
 	extern int madotsuki_palette;
 	extern int poniko_palette;
 
-	madotsuki.fighter = &fighter::fighters[0];
-	poniko.fighter = &fighter::fighters[0];
+	madotsuki.fighter = &game::fighters[0];
+	poniko.fighter = &game::fighters[0];
 
 	for(int i = 1; i < argc; i++) {
 		if(!strcasecmp(argv[i], "--disable-shaders")) {
@@ -47,11 +48,11 @@ void parseArgs(int argc, char** argv) {
 			fullscreen = true;
 		} else if(!strcasecmp(argv[i], "-char1")) {
 			if(++i < argc) {
-				madotsuki.fighter = &fighter::fighters[atoi(argv[i])];
+				madotsuki.fighter = &game::fighters[atoi(argv[i])];
 			}
 		} else if(!strcasecmp(argv[i], "-char2")) {
 			if(++i < argc) {
-				poniko.fighter = &fighter::fighters[atoi(argv[i])];
+				poniko.fighter = &game::fighters[atoi(argv[i])];
 			}
 		} else if(!strcasecmp(argv[i], "-pal1")) {
 			if(++i < argc) {
@@ -78,11 +79,18 @@ void parseArgs(int argc, char** argv) {
 }
 
 #ifndef EMSCRIPTEN
+#define OPTIONS_VERSION 0
+
 void optionsLoad() {
 	File file;
 	if(!file.open(FILE_READ_NORMAL, szConfigPath + "options.dat")) {
 		return;
 	}
+
+    //If the options are newer, don't read them
+    if((ubyte_t)file.readByte() > OPTIONS_VERSION) {
+        return;
+    }
 
 	optionDifficulty = file.readByte();
 	optionWins = file.readByte();
@@ -91,7 +99,6 @@ void optionsLoad() {
 	optionMusVolume = file.readByte();
 	optionVoiceVolume = file.readByte();
 	optionEpilepsy = file.readByte();
-	optionSecretCharacter = file.readByte();
 
 	file.close();
 }
@@ -102,6 +109,7 @@ void optionsSave() {
 		return;
 	}
 
+    file.writeByte(OPTIONS_VERSION);
 	file.writeByte(optionDifficulty);
 	file.writeByte(optionWins);
 	file.writeByte(optionTime);
@@ -109,7 +117,6 @@ void optionsSave() {
 	file.writeByte(optionMusVolume);
 	file.writeByte(optionVoiceVolume);
 	file.writeByte(optionEpilepsy);
-	file.writeByte(optionSecretCharacter);
 
 	file.close();
 }
@@ -130,7 +137,7 @@ void init() {
 	if(!env16) {
 		die("Cannot find settings directory.");
 	}
-	char* env = utf16to8(env16);
+	char* env = util::utf16to8(env16);
 #elif defined __APPLE__
 #define CONFIG_PATH "/Library/Application Support/dreamvsdream/"
 	char* env = getenv("HOME");
@@ -154,7 +161,7 @@ void init() {
 	//Create directory if it doesn't exist
 #ifdef _WIN32
 	free(env);
-	wchar_t* szConfigPath16 = utf8to16(szConfigPath.c_str());
+	wchar_t* szConfigPath16 = util::utf8to16(szConfigPath.c_str());
 	CreateDirectoryW(szConfigPath16, NULL);
 	free(szConfigPath16);
 #else
@@ -171,10 +178,10 @@ void init() {
 	}
 	net::init(input_delay);
 	graphics::init(disable_shaders, max_texture_size);
-	fighter::init();
+	game::init();
 	Menu::ginit(); //TODO fix this
 	Stage::ginit();
-	sprite::init();
+	effect::init();
 
 	if(versus) {
 		FIGHT->gametype = GAMETYPE_VERSUS;
@@ -188,10 +195,10 @@ void init() {
 }
 
 void deinit() {
-	sprite::deinit();
+	effect::deinit();
 	Stage::deinit();
 	Menu::deinit();
-	fighter::deinit();
+	game::deinit();
 	graphics::deinit();
 	net::deinit();
 	audio::deinit();

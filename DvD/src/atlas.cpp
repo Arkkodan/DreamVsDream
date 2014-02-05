@@ -72,12 +72,6 @@ bool Atlas::create(std::string szFilename) {
 
 		//Create the image
 		images[i].createFromMemory(_b_pixel, TEXTURE_SIZE, TEXTURE_SIZE, _format);
-
-		//Generate the OpenGL texture
-		/*glBindTexture(GL_TEXTURE_2D, textures[i]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, _format, TEXTURE_SIZE, TEXTURE_SIZE, 0, _format, GL_UNSIGNED_BYTE, _b_pixel);*/
 	}
 
 	//Free up memory

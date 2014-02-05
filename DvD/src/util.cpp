@@ -1,20 +1,50 @@
+#include "util.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 
-#include "util.h"
+#include <sstream>
+
+#ifndef _WIN32
+#include <dirent.h>
+#include <sys/stat.h>
+#endif
 
 namespace util {
 	Vector::Vector() : x(0), y(0) {
 	}
 
-	Vector::Vector(int _x, int _y) : x(_x), y(_y) {
+	Vector::Vector(int x, int y) : x(x), y(y) {
+	}
+
+	Vector& Vector::operator+=(const Vector& other) {
+		x += other.x;
+		y += other.y;
+		return *this;
+	}
+
+	Vector& Vector::operator-=(const Vector& other) {
+		x -= other.x;
+		y -= other.y;
+		return *this;
+	}
+
+	Vector& Vector::operator*=(const int scalar) {
+		x *= scalar;
+		y *= scalar;
+		return *this;
+	}
+
+	Vector Vector::operator*(const int scalar) {
+		Vector result;
+		return result *= scalar;
 	}
 
 	Vectorf::Vectorf() : x(0.0), y(0.0) {
 	}
 
-	Vectorf::Vectorf(float _x, float _y) : x(_x), y(_y) {
+	Vectorf::Vectorf(float x, float y) : x(x), y(y) {
 	}
 
 	Vectorf& Vectorf::operator+=(const Vectorf& other) {
@@ -37,15 +67,13 @@ namespace util {
 
 	Vectorf Vectorf::operator*(const float scalar) {
 		Vectorf result;
-		result.x *= scalar;
-		result.y *= scalar;
-		return result;
+		return result *= scalar;
 	}
 
 	FILE* fopen8(std::string szFileName, const char* flags) {
 #ifdef _WIN32
-		utf16* filename16 = utf8to16(szFileName.c_str());
-		utf16* flags16 = utf8to16(flags);
+		wchar_t* filename16 = utf8to16(szFileName.c_str());
+		wchar_t* flags16 = utf8to16(flags);
 		FILE* file = _wfopen(filename16, flags16);
 		free(flags16);
 		free(filename16);
@@ -328,5 +356,42 @@ namespace util {
 	float rollf() {
 		//ugly sunovabich
 		return (float)((double)rand()/(double)((long long)RAND_MAX+1L));
+	}
+
+	//Number->string conversion
+	std::string toString(int value) {
+	    std::ostringstream ss;
+	    ss << value;
+	    return ss.str();
+	}
+
+	//Directory listings
+	std::vector<std::string> listDirectory(std::string directory, bool listFiles) {
+	    std::vector<std::string> result;
+
+#ifdef _WIN32
+#else
+        DIR* dp = opendir(directory.c_str());
+        if(dp == NULL) {
+            return result;
+        }
+
+        dirent* de;
+        while((de = readdir(dp))) {
+            //Don't do . and .. relative paths
+            if(strcmp(de->d_name, ".") && strcmp(de->d_name, "..")) {
+                struct stat st;
+                lstat((directory + "/" + de->d_name).c_str(), &st);
+
+                //Add to the vector if it's the right type
+                if((S_ISDIR(st.st_mode) != 0) == !listFiles) {
+                    result.push_back(std::string(de->d_name));
+                }
+            }
+        }
+        closedir(dp);
+#endif
+
+        return result;
 	}
 }

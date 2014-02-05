@@ -62,7 +62,7 @@ CHAR nothing, 369, 306
 CHAR null
 CHAR nothing, 290, 339
 //etc, row 3
-CHAR secret, 330, 339
+CHAR maddysucky, 330, 339
 CHAR null
 
 STAGES *32x32

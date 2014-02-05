@@ -1,16 +1,14 @@
 #ifndef FIGHTER_H_INCLUDED
 #define FIGHTER_H_INCLUDED
 
-#include <stdint.h>
-#include <limits.h>
-
 #include "globals.h"
-#include "sprite.h"
-#include "image.h"
-#include "sound.h"
-#include "atlas.h"
 
-namespace fighter {
+#include "sound.h"
+#include "image.h"
+#include "sprite.h"
+#include "util.h"
+
+namespace game {
 #ifdef GAME
 	//Init/deinit
 	void init();
@@ -135,7 +133,8 @@ namespace fighter {
 		STEP_DoubleJump,
 		STEP_Mirror,
 		STEP_Bounce,
-		STEP_Hitspark,
+		STEP_HitSpark,
+		STEP_Effect,
 		STEP_Cancel,
 		STEP_Knockdown,
 	};
@@ -250,7 +249,6 @@ namespace fighter {
 		//Portraits
 		Image select;
 		Image portrait;
-		Image portrait2;
 		Image special;
 		Image ender;
 		Image portrait_ui;

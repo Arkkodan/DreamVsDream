@@ -2,14 +2,10 @@
 
 #include <pthread.h>
 
-#include "globals.h"
-
 #ifdef _WIN32
 #include <winsock2.h>
 #define close(x) closesocket(x)
 #define neterrno WSAGetLastError()
-#define EWOULDBLOCK WSAEWOULDBLOCK
-#define ECONNRESET WSAECONNRESET
 #else
 #define neterrno errno
 #include <sys/socket.h>
@@ -17,6 +13,8 @@
 #include <netinet/ip.h>
 #include <unistd.h>
 #endif
+
+#include "globals.h"
 
 #include "network.h"
 #include "error.h"
@@ -33,8 +31,8 @@ enum {
 	NETSTATE_LISTEN,
 };
 
-extern fighter::Player madotsuki;
-extern fighter::Player poniko;
+extern game::Player madotsuki;
+extern game::Player poniko;
 
 namespace net {
 	volatile bool enabled = false;
@@ -135,17 +133,12 @@ namespace net {
 							th_return;
 						}
 
-						if(buff.option3) {
-							optionSecretCharacter = true;
-						}
-
 						//If it's a SYN, send a SYN/ACK
 						if(buff.flags & NETF_SYN && !(buff.flags & NETF_ACK)) {
 							buff.flags = NETF_SYN | NETF_ACK;
 
 							buff.option1 = optionWins;
 							buff.option2 = optionTime;
-							buff.option3 = optionSecretCharacter;
 							if(send(&buff, sizeof(buff))) {
 								unsigned long _timer = os::getTime(); //Latency calculation
 								if(recv(&buff, sizeof(buff))) {
@@ -193,7 +186,6 @@ namespace net {
 					NetHeader buff;
 					buff.flags = NETF_SYN;
 					buff.version = NET_VERSION;
-					buff.option3 = optionSecretCharacter;
 					if(send(&buff, sizeof(buff))) {
 						//Wait for a reply; check for SYN/ACK
 						if(recv(&buff, sizeof(buff))) {
@@ -206,9 +198,6 @@ namespace net {
 								//Save options
 								optionWins = buff.option1;
 								optionTime = buff.option2;
-								if(buff.option3) {
-									optionSecretCharacter = true;
-								}
 
 								//Send an ACK. We've got a connection!
 								buff.flags = NETF_ACK;
@@ -240,7 +229,7 @@ namespace net {
 				ubyte_t* buff = buffer + 1;
 
 				if(size + 1) {
-					fighter::Player* p = getYourPlayer();
+					game::Player* p = getYourPlayer();
 					//LOCK();
 					switch(*buffer) {
 					//Update input information
@@ -273,7 +262,7 @@ namespace net {
 						//Search for the frame requested and resend it
 						uint32_t netframe = *(uint32_t*)buff;
 						//printf("Got a request for frame %d.\n", frame);
-						fighter::Player* p = getMyPlayer();
+						game::Player* p = getMyPlayer();
 
 						for(int i = 0; i < NETBUFF_SIZE; i++) {
 							if(p->netBuff[i].frame == netframe) {
@@ -326,9 +315,9 @@ namespace net {
 
 		if(connected) {
 			//First, load this input up into our net buffer
-			fighter::Player* p = getMyPlayer();
-			fighter::Player* py = getYourPlayer();
-			fighter::InputBuff* nb = p->netBuff + p->netBuffCounter;
+			game::Player* p = getMyPlayer();
+			game::Player* py = getYourPlayer();
+			game::InputBuff* nb = p->netBuff + p->netBuffCounter;
 			nb->input = p->frameInput;
 			nb->frame = frame + inputDelay;
 
@@ -582,7 +571,7 @@ namespace net {
 #endif
 	}
 
-	fighter::Player* getMyPlayer() {
+	game::Player* getMyPlayer() {
 #ifndef NO_NETWORK
 		if(mode == MODE_SERVER) {
 			return &madotsuki;
@@ -593,7 +582,7 @@ namespace net {
 		return NULL;
 	}
 
-	fighter::Player* getYourPlayer() {
+	game::Player* getYourPlayer() {
 #ifndef NO_NETWORK
 		if(mode == MODE_SERVER) {
 			return &poniko;

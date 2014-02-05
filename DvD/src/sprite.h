@@ -1,12 +1,10 @@
 #ifndef SPRITE_H_INCLUDED
 #define SPRITE_H_INCLUDED
 
-#include <stdint.h>
-#include <stddef.h>
+#include "globals.h"
 
-#include "util.h"
-#include "image.h"
 #include "atlas.h"
+#include "util.h"
 
 namespace sprite {
 	void init();
@@ -81,80 +79,6 @@ namespace sprite {
 		HitBoxGroup hitBoxes;
 		HitBoxGroup aHitBoxes;
 	};
-
-#ifdef GAME
-
-	enum {
-		EFFECT_NORMAL,
-		EFFECT_SCATTER,
-		EFFECT_HORIZONTAL,
-		EFFECT_VERTICAL,
-	};
-
-	//Effects
-	class Effect {
-	public:
-		Effect();
-		~Effect();
-
-		void init(int nFrames);
-		void draw(int x, int y, int frame, bool mirror, int type, unsigned int inception);
-
-		Image img;
-		int frameC;
-		int* frames;
-		int* speeds;
-	};
-
-	class EffectGroup {
-	public:
-		EffectGroup();
-		~EffectGroup();
-
-		void init(int size);
-		int id;
-		int type;
-
-		int size;
-		Effect* effects;
-	};
-
-	//An in-game effect
-	class Spark {
-	public:
-		Spark();
-
-		void think();
-		void draw();
-
-		int group;
-		int effect;
-
-		util::Vector pos;
-		util::Vector vel;
-		int frame;
-		int timer;
-		bool mirror;
-
-		float alpha;
-		unsigned int inception;
-
-		/*ubyte_t r;
-		ubyte_t g;
-		ubyte_t b;*/
-	};
-
-	void newSpark(int x, int y, int group, bool mirror);
-	void newSpark(int x, int y, int vx, int vy, int group, bool mirror);
-	//void newSpark(int x, int y, int vx, int vy, int group, bool mirror, ubyte_t r, ubyte_t g, ubyte_t b);
-	void think();
-	void draw();
-
-	extern EffectGroup* effects;
-
-#define SPARK_COUNT 64
-	extern Spark sparks[SPARK_COUNT];
-#endif
 }
 
 #endif // SPRITE_H_INCLUDED

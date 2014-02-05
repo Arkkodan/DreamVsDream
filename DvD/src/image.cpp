@@ -273,8 +273,12 @@ end:
 	data = (ubyte_t*)malloc(width * height * channels);
 	row_pointers = png_get_rows(png_ptr, info_ptr);
 	for(int j = 0; j < height; j++)
-		for(int i = 0; i < width * channels; i++) {
-			data[j * (width * channels) + i] = row_pointers[j][i];
+		for(int i = 0; i < width; i++) {
+            if(channels == 4 && row_pointers[j][i * channels + 3] == 0) {
+                memset(data + (j * width + i) * channels, 0, channels);
+            } else {
+                memcpy(data + (j * width + i) * channels, row_pointers[j] + i * channels, channels);
+            }
 		}
 
 	createFromMemory(data, width, height, format);
@@ -299,7 +303,7 @@ end:
 	}
 #endif
 #else
-	FILE* fp = fopen8(szPath, "rb");
+	FILE* fp = util::fopen8(szPath, "rb");
 	if(!fp) {
 		error("Cannot read \"" + szPath + "\".");
 		return;
@@ -722,7 +726,7 @@ bool Image::exists() {
 
 Image::Image() : w(0), h(0),
 #ifdef COMPILER
-	xpad(0), ypad(0), data(NULL)
+	data(NULL), xpad(0), ypad(0)
 #else
 	textures(NULL), w_textures(0), h_textures(0),
 	w_subtexture(0), h_subtexture(0)

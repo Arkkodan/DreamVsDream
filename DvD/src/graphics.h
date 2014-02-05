@@ -1,6 +1,8 @@
 #ifndef GRAPHICS_H_INCLUDED
 #define GRAPHICS_H_INCLUDED
 
+#include "globals.h"
+
 #include "shader.h"
 
 namespace graphics {

@@ -1,7 +1,7 @@
 #ifndef NETWORK_H_INCLUDED
 #define NETWORK_H_INCLUDED
 
-#include <stdint.h>
+#include "globals.h"
 
 #include "player.h"
 
@@ -56,8 +56,8 @@ namespace net {
 	int recv(void* data, size_t size);
 	//int recvRaw(NetHeader* header, void* data, size_t size);
 
-	fighter::Player* getMyPlayer();
-	fighter::Player* getYourPlayer();
+	game::Player* getMyPlayer();
+	game::Player* getYourPlayer();
 
 	void refresh();
 

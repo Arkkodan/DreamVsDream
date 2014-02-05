@@ -1,7 +1,7 @@
 #ifndef FONT_H_INCLUDED
 #define FONT_H_INCLUDED
 
-#include <stdint.h>
+#include "globals.h"
 
 #include "image.h"
 

@@ -1,13 +1,11 @@
 #ifndef UTIL_H_INCLUDED
 #define UTIL_H_INCLUDED
 
-#include <string.h>
-#include <string>
-
 #include "globals.h"
 
 #define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
 #define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
+#undef ARRAYSIZE
 #define ARRAYSIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 namespace util {
@@ -15,6 +13,12 @@ namespace util {
 	public:
 		Vector();
 		Vector(int x, int y);
+
+		Vector& operator+=(const Vector& other);
+		Vector& operator-=(const Vector& other);
+
+		Vector& operator*=(const int scalar);
+		Vector operator*(const int scalar);
 
 		int x;
 		int y;
@@ -27,8 +31,8 @@ namespace util {
 
 		Vectorf& operator+=(const Vectorf& other);
 		Vectorf& operator-=(const Vectorf& other);
-		Vectorf& operator*=(const float scalar);
 
+		Vectorf& operator*=(const float scalar);
 		Vectorf operator*(const float scalar);
 
 		float x;
@@ -70,6 +74,12 @@ namespace util {
 	int roll(int size);
 	int roll(int min, int max);
 	float rollf();
+
+	//Number->string conversion
+	std::string toString(int);
+
+	//Directory listing
+	std::vector<std::string> listDirectory(std::string directory, bool listFiles);
 }
 
 //Position of the camera

@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 #include "os.h"
-#include "types.h"
 #include "util.h"
 
 #ifdef EMSCRIPTEN
@@ -15,8 +14,8 @@ void alert(std::string message) {
 
 #ifdef _WIN32
 void win_messageBox(std::string title, std::string message, int flags) {
-	wchar_t* title16 = utf8to16(title);
-	wchar_t* message16 = utf8to16(message);
+	wchar_t* title16 = util::utf8to16(title.c_str());
+	wchar_t* message16 = util::utf8to16(message.c_str());
 
 	MessageBoxW(NULL, title16, message16, flags);
 
@@ -38,6 +37,7 @@ void error(std::string sz) {
 void die(std::string sz) {
 #ifdef _WIN32
 	win_messageBox("Error", sz, MB_ICONERROR);
+#elif defined EMSCRIPTEN
 	alert("Error:\n" + sz);
 #else
 	std::cerr << "fatal error: " << sz << std::endl;

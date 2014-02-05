@@ -1,8 +1,9 @@
 #ifndef ATLAS_H_INCLUDED
 #define ATLAS_H_INCLUDED
 
+#include "globals.h"
+
 #include "image.h"
-#include "util.h"
 
 enum {
 	PIXEL_NULL,

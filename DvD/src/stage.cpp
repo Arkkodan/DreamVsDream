@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "types.h"
-
 #include "stage.h"
 #include "parser.h"
 #include "graphics.h"

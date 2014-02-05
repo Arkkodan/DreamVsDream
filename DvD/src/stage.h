@@ -1,6 +1,8 @@
 #ifndef STAGE_H_INCLUDED
 #define STAGE_H_INCLUDED
 
+#include "globals.h"
+
 #include "menu.h"
 
 extern int stage;

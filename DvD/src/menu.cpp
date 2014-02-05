@@ -16,8 +16,8 @@
 
 #define PORTRAIT_FADE 50
 
-extern fighter::Player madotsuki;
-extern fighter::Player poniko;
+extern game::Player madotsuki;
+extern game::Player poniko;
 
 Menu* menus[MENU_MAX] = {NULL};
 int menu = MENU_INTRO;
@@ -785,17 +785,13 @@ void MenuSelect::think() {
 
 				if(input & INPUT_A) {
 					if(gridFighters[cursors[cur].pos] >= 0) {
-						if(gridFighters[cursors[cur].pos] == 1 && !optionSecretCharacter) {
-							sndInvalid.play();
-						} else {
-							cursors[cur].locked = true;
-							newEffect(cur, group);
-							if(FIGHT->gametype == GAMETYPE_TRAINING) {
-								state++;
-							} else if(cursors[0].locked && cursors[1].locked) {
-								state = 2;
-							}
-						}
+                        cursors[cur].locked = true;
+                        newEffect(cur, group);
+                        if(FIGHT->gametype == GAMETYPE_TRAINING) {
+                            state++;
+                        } else if(cursors[0].locked && cursors[1].locked) {
+                            state = 2;
+                        }
 					} else {
 						sndInvalid.play();
 					}
@@ -887,20 +883,12 @@ void MenuSelect::think() {
 
 		if(input(INPUT_A)) {
 			//Start game!
-			madotsuki.fighter = &fighter::fighters[gridFighters[cursors[0].pos]];
-			poniko.fighter = &fighter::fighters[gridFighters[cursors[1].pos]];
+			madotsuki.fighter = &game::fighters[gridFighters[cursors[0].pos]];
+			poniko.fighter = &game::fighters[gridFighters[cursors[1].pos]];
 
-			if(madotsuki.fighter->portrait2.exists()) {
-				((MenuVersus*)menus[MENU_VERSUS])->portraits[0] = &madotsuki.fighter->portrait2;
-			} else {
-				((MenuVersus*)menus[MENU_VERSUS])->portraits[0] = &madotsuki.fighter->portrait;
-			}
+            ((MenuVersus*)menus[MENU_VERSUS])->portraits[0] = &madotsuki.fighter->portrait;
 
-			if(poniko.fighter->portrait2.exists()) {
-				((MenuVersus*)menus[MENU_VERSUS])->portraits[1] = &poniko.fighter->portrait2;
-			} else {
-				((MenuVersus*)menus[MENU_VERSUS])->portraits[1] = &poniko.fighter->portrait;
-			}
+            ((MenuVersus*)menus[MENU_VERSUS])->portraits[1] = &poniko.fighter->portrait;
 
 			stage = cursor_stage;
 			setMenu(MENU_VERSUS);
@@ -931,23 +919,23 @@ void MenuSelect::draw() {
 		if(cursors[1].timerPortrait) {
 			if(gridFighters[cursors[1].posOld] >= 0) {
 				graphics::setColor(255, 255, 255, (float)(cursors[1].timerPortrait) / PORTRAIT_FADE);
-				fighter::fighters[gridFighters[cursors[1].posOld]].portrait.draw(WINDOW_WIDTH - fighter::fighters[gridFighters[cursors[1].posOld]].portrait.w + (PORTRAIT_FADE - cursors[1].timerPortrait), 0, true);
+				game::fighters[gridFighters[cursors[1].posOld]].portrait.draw(WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].posOld]].portrait.w + (PORTRAIT_FADE - cursors[1].timerPortrait), 0, true);
 			}
 		}
 		if(gridFighters[cursors[1].pos] >= 0) {
 			graphics::setColor(255, 255, 255, (float)(PORTRAIT_FADE - cursors[1].timerPortrait) / PORTRAIT_FADE);
-			fighter::fighters[gridFighters[cursors[1].pos]].portrait.draw(WINDOW_WIDTH - fighter::fighters[gridFighters[cursors[1].pos]].portrait.w + cursors[1].timerPortrait, 0, true);
+			game::fighters[gridFighters[cursors[1].pos]].portrait.draw(WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].pos]].portrait.w + cursors[1].timerPortrait, 0, true);
 		}
 	}
 	if(cursors[0].timerPortrait) {
 		if(gridFighters[cursors[0].posOld] >= 0) {
 			graphics::setColor(255, 255, 255, (float)(cursors[0].timerPortrait) / PORTRAIT_FADE);
-			fighter::fighters[gridFighters[cursors[0].posOld]].portrait.draw(0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
+			game::fighters[gridFighters[cursors[0].posOld]].portrait.draw(0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
 		}
 	}
 	if(gridFighters[cursors[0].pos] >= 0) {
 		graphics::setColor(255, 255, 255, (float)(PORTRAIT_FADE - cursors[0].timerPortrait) / PORTRAIT_FADE);
-		fighter::fighters[gridFighters[cursors[0].pos]].portrait.draw(0 - cursors[0].timerPortrait, 0);
+		game::fighters[gridFighters[cursors[0].pos]].portrait.draw(0 - cursors[0].timerPortrait, 0);
 	}
 
 	//Now the GUI
@@ -958,7 +946,7 @@ void MenuSelect::draw() {
 	//Draw the select sprites
 	for(int i = 0; i < gridC; i++) {
 		if(gridFighters[i] >= 0) {
-			fighter::fighters[gridFighters[i]].select.draw(grid[i].x, grid[i].y);
+			game::fighters[gridFighters[i]].select.draw(grid[i].x, grid[i].y);
 		}
 	}
 
@@ -1012,7 +1000,7 @@ void MenuSelect::newEffect(int player, int group) {
 		curData[group].sndDeselect.stop();
 	}
 
-	cursors[player].frame = 1;
+	//cursors[player].frame = 1;
 }
 
 void MenuSelect::drawEffect(int player, int group, int _x, int _y, bool spr) {
@@ -1107,7 +1095,7 @@ void MenuSelect::parseLine(Parser& parser) {
 
 		//Get fighter
 		for(int i = 0; i < FIGHTERS_MAX; i++) {
-			if(!fighter::fighters[i].name.compare(parser.getArg(1))) {
+			if(!game::fighters[i].name.compare(parser.getArg(1))) {
 				gridFighters[gridC] = i;
 				break;
 			}
@@ -1193,6 +1181,9 @@ void MenuVersus::init() {
 
 void MenuVersus::think() {
 	Menu::think();
+
+	if(input(INPUT_A))
+        setMenu(MENU_FIGHT);
 
 	if(timer1 > 0) {
 		timer1--;
@@ -1297,7 +1288,6 @@ int optionSfxVolume = 100;
 int optionMusVolume = 100;
 int optionVoiceVolume = 100;
 bool optionEpilepsy = false;
-bool optionSecretCharacter = false;
 
 void MenuOptions::think() {
 	Menu::think();
@@ -1794,19 +1784,19 @@ void MenuFight::think() {
 				}
 
 				if(madotsuki.flags & F_ON_GROUND && madotsuki.isDashing()) {
-					if(madotsuki.inStandardState(fighter::STATE_DASH_FORWARD)) {
-						madotsuki.setStandardState(fighter::STATE_DASH_FORWARD_END);
+					if(madotsuki.inStandardState(game::STATE_DASH_FORWARD)) {
+						madotsuki.setStandardState(game::STATE_DASH_FORWARD_END);
 					}
-					if(madotsuki.inStandardState(fighter::STATE_DASH_BACK)) {
-						madotsuki.setStandardState(fighter::STATE_DASH_BACK_END);
+					if(madotsuki.inStandardState(game::STATE_DASH_BACK)) {
+						madotsuki.setStandardState(game::STATE_DASH_BACK_END);
 					}
 				}
 				if(poniko.flags & F_ON_GROUND && poniko.isDashing()) {
-					if(poniko.inStandardState(fighter::STATE_DASH_FORWARD)) {
-						poniko.setStandardState(fighter::STATE_DASH_FORWARD_END);
+					if(poniko.inStandardState(game::STATE_DASH_FORWARD)) {
+						poniko.setStandardState(game::STATE_DASH_FORWARD_END);
 					}
-					if(poniko.inStandardState(fighter::STATE_DASH_BACK)) {
-						poniko.setStandardState(fighter::STATE_DASH_BACK_END);
+					if(poniko.inStandardState(game::STATE_DASH_BACK)) {
+						poniko.setStandardState(game::STATE_DASH_BACK_END);
 					}
 				}
 			}
@@ -1908,15 +1898,15 @@ void MenuFight::think() {
 			if(timer_round_out == (int)(3.8 * FPS)) {
 				if(ko_player == 2) {
 					if(!(poniko.flags & F_DEAD)) {
-						poniko.setStandardState(fighter::STATE_DEFEAT);
+						poniko.setStandardState(game::STATE_DEFEAT);
 					}
-					madotsuki.setStandardState(fighter::STATE_VICTORY);
+					madotsuki.setStandardState(game::STATE_VICTORY);
 					win_types[0][wins[0]++] = 0;
 				} else if(ko_player == 1) {
 					if(!(madotsuki.flags & F_DEAD)) {
-						madotsuki.setStandardState(fighter::STATE_DEFEAT);
+						madotsuki.setStandardState(game::STATE_DEFEAT);
 					}
-					poniko.setStandardState(fighter::STATE_VICTORY);
+					poniko.setStandardState(game::STATE_VICTORY);
 					win_types[1][wins[1]++] = 0;
 				} else if(ko_player == 3) {
 					if(ko_type != 2) {
@@ -1925,10 +1915,10 @@ void MenuFight::think() {
 						ko_type = 2;
 					} else {
 						if(!(madotsuki.flags & F_DEAD)) {
-							madotsuki.setStandardState(fighter::STATE_DEFEAT);
+							madotsuki.setStandardState(game::STATE_DEFEAT);
 						}
 						if(!(poniko.flags & F_DEAD)) {
-							poniko.setStandardState(fighter::STATE_DEFEAT);
+							poniko.setStandardState(game::STATE_DEFEAT);
 						}
 						win_types[0][wins[0]++] = 1;
 						win_types[1][wins[1]++] = 1;
@@ -1981,10 +1971,10 @@ void MenuFight::think() {
 			if(ko_type == 0) {
 				if(ko_player == 2) {
 					_condition = madotsuki.isIdle() && (madotsuki.flags & F_ON_GROUND) &&
-					             (poniko.inStandardState(fighter::STATE_PRONE) || poniko.inStandardState(fighter::STATE_ON_BACK));
+					             (poniko.inStandardState(game::STATE_PRONE) || poniko.inStandardState(game::STATE_ON_BACK));
 				} else if(ko_player == 1) {
 					_condition = poniko.isIdle() && (poniko.flags & F_ON_GROUND) &&
-					             (madotsuki.inStandardState(fighter::STATE_PRONE) || madotsuki.inStandardState(fighter::STATE_ON_BACK));
+					             (madotsuki.inStandardState(game::STATE_PRONE) || madotsuki.inStandardState(game::STATE_ON_BACK));
 				}
 			} else if(ko_type == 1) {
 				_condition = poniko.isIdle() && (poniko.flags & F_ON_GROUND) && madotsuki.isIdle() && (madotsuki.flags & F_ON_GROUND);
@@ -2218,19 +2208,19 @@ void MenuFight::knockout(int player) {
 	ko_type = 0;
 
 	if(madotsuki.flags & F_ON_GROUND && madotsuki.isDashing()) {
-		if(madotsuki.inStandardState(fighter::STATE_DASH_FORWARD)) {
-			madotsuki.setStandardState(fighter::STATE_DASH_FORWARD_END);
+		if(madotsuki.inStandardState(game::STATE_DASH_FORWARD)) {
+			madotsuki.setStandardState(game::STATE_DASH_FORWARD_END);
 		}
-		if(madotsuki.inStandardState(fighter::STATE_DASH_BACK)) {
-			madotsuki.setStandardState(fighter::STATE_DASH_BACK_END);
+		if(madotsuki.inStandardState(game::STATE_DASH_BACK)) {
+			madotsuki.setStandardState(game::STATE_DASH_BACK_END);
 		}
 	}
 	if(poniko.flags & F_ON_GROUND && poniko.isDashing()) {
-		if(poniko.inStandardState(fighter::STATE_DASH_FORWARD)) {
-			poniko.setStandardState(fighter::STATE_DASH_FORWARD_END);
+		if(poniko.inStandardState(game::STATE_DASH_FORWARD)) {
+			poniko.setStandardState(game::STATE_DASH_FORWARD_END);
 		}
-		if(poniko.inStandardState(fighter::STATE_DASH_BACK)) {
-			poniko.setStandardState(fighter::STATE_DASH_BACK_END);
+		if(poniko.inStandardState(game::STATE_DASH_BACK)) {
+			poniko.setStandardState(game::STATE_DASH_BACK_END);
 		}
 	}
 }
@@ -2263,7 +2253,7 @@ MenuNetplay::~MenuNetplay() {
 void MenuNetplay::think() {
 	Menu::think();
 
-	if(os::gameFrame % 2) {
+	if(os::frame % 2) {
 		drawShake = !drawShake;
 	}
 
@@ -2880,7 +2870,6 @@ void MenuCredits::draw() {
 				if(y + 32 < 0) {
 					if(i == c_lines - 1) {
 						done = true;
-						optionSecretCharacter = true;
 					}
 					continue;
 				}

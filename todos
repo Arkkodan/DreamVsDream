@@ -1,2 +1,0 @@
-#!/bin/bash
-find . -type f \( -name "*.ubu" -o -name "*.txt" \) -exec unix2dos {} +

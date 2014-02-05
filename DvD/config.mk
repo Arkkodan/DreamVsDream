@@ -1,16 +1,18 @@
-VERSION		:= 0.12
+VERSION		:= 0.2
 ARCH		:= 64
 CFG		:= debug
-include		_config/linux.mk
+include		config/linux.mk
 
 # flags
 CXXFLAGS	+= -DVERSION=\"$(VERSION)\" -DGAME
 LDFLAGS		+= -lSDL -lpng -lz -lportaudio -lsndfile
 
+ifneq ($(EMSCRIPTEN),1)
 ifeq ($(CFG),debug)
-	CXXFLAGS	+= -DDEBUG
+	CXXFLAGS	+= -DDEBUG -g
+	LDFLAGS		+= -g
+else
+	CXXFLAGS	+= -O3
+	LDFLAGS		+= -O3
 endif
-
-# compiler and linker
-CXX			:= g++
-LD			:= g++
+endif

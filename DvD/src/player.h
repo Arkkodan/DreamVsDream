@@ -1,10 +1,11 @@
 #ifndef PLAYER_H_INCLUDED
 #define PLAYER_H_INCLUDED
 
-#include "fighter.h"
-#include "sound.h"
+#include "globals.h"
 
-namespace fighter {
+#include "fighter.h"
+
+namespace game {
 	#define INPUT_DIRMASK 0xF
 	#define INPUT_KEYMASK 0x70
 	#define INPUT_PRESSMASK 0x00FF
@@ -88,7 +89,7 @@ namespace fighter {
 		char movetype;
 
 		//Attack stuff
-		int spark;
+		std::string spark;
 		StepAttack attack;
 		StepShoot shoot;
 		StepBounce bounce;
@@ -122,6 +123,7 @@ namespace fighter {
 		int16_t readWord();
 		int32_t readDword();
 		float readFloat();
+		std::string readString();
 
 		bool isMirrored();
 
@@ -140,8 +142,8 @@ namespace fighter {
 		//ubyte_t combo[256];
 		int comboCounter;
 
-		int inputC;
-		InputBuff inputBuff[INBUFF_SIZE];
+		int nInputs;
+		InputBuff inputs[INBUFF_SIZE];
 
 		//List of key inputs on this frame (gotten from either SFML or the network)
 		uint16_t frameInput;
@@ -157,8 +159,8 @@ namespace fighter {
 		int techstun; //How long techs last
 
 		//What can we cancel into?
-		int c_cancel;
-		int b_cancel[CANCEL_MAX];
+		int nCancels;
+		int cancels[CANCEL_MAX];
 
 		//Meters
 		int hp;

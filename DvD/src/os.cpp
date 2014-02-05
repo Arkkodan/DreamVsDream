@@ -9,11 +9,11 @@
 #include <SDL_image.h>
 #endif
 
-extern fighter::Player madotsuki;
-extern fighter::Player poniko;
+extern game::Player madotsuki;
+extern game::Player poniko;
 
 namespace os {
-	unsigned int gameFrame = 0;
+	unsigned int frame = 0;
 
 	void init() {
 		//Initialize SDL
@@ -73,7 +73,7 @@ namespace os {
 		audio::refresh();
 #endif
 		graphics::refresh();
-		gameFrame++;
+		frame++;
 	}
 
 	void getClipboard(char* sz, size_t size) {

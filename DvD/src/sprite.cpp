@@ -9,7 +9,7 @@
 namespace input {
 	extern bool selectBoxAttack;
 	extern bool selectAll;
-	extern HitBox* selectBox;
+	extern sprite::HitBox* selectBox;
 }
 #endif // SPRTOOL
 
@@ -168,12 +168,11 @@ namespace sprite {
 		atlas->drawSprite(atlas_sprite, _x, _y, mirror);
 #else
 		img.drawSprite(_x, _y, mirror);
-		extern HitBox* selectBox;
 		for(int i = 0; i < hitBoxes.size; i++) {
-			hitBoxes.boxes[i].draw(x2, y2, false, Input::selectAll || ((hitBoxes.boxes + i == Input::selectBox) && !Input::selectBoxAttack));
+			hitBoxes.boxes[i].draw(x2, y2, false, input::selectAll || ((hitBoxes.boxes + i == input::selectBox) && !input::selectBoxAttack));
 		}
 		for(int i = 0; i < aHitBoxes.size; i++) {
-			aHitBoxes.boxes[i].draw(x2, y2, true, Input::selectAll || ((aHitBoxes.boxes + i == Input::selectBox) && Input::selectBoxAttack));
+			aHitBoxes.boxes[i].draw(x2, y2, true, input::selectAll || ((aHitBoxes.boxes + i == input::selectBox) && input::selectBoxAttack));
 		}
 #endif
 	}
@@ -209,8 +208,8 @@ namespace sprite {
 		delete [] boxes;
 	}
 
-	void HitBoxGroup::init(int _size) {
-		size = _size;
+	void HitBoxGroup::init(int size) {
+		this->size = size;
 		if(size) {
 			boxes = new HitBox[size];
 		} else {
@@ -220,14 +219,14 @@ namespace sprite {
 
 #ifdef SPRTOOL
 	HitBox* HitBoxGroup::newHitbox() {
-		HitBox* parser = boxes;
+		HitBox* foo = boxes;
 		boxes = new HitBox[size + 1];
 
-		if(parser) {
+		if(foo) {
 			for(int i = 0; i < size; i++) {
-				boxes[i] = parser[i];
+				boxes[i] = foo[i];
 			}
-			delete [] parser;
+			delete [] foo;
 		}
 		boxes[size].size = util::Vector(15, 15);
 		return &boxes[size++];
@@ -243,299 +242,20 @@ namespace sprite {
 			boxes = NULL;
 			size = 0;
 		} else {
-			HitBox* parser = boxes;
+			HitBox* foo = boxes;
 			boxes = new HitBox[size - 1];
 
 			int off = 0;
 			for(int i = 0; i < size; i++) {
-				if(parser + i == box) {
+				if(foo + i == box) {
 					off = 1;
 					continue;
 				}
-				boxes[i-off] = parser[i];
+				boxes[i-off] = foo[i];
 			}
 			size--;
-			delete [] parser;
+			delete [] foo;
 		}
 	}
 #endif
-
-#ifdef GAME
-	int effectCount = 0;
-	EffectGroup* effects = NULL;
-
-	void init() {
-		//Read up the effects
-		Parser parser;
-		if(!parser.open("effects/effects.ubu")) {
-			return;
-		}
-
-		//First pass (count effect groups)
-		while(parser.parseLine()) {
-			if(parser.isGroup()) {
-				if(parser.is("GROUP", 2)) {
-					effectCount++;
-				}
-			}
-		}
-
-		effects = new EffectGroup[effectCount];
-
-		//Second pass (count effects within groups, set group ids)
-		parser.reset();
-		int groupCounter = -1;
-		int effectCounter = 0;
-		while(parser.parseLine()) {
-			if(parser.isGroup()) {
-				if(parser.is("GROUP", 2)) {
-					if(groupCounter >= 0) {
-						effects[groupCounter].init(effectCounter);
-					}
-					effectCounter = 0;
-					effects[++groupCounter].id = atoi(parser.getArg(1));
-
-					//Check the type
-					const char* type = parser.getArg(2);
-					if(!strcmp(type, "normal")) {
-						effects[groupCounter].type = EFFECT_NORMAL;
-					} else if(!strcmp(type, "scatter")) {
-						effects[groupCounter].type = EFFECT_SCATTER;
-					} else if(!strcmp(type, "horizontal")) {
-						effects[groupCounter].type = EFFECT_HORIZONTAL;
-					} else if(!strcmp(type, "vertical")) {
-						effects[groupCounter].type = EFFECT_VERTICAL;
-					}
-
-				} else if(parser.getArgC() == 1) {
-					effectCounter++;
-				}
-			}
-		}
-		if(groupCounter >= 0 && effectCounter > 0) {
-			effects[groupCounter].init(effectCounter);
-		}
-
-		//Third pass (count frames)
-		parser.reset();
-		groupCounter = -1;
-		effectCounter = -1;
-		int frameCounter = 0;
-		while(parser.parseLine()) {
-			if(parser.isGroup()) {
-				if(groupCounter >= 0 && effectCounter >= 0) {
-					effects[groupCounter].effects[effectCounter].init(frameCounter);
-				}
-				if(parser.is("GROUP", 2)) {
-					effectCounter = -1;
-					frameCounter = 0;
-					groupCounter++;
-				} else if(parser.getArgC() == 1) {
-					effectCounter++;
-					frameCounter = 0;
-				}
-				continue;
-			}
-			frameCounter++;
-		}
-		if(groupCounter >= 0 && effectCounter >= 0 && frameCounter > 0) {
-			effects[groupCounter].effects[effectCounter].init(frameCounter);
-		}
-
-		//Fourth pass (load effects)
-		parser.reset();
-		groupCounter = -1;
-		effectCounter = -1;
-		frameCounter = 0;
-		while(parser.parseLine()) {
-			if(parser.isGroup()) {
-				if(parser.getArgC() == 3 && !strcmp(parser.getArg(0), "GROUP")) {
-					groupCounter++;
-					effectCounter = -1;
-					frameCounter = 0;
-				} else if(parser.getArgC() == 1) {
-					effects[groupCounter].effects[++effectCounter].img.createFromFile("effects/" + std::string(parser.getArg(0)) + ".png");
-					frameCounter = 0;
-				}
-				continue;
-			}
-
-			//Frame data
-			effects[groupCounter].effects[effectCounter].frames[frameCounter] = parser.getArgInt(0);
-			effects[groupCounter].effects[effectCounter].speeds[frameCounter] = parser.getArgInt(1);
-			frameCounter++;
-		}
-	}
-
-	void deinit() {
-		delete [] effects;
-	}
-
-	Effect::Effect() {
-		frameC = 0;
-		frames = NULL;
-		speeds = NULL;
-	}
-
-	Effect::~Effect() {
-		delete [] frames;
-		delete [] speeds;
-	}
-
-	void Effect::init(int _frameC) {
-		frameC = _frameC;
-		if(frameC) {
-			frames = new int[frameC];
-			speeds = new int[frameC];
-		}
-	}
-
-	void Effect::draw(int x_, int y_, int frame_, bool mirror_, int type_, unsigned int inception_) {
-		graphics::setRect(0, frames[frame_] * img.w, img.w, img.w);
-
-		unsigned int _delta = os::gameFrame - inception_;
-
-		float _x_scale = 1.0f;
-		float _y_scale = 1.0f;
-
-		if(type_ == EFFECT_SCATTER) {
-			_x_scale = _y_scale = 0.5;
-		} else if(type_ == EFFECT_HORIZONTAL) {
-			_x_scale = 1.0f + 0.5f * _delta;
-			_y_scale = 1.0f - _delta * 0.01f;
-		} else if(type_ == EFFECT_VERTICAL) {
-			_x_scale = 1.0f - _delta * 0.01f;
-			_y_scale = 1.0f + 0.5f * _delta;
-		}
-
-		graphics::setRender(RENDER_ADDITIVE);
-		graphics::setScale(_x_scale, _y_scale);
-		img.drawSprite(x_ - img.w * _x_scale / 2, y_ - img.w * _y_scale / 2, mirror_);
-	}
-
-	EffectGroup::EffectGroup() {
-		effects = NULL;
-		id = 0;
-		type = 0;
-		size = 0;
-	}
-
-	EffectGroup::~EffectGroup() {
-		delete [] effects;
-	}
-
-	void EffectGroup::init(int _size) {
-		size = _size;
-		if(size) {
-			effects = new Effect[size];
-		}
-	}
-
-	int sparkCounter = 0;
-	Spark sparks[SPARK_COUNT];
-
-	Spark::Spark() {
-		group = -1;
-		effect = -1;
-		frame = 0;
-		timer = 0;
-	}
-
-	void Spark::think() {
-		if(group == -1) {
-			return;
-		}
-
-		if(vel.x || vel.y) {
-			pos.x += vel.x;
-			pos.y += vel.y;
-			vel.y -= 1;
-		}
-
-		if(++timer >= effects[group].effects[effect].speeds[frame]) {
-			timer = 0;
-			if(vel.x || vel.y || effects[group].type == EFFECT_HORIZONTAL || effects[group].type == EFFECT_VERTICAL) {
-				if(frame < effects[group].effects[effect].frameC - 1) {
-					frame++;
-				} else {
-					alpha -= 0.25;
-					if(alpha <= 0.0) {
-						group = -1;
-						return;
-					}
-				}
-			} else if(++frame >= effects[group].effects[effect].frameC) {
-				group = -1;
-				frame--;
-				return;
-			}
-		}
-	}
-
-	void Spark::draw() {
-		if(group == -1) {
-			return;
-		}
-
-		//graphics::setColor(r * alpha, g * alpha, b * alpha, 1.0);
-		glColor4f(alpha, alpha, alpha, 1.0f);
-		int _type = effects[group].type;
-		if(_type == EFFECT_SCATTER) {
-			if(vel.x == 0 && vel.y == 0) {
-				_type = EFFECT_NORMAL;
-			}
-		}
-		effects[group].effects[effect].draw(pos.x, pos.y, frame, mirror, _type, inception);
-	}
-
-	//void newSpark(int x, int y, int vx, int vy, int group, bool mirror, ubyte_t r, ubyte_t g, ubyte_t b)
-	void newSpark(int x, int y, int vx, int vy, int group, bool mirror) {
-		if(group == -1) {
-			return;
-		}
-
-		sparks[sparkCounter].group = group;
-		sparks[sparkCounter].effect = util::roll(effects[group].size);
-		sparks[sparkCounter].frame = 0;
-		sparks[sparkCounter].timer = 0;
-		sparks[sparkCounter].pos.x = x;
-		sparks[sparkCounter].pos.y = y;
-		sparks[sparkCounter].vel.x = vx;
-		sparks[sparkCounter].vel.y = vy;
-		sparks[sparkCounter].mirror = mirror;
-		/*sparks[sparkCounter].r = r;
-		sparks[sparkCounter].g = g;
-		sparks[sparkCounter].b = b;*/
-		sparks[sparkCounter].alpha = 1.0f;
-		sparks[sparkCounter].inception = os::gameFrame;
-
-		if(++sparkCounter >= SPARK_COUNT) {
-			sparkCounter = 0;
-		}
-	}
-
-	void newSpark(int x, int y, int group, bool mirror) {
-		newSpark(x, y, 0, 0, group, mirror);
-
-		if(effects[group].type == EFFECT_SCATTER) {
-			int particles = util::roll(1, 5);
-			for(int i = 0; i < particles; i++) {
-				newSpark(x, y, util::roll(3, 13) * (mirror) ? -1 : 1, util::roll(5, 15), 1, mirror);
-			}
-		}
-	}
-
-	void think() {
-		for(int i = 0; i < SPARK_COUNT; i++) {
-			sparks[i].think();
-		}
-	}
-
-	void draw() {
-		for(int i = 0; i < SPARK_COUNT; i++) {
-			sparks[i].draw();
-		}
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-	}
 }
-#endif

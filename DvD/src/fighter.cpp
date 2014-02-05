@@ -7,13 +7,13 @@
 #include "graphics.h"
 #include "file.h"
 
-namespace fighter {
+namespace game {
 	Fighter fighters[FIGHTERS_MAX];
 
 #ifdef GAME
 	void init() {
 		fighters[0].create("madotsuki");
-		fighters[1].create("secret");
+		fighters[1].create("maddysucky");
 		fighters[2].create("sabitsuki");
 	}
 
@@ -189,7 +189,6 @@ namespace fighter {
 		//Portraits
 		select.createFromFile("chars/" + name_ + "/portraits/select.png");
 		portrait.createFromFile("chars/" + name_ + "/portraits/portrait.png");
-		portrait2.createFromFile("chars/" + name_ + "/portraits/portrait2.png");
 		special.createFromFile("chars/" + name_ + "/portraits/special.png");
 		ender.createFromFile("chars/" + name_ + "/portraits/super.png");
 	}

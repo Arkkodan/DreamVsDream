@@ -422,7 +422,7 @@ namespace audio {
 	bool fileExists(const char* sz_file) {
 #ifndef NO_SOUND
 #ifdef _WIN32
-		wchar_t* sz_file16 = utf8to16(sz_file);
+		wchar_t* sz_file16 = util::utf8to16(sz_file);
 		DWORD dwAttrib = GetFileAttributesW((LPCWSTR)sz_file16);
 		free(sz_file16);
 		return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));

@@ -1,11 +1,6 @@
 #ifndef SOUND_H_INCLUDED
 #define SOUND_H_INCLUDED
 
-#ifdef EMSCRIPTEN
-#include <SDL/SDL_mixer.h>
-#endif
-
-#include <string>
 #include "globals.h"
 
 namespace audio {

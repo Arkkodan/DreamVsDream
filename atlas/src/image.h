@@ -4,31 +4,30 @@
 #include <stdint.h>
 #include <string>
 
-#include "../../DvD/src/types.h"
+typedef char byte_t;
+typedef unsigned char ubyte_t;
 
-enum
-{
-    PIXEL_NULL,
-    PIXEL_INDEXED,
-    PIXEL_RGB,
-    PIXEL_RGBA,
-    PIXEL_MAX
+enum {
+	PIXEL_NULL,
+	PIXEL_INDEXED,
+	PIXEL_RGB,
+	PIXEL_RGBA,
+	PIXEL_MAX
 };
 
 extern int channels[PIXEL_MAX];
 
-class Image
-{
+class Image {
 public:
-    std::string name;
-    ubyte_t atlas;
-    uint16_t x;
-    uint16_t y;
-    uint16_t w;
-    uint16_t h;
-    uint16_t x_shift;
-    uint16_t y_shift;
-    ubyte_t* data;
+	std::string name;
+	ubyte_t atlas;
+	uint16_t x;
+	uint16_t y;
+	uint16_t w;
+	uint16_t h;
+	uint16_t x_shift;
+	uint16_t y_shift;
+	ubyte_t* data;
 };
 
 int imageRead(std::string szFileName, struct Image* img, int type);

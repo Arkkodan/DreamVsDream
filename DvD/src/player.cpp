@@ -6,12 +6,13 @@
 #include "input.h"
 #include "stage.h"
 #include "graphics.h"
+#include "effect.h"
 
 extern void pause(int);
 extern void shake(int);
 extern int framePauseTimer;
 
-namespace fighter {
+namespace game {
 	#define HITSTUN 14
 	#define JHITSTUN 26
 	#define BLOCKSTUN 14
@@ -52,7 +53,6 @@ namespace fighter {
 		step(0),
 		type('N'),
 		movetype('S'),
-		spark(0),
 		knockdownOther(false),
 		drawPriorityFrame(0),
 		flash(0.0f) {
@@ -123,7 +123,7 @@ namespace fighter {
 			type = readByte();
 			if(type == 'A') {
 				//Set the draw priority frame
-				drawPriorityFrame = os::gameFrame;
+				drawPriorityFrame = os::frame;
 			}
 			movetype = readByte();
 			//if(type == 'A')
@@ -206,8 +206,20 @@ namespace fighter {
 			bounceOther.force.y = readFloat();
 			bounceOther.pause = readByte();
 			break;
-		case STEP_Hitspark:
-			spark = readWord();
+		case STEP_HitSpark:
+			spark = readString();
+			break;
+		case STEP_Effect:
+		    {
+                std::string effect = readString();
+                int x = readWord();
+                int y = readWord();
+                bool spr = readByte();
+                bool mirror = readByte();
+                int speed = readByte();
+                int loops = readByte();
+                effect::newEffect(effect, x + (spr ? pos.x : 0), y + (spr ? pos.y: 0), spr, (spr && ((dir == LEFT) != mirror)) || (!spr && mirror), speed, loops);
+		    }
 			break;
 		case STEP_Knockdown:
 			knockdownOther = true;
@@ -243,7 +255,7 @@ namespace fighter {
 		if(isPlayer()) {
 			flags |= F_GRAVITY;
 			flags &= ~F_MIRROR;
-			((Player*)this)->c_cancel = 0;
+			((Player*)this)->nCancels = 0;
 		}
 
 		//Advance frame
@@ -293,7 +305,7 @@ namespace fighter {
 
 	Player::Player() : Projectile(),
 		playerNum(0),
-		inputC(0),
+		nInputs(0),
 		frameInput(0),
 		input(0),
 		netBuffCounter(0),
@@ -302,7 +314,7 @@ namespace fighter {
 		hitstun(0),
 		pausestun(0),
 
-		c_cancel(0),
+		nCancels(0),
 
 		hp(0),
 		super(0),
@@ -318,7 +330,7 @@ namespace fighter {
 	}
 
 	void Player::reset() {
-		inputC = 0;
+		nInputs = 0;
 
 		juggle = 1.0f;
 		hitstun = 0;
@@ -369,15 +381,15 @@ namespace fighter {
 		}
 
 		if(frameInput) {
-			inputBuff[inputC].input = frameInput;
-			inputBuff[inputC].frame = os::gameFrame;
+			inputs[nInputs].input = frameInput;
+			inputs[nInputs].frame = os::frame;
 			//Adjust queue if necessary
-			if(++inputC >= INBUFF_SIZE) {
+			if(++nInputs >= INBUFF_SIZE) {
 				//Move the input queue back one, then add it
 				for(int i = 1; i < INBUFF_SIZE; i++) {
-					inputBuff[i-1] = inputBuff[i];
+					inputs[i-1] = inputs[i];
 				}
-				inputC--;
+				nInputs--;
 			}
 		}
 	}
@@ -457,14 +469,14 @@ namespace fighter {
 			{
 				for(int i = 0; i < fighter->c_commands; i++) {
 					if(fighter->commands[i].comboC > 1) {
-						if(fighter->commands[i].comboC <= inputC) {
+						if(fighter->commands[i].comboC <= nInputs) {
 							//Directional keys first
 							bool equal = false;
 							int c = fighter->commands[i].comboC - 1;
-							for(int j = inputC - 1; j >= 0; j--) {
-								if(keycmp(inputBuff[j].input, fighter->commands[i].combo[c], fighter->commands[i].generic & (1<<c))) {
+							for(int j = nInputs - 1; j >= 0; j--) {
+								if(keycmp(inputs[j].input, fighter->commands[i].combo[c], fighter->commands[i].generic & (1<<c))) {
 									if(!c) {
-										if(os::gameFrame - inputBuff[j].frame < 15) {
+										if(os::frame - inputs[j].frame < 15) {
 											equal = true;
 										}
 										break;
@@ -478,7 +490,7 @@ namespace fighter {
 							if(equal) {
 								if(executeCommand(i)) {
 									executed = true;
-									inputC = 0;
+									nInputs = 0;
 									break;
 								}
 							}
@@ -515,8 +527,8 @@ namespace fighter {
 
 		//See if a key was pressed within the last 3 frames
 		bool press = false;
-		for(int i = 0; i < inputC; i++) {
-			if(os::gameFrame - inputBuff[i].frame <= 3 && inputBuff[i].input & INPUT_KEYMASK) {
+		for(int i = 0; i < nInputs; i++) {
+			if(os::frame - inputs[i].frame <= 3 && inputs[i].input & INPUT_KEYMASK) {
 				press = true;
 				break;
 			}
@@ -591,6 +603,8 @@ namespace fighter {
 					if(pos.y < 0) {
 						pos.y = 0;
 
+
+                        effect::newEffect("DustShockWave", pos.x, pos.y, true, dir == LEFT, 1, 1);
 						flags |= F_ON_GROUND;
 						flags &= ~(F_DOUBLEJUMP | F_AIRDASH);
 
@@ -785,6 +799,8 @@ namespace fighter {
 			special = 2500 * SPF;
 			pause(2500 * SPF);
 			((MenuSelect*)menus[MENU_SELECT])->newEffect(playerNum, 0);
+			effect::newEffect("Actionlines", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, false, false, 1, 5);
+			effect::newEffect("YumeNikkiTransform", pos.x, pos.y + fighter->height / 2, true, dir == LEFT, 1, 1);
 			flash = 1.0f;
 			break;
 		case STEP_Shoot:
@@ -794,9 +810,9 @@ namespace fighter {
 			attack.damage = 0.0f;
 			break;
 		case STEP_Cancel:
-			b_cancel[c_cancel++] = readWord();
-			if(c_cancel >= CANCEL_MAX) {
-				c_cancel = CANCEL_MAX - 1;
+			cancels[nCancels++] = readWord();
+			if(nCancels >= CANCEL_MAX) {
+				nCancels = CANCEL_MAX - 1;
 			}
 			break;
 
@@ -861,7 +877,7 @@ namespace fighter {
 
 				if(hit == sprite::HIT_HIT) {
 					//Automatically reset draw priority
-					drawPriorityFrame = os::gameFrame;
+					drawPriorityFrame = os::frame;
 
 					frameHit = true;
 					if(attack.cancel && pself) {
@@ -894,7 +910,7 @@ namespace fighter {
 						}
 
 						if(blocked) {
-							sprite::newSpark(colpos.x, colpos.y, 0, dir == LEFT);
+							effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1);
 
 							//Horizontal velocity caps when on ground
 							float _force = attack.vX;
@@ -932,7 +948,8 @@ namespace fighter {
 								pself->comboCounter++;
 							}
 
-							sprite::newSpark(colpos.x, colpos.y, spark, dir == LEFT);
+                            if(spark != "none")
+                                effect::newEffect(spark, colpos.x, colpos.y, true, dir == LEFT, 1, 1);
 
 							pother->takeDamage(attack.damage);
 							pother->bounce.force.x = bounceOther.force.x * mirror;
@@ -1010,7 +1027,7 @@ namespace fighter {
 					pother->frameHit = true;
 					pause(12);
 					shake(12);
-					sprite::newSpark(colpos.x, colpos.y, 0, dir == LEFT);
+					effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1);
 					playSound(0);
 				}
 			}
@@ -1099,7 +1116,7 @@ namespace fighter {
 			if(optionEpilepsy) {
 				pct = 0.5f;
 			} else {
-				if(os::gameFrame % 3 == 0) {
+				if(os::frame % 3 == 0) {
 					pct = 0.9f;
 				}
 			}
@@ -1433,6 +1450,14 @@ namespace fighter {
 	#endif
 	}
 
+    std::string Projectile::readString() {
+		ubyte_t size = readByte();
+		char* ptr = (char*)fighter->states[state].steps + step;
+		std::string str = std::string(ptr, ptr + size);
+		step += size;
+		return str;
+	}
+
 	bool Projectile::isMirrored() {
 		if(flags & F_MIRROR) {
 			return dir == RIGHT;
@@ -1449,8 +1474,8 @@ namespace fighter {
 	void Player::setStateByInput(int state) {
 		if(Player::isAttacking()) {
 			//Only set the state if this is on the list of cancels
-			for(int i = 0; i < c_cancel; i++)
-				if(state == b_cancel[i]) {
+			for(int i = 0; i < nCancels; i++)
+				if(state == cancels[i]) {
 					setState(state);
 					return;
 				}

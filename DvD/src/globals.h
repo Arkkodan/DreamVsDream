@@ -2,9 +2,24 @@
 #define GLOBALS_H_INCLUDED
 
 #include <string>
+#include <vector>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <limits.h>
 
-#include "types.h"
+#ifdef _WIN32
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#endif
+
 #include "os.h"
+
+typedef char byte_t;
+typedef unsigned char ubyte_t;
 
 #ifdef SPRTOOL
 #define WINDOW_TITLE "Dream vs. Dream Sprite Tool"
@@ -20,11 +35,6 @@
 #define SPF (1.0/FPS)
 #define MSPF (1000/FPS)
 
-//SPRITE TOOL STUFF
-#ifdef SPRTOOL
-#define EDIT_OFFSET 100
-#endif
-
 #define FLOAT_ACCURACY 65536
 
 extern std::string szConfigPath;
@@ -38,6 +48,9 @@ extern int optionVoiceVolume;
 extern bool optionEpilepsy;
 extern bool optionSecretCharacter;
 
-extern unsigned int gameFrame;
+//SPRITE TOOL STUFF
+#ifdef SPRTOOL
+#define EDIT_OFFSET 100
+#endif
 
 #endif // GLOBALS_H_INCLUDED

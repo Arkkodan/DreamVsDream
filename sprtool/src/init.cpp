@@ -3,17 +3,15 @@
 #include "../../DvD/src/error.h"
 #include "../../DvD/src/fighter.h"
 
-void init()
-{
-    void deinit();
-    atexit(deinit);
+void init() {
+	void deinit();
+	atexit(deinit);
 
-    OS::init();
-    Graphics::init(false, 0);
+	os::init();
+	graphics::init(false, 0);
 }
 
-void deinit()
-{
-    Graphics::deinit();
-    OS::deinit();
+void deinit() {
+	graphics::deinit();
+	os::deinit();
 }

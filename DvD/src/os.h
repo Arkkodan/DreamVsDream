@@ -12,8 +12,6 @@
 #include <SDL/SDL.h>
 #include <SDL/SDL_opengl.h>
 
-#include "types.h"
-
 namespace os {
 	void init();
 	void deinit();
@@ -29,7 +27,7 @@ namespace os {
 
 	unsigned long getTime();
 
-	extern unsigned int gameFrame;
+	extern unsigned int frame;
 }
 
 #endif // OS_H_INCLUDED

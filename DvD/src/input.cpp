@@ -47,8 +47,8 @@ int key_config[KEY_MAX] = {
 
 #define KEY_CFG_FILE "keys.cfg"
 
-extern fighter::Player madotsuki;
-extern fighter::Player poniko;
+extern game::Player madotsuki;
+extern game::Player poniko;
 
 namespace input {
 	void init() {

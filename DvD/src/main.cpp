@@ -8,6 +8,7 @@
 #include "stage.h"
 #include "network.h"
 #include "atlas.h"
+#include "effect.h"
 
 #include <SDL/SDL.h>
 
@@ -15,13 +16,13 @@
 #include <emscripten/emscripten.h>
 #endif
 
-fighter::Player madotsuki;
-fighter::Player poniko;
+game::Player madotsuki;
+game::Player poniko;
 util::Vector cameraPos(0,0);
 util::Vector idealCameraPos(0,0);
 util::Vector cameraShake(0,0);
 
-extern fighter::Fighter fighters[];
+extern game::Fighter fighters[];
 extern Stage stages[];
 
 int framePauseTimer = 0;
@@ -114,9 +115,6 @@ void mainLoop() {
 			framePauseTimer--;
 		}
 
-		sprite::think();
-
-
 		//DRAW
 
 		STAGE.draw(false);
@@ -156,7 +154,7 @@ void mainLoop() {
 
 		STAGE.draw(true);
 
-		sprite::draw();
+		effect::draw();
 
 		MENU->think();
 		MENU->draw();
@@ -182,7 +180,7 @@ int main(int argc, char** argv)
 	wchar_t** argv16 = CommandLineToArgvW(GetCommandLineW(), &argc);
 	char** argv = (char**)malloc(argc * sizeof(char*));
 	for(int i = 0; i < argc; i++) {
-		argv[i] = utf16to8(argv16[i]);
+		argv[i] = util::utf16to8(argv16[i]);
 	}
 	LocalFree(argv16);
 #endif
