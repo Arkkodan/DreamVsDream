@@ -13,14 +13,11 @@ public:
 	Thread(void (*func)());
 	~Thread();
 
+    void detach();
 	void join();
 
 private:
-#ifdef _WIN32
-	HANDLE thread;
-#else
-	pthread_t thread;
-#endif
+    SDL_Thread* thread;
 };
 
 class Mutex {
@@ -32,11 +29,7 @@ public:
 	void unlock();
 
 private:
-#ifdef _WIN32
-	HANDLE mutex;
-#else
-	pthread_mutex_t mutex;
-#endif
+    SDL_mutex* mutex;
 };
 
 #endif //THREAD_H_INCLUDED

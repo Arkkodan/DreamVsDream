@@ -10,7 +10,6 @@
 
 #ifndef NO_SOUND
 #ifndef EMSCRIPTEN
-#include <portaudio.h>
 #include <sndfile.h>
 #endif
 #endif
@@ -27,8 +26,9 @@
 #define SPEAKER_SOURCE_MAX 8
 
 namespace audio {
+    SDL_AudioSpec audioSpec;
 	bool enabled = false;
-	
+
 	Music* music = NULL;
 
 #ifndef NO_SOUND
@@ -102,20 +102,15 @@ namespace audio {
 	//static MusicStream stream_intro;
 	//static MusicStream stream_loop;
 
-	static PaStream* audio_stream = NULL;
-
-	static int portaudioCallback(const void* b_input_, void* b_output_,
-		                     unsigned long frames_per_buffer_,
-		                     const PaStreamCallbackTimeInfo* time_info_,
-		                     PaStreamCallbackFlags status_flags_,
-		                     void* data_) {
+	static void audioCallback(void* udata, unsigned char* stream, int _size) {
 		float music_volume = optionMusVolume / (float)200;
 		float sound_volume = optionSfxVolume / (float)100;
 		float voice_volume = optionVoiceVolume / (float)100;
 
-		float* out = (float*)b_output_;
+		float* out = (float*)stream;
+		unsigned int size = _size / 4 / audioSpec.channels;
 
-		for(unsigned int i = 0; i < frames_per_buffer_; i++) {
+		for(unsigned int i = 0; i < size; i++) {
 			out[0] = 0.0f;
 			out[1] = 0.0f;
 
@@ -185,7 +180,6 @@ namespace audio {
 			}
 			out += 2;
 		}
-		return 0;
 	}
 
 #endif //EMSCRIPTEN
@@ -202,19 +196,20 @@ namespace audio {
 		Mix_ChannelFinished(sound_channelDone);
 		Mix_HookMusicFinished(sound_musicDone);
 #else
-		int _error = Pa_Initialize();
-		if(_error != paNoError) {
-			error("PortAudio could not initialize: " + std::string(Pa_GetErrorText(_error)));
-			return;
-		}
+        SDL_AudioSpec want;
+        SDL_zero(want);
+        want.freq = 44100;
+        want.format = AUDIO_F32;
+        want.channels = 2;
+        want.samples = 1024;
+        want.callback = audioCallback;
 
-		_error = Pa_OpenDefaultStream(&audio_stream, 0, 2, paFloat32, SAMPLE_RATE, paFramesPerBufferUnspecified, portaudioCallback, NULL);
-		if(_error != paNoError) {
-			error("PortAudio could not open the default stream: %s" + std::string(Pa_GetErrorText(_error)));
-			return;
-		}
+        if(SDL_OpenAudio(&want, &audioSpec) < 0) {
+            error("SDL could not open audio: " + std::string(SDL_GetError()));
+            return;
+        }
 
-		Pa_StartStream(audio_stream);
+		SDL_PauseAudio(0);
 
 		enabled = true;
 #endif
@@ -229,8 +224,7 @@ namespace audio {
 		}
 #else
 		if(enabled) {
-			Pa_AbortStream(audio_stream);
-			Pa_Terminate();
+			SDL_CloseAudio();
 		}
 #endif
 #endif
@@ -402,7 +396,7 @@ namespace audio {
 		}
 #else
 		if(samples) {
-			free(samples);
+			delete [] samples;
 		}
 #endif
 #endif

@@ -15,6 +15,9 @@ extern game::Player poniko;
 namespace os {
 	unsigned int frame = 0;
 
+	SDL_Window* window = NULL;
+	SDL_GLContext glcontext = NULL;
+
 	void init() {
 		//Initialize SDL
 		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
@@ -22,16 +25,20 @@ namespace os {
 		}
 
 		//Create Window
-		SDL_WM_SetCaption(WINDOW_TITLE, NULL);
-		if(SDL_SetVideoMode(WINDOW_WIDTH, WINDOW_HEIGHT, 24, SDL_OPENGL) == NULL) {
+		if(!(window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL))) {
 			die("Failed to initialize SDL.");
 		}
+
+		glcontext = SDL_GL_CreateContext(window);
+
 #ifdef EMSCRIPTEN
 		IMG_Init(IMG_INIT_PNG);
 #endif
 	}
 
 	void deinit() {
+	    SDL_GL_DeleteContext(glcontext);
+	    SDL_DestroyWindow(window);
 		SDL_Quit();
 	}
 
@@ -49,7 +56,7 @@ namespace os {
 		poniko.frameInput = 0;
 #endif
 
-		SDL_GL_SwapBuffers();
+		SDL_GL_SwapWindow(window);
 
 		SDL_Event e;
 		while(SDL_PollEvent(&e)) {
