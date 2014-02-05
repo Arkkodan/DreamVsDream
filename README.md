@@ -8,5 +8,5 @@ definitely not the cleanest, most consistent, or most logical.
 
 Official links:
 http://dreamvsdream.99k.org/forum/
-http://www.tumblr.com/blog/dream-vs-dream
-http://www.youtube.com/user/DreamVsDream
+http://dream-vs-dream.tumblr.com/
+http://www.youtube.com/user/DreamVsDream/
