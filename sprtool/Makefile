@@ -1,38 +1,39 @@
 #Configuration
 include		config.mk
 
-SRCPATH		:= src
-OBJPATH		:= obj
+OBJ_DIR		:= obj
 
-DVDSRCPATH	:= ../DvD/src
+SRC_DIR		:= src
+SRC_FILES	:= $(wildcard $(SRC_DIR)/*.cpp)
 
-CXXFILES	:= init input main
-DVDCXXFILES	:= sprite parser error fighter os util graphics image
+DVD_SRC_DIR	:= ../DvD/src
+DVD_SRC		:= error fighter graphics image os parser sprite util
+DVD_SRC_FILES	:= $(addsuffix .cpp, $(addprefix $(DVD_SRC_DIR)/, $(DVD_SRC)))
 
-CXXSRC		:= $(addprefix $(SRCPATH)/, $(addsuffix .cpp, $(CXXFILES))) $(addprefix $(DVDSRCPATH)/, $(addsuffix .cpp, $(DVDCXXFILES)))
-OBJ		:= $(addprefix $(OBJPATH)/, $(addsuffix .o, $(CXXFILES) $(DVDCXXFILES)))
+OBJ_FILES	:= $(SRC_FILES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
+OBJ_FILES	+= $(DVD_SRC_FILES:$(DVD_SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
 .PHONY: all clean
 
 all: $(TARGET)
 
 # Binary
-$(TARGET): $(OBJ)
+$(TARGET): $(OBJ_FILES)
 	@echo LD $@
-	@$(LD) -o $@ $(OBJ) $(LDFLAGS)
+	@$(LD) -o $@ $(OBJ_FILES) $(LDFLAGS)
 
 # Objects
-$(OBJPATH)/%.o: $(SRCPATH)/%.cpp | $(OBJPATH)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+	echo $(DVD_SRC_FILES)
 	@echo CXX $<
 	@$(CXX) -c -o $@ $(CXXFLAGS) $<
 
-$(OBJPATH)/%.o: $(DVDSRCPATH)/%.cpp | $(OBJPATH)
+$(OBJ_DIR)/%.o: $(DVD_SRC_DIR)/%.cpp | $(OBJ_DIR)
 	@echo CXX $<
 	@$(CXX) -c -o $@ $(CXXFLAGS) $<
 
 clean:
-	rm -rf $(OBJPATH) $(TARGET)
-	rm -rf DvD.data DvD.js DvD.html DvD.html.map
+	rm -rf $(OBJ_DIR) $(TARGET)
 
-$(OBJPATH):
-	@mkdir -p $(OBJPATH)
+$(OBJ_DIR):
+	@mkdir -p $(OBJ_DIR)
