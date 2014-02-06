@@ -9,8 +9,6 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <GL/glew.h>
-#define NO_SDL_GLEXT
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 

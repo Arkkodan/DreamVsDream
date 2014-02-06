@@ -5,6 +5,38 @@
 
 #include "shader.h"
 
+/*extern PFNGLATTACHOBJECTARBPROC			glAttachObjectARB;
+extern PFNGLCOMPILESHADERARBPROC		glCompileShaderARB;
+extern PFNGLCREATEPROGRAMOBJECTARBPROC	glCreateProgramObjectARB;
+extern PFNGLCREATESHADEROBJECTARBPROC	glCreateShaderObjectARB;
+extern PFNGLDELETEOBJECTARBPROC			glDeleteObjectARB;
+extern PFNGLGETINFOLOGARBPROC			glGetInfoLogARB;
+extern PFNGLGETOBJECTPARAMETERIVARBPROC glGetObjectParameterivARB;
+extern PFNGLGETUNIFORMLOCATIONARBPROC 	glGetUniformLocationARB;
+extern PFNGLLINKPROGRAMARBPROC 			glLinkProgramARB;
+extern PFNGLSHADERSOURCEARBPROC 		glShaderSourceARB;
+extern PFNGLUNIFORM1IARBPROC 			glUniform1iARB;
+extern PFNGLUSEPROGRAMOBJECTARBPROC 	glUseProgramObjectARB;*/
+
+extern PFNGLATTACHSHADERPROC			glAttachShader;
+extern PFNGLCOMPILESHADERPROC			glCompileShader;
+extern PFNGLCREATEPROGRAMPROC			glCreateProgram;
+extern PFNGLDELETEPROGRAMPROC			glDeleteProgram;
+extern PFNGLCREATESHADERPROC			glCreateShader;
+extern PFNGLDELETESHADERPROC			glDeleteShader;
+extern PFNGLGETPROGRAMINFOLOGPROC		glGetProgramInfoLog;
+extern PFNGLGETPROGRAMIVPROC			glGetProgramiv;
+extern PFNGLGETSHADERIVPROC				glGetShaderiv;
+extern PFNGLGETUNIFORMLOCATIONPROC	 	glGetUniformLocation;
+extern PFNGLLINKPROGRAMPROC 			glLinkProgram;
+extern PFNGLSHADERSOURCEPROC 			glShaderSource;
+extern PFNGLUNIFORM1IPROC 				glUniform1i;
+extern PFNGLUNIFORM1FPROC 				glUniform1f;
+extern PFNGLUNIFORM2FPROC 				glUniform2f;
+extern PFNGLUNIFORM3FPROC 				glUniform3f;
+extern PFNGLUNIFORM4FPROC 				glUniform4f;
+extern PFNGLUSEPROGRAMPROC		 		glUseProgram;
+
 namespace graphics {
 	//Init/deinit
 	void init(bool disable_shaders, unsigned int max_texture_size);

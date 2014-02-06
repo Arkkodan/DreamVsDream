@@ -8,11 +8,26 @@
 #include "shader.h"
 #include "stage.h"
 
-#ifdef EMSCRIPTEN
-#define GLEW_ARB_fragment_shader GL_ARB_fragment_shader
-#endif
-
 #define FPS_BUFFER 2
+
+#define LOAD_GL_PROC(name, type) name = (PFN##type##PROC)SDL_GL_GetProcAddress(#name)
+
+PFNGLATTACHSHADERPROC			glAttachShader;
+PFNGLCOMPILESHADERPROC			glCompileShader;
+PFNGLCREATEPROGRAMPROC			glCreateProgram;
+PFNGLCREATESHADERPROC			glCreateShader;
+PFNGLDELETESHADERPROC			glDeleteShader;
+PFNGLGETPROGRAMINFOLOGPROC		glGetProgramInfoLog;
+PFNGLGETSHADERIVPROC			glGetShaderiv;
+PFNGLGETUNIFORMLOCATIONPROC	 	glGetUniformLocation;
+PFNGLLINKPROGRAMPROC 			glLinkProgram;
+PFNGLSHADERSOURCEPROC 			glShaderSource;
+PFNGLUNIFORM1IPROC 				glUniform1i;
+PFNGLUNIFORM1FPROC 				glUniform1f;
+PFNGLUNIFORM2FPROC 				glUniform2f;
+PFNGLUNIFORM3FPROC 				glUniform3f;
+PFNGLUNIFORM4FPROC 				glUniform4f;
+PFNGLUSEPROGRAMPROC		 		glUseProgram;
 
 //double oldTime = 0.0f;
 
@@ -34,7 +49,6 @@ namespace graphics {
 	unsigned int max_texture_size = 0;
 	bool force_POT = false;
 	bool shader_support = false;
-	bool force_no_shader_support = false;
 
 	//Timer stuff
 	unsigned long time = 0;
@@ -65,42 +79,61 @@ namespace graphics {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-#ifndef EMSCRIPTEN
-		//Initialize the GLEW
-		if(glewInit() != GLEW_OK) {
-			die("GLEW failed to initialize");
-		}
-#endif
-
 		//Get max texture size
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*)&max_texture_size);
 		if(max_texture_size_ && max_texture_size_ < max_texture_size) {
 			max_texture_size = max_texture_size_;
 		}
 
-		//Query extension capabilities
-		/*FILE* f = fopen("log.txt", "wt");
-		fputs((const char*)glGetString(GL_EXTENSIONS), f);
-		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_texture_size);
-		fprintf(f, "\n%d\n", max_texture_size);
-		fclose(f);*/
-
-		//Force powers of two?
-		//if(GL_ARB_texture_non_power_of_two)
-		//force_POT = true;
-
 		//Shader support?
-#ifdef SPRTOOL
-        (void)disable_shaders_;
-#else
-		if(!disable_shaders_ && (GLEW_ARB_fragment_shader && !force_no_shader_support)) {
-			shader_support = true;
+		if(!disable_shaders_) {
+			//See if we have opengl >= 2.0; this means we have non-arb
+			//shading extensions
+			GLint version;
+			glGetIntegerv(GL_MAJOR_VERSION, &version);
+			if(version >= 2) {
+				LOAD_GL_PROC(glAttachShader, GLATTACHSHADER);
+				LOAD_GL_PROC(glCompileShader, GLCOMPILESHADER);
+				LOAD_GL_PROC(glCreateProgram, GLCREATEPROGRAM);
+				LOAD_GL_PROC(glCreateShader, GLCREATESHADER);
+				LOAD_GL_PROC(glDeleteShader, GLDELETESHADER);
+				LOAD_GL_PROC(glGetProgramInfoLog, GLGETPROGRAMINFOLOG);
+				LOAD_GL_PROC(glGetShaderiv, GLGETSHADERIV);
+				LOAD_GL_PROC(glGetUniformLocation, GLGETUNIFORMLOCATION);
+				LOAD_GL_PROC(glLinkProgram, GLLINKPROGRAM);
+				LOAD_GL_PROC(glShaderSource, GLSHADERSOURCE);
+				LOAD_GL_PROC(glUniform1i, GLUNIFORM1I);
+				LOAD_GL_PROC(glUniform1f, GLUNIFORM1F);
+				LOAD_GL_PROC(glUniform2f, GLUNIFORM2F);
+				LOAD_GL_PROC(glUniform3f, GLUNIFORM3F);
+				LOAD_GL_PROC(glUniform4f, GLUNIFORM4F);
+				LOAD_GL_PROC(glUseProgram, GLUSEPROGRAM);
+				shader_support = true;
+			}
+
+			/*if(SDL_GL_ExtensionSupported("GL_ARB_shader_objects") &&
+			   SDL_GL_ExtensionSupported("GL_ARB_shading_language_100") &&
+			   SDL_GL_ExtensionSupported("GL_ARB_vertex_shader") &&
+			   SDL_GL_ExtensionSupported("GL_ARB_fragment_shader")) {
+				glAttachObjectARB = (PFNGLATTACHOBJECTARBPROC)SDL_GL_GetProcAddress("glAttachObjectARB");
+				glCompileShaderARB = (PFNGLCOMPILESHADERARBPROC)SDL_GL_GetProcAddress("glCompileShaderARB");
+				glCreateProgramObjectARB = (PFNGLCREATEPROGRAMOBJECTARBPROC)SDL_GL_GetProcAddress("glCreateProgramObjectARB");
+				glCreateShaderObjectARB = (PFNGLCREATESHADEROBJECTARBPROC)SDL_GL_GetProcAddress("glCreateShaderObjectARB");
+				glDeleteObjectARB = (PFNGLDELETEOBJECTARBPROC)SDL_GL_GetProcAddress("glDeleteObjectARB");
+				glGetInfoLogARB = (PFNGLGETINFOLOGARBPROC)SDL_GL_GetProcAddress("glGetInfoLogARB");
+				glGetObjectParameterivARB = (PFNGLGETOBJECTPARAMETERIVARBPROC)SDL_GL_GetProcAddress("glGetObjectParameterivARB");
+				glGetUniformLocationARB = (PFNGLGETUNIFORMLOCATIONARBPROC)SDL_GL_GetProcAddress("glGetUniformLocationARB");
+				glLinkProgramARB = (PFNGLLINKPROGRAMARBPROC)SDL_GL_GetProcAddress("glLinkProgramARB");
+				glShaderSourceARB = (PFNGLSHADERSOURCEARBPROC)SDL_GL_GetProcAddress("glShaderSourceARB");
+				glUniform1iARB = (PFNGLUNIFORM1IARBPROC)SDL_GL_GetProcAddress("glUniform1iARB");
+				glUseProgramObjectARB = (PFNGLUSEPROGRAMOBJECTARBPROC)SDL_GL_GetProcAddress("glUseProgramObjectARB");
+				shader_support = glAttachObjectARB && glCompileShaderARB && glCreateProgramObjectARB && glCreateShaderObjectARB && glDeleteObjectARB && glGetInfoLogARB && glGetObjectParameterivARB && glGetUniformLocationARB && glLinkProgramARB && glShaderSourceARB && glUniform1iARB && glUseProgramObjectARB;
+			}*/
 		}
 		//Load shaders, if possible
 		if(shader_support) {
 			shader_palette.create("shaders/vertex.v.glsl", "shaders/palette.f.glsl");
 		}
-#endif
 
 		//Remove garbage data
 		glClear(GL_COLOR_BUFFER_BIT);

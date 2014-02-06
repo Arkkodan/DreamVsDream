@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <GL/glew.h>
-
 #include "graphics.h"
 #include "shader.h"
 #include "util.h"
@@ -81,7 +79,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		glGetShaderiv(vertex, GL_INFO_LOG_LENGTH , &length);
 		if(length > 1) {
 			char* log = (char*)malloc(length);
-			glGetInfoLogARB(vertex, length, nullptr, log);
+			glGetProgramInfoLog(vertex, length, nullptr, log);
 			fprintf(stderr, "GLSL: %s:\n%s\n", szVertexFile, log);
 			free(log);
 		}
@@ -109,7 +107,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &length);
 		if(length > 1) {
 			char* log = (char*)malloc(length);
-			glGetInfoLogARB(vertex, length, nullptr, log);
+			glGetProgramInfoLog(vertex, length, nullptr, log);
 			fprintf(stderr, "GLSL: %s:\n%s\n", szFragmentFile, log);
 			free(log);
 		}

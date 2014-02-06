@@ -7,6 +7,11 @@ OBJ_DIR		:= obj
 SRC_FILES	:= $(wildcard $(SRC_DIR)/*.cpp)
 OBJ_FILES	:= $(SRC_FILES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 
+ifeq ($(PLATFORM),w32)
+	RES_FILE	:= resource.rc
+	OBJ_FILES	+= $(RES_FILE:%.rc=$(OBJ_DIR)/%.o)
+endif
+
 .PHONY: all clean
 
 all: $(TARGET)
@@ -20,6 +25,10 @@ $(TARGET): $(OBJ_FILES)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	@echo CXX $<
 	@$(CXX) -c -o $@ $(CXXFLAGS) $<
+
+$(OBJ_DIR)/%.o: $(RES_FILE) | $(OBJ_DIR)
+	@echo WINDRES $<
+	@$(WINDRES) $< $@
 
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
