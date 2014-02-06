@@ -37,8 +37,8 @@ public:
 
 	void bgmPlay();
 
-	void parseFile(std::string szFileName);
-	std::string getResource(std::string szFileName, std::string extension);
+	void parseFile(const std::string& szFileName);
+	std::string getResource(const std::string& szFileName, const std::string& extension);
 
 	static void ginit();
 	static void deinit();

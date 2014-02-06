@@ -153,7 +153,7 @@ namespace game {
 	};
 
 	struct StepShoot {
-		int state;
+		unsigned int state;
 		util::Vectorf force;
 	};
 
@@ -275,7 +275,6 @@ namespace game {
 #endif
 
 		Fighter();
-		explicit Fighter(std::string name);
 		~Fighter();
 
 		void create(std::string name);

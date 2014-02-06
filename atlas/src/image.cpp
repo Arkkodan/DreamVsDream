@@ -12,9 +12,9 @@ int channels[PIXEL_MAX] = {0, 1, 3, 4};
 int imageRead(std::string szFileName_, struct Image* img_, int type_) {
 	int i, j;
 
-	FILE* f = NULL;
-	png_structp png_ptr = NULL;
-	png_infop info_ptr = NULL;
+	FILE* f = nullptr;
+	png_structp png_ptr = nullptr;
+	png_infop info_ptr = nullptr;
 	int w, h;
 	int bitdepth, channels;
 	int colortype = -1;
@@ -27,9 +27,9 @@ int imageRead(std::string szFileName_, struct Image* img_, int type_) {
 	img_->h = 0;
 	img_->x_shift = 0;
 	img_->y_shift = 0;
-	img_->data = NULL;
+	img_->data = nullptr;
 
-	f = util::fopen8(szFileName_, "rb");
+	f = util::ufopen(szFileName_, "rb");
 	if(!f) {
 		std::cerr << "error: cannot read \"" << szFileName_ << "\"." << std::endl;
 		goto end;
@@ -43,7 +43,7 @@ int imageRead(std::string szFileName_, struct Image* img_, int type_) {
 	}
 
 	//Create read struct
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	info_ptr = png_create_info_struct(png_ptr);
 	if(!info_ptr) {
 		goto end;
@@ -56,7 +56,7 @@ int imageRead(std::string szFileName_, struct Image* img_, int type_) {
 	//Read the PNG from the file, close the file
 	png_init_io(png_ptr, f);
 	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
 
 	//Get some basic info
 	w = png_get_image_width(png_ptr, info_ptr);
@@ -241,7 +241,7 @@ end:
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
 	}
 	if(png_ptr) {
-		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		png_destroy_read_struct(&png_ptr, (png_infopp)nullptr, (png_infopp)nullptr);
 	}
 
 	switch(colortype) {
@@ -259,15 +259,15 @@ end:
 int imageReadPalette(std::string szFileName_, unsigned char* palette_) {
 	int code = 0;
 
-	FILE* f = NULL;
-	png_structp png_ptr = NULL;
-	png_infop info_ptr = NULL;
+	FILE* f = nullptr;
+	png_structp png_ptr = nullptr;
+	png_infop info_ptr = nullptr;
 	int bitdepth;
 	int colortype = -1;
-	png_colorp palette = NULL;
+	png_colorp palette = nullptr;
 	int c_palette = 0;
 
-	f = util::fopen8(szFileName_, "rb");
+	f = util::ufopen(szFileName_, "rb");
 	if(!f) {
 		std::cerr << "error: cannot read \"" << szFileName_ << "\"." << std::endl;
 		code = 1;
@@ -282,7 +282,7 @@ int imageReadPalette(std::string szFileName_, unsigned char* palette_) {
 	}
 
 	//Create read struct
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	info_ptr = png_create_info_struct(png_ptr);
 	if(!info_ptr) {
 		goto end;
@@ -295,7 +295,7 @@ int imageReadPalette(std::string szFileName_, unsigned char* palette_) {
 	//Read the PNG from the file, close the file
 	png_init_io(png_ptr, f);
 	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
 
 	//Get some basic info
 	bitdepth = png_get_bit_depth(png_ptr, info_ptr);
@@ -325,34 +325,34 @@ end:
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
 	}
 	if(png_ptr) {
-		png_destroy_read_struct(&png_ptr, (png_infopp)NULL, (png_infopp)NULL);
+		png_destroy_read_struct(&png_ptr, (png_infopp)nullptr, (png_infopp)nullptr);
 	}
 	return code;
 }
 
 void imageWrite(std::string szFileName_, struct Image* img_, int type_, const unsigned char* palette_) {
-	FILE* f = NULL;
-	png_structp png_ptr = NULL;
-	png_infop info_ptr = NULL;
+	FILE* f = nullptr;
+	png_structp png_ptr = nullptr;
+	png_infop info_ptr = nullptr;
 	int type_png = 0;
 
 
 	//Open file for writing (binary mode)
-	f = util::fopen8(szFileName_, "wb");
-	if(f == NULL) {
+	f = util::ufopen(szFileName_, "wb");
+	if(f == nullptr) {
 		std::cerr << "error: cannot write to \"" << szFileName_ << "\"." << std::endl;
 		goto end;
 	}
 
 	//Initialize write structure
-	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-	if (png_ptr == NULL) {
+	png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+	if (png_ptr == nullptr) {
 		goto end;
 	}
 
 	//Initialize info structure
 	info_ptr = png_create_info_struct(png_ptr);
-	if(info_ptr == NULL) {
+	if(info_ptr == nullptr) {
 		goto end;
 	}
 
@@ -386,7 +386,7 @@ void imageWrite(std::string szFileName_, struct Image* img_, int type_, const un
 	}
 
 	// Set title
-	/*if (title != NULL) {
+	/*if (title != nullptr) {
 		png_text title_text;
 		title_text.compression = PNG_TEXT_COMPRESSION_NONE;
 		title_text.key = "Title";
@@ -402,7 +402,7 @@ void imageWrite(std::string szFileName_, struct Image* img_, int type_, const un
 	}
 
 	// End write
-	png_write_end(png_ptr, NULL);
+	png_write_end(png_ptr, nullptr);
 
 end:
 	if(f) {
@@ -412,6 +412,6 @@ end:
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
 	}
 	if(png_ptr) {
-		png_destroy_write_struct(&png_ptr, (png_infopp)NULL);
+		png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
 	}
 }

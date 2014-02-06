@@ -59,7 +59,7 @@ namespace input {
 		if(nLines == KEY_MAX) {
 			for(int i = 0; i < KEY_MAX; i++) {
 				if(strlen(szLines[i]) >= 2 && szLines[i][0] == '0' && szLines[i][1] == 'x') {
-					key_config[i] = strtol((const char*)szLines[i], NULL, 16);
+					key_config[i] = strtol((const char*)szLines[i], nullptr, 16);
 				} else {
 					key_config[i] = atoi(szLines[i]);
 				}

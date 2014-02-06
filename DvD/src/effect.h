@@ -9,9 +9,15 @@ namespace effect {
     class EffectAnimation {
     public:
         EffectAnimation();
+        EffectAnimation(EffectAnimation&& other);
+        EffectAnimation& operator=(EffectAnimation&& other);
         ~EffectAnimation();
 
-        void create(std::string name);
+        EffectAnimation(std::string name);
+
+        //Do not copy anims
+        EffectAnimation(const EffectAnimation& other) = delete;
+        EffectAnimation& operator=(EffectAnimation& other) = delete;
 
         std::string getName();
         Image* getFrame(int frame);
@@ -26,7 +32,7 @@ namespace effect {
     class Effect {
     public:
         Effect();
-        Effect(std::string name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops);
+        Effect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops);
         ~Effect();
 
         unsigned int getCreationFrame();
@@ -48,7 +54,7 @@ namespace effect {
     void init();
     void deinit();
 
-    void newEffect(std::string name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops);
+    void newEffect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops);
     void draw();
 }
 

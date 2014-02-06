@@ -39,7 +39,7 @@ enum {
 
 class MenuImage {
 public:
-	MenuImage(Image* _image, float _x, float _y, float _parallax, char _render, float _xvel, float _yvel, bool wrap, int round);
+	MenuImage(Image& _image, float _x, float _y, float _parallax, char _render, float _xvel, float _yvel, bool wrap, int round);
 	~MenuImage();
 
 	Image image;
@@ -358,8 +358,8 @@ public:
 	Font combo;
 	Image comboLeft;
 	Image comboRight;
-	int comboLeftOff;
-	int comboRightOff;
+	unsigned int comboLeftOff;
+	unsigned int comboRightOff;
 	int comboLeftLast;
 	int comboRightLast;
 	int comboLeftTimer;

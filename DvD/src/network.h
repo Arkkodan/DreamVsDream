@@ -17,7 +17,7 @@ namespace net {
 		MODE_CLIENT,
 	};
 
-	#define NET_VERSION 1
+	#define NET_VERSION 2
 
 	struct NetHeader {
 	#define NETF_SYN (1<<0)
@@ -63,6 +63,6 @@ namespace net {
 
 	void init(int input_delay);
 	void deinit();
-};
+}
 
 #endif // NETWORK_H_INCLUDED

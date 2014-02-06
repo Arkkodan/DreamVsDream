@@ -43,7 +43,7 @@ bool blackBG = true;
 
 util::Vector mousePos;
 bool mouse1Down = false;
-sprite::HitBox* selectBox = NULL;
+sprite::HitBox* selectBox = nullptr;
 bool selectBoxAttack = false;
 util::Vector selectBoxOffset;
 
@@ -130,7 +130,7 @@ void keyPress(int key, bool press) {
 		//New attack hitbox
 		case SDLK_a:
 			if(ctrl) {
-				selectBox = NULL;
+				selectBox = nullptr;
 				selectAll = !selectAll;
 			} else {
 				selectBox = fighter.sprites[frame].aHitBoxes.newHitbox();
@@ -145,12 +145,12 @@ void keyPress(int key, bool press) {
 			} else {
 				fighter.sprites[frame].hitBoxes.deleteHitbox(selectBox);
 			}
-			selectBox = NULL;
+			selectBox = nullptr;
 			break;
 
 		//Deselect
 		case SDLK_d:
-			selectBox = NULL;
+			selectBox = nullptr;
 			break;
 
 		//Select previous hitbox
@@ -387,7 +387,7 @@ void keyPress(int key, bool press) {
 
 		case SDLK_o:
 			//case SDLK_PageUp:
-			selectBox = NULL;
+			selectBox = nullptr;
 			selectAll = false;
 			if(ctrl) {
 				if(frame <= fighter.c_sprites-1 - 10) {
@@ -402,7 +402,7 @@ void keyPress(int key, bool press) {
 
 		case SDLK_i:
 			//case SDLK_PageDown:
-			selectBox = NULL;
+			selectBox = nullptr;
 			selectAll = false;
 			if(ctrl) {
 				if(frame >= 10) {
@@ -497,7 +497,7 @@ void mousePress(int key, bool press) {
 					break;
 				}
 			if(i == fighter.sprites[frame].hitBoxes.size) {
-				selectBox = NULL;
+				selectBox = nullptr;
 			}
 			if(!selectBox) {
 				for(i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++)
@@ -510,7 +510,7 @@ void mousePress(int key, bool press) {
 						break;
 					}
 				if(i == fighter.sprites[frame].aHitBoxes.size) {
-					selectBox = NULL;
+					selectBox = nullptr;
 					selectAll = false;
 				}
 			}

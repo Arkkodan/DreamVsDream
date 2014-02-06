@@ -29,15 +29,15 @@ namespace audio {
     SDL_AudioSpec audioSpec;
 	bool enabled = false;
 
-	Music* music = NULL;
+	Music* music = nullptr;
 
 #ifndef NO_SOUND
 
 #ifdef EMSCRIPTEN
-	Sound* sound_channels[SOUND_SOURCE_MAX] = {NULL};
+	Sound* sound_channels[SOUND_SOURCE_MAX] = {nullptr};
 	void sound_channelDone(int channel) {
 		sound_channels[channel]->channel = -1;
-		sound_channels[channel] = NULL;
+		sound_channels[channel] = nullptr;
 	}
 
 	void sound_musicDone() {
@@ -57,7 +57,7 @@ namespace audio {
 		SoundSource() {
 			i_sample = 0.0;
 			frequency = 1.0f;
-			sound = NULL;
+			sound = nullptr;
 		}
 	};
 
@@ -66,7 +66,7 @@ namespace audio {
 		Speaker* speaker;
 
 		SpeakerSource() : SoundSource() {
-			speaker = NULL;
+			speaker = nullptr;
 		}
 	};
 
@@ -80,7 +80,7 @@ namespace audio {
 		int channels;
 
 		MusicStream() {
-			stream = NULL;
+			stream = nullptr;
 			c_samples = 0;
 			sample_rate = 0;
 			channels = 0;
@@ -103,6 +103,8 @@ namespace audio {
 	//static MusicStream stream_loop;
 
 	static void audioCallback(void* udata, unsigned char* stream, int _size) {
+	    (void)udata;
+
 		float music_volume = optionMusVolume / (float)200;
 		float sound_volume = optionSfxVolume / (float)100;
 		float voice_volume = optionVoiceVolume / (float)100;
@@ -133,7 +135,7 @@ namespace audio {
 				i_music_sample += (sound->sample_rate / (float)SAMPLE_RATE) * music_frequency;
 				if(i_music_sample >= sound->c_samples) {
 					if(menu == MENU_VERSUS) {
-						music = NULL;
+						music = nullptr;
 					} else {
 						music_is_loop = true;
 						i_music_sample = 0.0;
@@ -155,7 +157,7 @@ namespace audio {
 					//Increase sound buffer counters
 					sound_sources[j].i_sample += (sound->sample_rate / (float)SAMPLE_RATE) * sound_sources[j].frequency;
 					if(sound_sources[j].i_sample >= sound->c_samples) {
-						sound_sources[j].sound = NULL;
+						sound_sources[j].sound = nullptr;
 					}
 				}
 			}
@@ -174,7 +176,7 @@ namespace audio {
 					//Increase sound buffer counters
 					speaker_sources[j].i_sample += (sound->sample_rate / (float)SAMPLE_RATE) * speaker_sources[j].frequency;
 					if(speaker_sources[j].i_sample >= sound->c_samples) {
-						speaker_sources[j].sound = NULL;
+						speaker_sources[j].sound = nullptr;
 					}
 				}
 			}
@@ -245,10 +247,10 @@ namespace audio {
 
 	Sound::Sound() {
 #ifdef EMSCRIPTEN
-		sound = NULL;
+		sound = nullptr;
 		channel = -1;
 #else
-		samples = NULL;
+		samples = nullptr;
 		c_samples = 0;
 		sample_rate = 0;
 		channels = 0;
@@ -262,7 +264,7 @@ namespace audio {
 		}
 #else
 		if(samples) {
-			free(samples);
+			delete [] samples;
 		}
 #endif
 	}
@@ -299,7 +301,7 @@ namespace audio {
 #else
 		for(int i = 0; i < SOUND_SOURCE_MAX; i++) {
 			if(sound_sources[i].sound == this) {
-				sound_sources[i].sound = NULL;
+				sound_sources[i].sound = nullptr;
 				break;
 			}
 		}
@@ -322,7 +324,7 @@ namespace audio {
 		return false;
 	}
 
-	void Sound::createFromFile(std::string szFileName) {
+	void Sound::createFromFile(const std::string& szFileName) {
 #ifndef NO_SOUND
 #ifdef EMSCRIPTEN
 		if(!(sound = Mix_LoadWAV(szFileName.c_str()))) {
@@ -331,11 +333,11 @@ namespace audio {
 #else
 		if(enabled) {
 			//Open stream
-			SNDFILE* stream = NULL;
+			SNDFILE* stream = nullptr;
 			SF_INFO info;
 			//memset(&info, 0, sizeof(_info));
 
-			FILE* fp = util::fopen8(szFileName, "rb");
+			FILE* fp = util::ufopen(szFileName, "rb");
 			if(!fp) {
 				goto error;
 			}
@@ -360,6 +362,7 @@ namespace audio {
 			error("Unable to load audio file \"" + szFileName + "\".");
 			if(samples) {
 				delete [] samples;
+				samples = nullptr;
 			}
 			c_samples = 0;
 			channels = 0;
@@ -379,9 +382,9 @@ namespace audio {
 	bool Sound::exists() {
 #ifndef NO_SOUND
 #ifdef EMSCRIPTEN
-		return sound != NULL;
+		return sound != nullptr;
 #else
-		return samples != NULL;
+		return samples != nullptr;
 #endif
 #else
 		return true; //don't generate errors
@@ -405,8 +408,8 @@ namespace audio {
 	//Music
 	Music::Music() {
 #ifdef EMSCRIPTEN
-		intro = NULL;
-		loop = NULL;
+		intro = nullptr;
+		loop = nullptr;
 #endif
 	}
 
@@ -439,16 +442,16 @@ namespace audio {
 		//else
 		Mix_PlayMusic(loop, -1);
 #else
-		music = NULL;
+		music = nullptr;
 		if(enabled) {
 #if 0
 			if(stream_intro.stream) {
 				sf_close(stream_intro.stream);
-				stream_intro.stream = NULL;
+				stream_intro.stream = nullptr;
 			}
 			if(stream_loop.stream) {
 				sf_close(stream_loop.stream);
-				stream_loop.stream = NULL;
+				stream_loop.stream = nullptr;
 			}
 
 			music_loop = true;
@@ -501,13 +504,13 @@ namespace audio {
 	}
 
 	void Music::stop() {
-		music = NULL;
+		music = nullptr;
 #ifdef EMSCRIPTEN
 		Mix_HaltMusic();
 #endif
 	}
 
-	void Music::createFromFile(std::string szIntro_, std::string szLoop_) {
+	void Music::createFromFile(const std::string& szIntro_, const std::string& szLoop_) {
 #ifndef NO_SOUND
 #ifdef EMSCRIPTEN
 		if(szIntro_.length()) {
@@ -530,7 +533,7 @@ namespace audio {
 	bool Music::exists() {
 #ifndef NO_SOUND
 #ifdef EMSCRIPTEN
-		return loop != NULL;
+		return loop != nullptr;
 #else
 		return loop.exists();
 #endif
@@ -584,7 +587,7 @@ namespace audio {
 #endif
 	}
 
-	void Speaker::play(Voice* voice, bool randomize) {
+	void Speaker::play(Voice* voice) {
 #ifndef NO_SOUND
 #ifdef EMSCRIPTEN
 		//Mix_PlayChannel(channel, voice->sound, 0);
@@ -613,7 +616,7 @@ namespace audio {
 #else
 		for(int i = 0; i < SPEAKER_SOURCE_MAX; i++) {
 			if(speaker_sources[i].speaker == this) {
-				speaker_sources[i].sound = NULL;
+				speaker_sources[i].sound = nullptr;
 			}
 		}
 #endif

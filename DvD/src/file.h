@@ -19,7 +19,6 @@ public:
 	~File();
 
 	bool open(int flags, std::string szFilename);
-	void close();
 
 	bool read(void* data, size_t size);
 	int8_t readByte();
@@ -33,7 +32,7 @@ public:
 	bool writeWord(int16_t);
 	bool writeDword(int32_t);
 	bool writeFloat(float);
-	bool writeStr(std::string);
+	bool writeStr(const std::string&);
 
 	void seek(long index);
 	long tell();
@@ -42,6 +41,8 @@ public:
 	std::string getFilename();
 
 private:
+    void close();
+
 	void* fp;
 	int flags;
 	std::string szFileName;

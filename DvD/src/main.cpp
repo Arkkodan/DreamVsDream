@@ -145,10 +145,10 @@ void mainLoop() {
 		//Draw projectiles
 		for(int i = 0; i < MAX_PROJECTILES; i++) {
 			if(madotsuki.projectiles[i].state != STATE_NONE) {
-				madotsuki.projectiles[i].draw(false);
+				madotsuki.projectiles[i].draw(0);
 			}
 			if(poniko.projectiles[i].state != STATE_NONE) {
-				poniko.projectiles[i].draw(false, 1);
+				poniko.projectiles[i].draw(1);
 			}
 		}
 

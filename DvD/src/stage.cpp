@@ -55,7 +55,7 @@ void Stage::deinit() {
 Stage::Stage() {
 	initialized = false;
 
-	imagesAbove = imagesBelow = NULL;
+	imagesAbove = imagesBelow = nullptr;
 	width = height = widthAbs = heightAbs = 0;
 }
 
@@ -69,8 +69,8 @@ Stage::~Stage() {
 	delete imagesBelow;
 }
 
-void Stage::create(std::string name_) {
-	name = name_;
+void Stage::create(std::string name) {
+	this->name = std::move(name);
 }
 
 void Stage::init() {
@@ -113,7 +113,7 @@ void Stage::reset() {
 	}
 }
 
-void Stage::parseFile(std::string szFileName) {
+void Stage::parseFile(const std::string& szFileName) {
 	Parser parser;
 	if(!parser.open(szFileName)) {
 		return;
@@ -150,8 +150,7 @@ void Stage::parseFile(std::string szFileName) {
 			if(!imgData.exists()) {
 				continue;
 			}
-			MenuImage* newImg = new MenuImage(&imgData, 0, 0, parallax, RENDER_NORMAL, xvel, yvel, wrap, round);
-			imgData.clear();
+			MenuImage* newImg = new MenuImage(imgData, 0, 0, parallax, RENDER_NORMAL, xvel, yvel, wrap, round);
 
 			if(above) {
 				if(imagesAbove) {
@@ -194,7 +193,7 @@ void Stage::parseFile(std::string szFileName) {
 	}
 }
 
-std::string Stage::getResource(std::string resource, std::string extension) {
+std::string Stage::getResource(const std::string& resource, const std::string& extension) {
 	if(*resource.c_str() == '*') {
 		return "stages/common/" + resource.substr(1, std::string::npos) + "." + extension;
 	} else {

@@ -20,7 +20,7 @@ namespace audio {
 
 		bool playing();
 
-		void createFromFile(std::string filename);
+		void createFromFile(const std::string& filename);
 		bool exists();
 		void destroy();
 
@@ -46,7 +46,7 @@ namespace audio {
 
 		static void stop();
 
-		void createFromFile(std::string szIntro, std::string szLoop);
+		void createFromFile(const std::string& szIntro, const std::string& szLoop);
 		bool exists();
 
 		bool isPlaying();
@@ -86,7 +86,7 @@ namespace audio {
 #endif
 
 		void init();
-		void play(Voice* voice, bool randomize = false);
+		void play(Voice* voice);
 		void stop();
 	};
 }

@@ -70,7 +70,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		return false;
 	}
 	vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, nLines, (const GLchar**)szLines, NULL);
+	glShaderSource(vertex, nLines, (const GLchar**)szLines, nullptr);
 	glCompileShader(vertex);
 	util::freeLines(szLines);
 
@@ -81,7 +81,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		glGetShaderiv(vertex, GL_INFO_LOG_LENGTH , &length);
 		if(length > 1) {
 			char* log = (char*)malloc(length);
-			glGetInfoLogARB(vertex, length, NULL, log);
+			glGetInfoLogARB(vertex, length, nullptr, log);
 			fprintf(stderr, "GLSL: %s:\n%s\n", szVertexFile, log);
 			free(log);
 		}
@@ -98,7 +98,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		return false;
 	}
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, nLines, (const GLchar**)szLines, NULL);
+	glShaderSource(fragment, nLines, (const GLchar**)szLines, nullptr);
 	glCompileShader(fragment);
 	util::freeLines(szLines);
 
@@ -109,7 +109,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &length);
 		if(length > 1) {
 			char* log = (char*)malloc(length);
-			glGetInfoLogARB(vertex, length, NULL, log);
+			glGetInfoLogARB(vertex, length, nullptr, log);
 			fprintf(stderr, "GLSL: %s:\n%s\n", szFragmentFile, log);
 			free(log);
 		}
@@ -133,7 +133,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
 		if(length > 1) {
 			char* log = (char*)malloc(length);
-			glGetProgramInfoLog(program, length, NULL, log);
+			glGetProgramInfoLog(program, length, nullptr, log);
 			fprintf(stderr, "GLSL: %s, %s\n%s\n", szVertexFile, szFragmentFile, log);
 			free(log);
 		}

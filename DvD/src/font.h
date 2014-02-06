@@ -19,7 +19,6 @@ public:
 	int getCharWidth(char c);
 
 	void createFromFile(std::string filename);
-	void destroy();
 	bool exists();
 
 	Image img;

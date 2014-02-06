@@ -19,6 +19,64 @@
 
 #include "error.h"
 
+Image::Image() : w(0), h(0),
+#ifdef COMPILER
+	data(nullptr), xpad(0), ypad(0)
+#else
+	textures(nullptr), w_textures(0), h_textures(0),
+	w_subtexture(0), h_subtexture(0)
+#endif
+{
+}
+
+Image::Image(Image&& other) {
+    w = other.w;
+    h = other.h;
+#ifdef COMPILER
+    xpad = other.xpad;
+    ypad = other.ypad;
+    data = other.data;
+    other.data = nullptr;
+#else
+    w_textures = other.w_textures;
+    h_textures = other.h_textures;
+    w_subtexture = other.w_subtexture;
+    h_subtexture = other.h_subtexture;
+    textures = other.textures;
+    other.textures = nullptr;
+#endif
+}
+
+Image& Image::operator=(Image&& other) {
+    w = other.w;
+    h = other.h;
+
+    using std::swap;
+#ifdef COMPILER
+    xpad = other.xpad;
+    ypad = other.ypad;
+    swap(data, other.data);
+#else
+    w_textures = other.w_textures;
+    h_textures = other.h_textures;
+    w_subtexture = other.w_subtexture;
+    h_subtexture = other.h_subtexture;
+    swap(textures, other.textures);
+#endif
+    return *this;
+}
+
+Image::~Image() {
+#ifdef COMPILER
+	free(data);
+#else
+	if(textures) {
+		glDeleteTextures(w_textures * h_textures, textures);
+		free(textures);
+	}
+#endif
+}
+
 #ifndef COMPILER
 void Image::draw(int x, int y, bool mirror) {
 	if(!graphics::srcW || !graphics::srcH) {
@@ -172,8 +230,6 @@ void Image::drawSprite(int x, int y, bool mirror) {
 #endif
 
 void Image::createFromFile(std::string szPath) {
-	destroy();
-
 #ifdef GAME
 #ifdef EMSCRIPTEN
 	SDL_Surface* surface = IMG_Load(szPath.c_str());
@@ -205,19 +261,19 @@ end:
 	}
 
 #else
-	png_structp png_ptr = NULL;
-	png_infop info_ptr = NULL;
-	FILE* f = NULL;
-	png_bytep* row_pointers = NULL;
+	png_structp png_ptr = nullptr;
+	png_infop info_ptr = nullptr;
+	FILE* f = nullptr;
+	png_bytep* row_pointers = nullptr;
 	int channels;
 	int png_format;
 
-	ubyte_t* data = NULL;
+	ubyte_t* data = nullptr;
 	int width;
 	int height;
 	int format;
 
-	f = util::fopen8(szPath, "rb");
+	f = util::ufopen(szPath, "rb");
 	if(!f) {
 		error("Cannot read \"" + szPath + "\".");
 		goto end;
@@ -232,7 +288,7 @@ end:
 	}
 
 	//Create
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	info_ptr = png_create_info_struct(png_ptr);
 	if(!info_ptr) {
 		goto error;
@@ -244,7 +300,7 @@ end:
 
 	png_init_io(png_ptr, f);
 	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
 
 	//Basic info
 	width = png_get_image_width(png_ptr, info_ptr);
@@ -295,15 +351,13 @@ end:
 	if(f) {
 		fclose(f);
 	}
-	if(info_ptr) {
+	if(png_ptr || info_ptr) {
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-	}
-	if(png_ptr) {
-		png_destroy_read_struct(&png_ptr, NULL, NULL);
+		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 	}
 #endif
 #else
-	FILE* fp = util::fopen8(szPath, "rb");
+	FILE* fp = util::ufopen(szPath, "rb");
 	if(!fp) {
 		error("Cannot read \"" + szPath + "\".");
 		return;
@@ -316,15 +370,15 @@ end:
 		return;
 	}
 
-	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	png_infop info_ptr = png_create_info_struct(png_ptr);
 	if(!info_ptr) {
-		png_destroy_read_struct(&png_ptr, NULL, NULL);
+		png_destroy_read_struct(&png_ptr, nullptr, nullptr);
 		return;
 	}
 
 	if(setjmp(png_jmpbuf(png_ptr))) {
-		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		if(fp) {
 			fclose(fp);
 		}
@@ -333,7 +387,7 @@ end:
 
 	png_init_io(png_ptr, fp);
 	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
 	fclose(fp);
 
 	//Basic info
@@ -346,25 +400,24 @@ end:
 
 	//This thing only returns indexed sprites, since its only being used by the compiler
 	if(bitdepth != 8 || channels != 1 || colortype != PNG_COLOR_TYPE_PALETTE) {
-		png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
-		destroy();
+		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 		return;
 	}
 
 	//Let's get the pixel data now
 	ubyte_t* raw = (ubyte_t*)malloc(w * h);
 	png_bytep* row_pointers = png_get_rows(png_ptr, info_ptr);
-	for(int i = 0; i < h; i++)
-		for(int j = 0; j < w; j++) {
+	for(unsigned int i = 0; i < h; i++)
+		for(unsigned int j = 0; j < w; j++) {
 			raw[j + i * w] = row_pointers[i][j];
 		}
 
 #ifdef COMPILER
 	//Let's optimize the raw image. Remove empty space on all sides.
-	int leftpad = 0;
+	unsigned int leftpad = 0;
 	for(; leftpad < w; leftpad++) {
 		bool found = false;
-		for(int i = 0; i < h; i++)
+		for(unsigned int i = 0; i < h; i++)
 			if(raw[leftpad + i * w]) {
 				found = true;
 				break;
@@ -373,10 +426,10 @@ end:
 			break;
 		}
 	}
-	int rightpad = 0;
+	unsigned int rightpad = 0;
 	for(; rightpad < w; rightpad++) {
 		bool found = false;
-		for(int i = 0; i < h; i++)
+		for(unsigned int i = 0; i < h; i++)
 			if(raw[((w - 1) - rightpad) + i * w]) {
 				found = true;
 				break;
@@ -385,10 +438,10 @@ end:
 			break;
 		}
 	}
-	int toppad = 0;
+	unsigned int toppad = 0;
 	for(; toppad < h; toppad++) {
 		bool found = false;
-		for(int i = 0; i < w; i++)
+		for(unsigned int i = 0; i < w; i++)
 			if(raw[i + toppad * w]) {
 				found = true;
 				break;
@@ -397,10 +450,10 @@ end:
 			break;
 		}
 	}
-	int bottompad = 0;
+	unsigned int bottompad = 0;
 	for(; bottompad < h; bottompad++) {
 		bool found = false;
-		for(int i = 0; i < w; i++)
+		for(unsigned int i = 0; i < w; i++)
 			if(raw[i + ((h - 1) - bottompad) * w]) {
 				found = true;
 				break;
@@ -421,7 +474,7 @@ end:
 		}
 	}
 	free(raw);
-	png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+	png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 
 	w = newWidth;
 	h = newHeight;
@@ -436,8 +489,8 @@ end:
 	png_get_PLTE(png_ptr, info_ptr, &palette, &num_palette);
 
 	ubyte_t* data = (ubyte_t*)malloc(w * h * 4);
-	for(int y = 0; y < h; y++) {
-		for(int x = 0; x < w; x++) {
+	for(unsigned int y = 0; y < h; y++) {
+		for(unsigned int x = 0; x < w; x++) {
 			data[x * 4 + y * w * 4 + 0] = palette[raw[x + y * w]].red;
 			data[x * 4 + y * w * 4 + 1] = palette[raw[x + y * w]].green;
 			data[x * 4 + y * w * 4 + 2] = palette[raw[x + y * w]].blue;
@@ -448,7 +501,7 @@ end:
 			}
 		}
 	}
-	png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+	png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 	createFromMemory(data, w, h, COLORTYPE_RGBA);
 	free(raw);
 	free(data);
@@ -466,7 +519,7 @@ struct pngStream {
 
 void pngRead(png_structp ptr, png_bytep data, png_size_t size) {
 	pngStream* stream = (pngStream*)png_get_io_ptr(ptr);
-	if(stream == NULL) {
+	if(stream == nullptr) {
 		return;
 	}
 
@@ -489,11 +542,11 @@ void image_loadPng(void* arg, const char* filename) {
 #ifndef COMPILER
 void Image::createFromMemoryPNG(ubyte_t* imgdata, size_t size) {
 #ifdef EMSCRIPTEN
-	emscripten_async_prepare_data((char*)imgdata, size, "png", (void*)this, image_loadPng, NULL);
+	emscripten_async_prepare_data((char*)imgdata, size, "png", (void*)this, image_loadPng, nullptr);
 #else
-	png_structp png_ptr = NULL;
-	png_infop info_ptr = NULL;
-	png_bytep* row_pointers = NULL;
+	png_structp png_ptr = nullptr;
+	png_infop info_ptr = nullptr;
+	png_bytep* row_pointers = nullptr;
 	int channels;
 	int png_format;
 
@@ -503,7 +556,7 @@ void Image::createFromMemoryPNG(ubyte_t* imgdata, size_t size) {
 	stream.offset = 8;
 	stream.size = size;
 
-	ubyte_t* data = NULL;
+	ubyte_t* data = nullptr;
 	int width;
 	int height;
 	int format;
@@ -515,7 +568,7 @@ void Image::createFromMemoryPNG(ubyte_t* imgdata, size_t size) {
 	}
 
 	//Create
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
 	info_ptr = png_create_info_struct(png_ptr);
 	if(!info_ptr) {
 		goto error;
@@ -527,7 +580,7 @@ void Image::createFromMemoryPNG(ubyte_t* imgdata, size_t size) {
 
 	png_set_read_fn(png_ptr, &stream, pngRead);
 	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
 
 	//Basic info
 	width = png_get_image_width(png_ptr, info_ptr);
@@ -568,11 +621,9 @@ error:
 	error("Unknown error while reading PNG file.");
 
 end:
-	if(info_ptr) {
+	if(png_ptr || info_ptr) {
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-	}
-	if(png_ptr) {
-		png_destroy_read_struct(&png_ptr, NULL, NULL);
+		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 	}
 	if(data) {
 		free(data);
@@ -581,8 +632,6 @@ end:
 }
 
 void Image::createFromMemoryPal(ubyte_t* imgdata, unsigned int width, unsigned int height, const ubyte_t* palette) {
-	destroy();
-
 	ubyte_t* _data_new = (ubyte_t*)malloc(4 * width * height);
 	for(unsigned int j = 0; j < height; j++)
 		for(unsigned int i = 0; i < width; i++) {
@@ -693,59 +742,10 @@ void Image::createFromMemory(ubyte_t* data_, unsigned int width_, unsigned int h
 }
 #endif
 
-void Image::clear() {
-#ifdef COMPILER
-	destroy();
-#else
-	w = h = 0;
-	textures = NULL;
-#endif
-}
-
-void Image::destroy() {
-	w = h = 0;
-#ifdef COMPILER
-	xpad = ypad = 0;
-	free(data);
-	data = 0;
-#else
-	if(textures) {
-		glDeleteTextures(w_textures * h_textures, textures);
-		textures = NULL;
-	}
-#endif
-}
-
 bool Image::exists() {
 #ifdef COMPILER
-	return data != NULL;
+	return data != nullptr;
 #else
-	return textures != NULL;
-#endif
-}
-
-Image::Image() : w(0), h(0),
-#ifdef COMPILER
-	data(NULL), xpad(0), ypad(0)
-#else
-	textures(NULL), w_textures(0), h_textures(0),
-	w_subtexture(0), h_subtexture(0)
-#endif
-{
-}
-
-/*Image::Image(std::string filename)
-{
-    createFromFile(filename);
-}*/
-
-Image::~Image() {
-#ifdef COMPILER
-	free(data);
-#else
-	if(textures) {
-		glDeleteTextures(w_textures * h_textures, textures);
-		free(textures);
-	}
+	return textures != nullptr;
 #endif
 }

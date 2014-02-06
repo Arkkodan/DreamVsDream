@@ -45,7 +45,7 @@ namespace game {
 			palettes = new GLuint[c_palettes * 2];
 			glGenTextures(c_palettes * 2, palettes);
 		} else {
-			palettes = NULL;
+			palettes = nullptr;
 		}
 
 		ubyte_t palette_first[256 * 3];
@@ -184,8 +184,6 @@ namespace game {
 		}
 		free(data);
 
-		file.close();
-
 		//Portraits
 		select.createFromFile("chars/" + name_ + "/portraits/select.png");
 		portrait.createFromFile("chars/" + name_ + "/portraits/portrait.png");
@@ -195,10 +193,14 @@ namespace game {
 #endif
 
 	Fighter::Fighter() {
-	}
-
-	Fighter::Fighter(std::string name_) {
-		create(name_);
+	    palettes = nullptr;
+	    sprites = nullptr;
+#ifndef SPRTOOL
+	    states = nullptr;
+	    commands = nullptr;
+	    sounds = nullptr;
+	    voices = nullptr;
+#endif
 	}
 
 	Fighter::~Fighter() {
@@ -213,6 +215,7 @@ namespace game {
 		delete [] states;
 		delete [] commands;
 		delete [] sounds;
+        delete [] voices;
 #endif
 	}
 
@@ -247,7 +250,7 @@ namespace game {
 #ifndef SPRTOOL
 	SoundGroup::SoundGroup() {
 		size = 0;
-		sounds = NULL;
+		sounds = nullptr;
 	}
 
 	SoundGroup::~SoundGroup() {
@@ -270,7 +273,7 @@ namespace game {
 	VoiceGroup::VoiceGroup() {
 		size = 0;
 		pct = 100;
-		voices = NULL;
+		voices = nullptr;
 	}
 
 	VoiceGroup::~VoiceGroup() {
@@ -292,7 +295,7 @@ namespace game {
 	Command::Command() {
 		comboC = 0;
 		targetC = 0;
-		targets = NULL;
+		targets = nullptr;
 		generic = 0;
 	}
 
@@ -307,7 +310,7 @@ namespace game {
 
 	State::State() {
 		size = 0;
-		steps = NULL;
+		steps = nullptr;
 	}
 
 	State::~State() {

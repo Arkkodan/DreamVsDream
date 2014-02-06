@@ -10,7 +10,7 @@
 #include "util.h"
 
 File::File() {
-	fp = NULL;
+	fp = nullptr;
 	flags = 0;
 }
 
@@ -18,45 +18,33 @@ File::~File() {
 	close();
 }
 
-bool File::open(int flags, std::string szFileName) {
+bool File::open(int flags, std::string _szFileName) {
+    close();
+
 	//Prepare the correct flag string
 	const char* szFlags = "rb";
 	if(flags & FILE_IO_WRITE) {
 		szFlags = "wb";
 	}
 
-	this->szFileName = szFileName;
+    szFileName = std::move(_szFileName);
 	this->flags = flags;
 
 	//Open either a FILE* or a gzFile
 #ifndef NO_ZLIB
 	if(flags & FILE_COMPRESS_GZ) {
-		FILE* f = util::fopen8(szFileName + ".gz", szFlags);
+		FILE* f = util::ufopen(szFileName + ".gz", szFlags);
 		fp = (void*)gzdopen(fileno(f), szFlags);
 		if(f && !fp) {
 			fclose(f);
 		}
 	} else
 #endif
-		fp = (void*)util::fopen8(szFileName, szFlags);
+		fp = (void*)util::ufopen(szFileName, szFlags);
 	if(!fp) {
 		return false;
 	}
 	return true;
-}
-
-void File::close() {
-	szFileName = "";
-
-	if(fp) {
-#ifndef NO_ZLIB
-		if(flags & FILE_COMPRESS_GZ) {
-			gzclose((gzFile)fp);
-		} else
-#endif
-			fclose((FILE*)fp);
-		fp = NULL;
-	}
 }
 
 //READ OPERATIONS
@@ -133,7 +121,7 @@ bool File::writeFloat(float value) {
 	return write(&valueInt, 4);
 }
 
-bool File::writeStr(std::string value) {
+bool File::writeStr(const std::string& value) {
 	uint8_t size = value.length();
 	if(!write(&size, 1)) {
 		return false;
@@ -176,4 +164,17 @@ size_t File::size() {
 
 std::string File::getFilename() {
 	return szFileName;
+}
+
+//Private
+void File::close() {
+	if(fp) {
+#ifndef NO_ZLIB
+		if(flags & FILE_COMPRESS_GZ) {
+			gzclose((gzFile)fp);
+		} else
+#endif
+			fclose((FILE*)fp);
+		fp = nullptr;
+	}
 }

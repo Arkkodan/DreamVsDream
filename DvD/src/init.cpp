@@ -99,8 +99,6 @@ void optionsLoad() {
 	optionMusVolume = file.readByte();
 	optionVoiceVolume = file.readByte();
 	optionEpilepsy = file.readByte();
-
-	file.close();
 }
 
 void optionsSave() {
@@ -117,8 +115,6 @@ void optionsSave() {
 	file.writeByte(optionMusVolume);
 	file.writeByte(optionVoiceVolume);
 	file.writeByte(optionEpilepsy);
-
-	file.close();
 }
 #endif
 
@@ -126,7 +122,7 @@ void init() {
 	void deinit();
 	atexit(deinit);
 
-	srand(time(NULL));
+	srand(time(nullptr));
 
 #ifndef EMSCRIPTEN
 	//Create settings path first
@@ -162,7 +158,7 @@ void init() {
 #ifdef _WIN32
 	free(env);
 	wchar_t* szConfigPath16 = util::utf8to16(szConfigPath.c_str());
-	CreateDirectoryW(szConfigPath16, NULL);
+	CreateDirectoryW(szConfigPath16, nullptr);
 	free(szConfigPath16);
 #else
 	mkdir(szConfigPath.c_str(), 0777);

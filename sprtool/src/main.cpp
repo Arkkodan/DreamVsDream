@@ -42,7 +42,7 @@ void Fighter::create(std::string name_) {
 	name = name_;
 
 	//Palettes
-	palettes = NULL;
+	palettes = nullptr;
 
 	//Sprites
 	Parser parser("chars/" + name + "/sprites.ubu");
@@ -113,7 +113,7 @@ void Fighter::saveSpr() {
 	//Initialize buffers
 	moveFile("chars/" + name + "/sprites.ubu", "chars/" + name + "/sprites.ubu.bak");
 	Parser parser("chars/" + name + "/sprites.ubu.bak");
-	FILE* out = util::fopen8("chars/" + name + "/sprites.ubu", "wb");
+	FILE* out = util::ufopen("chars/" + name + "/sprites.ubu", "wb");
 	if(!out) {
 		return;
 	}

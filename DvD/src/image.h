@@ -7,18 +7,27 @@ enum {
 	COLORTYPE_NONE,
 	COLORTYPE_INDEXED,
 	COLORTYPE_RGB,
-	COLORTYPE_RGBA,
+	COLORTYPE_RGBA
 };
 
 enum {
 	RENDER_NORMAL,
 	RENDER_ADDITIVE,
 	RENDER_SUBTRACTIVE,
-	RENDER_MULTIPLY,
+	RENDER_MULTIPLY
 };
 
 class Image {
 public:
+	Image();
+	Image(Image&& other);
+	Image& operator=(Image&& other);
+	~Image();
+
+	//Do not copy images
+	Image(const Image& other) = delete;
+	Image& operator=(Image& other) = delete;
+
 	unsigned int w, h;
 #ifdef COMPILER
 	ubyte_t* data;
@@ -35,10 +44,6 @@ public:
 	void drawSprite(int x, int y, bool mirror = false);
 #endif
 
-	Image();
-	//Image(std::string filename);
-	~Image();
-
 	//DvD: Loads a RGB, RGBA, Greyscale, or GA png file
 	//SPRTOOL/compiler: Loads a 256-color PNG from a file
 	void createFromFile(std::string filename);
@@ -48,8 +53,6 @@ public:
 	void createFromMemory(ubyte_t* data, unsigned int width, unsigned int height, int format);
 #endif
 
-	void clear();
-	void destroy();
 	bool exists();
 
 	static void setShake(bool _shake);

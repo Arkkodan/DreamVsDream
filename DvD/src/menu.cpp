@@ -19,7 +19,7 @@
 extern game::Player madotsuki;
 extern game::Player poniko;
 
-Menu* menus[MENU_MAX] = {NULL};
+Menu* menus[MENU_MAX] = {nullptr};
 int menu = MENU_INTRO;
 int menuNew = 0;
 
@@ -93,9 +93,9 @@ Menu::Menu(std::string name_) {
 	name = name_;
 
 	initialized = false;
-	images = NULL;
+	images = nullptr;
 	bgmPlaying = false;
-	//video = NULL;
+	//video = nullptr;
 }
 
 Menu::~Menu() {
@@ -230,8 +230,7 @@ void Menu::parseLine(Parser& parser) {
 		if(!imgData.exists()) {
 			return;
 		}
-		MenuImage* newImg = new MenuImage(&imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
-		imgData.clear();
+		MenuImage* newImg = new MenuImage(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
 
 		if(images) {
 			MenuImage* img = images;
@@ -434,7 +433,7 @@ MenuTitle::MenuTitle() : Menu("title") {
 	submenu = 0;
 
 	nThemes = 0;
-	themes = NULL;
+	themes = nullptr;
 }
 
 MenuTitle::~MenuTitle() {
@@ -660,12 +659,12 @@ void MenuTitle::parseLine(Parser& parser) {
 MenuSelect::MenuSelect() : Menu("select") {
 	width = height = 0;
 	gWidth = gHeight = 0;
-	gui = NULL;
-	grid = NULL;
-	gridFighters = NULL;
+	gui = nullptr;
+	grid = nullptr;
+	gridFighters = nullptr;
 	gridC = 0;
 
-	curData = NULL;
+	curData = nullptr;
 
 	state = 0;
 
@@ -1000,7 +999,7 @@ void MenuSelect::newEffect(int player, int group) {
 		curData[group].sndDeselect.stop();
 	}
 
-	//cursors[player].frame = 1;
+	cursors[player].frame = 1;
 }
 
 void MenuSelect::drawEffect(int player, int group, int _x, int _y, bool spr) {
@@ -1139,8 +1138,7 @@ void MenuSelect::parseLine(Parser& parser) {
 		if(!imgData.exists()) {
 			return;
 		}
-		gui = new MenuImage(&imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
-		imgData.clear();
+		gui = new MenuImage(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
 	} else if(parser.is("STAGES", 1)) {
 		//Load the font
 		font_stage.createFromFile(getResource(parser.getArg(1), EXT_FONT));
@@ -1164,12 +1162,12 @@ void MenuSelect::parseLine(Parser& parser) {
 
 //Menu Versus
 MenuVersus::MenuVersus() : Menu("versus") {
-	//video = NULL;
+	//video = nullptr;
 
 	timer1 = timer2 = timer3 = timer4 = timer5 = timer6 = 0;
 	timerF = 0.0f;
 
-	portraits[0] = portraits[1] = NULL;
+	portraits[0] = portraits[1] = nullptr;
 }
 
 MenuVersus::~MenuVersus() {
@@ -1260,7 +1258,7 @@ MenuOptions::MenuOptions() : Menu("options") {
 	madoFrame = 1;
 	madoDir = 2;
 	madoWakeTimer = 0;
-	themes = NULL;
+	themes = nullptr;
 	nThemes = 0;
 }
 
@@ -2379,10 +2377,11 @@ void MenuNetplay::think() {
 
 						//Copy IP and port from clipboard
 						char _sz_input[80];
-						os::getClipboard(_sz_input, 80);
+						std::string clipboard = os::getClipboard();
+						strncpy(_sz_input, clipboard.c_str(), sizeof(_sz_input));
 
-						char* _sz_ip = NULL;
-						char* _sz_port = NULL;
+						char* _sz_ip = nullptr;
+						char* _sz_port = nullptr;
 
 						//Find the start of the IP and port, if they exist
 						//Skip stuff until we reach a digit, that's the IP
@@ -2817,7 +2816,7 @@ MenuCredits::MenuCredits() : Menu("credits") {
 	//Data
 	title_r = title_g = title_b = name_r = name_g = name_b = 255;
 	c_lines = 0;
-	sz_lines = NULL;
+	sz_lines = nullptr;
 }
 
 MenuCredits::~MenuCredits() {
@@ -2941,8 +2940,8 @@ int Cursor::getGroup(int w, int gW, int gH) {
 
 //MENU IMAGE
 
-MenuImage::MenuImage(Image* image_, float x_, float y_, float parallax_, char render_, float xvel_, float yvel_, bool wrap_, int round_) {
-	image = *image_;
+MenuImage::MenuImage(Image& image_, float x_, float y_, float parallax_, char render_, float xvel_, float yvel_, bool wrap_, int round_) {
+	image = std::move(image_);
 	x = x_;
 	y = y_;
 	parallax = parallax_;
@@ -2969,7 +2968,7 @@ MenuImage::MenuImage(Image* image_, float x_, float y_, float parallax_, char re
 		}
 	}
 
-	next = NULL;
+	next = nullptr;
 }
 
 MenuImage::~MenuImage() {

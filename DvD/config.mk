@@ -56,7 +56,7 @@ else
 	else ifeq ($(PLATFORM),w32)
 		TARGET		:= $(NAME)-$(ARCH).exe
 		CXXFLAGS	:= 
-		LDFLAGS		:= -lmingw32 -lSDLmain -lws2_32 -lopengl32 -lglew32
+		LDFLAGS		:= -mwindows -lmingw32 -lSDL2main -lws2_32 -lopengl32 -lglew32
 
 		ifeq ($(ARCH),32)
 			CXX	:= i686-w64-mingw32-g++
@@ -69,6 +69,6 @@ else
 endif
 
 # flags
-CXXFLAGS	+= -DVERSION=\"$(VERSION)\" -DGAME
-LDFLAGS		+= -lSDL -lpng -lz -lportaudio -lsndfile
+CXXFLAGS	+= -DVERSION=\"$(VERSION)\" -DGAME -std=c++11
+LDFLAGS		+= -lSDL2 -lpng -lz -lsndfile -std=c++11
 

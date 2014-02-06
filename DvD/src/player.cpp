@@ -37,7 +37,7 @@ namespace game {
 	#define STAGE_BUFFER 10
 
 	Projectile::Projectile() :
-		fighter(NULL),
+		fighter(nullptr),
 		pos(0, 0),
 		vel(0, 0),
 		dir(RIGHT),
@@ -218,7 +218,8 @@ namespace game {
                 bool mirror = readByte();
                 int speed = readByte();
                 int loops = readByte();
-                effect::newEffect(effect, x + (spr ? pos.x : 0), y + (spr ? pos.y: 0), spr, (spr && ((dir == LEFT) != mirror)) || (!spr && mirror), speed, loops);
+                bool realMirror = (spr && ((dir == LEFT) != mirror)) || (!spr && mirror);
+                effect::newEffect(effect, x * (realMirror ? -1 : 1) + (spr ? pos.x : 0), y + (spr ? pos.y: 0), spr, realMirror, speed, loops);
 		    }
 			break;
 		case STEP_Knockdown:
@@ -230,7 +231,7 @@ namespace game {
 	void Projectile::shootProjectile() {
 	}
 
-	void Projectile::draw(bool shadow, unsigned int palette) {
+	void Projectile::draw(unsigned int palette) {
 		if(flags & F_VISIBLE) {
 			fighter->draw(sprite, pos.x, pos.y, isMirrored(), scale, palette, 1.0, 0.0f, 0.0f, 0.0f, 0.0f);
 		}
@@ -291,7 +292,7 @@ namespace game {
 		}
 		//Randomize on < 50% chance
 		if(util::roll(100) < fighter->voices[id].pct) {
-			p->speaker.play(&fighter->voices[id].voices[util::roll(fighter->voices[id].size)], fighter->voices[id].pct < 30);
+			p->speaker.play(&fighter->voices[id].voices[util::roll(fighter->voices[id].size)]/*, fighter->voices[id].pct < 30*/);
 		}
 	}
 
@@ -857,8 +858,8 @@ namespace game {
 
 	void Projectile::interact(Projectile* other) {
 		//Check for hitboxes
-		Player* pother = NULL;
-		Player* pself = NULL;
+		Player* pother = nullptr;
+		Player* pself = nullptr;
 		if(other->isPlayer()) {
 			pother = (Player*)other;
 		}
@@ -1103,7 +1104,7 @@ namespace game {
 		}
 	}
 
-	void Player::draw(bool shadow, unsigned int palette) {
+	void Player::draw(unsigned int palette, bool shadow) {
 		float pct = flash;
 		float r = 250 / 256.0f;
 		float g = 80 / 256.0f;

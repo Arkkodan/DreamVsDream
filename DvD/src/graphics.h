@@ -33,6 +33,6 @@ namespace graphics {
 	extern float xscale, yscale;
 	extern unsigned int shader;
 	extern unsigned int palette;
-};
+}
 
 #endif // GRAPHICS_H_INCLUDED

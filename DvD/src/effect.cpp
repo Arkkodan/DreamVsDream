@@ -12,7 +12,7 @@
 namespace effect {
     //VARIABLES
     int nEffectAnims = 0;
-    EffectAnimation* effectAnims = NULL;
+    EffectAnimation* effectAnims = nullptr;
 
     Effect effects[EFFECT_MAX];
 
@@ -20,17 +20,30 @@ namespace effect {
     EffectAnimation::EffectAnimation() {
         name = "";
         nFrames = 0;
-        frames = NULL;
+        frames = nullptr;
     }
 
-    void EffectAnimation::create(std::string name) {
-        this->name = name;
+    EffectAnimation::EffectAnimation(EffectAnimation&& other) {
+        name = std::move(other.name);
+        nFrames = other.nFrames;
+        frames = other.frames;
+        other.frames = nullptr;
+    }
 
+    EffectAnimation& EffectAnimation::operator=(EffectAnimation&& other) {
+        nFrames = other.nFrames;
+        using std::swap;
+        swap(name, other.name);
+        swap(frames, other.frames);
+        return *this;
+    }
+
+    EffectAnimation::EffectAnimation(std::string _name) : name(std::move(_name)) {
         //Get the list of files
         std::vector<std::string> files = util::listDirectory("effects/" + name, true);
 
         nFrames = 0;
-        frames = NULL;
+        frames = nullptr;
 
         if(files.empty()) {
             return;
@@ -38,7 +51,7 @@ namespace effect {
 
         //See if all of our images exist first, and count them.
         //Thumbs.db, .DS_Store, etc could screw the list up.
-        for(int i = 0, last = -1; i < files.size(); i++) {
+        for(std::vector<int>::size_type i = 0, last = -1; i < files.size(); i++) {
             if(std::find(files.begin(), files.end(), util::toString(i+1) + ".png") != files.end()) {
                 if(last != i - 1) {
                     error("Missing frames in effect animation \"" + name + "\".");
@@ -71,7 +84,7 @@ namespace effect {
 
     Image* EffectAnimation::getFrame(int frame) {
         if(nFrames == 0)
-            return NULL;
+            return nullptr;
 
         return &frames[frame % nFrames];
     }
@@ -85,8 +98,8 @@ namespace effect {
         speed = frameStart = frameEnd = x = y = 0;
     }
 
-    Effect::Effect(std::string name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops) {
-        anim = NULL;
+    Effect::Effect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops) {
+        anim = nullptr;
 
         //Look up the animation
         int i = 0;
@@ -150,7 +163,7 @@ namespace effect {
 
         effectAnims = new EffectAnimation[nEffectAnims];
         for(int i = 0; i < nEffectAnims; i++) {
-            effectAnims[i].create(dirs[i]);
+            effectAnims[i] = EffectAnimation(dirs[i]);
         }
     }
 
@@ -158,7 +171,7 @@ namespace effect {
         delete [] effectAnims;
     }
 
-    void newEffect(std::string name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops) {
+    void newEffect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops) {
         for(int i = 0; i < EFFECT_MAX; i++) {
             if(!effects[i].exists()) {
                 effects[i] = Effect(name, x, y, moveWithCamera, mirror, speed, nLoops);

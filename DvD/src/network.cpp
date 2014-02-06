@@ -1,7 +1,3 @@
-#include <stdarg.h>
-
-#include <pthread.h>
-
 #ifdef _WIN32
 #include <winsock2.h>
 #define close(x) closesocket(x)
@@ -19,10 +15,7 @@
 #include "network.h"
 #include "error.h"
 #include "menu.h"
-
-#define LOCK() pthread_mutex_lock(&netMutex)
-#define UNLOCK() pthread_mutex_unlock(&netMutex)
-#define WAIT() pthread_join(netThread, NULL)
+#include "thread.h"
 
 #define PACKET_BUFF_SIZE 256
 
@@ -38,10 +31,11 @@ namespace net {
 	volatile bool enabled = false;
 	volatile bool running = false;
 	volatile bool connected = false;
+	volatile bool halt = false;
 
 #ifndef NO_NETWORK
-	pthread_t netThread;
-	//static pthread_mutex_t netMutex;
+	Thread netThread;
+	Mutex netMutex;
 
 	//File descriptors
 	int sock = 0;
@@ -60,42 +54,21 @@ namespace net {
 	int force_input_delay = 0;
 	volatile uint32_t frame = 0;
 
-	bool halt = false;
-
 	sockaddr_in me, you, temp;
 
-	char b_neterror[256];
-	bool neterror_exists = false;
+	std::string neterror = "";
 
-	void neterror(const char* fsz_, ...) {
-		//while(neterror_exists)
-		//usleep(100);
+#define th_return {terminate(); return;}
 
-		va_list _args;
-		va_start(_args, fsz_);
-		vsprintf((char*)b_neterror, (const char*)fsz_, _args);
-		va_end(_args);
-		neterror_exists = true;
-	}
-
-	void neterrorRefresh() {
-		if(neterror_exists) {
-			error(b_neterror);
-			neterror_exists = false;
-		}
-	}
-
-#define th_return {terminate(); return NULL;}
-
-	void* run(void*) {
+	void run() {
 		//"Global" variables
 		int state = NETSTATE_INIT;
 
 		//Nitty gritty networking stuff
 		sock = 0;
-		memset((char *)&me, 0, sizeof(me));
-		memset((char *)&you, 0, sizeof(you));
-		memset((char *)&temp, 0, sizeof(temp)); //For receiving data; don't read directly into "you"
+		memset((char*)&me, 0, sizeof(me));
+		memset((char*)&you, 0, sizeof(you));
+		memset((char*)&temp, 0, sizeof(temp)); //For receiving data; don't read directly into "you"
 
 		for(;;) {
 			switch(state) {
@@ -104,7 +77,7 @@ namespace net {
 					//Create a UDP socket
 					if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
 						running = false;
-						neterror("Cannot create UDP socket.");
+						neterror = "Cannot create UDP socket.";
 						th_return;
 					}
 
@@ -118,7 +91,7 @@ namespace net {
 					if(bind(sock, (sockaddr*)&me, sizeof(me)) == -1) {
 						close(sock);
 						running = false;
-						neterror("Cannot bind to port %d.", port);
+						neterror = "Cannot bind to port " + util::toString(port) + ".";
 						th_return;
 					}
 
@@ -129,7 +102,7 @@ namespace net {
 						if(buff.version != NET_VERSION) {
 							buff.version = NET_VERSION;
 							send(&buff, sizeof(buff));
-							neterror("Client version differs from server.");
+							neterror = "Client version differs from server.";
 							th_return;
 						}
 
@@ -151,9 +124,6 @@ namespace net {
 										if(force_input_delay) {
 											inputDelay = force_input_delay;
 										}
-										printf("Input Delay: %d\n", inputDelay);
-
-										printf("SERVER: Connection established.\n");
 										connected = true;
 
 										//Send input delay
@@ -165,7 +135,7 @@ namespace net {
 					}
 					if(!connected) {
 						if(!halt) {
-							neterror("Could not connect to a client.");
+							neterror = "Could not connect to a client.";
 						}
 						th_return;
 					}
@@ -173,7 +143,7 @@ namespace net {
 				} else if(mode == MODE_CLIENT) {
 					//Create a UDP socket
 					if((sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == -1) {
-						neterror("Cannot create UDP socket.");
+						neterror = "Cannot create UDP socket.";
 						th_return;
 					}
 
@@ -190,7 +160,7 @@ namespace net {
 						//Wait for a reply; check for SYN/ACK
 						if(recv(&buff, sizeof(buff))) {
 							if(buff.version != NET_VERSION) {
-								neterror("Client version differs from server.");
+								neterror = "Client version differs from server.";
 								th_return;
 							}
 
@@ -202,7 +172,6 @@ namespace net {
 								//Send an ACK. We've got a connection!
 								buff.flags = NETF_ACK;
 								if(send(&buff, sizeof(buff))) {
-									printf("CLIENT: Connection established.\n");
 									connected = true;
 
 									//Get input delay
@@ -214,7 +183,7 @@ namespace net {
 					}
 					if(!connected) {
 						if(!halt) {
-							neterror("Could not connect to a server.");
+							neterror = "Could not connect to a server.";
 						}
 						th_return;
 					}
@@ -237,6 +206,7 @@ namespace net {
 						//Copy every input into the netbuff. There will be redundancy, but that's not too bad
 						//considering the problems this will prevent from packet loss.
 						uint32_t netframe = *((uint32_t*)buff);
+						netMutex.lock();
 						for(int i = 0; i < INPUT_SEND_COUNT; i++) {
 							if(netframe - i <= 0) {
 								break;
@@ -250,6 +220,7 @@ namespace net {
 								p->netBuffCounter = 0;
 							}
 						}
+						netMutex.unlock();
 					}
 					break;
 
@@ -261,9 +232,9 @@ namespace net {
 
 						//Search for the frame requested and resend it
 						uint32_t netframe = *(uint32_t*)buff;
-						//printf("Got a request for frame %d.\n", frame);
 						game::Player* p = getMyPlayer();
 
+                        netMutex.lock();
 						for(int i = 0; i < NETBUFF_SIZE; i++) {
 							if(p->netBuff[i].frame == netframe) {
 								//Send this guy back
@@ -276,13 +247,14 @@ namespace net {
 								send(buffer2, 32 + 16 + 1);
 							}
 						}
+						netMutex.unlock();
 					}
 					break;
 					}
 					//UNLOCK();
 				} else {
 					if(!halt) {
-						neterror("Lost connection to opponent.");
+						neterror = "Lost connection to opponent.";
 					}
 					th_return;
 				}
@@ -305,15 +277,15 @@ namespace net {
 		close(sock_pipe[0]);
 		close(sock_pipe[1]);
 #endif
-		//pthread_mutex_destroy(&netMutex);
 	}
 #endif //NO_NETWORK
 
 	void refresh() {
 #ifndef NO_NETWORK
-		neterrorRefresh();
 
 		if(connected) {
+            netMutex.lock();
+
 			//First, load this input up into our net buffer
 			game::Player* p = getMyPlayer();
 			game::Player* py = getYourPlayer();
@@ -384,14 +356,21 @@ namespace net {
 
 					//If we go past 5 seconds, time out
 					if((now - timeout) >= 5 * 1000) {
+                        neterror = "Lost connection to opponent.";
 						stop();
 						Menu::setMenu(MENU_TITLE);
 						break;
 					}
 				}
 			}
+			netMutex.unlock();
 
 			frame++;
+		} else {
+		    if(!neterror.empty()) {
+                error(neterror);
+                neterror = "";
+		    }
 		}
 #endif
 	}
@@ -415,13 +394,6 @@ namespace net {
 			}
 		}
 #endif
-
-		//Mutex
-		/*if(pthread_mutex_init(&netMutex, NULL))
-		{
-		    neterror("Could not initialize mutex.");
-		    return;
-		}*/
 
 		enabled = true;
 #endif
@@ -455,16 +427,13 @@ namespace net {
 
 #ifndef _WIN32
 		if(pipe(sock_pipe)) {
-			neterror("Could not create network pipe.");
+			neterror = "Could not create network pipe.";
 			return;
 		}
 #endif
 
-		//Create the pthread
-		if(pthread_create(&netThread, NULL, &run, NULL)) {
-			neterror("Could not start network thread.");
-			return;
-		}
+		//Create the thread
+		netThread = Thread(run);
 
 		running = true;
 #endif
@@ -480,14 +449,10 @@ namespace net {
 #ifdef _WIN32
 		close(sock);
 #else
-		write(sock_pipe[1], &halt, 1);
+        char on = 1;
+		write(sock_pipe[1], &on, 1);
 #endif
-		//UNLOCK();
-		while(running) {
-			neterrorRefresh();
-			//SLEEP(100);
-		}
-		WAIT();
+		netThread.join();
 #endif
 	}
 
@@ -504,7 +469,7 @@ namespace net {
 		return sent;
 
 	handleError:
-		neterror("Could not send packet: %d", neterrno);
+		neterror = "Could not send packet: " + util::toString(neterrno);
 		return 0;
 #else
 		return 0;
@@ -525,7 +490,7 @@ namespace net {
 		for(;;) {
 #ifndef _WIN32
 			//Check for incoming data
-			if(select(FD_SETSIZE, &sock_set, NULL, NULL, NULL) == -1) {
+			if(select(FD_SETSIZE, &sock_set, nullptr, nullptr, nullptr) == -1) {
 				goto handleError;
 			}
 
@@ -560,10 +525,10 @@ namespace net {
 #ifdef _WIN32
 		int _error = neterrno;
 		if(_error != WSAEINTR) {
-			neterror("Could not receive packet: %d", _error);
+			neterror = "Could not receive packet: " + util::toString(_error);
 		}
 #else
-		neterror("Could not receive packet: %d", neterrno);
+		neterror = "Could not receive packet: " + util::toString(neterrno);
 #endif
 		return 0;
 #else
@@ -579,7 +544,7 @@ namespace net {
 			return &poniko;
 		}
 #endif
-		return NULL;
+		return nullptr;
 	}
 
 	game::Player* getYourPlayer() {
@@ -590,6 +555,6 @@ namespace net {
 			return &madotsuki;
 		}
 #endif
-		return NULL;
+		return nullptr;
 	}
 }

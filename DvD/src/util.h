@@ -41,7 +41,7 @@ namespace util {
 
 	//This is equivalent to fopen, but works with unicode filenames
 	//on Windows.
-	FILE* fopen8(std::string szFileName, const char* flags);
+	FILE* ufopen(const std::string& szFileName, const char* flags);
 
 #ifdef _WIN32
 	wchar_t* utf8to16(const char* string);
@@ -67,7 +67,7 @@ namespace util {
 
 	//These functions read a utf-8 encoded file and return the lines
 	//as a character array.
-	char** getLinesFromFile(int* n, std::string szFileName);
+	char** getLinesFromFile(int* n, const std::string& szFileName);
 	void freeLines(char** lines);
 
 	//RNG
@@ -79,7 +79,7 @@ namespace util {
 	std::string toString(int);
 
 	//Directory listing
-	std::vector<std::string> listDirectory(std::string directory, bool listFiles);
+	std::vector<std::string> listDirectory(const std::string& directory, bool listFiles);
 }
 
 //Position of the camera

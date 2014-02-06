@@ -27,10 +27,16 @@ class Atlas {
 public:
 
 	Atlas();
+	Atlas(Atlas&& other);
+	Atlas& operator=(Atlas&& other);
 	~Atlas();
 
-	bool create(std::string szFilename);
-	bool createFromPalette(std::string szFilename, const ubyte_t* palette);
+	//Do not copy atlases
+	Atlas(const Atlas& other) = delete;
+	Atlas& operator=(Atlas& other) = delete;
+
+	bool create(const std::string& szFilename);
+	bool createFromPalette(const std::string& szFilename, const ubyte_t* palette);
 
 	void draw(int sprite, int x, int y, bool mirror);
 	void drawSprite(int sprite, int x, int y, bool mirror);

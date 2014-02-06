@@ -177,8 +177,8 @@ namespace sprite {
 #endif
 	}
 
-	void Sprite::drawShadow(int _x, bool mirror, float scale) {
 #ifndef SPRTOOL
+	void Sprite::drawShadow(int _x, bool mirror, float scale) {
 		if(mirror) {
 			_x -= atlas->getSprite(atlas_sprite).w * scale - x * scale;
 		} else {
@@ -188,8 +188,8 @@ namespace sprite {
 		graphics::setColor(0, 0, 0, 0.5f);
 		graphics::setScale(scale, 0.2f * scale);
 		atlas->drawSprite(atlas_sprite, _x, 0, mirror);
-#endif
 	}
+#endif
 #endif
 
 	Sprite::Sprite() {
@@ -201,7 +201,7 @@ namespace sprite {
 
 	HitBoxGroup::HitBoxGroup() {
 		size = 0;
-		boxes = NULL;
+		boxes = nullptr;
 	}
 
 	HitBoxGroup::~HitBoxGroup() {
@@ -213,7 +213,7 @@ namespace sprite {
 		if(size) {
 			boxes = new HitBox[size];
 		} else {
-			boxes = NULL;
+			boxes = nullptr;
 		}
 	}
 
@@ -239,7 +239,7 @@ namespace sprite {
 
 		if(size == 1) {
 			delete [] boxes;
-			boxes = NULL;
+			boxes = nullptr;
 			size = 0;
 		} else {
 			HitBox* foo = boxes;

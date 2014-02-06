@@ -70,7 +70,7 @@ namespace util {
 		return result *= scalar;
 	}
 
-	FILE* fopen8(std::string szFileName, const char* flags) {
+	FILE* ufopen(const std::string& szFileName, const char* flags) {
 #ifdef _WIN32
 		wchar_t* filename16 = utf8to16(szFileName.c_str());
 		wchar_t* flags16 = utf8to16(flags);
@@ -87,19 +87,19 @@ namespace util {
 	//Character set conversion
 	char* utf16to8(const wchar_t* string) {
 
-		int size = WideCharToMultiByte(CP_UTF8, 0, (const wchar_t*)string, -1, NULL, 0, NULL, NULL);
+		int size = WideCharToMultiByte(CP_UTF8, 0, (const wchar_t*)string, -1, nullptr, 0, nullptr, nullptr);
 		if(size) {
 			char* str8 = (char*)malloc(sizeof(char) * size);
-			if(WideCharToMultiByte(CP_UTF8, 0, (const wchar_t*)string, -1, (char*)str8, size, NULL, NULL)) {
+			if(WideCharToMultiByte(CP_UTF8, 0, (const wchar_t*)string, -1, (char*)str8, size, nullptr, nullptr)) {
 				return str8;
 			}
 			free(str8);
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	wchar_t* utf8to16(const char* string) {
-		int size = MultiByteToWideChar(CP_UTF8, 0, (const char*)string, -1, NULL, 0);
+		int size = MultiByteToWideChar(CP_UTF8, 0, (const char*)string, -1, nullptr, 0);
 		if(size) {
 			wchar_t* str16 = (wchar_t*)malloc(sizeof(wchar_t) * size);
 			if(MultiByteToWideChar(CP_UTF8, 0, (const char*)string, -1, str16, size)) {
@@ -107,7 +107,7 @@ namespace util {
 			}
 			free(str16);
 		}
-		return NULL;
+		return nullptr;
 	}
 #endif
 
@@ -207,11 +207,11 @@ namespace util {
 		return def;
 	}
 
-	char** getLinesFromFile(int* n, std::string szFile) {
+	char** getLinesFromFile(int* n, const std::string& szFile) {
 		*n = 0;
 
 		//Open the file
-		FILE* f = fopen8(szFile, "rb");
+		FILE* f = ufopen(szFile, "rb");
 		if(!f) {
 			return 0;
 		}
@@ -221,13 +221,13 @@ namespace util {
 		long int sizeRaw = ftell(f);
 		if(sizeRaw <= 0) {
 			fclose(f);
-			return NULL;
+			return nullptr;
 		}
 		fseek(f, 0, SEEK_SET);
 		char* buffRaw = (char*)malloc(sizeRaw + 1);
 		if(fread(buffRaw, sizeRaw, 1, f) != 1) {
 			fclose(f);
-			return NULL;
+			return nullptr;
 		}
 		fclose(f);
 
@@ -366,13 +366,13 @@ namespace util {
 	}
 
 	//Directory listings
-	std::vector<std::string> listDirectory(std::string directory, bool listFiles) {
+	std::vector<std::string> listDirectory(const std::string& directory, bool listFiles) {
 	    std::vector<std::string> result;
 
 #ifdef _WIN32
 #else
         DIR* dp = opendir(directory.c_str());
-        if(dp == NULL) {
+        if(dp == nullptr) {
             return result;
         }
 

@@ -15,8 +15,31 @@ const int Atlas::channels[PIXEL_MAX] = {0, 1, 3, 4};
 Atlas::Atlas() {
 	pixel_type = PIXEL_NULL;
 	nImages = nSprites = 0;
-	images = NULL;
-	sprites = NULL;
+	images = nullptr;
+	sprites = nullptr;
+}
+
+Atlas::Atlas(Atlas&& other) {
+    pixel_type = other.pixel_type;
+    nSprites = other.nSprites;
+    sprites = other.sprites;
+
+    nImages = other.nImages;
+    images = other.images;
+    other.sprites = nullptr;
+    other.images = nullptr;
+}
+
+Atlas& Atlas::operator=(Atlas&& other) {
+    pixel_type = other.pixel_type;
+    nSprites = other.nSprites;
+    nImages = other.nImages;
+
+    using std::swap;
+    swap(images, other.images);
+    swap(sprites, other.sprites);
+
+    return *this;
 }
 
 Atlas::~Atlas() {
@@ -26,7 +49,7 @@ Atlas::~Atlas() {
 	delete [] images;
 }
 
-bool Atlas::create(std::string szFilename) {
+bool Atlas::create(const std::string& szFilename) {
 	File file;
 	if(!file.open(FILE_READ_GZ, szFilename)) {
 		return false;
@@ -76,11 +99,10 @@ bool Atlas::create(std::string szFilename) {
 
 	//Free up memory
 	free(_b_pixel);
-	file.close();
 	return true;
 }
 
-bool Atlas::createFromPalette(std::string szFilename, const ubyte_t* palette) {
+bool Atlas::createFromPalette(const std::string& szFilename, const ubyte_t* palette) {
 	File file;
 	if(!file.open(FILE_READ_GZ, szFilename)) {
 		return false;
@@ -127,7 +149,6 @@ bool Atlas::createFromPalette(std::string szFilename, const ubyte_t* palette) {
 
 	//Free up memory
 	free(_b_pixel);
-	file.close();
 	return true;
 }
 

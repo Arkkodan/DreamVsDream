@@ -1,6 +1,8 @@
 #ifndef OS_H_INCLUDED
 #define OS_H_INCLUDED
 
+#include "globals.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,7 +21,7 @@ namespace os {
 	void setTitle(const char* title);
 	void refresh();
 
-	void getClipboard(char* b_sz, size_t size);
+	std::string getClipboard();
 
 	void toggleFullscreen();
 

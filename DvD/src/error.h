@@ -5,7 +5,11 @@
 
 #include <errno.h>
 
-void error(std::string sz);
-void die(std::string sz);
+void error(const std::string& sz);
+void die(const std::string& sz);
+
+#ifdef DEBUG
+void debug(const std::string& sz);
+#endif
 
 #endif // ERROR_H_INCLUDED

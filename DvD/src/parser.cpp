@@ -60,7 +60,7 @@ bool Parser::open(std::string szFileName) {
 
 		return true;
 	}
-	lines = NULL;
+	lines = nullptr;
 	return false;
 }
 
@@ -69,19 +69,19 @@ void Parser::reset() {
 }
 
 bool Parser::exists() {
-	return szLines != NULL;
+	return szLines != nullptr;
 }
 
 Parser::Parser() {
 	iLine = -1;
 	nLines = 0;
-	szLines = NULL;
-	lines = NULL;
+	szLines = nullptr;
+	lines = nullptr;
 }
 
 Parser::Parser(std::string szFileName) {
-	szLines = NULL;
-	lines = NULL;
+	szLines = nullptr;
+	lines = nullptr;
 	open(szFileName);
 }
 
@@ -128,10 +128,10 @@ int Parser::getArgC() {
 
 const char* Parser::getArg(int arg) {
 	if(!szLines) {
-		return NULL;
+		return nullptr;
 	}
 	if(arg < 0 || arg >= lines[iLine].argc) {
-		return NULL;
+		return nullptr;
 	}
 	return lines[iLine].argv[arg];
 }
@@ -153,7 +153,7 @@ float Parser::getArgFloat(int arg) {
 	if(arg < 0 || arg >= lines[iLine].argc) {
 		return 0.0;
 	}
-	return strtof(lines[iLine].argv[arg], NULL);
+	return strtof(lines[iLine].argv[arg], nullptr);
 }
 
 bool Parser::getArgBool(int arg, bool def) {

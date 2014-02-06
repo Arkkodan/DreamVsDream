@@ -90,7 +90,9 @@ namespace graphics {
 		//force_POT = true;
 
 		//Shader support?
-#ifndef SPRTOOL
+#ifdef SPRTOOL
+        (void)disable_shaders_;
+#else
 		if(!disable_shaders_ && (GLEW_ARB_fragment_shader && !force_no_shader_support)) {
 			shader_support = true;
 		}

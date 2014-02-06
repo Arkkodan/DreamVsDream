@@ -15,8 +15,8 @@ extern game::Player poniko;
 namespace os {
 	unsigned int frame = 0;
 
-	SDL_Window* window = NULL;
-	SDL_GLContext glcontext = NULL;
+	SDL_Window* window = nullptr;
+	SDL_GLContext glcontext = nullptr;
 
 	void init() {
 		//Initialize SDL
@@ -83,7 +83,9 @@ namespace os {
 		frame++;
 	}
 
-	void getClipboard(char* sz, size_t size) {
-		*sz = 0;
+	std::string getClipboard() {
+	    if(SDL_HasClipboardText())
+            return std::string(SDL_GetClipboardText());
+		return "";
 	}
 }

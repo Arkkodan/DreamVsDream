@@ -58,7 +58,7 @@ void populate(int x, int y, int w, int h) {
 
 				//Delete the image and increment counter
 				free(images[i].data);
-				images[i].data = NULL;
+				images[i].data = nullptr;
 
 				//Add ourselves to the fit buffer
 				b_fit[c_fit++] = i;
@@ -125,7 +125,7 @@ int loadPalette(std::string szPalette, unsigned char* palette) {
 	std::string ext = szPalette.substr(szPalette.find_last_of(".") + 1);
 
 	if(!ext.compare("act")) {
-		FILE* f = util::fopen8(szPalette, "rb");
+		FILE* f = util::ufopen(szPalette, "rb");
 		if(!f) {
 			std::cerr << "error: cannot open palette file." << std::endl;
 			return 1;
@@ -382,8 +382,6 @@ int main(int argc, char** argv)
 		file.writeByte(i_atlas);
 		file.write(atlas.data, TEXTURE_SIZE_SQ * i_atlas * channels[pixel_type]);
 
-		file.close();
-
 		//Write to an info list
 		if(!file.open(FILE_WRITE_NORMAL, sz_output + ".atlas.list")) {
 			std::cerr << "error: could not open file " << file.getFilename() << " for writing." << std::endl;
@@ -403,7 +401,6 @@ int main(int argc, char** argv)
 			file.writeWord(images[i].x_shift);
 			file.writeWord(images[i].y_shift);
 		}
-		file.close();
 	}
 
 end:

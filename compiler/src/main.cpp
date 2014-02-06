@@ -47,7 +47,6 @@ bool AtlasList::create(std::string szFileName) {
 		sprites[i].x = file.readWord();
 		sprites[i].y = file.readWord();
 	}
-	file.close();
 	return true;
 }
 
@@ -59,28 +58,28 @@ bool AtlasList::create(std::string szFileName) {
 #define STRING(v) stepWriteString(&_i_step, _b_step, v)
 
 void stepWriteByte(int* index, void* buffer, int8_t value) {
-	*((int8_t*)(buffer + *index)) = value;
+	*((int8_t*)((char*)buffer + *index)) = value;
 	*index += 1;
 }
 
 void stepWriteWord(int* index, void* buffer, int16_t value) {
-	*((int16_t*)(buffer + *index)) = value;
+	*((int16_t*)((char*)buffer + *index)) = value;
 	*index += 2;
 }
 
 void stepWriteDword(int* index, void* buffer, int32_t value) {
-	*((int32_t*)(buffer + *index)) = value;
+	*((int32_t*)((char*)buffer + *index)) = value;
 	*index += 4;
 }
 
 void stepWriteFloat(int* index, void* buffer, float value) {
-	*((int32_t*)(buffer + *index)) = value * FLOAT_ACCURACY;
+	*((int32_t*)((char*)buffer + *index)) = value * FLOAT_ACCURACY;
 	*index += 4;
 }
 
-void stepWriteString(int* index, void* buffer, std::string value) {
-	*((int8_t*)(buffer + *index)) = value.size();
-	memcpy(buffer + *index + 1, value.c_str(), value.size());
+void stepWriteString(int* index, void* buffer, const std::string& value) {
+	*((int8_t*)((char*)buffer + *index)) = value.size();
+	memcpy((char*)buffer + *index + 1, value.c_str(), value.size());
 	*index += value.size() + 1;
 }
 
@@ -187,10 +186,8 @@ void Fighter::create(std::string name_) {
 
 		if(act.read(palettes + i * 255 * 3, 255 * 3) != 1) {
 			std::string filename = act.getFilename();
-			act.close();
 			die(filename + " not a valid ACT file!");
 		}
-		act.close();
 	}
 
 	//Sprites
@@ -757,7 +754,8 @@ int main(int argc, char** argv)
 
 	std::cout << "Attempting to load fighter \"" << name << "\"..." << std::endl;
 
-	game::Fighter fighter(name);
+	game::Fighter fighter;
+	fighter.create(name);
 
 	//Load also the atlas
 	AtlasList atlas_list;
@@ -874,8 +872,6 @@ int main(int argc, char** argv)
 	file.writeWord(fighter.portrait_ui.w);
 	file.writeWord(fighter.portrait_ui.h);
 	file.write(fighter.portrait_ui.data, fighter.portrait_ui.w*fighter.portrait_ui.h);
-
-	file.close();
 
 	return 0;
 }

@@ -13,13 +13,7 @@ float Font::xscale = 1.0f;
 float Font::yscale = 1.0f;
 
 Font::Font() {
-	destroy();
 }
-
-/*Font::Font(std::string filename)
-{
-    createFromFile(filename);
-}*/
 
 Font::~Font() {
 }
@@ -59,7 +53,6 @@ void Font::createFromFile(std::string filename) {
 		return;
 	}
 	file.read(pngdata, size);
-	file.close();
 
 	img.createFromMemoryPNG(pngdata, size);
 	free(pngdata);
@@ -67,10 +60,6 @@ void Font::createFromFile(std::string filename) {
 
 bool Font::exists() {
 	return img.exists();
-}
-
-void Font::destroy() {
-	img.destroy();
 }
 
 void Font::drawText(int x, int y, std::string text) {

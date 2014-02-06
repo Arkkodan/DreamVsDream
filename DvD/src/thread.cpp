@@ -7,27 +7,37 @@ static int thread_launcher(void (*func)()) {
 
 //Thread
 Thread::Thread() {
-	thread = NULL;
+	thread = nullptr;
+}
+
+Thread::Thread(Thread&& other) {
+    thread = other.thread;
+}
+
+Thread& Thread::operator=(Thread&& other) {
+    thread = other.thread;
+    return *this;
 }
 
 Thread::Thread(void (*func)()) {
 	//This prevents GCC from giving us warnings about breaking
 	//ISO C standards.
-	union
-	{
+	union {
 		void* obj;
 		void (*func)();
 	} u;
 	u.func = func;
 
-	thread = SDL_CreateThread((int (*)(void*))thread_launcher, NULL, u.obj);
+	thread = SDL_CreateThread((int (*)(void*))thread_launcher, nullptr, u.obj);
 }
 
 Thread::~Thread() {
 }
 
 void Thread::join() {
-    SDL_WaitThread(thread, NULL);
+    if(thread) {
+        SDL_WaitThread(thread, nullptr);
+    }
 }
 
 //Mutex

@@ -110,7 +110,7 @@ namespace game {
 		virtual void advanceFrame();
 		virtual void handleFrame(ubyte_t command = 0);
 		virtual void shootProjectile();
-		virtual void draw(bool shadow, unsigned int palette = 0);
+		virtual void draw(unsigned int palette);
 
 		//Non-virtual
 		void setState(int state);
@@ -185,7 +185,7 @@ namespace game {
 		void shootProjectile();
 		void applyInput();
 		void handleInput();
-		void draw(bool shadow, unsigned int palette = 0);
+		void draw(unsigned int palette, bool shadow);
 		void drawSpecial();
 
 		void takeDamage(float damage);

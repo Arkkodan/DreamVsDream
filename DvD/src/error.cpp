@@ -1,32 +1,28 @@
 #include "error.h"
+
 #include <stdlib.h>
 #include <iostream>
 #include <string>
+
 #include "os.h"
 #include "util.h"
 
 #ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
 
-void alert(std::string message) {
+void alert(const std::string& sz) {
 }
 #endif
 
-#ifdef _WIN32
-void win_messageBox(std::string title, std::string message, int flags) {
-	wchar_t* title16 = util::utf8to16(title.c_str());
-	wchar_t* message16 = util::utf8to16(message.c_str());
-
-	MessageBoxW(NULL, title16, message16, flags);
-
-	free(title16);
-	free(message16);
+#if defined _WIN32 || defined __APPLE__
+namespace os {
+    extern SDL_Window* window;
 }
 #endif
 
-void error(std::string sz) {
-#ifdef _WIN32
-	win_messageBox("Warning", sz, MB_ICONWARNING);
+void error(const std::string& sz) {
+#if defined _WIN32 || defined __APPLE__
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", sz.c_str(), os::window);
 #elif defined EMSCRIPTEN
 	alert("Warning:\n" + sz);
 #else
@@ -34,9 +30,9 @@ void error(std::string sz) {
 #endif
 }
 
-void die(std::string sz) {
-#ifdef _WIN32
-	win_messageBox("Error", sz, MB_ICONERROR);
+void die(const std::string& sz) {
+#if defined _WIN32 || defined __APPLE__
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", sz.c_str(), os::window);
 #elif defined EMSCRIPTEN
 	alert("Error:\n" + sz);
 #else
@@ -46,7 +42,7 @@ void die(std::string sz) {
 }
 
 #ifdef DEBUG
-void debug(std::string sz) {
+void debug(const std::string& sz) {
 	std::cerr << "DEBUG: " << sz << std::endl;
 }
 #endif
