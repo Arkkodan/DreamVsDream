@@ -2,8 +2,8 @@
 #include <math.h>
 
 #ifdef EMSCRIPTEN
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <emscripten/emscripten.h>
 #else
 #include <png.h>

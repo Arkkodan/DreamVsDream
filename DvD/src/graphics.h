@@ -5,18 +5,12 @@
 
 #include "shader.h"
 
-/*extern PFNGLATTACHOBJECTARBPROC			glAttachObjectARB;
-extern PFNGLCOMPILESHADERARBPROC		glCompileShaderARB;
-extern PFNGLCREATEPROGRAMOBJECTARBPROC	glCreateProgramObjectARB;
-extern PFNGLCREATESHADEROBJECTARBPROC	glCreateShaderObjectARB;
-extern PFNGLDELETEOBJECTARBPROC			glDeleteObjectARB;
-extern PFNGLGETINFOLOGARBPROC			glGetInfoLogARB;
-extern PFNGLGETOBJECTPARAMETERIVARBPROC glGetObjectParameterivARB;
-extern PFNGLGETUNIFORMLOCATIONARBPROC 	glGetUniformLocationARB;
-extern PFNGLLINKPROGRAMARBPROC 			glLinkProgramARB;
-extern PFNGLSHADERSOURCEARBPROC 		glShaderSourceARB;
-extern PFNGLUNIFORM1IARBPROC 			glUniform1iARB;
-extern PFNGLUSEPROGRAMOBJECTARBPROC 	glUseProgramObjectARB;*/
+#ifdef GAME
+#ifdef _WIN32
+//1.3
+extern PFNGLACTIVETEXTUREPROC           glActiveTexture;
+extern PFNGLBLENDEQUATIONPROC           glBlendEquation;
+#endif
 
 extern PFNGLATTACHSHADERPROC			glAttachShader;
 extern PFNGLCOMPILESHADERPROC			glCompileShader;
@@ -36,6 +30,7 @@ extern PFNGLUNIFORM2FPROC 				glUniform2f;
 extern PFNGLUNIFORM3FPROC 				glUniform3f;
 extern PFNGLUNIFORM4FPROC 				glUniform4f;
 extern PFNGLUSEPROGRAMPROC		 		glUseProgram;
+#endif
 
 namespace graphics {
 	//Init/deinit

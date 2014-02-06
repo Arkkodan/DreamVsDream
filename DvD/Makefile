@@ -27,7 +27,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 	@$(CXX) -c -o $@ $(CXXFLAGS) $<
 
 $(OBJ_DIR)/%.o: $(RES_FILE) | $(OBJ_DIR)
-	@echo WINDRES $<
+	@echo WINDRES $< -o $@
 	@$(WINDRES) $< $@
 
 clean:

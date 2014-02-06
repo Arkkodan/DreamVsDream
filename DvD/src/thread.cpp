@@ -20,15 +20,7 @@ Thread& Thread::operator=(Thread&& other) {
 }
 
 Thread::Thread(void (*func)()) {
-	//This prevents GCC from giving us warnings about breaking
-	//ISO C standards.
-	union {
-		void* obj;
-		void (*func)();
-	} u;
-	u.func = func;
-
-	thread = SDL_CreateThread((int (*)(void*))thread_launcher, nullptr, u.obj);
+	thread = SDL_CreateThread((int (*)(void*))thread_launcher, nullptr, (void*)func);
 }
 
 Thread::~Thread() {

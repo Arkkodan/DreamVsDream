@@ -10,8 +10,6 @@
 #include "atlas.h"
 #include "effect.h"
 
-#include <SDL/SDL.h>
-
 #ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>
 #endif
