@@ -69,6 +69,6 @@ else
 endif
 
 # flags
-CXXFLAGS	+= -DVERSION=\"$(VERSION)\" -DGAME -std=c++11
-LDFLAGS		+= -lSDL2 -lpng -lz -lsndfile -std=c++11
+CXXFLAGS	+= -DVERSION=\"$(VERSION)\" -DGAME -std=c++11 -I/opt/local/include
+LDFLAGS		+= -lSDL2 -lpng -lz -lsndfile -std=c++11 -L/opt/local/lib
 
