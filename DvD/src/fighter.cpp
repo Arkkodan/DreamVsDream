@@ -22,7 +22,7 @@ namespace game {
 
 	//Load/create a fighter
 	void Fighter::create(std::string name_) {
-		name = name_;
+		name = std::move(name_);
 
 		//Get that file opened
 		File file;
@@ -38,12 +38,12 @@ namespace game {
 		widthLeft = file.readWord();
 		widthRight = file.readWord();
 		gravity = file.readFloat();
-		c_palettes = file.readByte();
+		nPalettes = file.readByte();
 
 		//Read palettes
 		if(graphics::shader_support) {
-			palettes = new GLuint[c_palettes * 2];
-			glGenTextures(c_palettes * 2, palettes);
+			palettes = new GLuint[nPalettes * 2];
+			glGenTextures(nPalettes * 2, palettes);
 		} else {
 			palettes = nullptr;
 		}
@@ -57,7 +57,7 @@ namespace game {
 			palette[i] = 0;
 		}
 
-		for(int i = 0; i < c_palettes * 2; i++) {
+		for(int i = 0; i < nPalettes * 2; i++) {
 			ubyte_t* pal;
 			if(i == 0) {
 				pal = palette_first;
@@ -88,9 +88,9 @@ namespace game {
 		}
 
 		//Read sprite::Sprites
-		c_sprites = file.readWord();
-		sprites = new sprite::Sprite[c_sprites];
-		for(int i = 0; i < c_sprites; i++) {
+		nSprites = file.readWord();
+		sprites = new sprite::Sprite[nSprites];
+		for(int i = 0; i < nSprites; i++) {
 			sprites[i].atlas = &atlas_sprites;
 			sprites[i].atlas_sprite = file.readWord();
 			sprites[i].x = file.readWord();
@@ -112,45 +112,45 @@ namespace game {
 			}
 		}
 		if(graphics::shader_support) {
-			atlas_sprites.create("chars/" + name_ + ".atlas");
+			atlas_sprites.create("chars/" + name + ".atlas");
 		} else {
-			atlas_sprites.createFromPalette("chars/" + name_ + ".atlas", palette_first);
+			atlas_sprites.createFromPalette("chars/" + name + ".atlas", palette_first);
 		}
 
 		//Read sounds
-		c_sounds = file.readWord();
-		sounds = new SoundGroup[c_sounds];
-		for(int i = 0; i < c_sounds; i++) {
+		nSounds = file.readWord();
+		sounds = new SoundGroup[nSounds];
+		for(int i = 0; i < nSounds; i++) {
 			sounds[i].init(file.readWord());
 			for(int j = 0; j < sounds[i].size; j++) {
-				sounds[i].sounds[j].createFromFile("chars/" + name_ + "/sounds/" + file.readStr() + ".wav");
+				sounds[i].sounds[j].createFromFile("chars/" + name + "/sounds/" + file.readStr() + ".wav");
 			}
 		}
 
 		//Read voices
-		c_voices = file.readWord();
-		voices = new VoiceGroup[c_voices];
-		for(int i = 0; i < c_voices; i++) {
+		nVoices = file.readWord();
+		voices = new VoiceGroup[nVoices];
+		for(int i = 0; i < nVoices; i++) {
 			voices[i].init(file.readWord());
 			voices[i].pct = file.readByte();
 			for(int j = 0; j < voices[i].size; j++) {
-				voices[i].voices[j].createFromFile("chars/" + name_ + "/voices/" + file.readStr() + ".wav");
+				voices[i].voices[j].createFromFile("chars/" + name + "/voices/" + file.readStr() + ".wav");
 			}
 		}
 
 		//Read states (gah)
-		c_states = file.readWord();
-		states = new State[c_states];
-		for(int state = 0; state < c_states; state++) {
+		nStates = file.readWord();
+		states = new State[nStates];
+		for(int state = 0; state < nStates; state++) {
 			states[state].size = file.readWord();
 			states[state].steps = malloc(states[state].size);
 			file.read(states[state].steps, states[state].size);
 		}
 
 		//Read commands
-		c_commands = file.readWord();
-		commands = new Command[c_commands];
-		for(int i = 0; i < c_commands; i++) {
+		nCommands = file.readWord();
+		commands = new Command[nCommands];
+		for(int i = 0; i < nCommands; i++) {
 			commands[i].generic = file.readWord();
 			commands[i].comboC = file.readWord();
 			for(int j = 0; j < commands[i].comboC; j++) {
@@ -177,36 +177,33 @@ namespace game {
 		ubyte_t* data = (ubyte_t*)malloc(width * height);
 		file.read(data, width * height);
 
-		if(graphics::shader_support) {
-			portrait_ui.createFromMemory(data, width, height, COLORTYPE_INDEXED);
-		} else {
-			portrait_ui.createFromMemoryPal(data, width, height, palette_first);
-		}
+        portrait_ui.createFromMemory(data, width, height, COLORTYPE_INDEXED, graphics::shader_support ? nullptr : palette_first, true);
 		free(data);
 
 		//Portraits
-		select.createFromFile("chars/" + name_ + "/portraits/select.png");
-		portrait.createFromFile("chars/" + name_ + "/portraits/portrait.png");
-		special.createFromFile("chars/" + name_ + "/portraits/special.png");
-		ender.createFromFile("chars/" + name_ + "/portraits/super.png");
+		select.createFromFile("chars/" + name + "/portraits/select.png");
+		portrait.createFromFile("chars/" + name + "/portraits/portrait.png");
+		special.createFromFile("chars/" + name + "/portraits/special.png");
+		ender.createFromFile("chars/" + name + "/portraits/super.png");
 	}
 #endif
 
-	Fighter::Fighter() {
-	    palettes = nullptr;
-	    sprites = nullptr;
+	Fighter::Fighter() :
+	    nPalettes(0), palettes(nullptr),
+	    nSprites(0), sprites(nullptr)
 #ifndef SPRTOOL
-	    states = nullptr;
-	    commands = nullptr;
-	    sounds = nullptr;
-	    voices = nullptr;
+        ,
+        nSounds(0), sounds(nullptr),
+        nVoices(0), voices(nullptr),
+        nCommands(0), commands(nullptr),
+        nStates(0), states(nullptr)
 #endif
-	}
+    {}
 
 	Fighter::~Fighter() {
 #ifdef GAME
 		if(graphics::shader_support) {
-			glDeleteTextures(c_palettes, palettes);
+			glDeleteTextures(nPalettes, palettes);
 		}
 #endif
 		delete [] palettes;
@@ -270,11 +267,11 @@ namespace game {
 #endif
 
 #ifndef SPRTOOL
-	VoiceGroup::VoiceGroup() {
-		size = 0;
-		pct = 100;
-		voices = nullptr;
-	}
+	VoiceGroup::VoiceGroup() :
+	    size(0),
+	    pct(100),
+	    voices(nullptr)
+    {}
 
 	VoiceGroup::~VoiceGroup() {
 		delete [] voices;
@@ -292,12 +289,11 @@ namespace game {
 	}
 #endif
 
-	Command::Command() {
-		comboC = 0;
-		targetC = 0;
-		targets = nullptr;
-		generic = 0;
-	}
+	Command::Command() :
+	    comboC(0),
+	    generic(0),
+	    targetC(0), targets(nullptr)
+    {}
 
 	Command::~Command() {
 		delete [] targets;
@@ -308,10 +304,10 @@ namespace game {
 		conditionC = 0;
 	}
 
-	State::State() {
-		size = 0;
-		steps = nullptr;
-	}
+	State::State() :
+	    size(0),
+	    steps(nullptr)
+	{}
 
 	State::~State() {
 		free(steps);

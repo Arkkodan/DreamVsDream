@@ -40,12 +40,6 @@ void Menu::ginit() {
 	menus[MENU_FIGHT]->init();
 	menus[MENU_VERSUS]->init();
 	menus[MENU_INTRO]->init();
-
-	imgLoading.createFromFile("menus/loading.png");
-
-	//Now initialize them
-	//for(int i = 0; i < MENU_MAX; i++)
-	//menus[i]->init();
 }
 
 void Menu::deinit() {

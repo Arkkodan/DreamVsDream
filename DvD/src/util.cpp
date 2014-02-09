@@ -12,11 +12,33 @@
 #endif
 
 namespace util {
-	Vector::Vector() : x(0), y(0) {
-	}
+	Vector::Vector() :
+	    x(0), y(0)
+	{}
 
-	Vector::Vector(int x, int y) : x(x), y(y) {
-	}
+    Vector::Vector(const Vector& other) :
+        x(other.x), y(other.y)
+    {}
+
+    Vector::Vector(Vector&& other) :
+        x(other.x), y(other.y)
+    {}
+
+    Vector& Vector::operator=(const Vector& other) {
+        x = other.x;
+        y = other.y;
+        return *this;
+    }
+
+    Vector& Vector::operator=(Vector&& other) {
+        x = other.x;
+        y = other.y;
+        return *this;
+    }
+
+	Vector::Vector(int x, int y) :
+	    x(x), y(y)
+	{}
 
 	Vector& Vector::operator+=(const Vector& other) {
 		x += other.x;
@@ -41,11 +63,33 @@ namespace util {
 		return result *= scalar;
 	}
 
-	Vectorf::Vectorf() : x(0.0), y(0.0) {
-	}
+	Vectorf::Vectorf() :
+	    x(0.0), y(0.0)
+    {}
 
-	Vectorf::Vectorf(float x, float y) : x(x), y(y) {
-	}
+    Vectorf::Vectorf(const Vectorf& other) :
+        x(other.x), y(other.y)
+    {}
+
+    Vectorf::Vectorf(Vectorf&& other) :
+        x(other.x), y(other.y)
+    {}
+
+    Vectorf& Vectorf::operator=(const Vectorf& other) {
+        x = other.x;
+        y = other.y;
+        return *this;
+    }
+
+    Vectorf& Vectorf::operator=(Vectorf&& other) {
+        x = other.x;
+        y = other.y;
+        return *this;
+    }
+
+	Vectorf::Vectorf(float x, float y) :
+	    x(x), y(y)
+    {}
 
 	Vectorf& Vectorf::operator+=(const Vectorf& other) {
 		x += other.x;

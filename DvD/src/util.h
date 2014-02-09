@@ -12,6 +12,11 @@ namespace util {
 	class Vector {
 	public:
 		Vector();
+		Vector(const Vector& other);
+		Vector(Vector&& other);
+		Vector& operator=(const Vector& other);
+		Vector& operator=(Vector&& other);
+
 		Vector(int x, int y);
 
 		Vector& operator+=(const Vector& other);
@@ -27,6 +32,11 @@ namespace util {
 	class Vectorf {
 	public:
 		Vectorf();
+		Vectorf(const Vectorf& other);
+		Vectorf(Vectorf&& other);
+		Vectorf& operator=(const Vectorf& other);
+		Vectorf& operator=(Vectorf&& other);
+
 		Vectorf(float x, float y);
 
 		Vectorf& operator+=(const Vectorf& other);

@@ -129,8 +129,8 @@ void mainLoop() {
 		int _pal_off_mado = 0;
 		int _pal_off_poni = 0;
 		if(graphics::shader_support && stage == 3) {
-			_pal_off_mado = madotsuki.fighter->c_palettes;
-			_pal_off_poni = poniko.fighter->c_palettes;
+			_pal_off_mado = madotsuki.fighter->nPalettes;
+			_pal_off_poni = poniko.fighter->nPalettes;
 		}
 		if(madotsuki.drawPriorityFrame < poniko.drawPriorityFrame) {
 			madotsuki.draw(false, madotsuki_palette + _pal_off_mado);

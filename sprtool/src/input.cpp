@@ -390,12 +390,12 @@ void keyPress(int key, bool press) {
 			selectBox = nullptr;
 			selectAll = false;
 			if(ctrl) {
-				if(frame <= fighter.c_sprites-1 - 10) {
+				if(frame <= fighter.nSprites-1 - 10) {
 					frame += 10;
 				} else {
-					frame = fighter.c_sprites-1;
+					frame = fighter.nSprites-1;
 				}
-			} else if(frame < fighter.c_sprites-1) {
+			} else if(frame < fighter.nSprites-1) {
 				frame++;
 			}
 			break;

@@ -48,13 +48,13 @@ void Fighter::create(std::string name_) {
 	Parser parser("chars/" + name + "/sprites.ubu");
 
 	//First pass
-	c_sprites = 0;
+	nSprites = 0;
 	while(parser.parseLine()) {
 		if(parser.isGroup()) {
-			c_sprites++;
+			nSprites++;
 		}
 	}
-	sprites = new sprite::Sprite[c_sprites];
+	sprites = new sprite::Sprite[nSprites];
 
 	//Parse the damned sprites for god's sake
 	//Second pass

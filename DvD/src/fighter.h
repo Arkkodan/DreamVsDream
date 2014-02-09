@@ -234,16 +234,37 @@ namespace game {
 		float gravity;
 
 		//Sprites & palettes
-		int c_palettes;
+		int nPalettes;
 #ifdef COMPILER
 		ubyte_t* palettes;
 #else
 		GLuint* palettes;
 #endif
-		int c_sprites;
+		int nSprites;
 		sprite::Sprite* sprites;
 #ifdef GAME
 		Atlas atlas_sprites;
+#endif
+
+#ifndef SPRTOOL
+		//Sounds
+		int nSounds;
+		SoundGroup* sounds;
+
+		//Voices
+		int nVoices;
+		VoiceGroup* voices;
+
+		//Commands
+		int nCommands;
+		Command* commands;
+
+		//States
+		int nStates;
+		State* states;
+
+		//Standard states
+		unsigned int statesStandard[STATE_MAX];
 #endif
 
 		//Portraits
@@ -252,27 +273,6 @@ namespace game {
 		Image special;
 		Image ender;
 		Image portrait_ui;
-
-#ifndef SPRTOOL
-		//Sounds
-		int c_sounds;
-		SoundGroup* sounds;
-
-		//Voices
-		int c_voices;
-		VoiceGroup* voices;
-
-		//Commands
-		int c_commands;
-		Command* commands;
-
-		//States
-		int c_states;
-		State* states;
-
-		//Standard states
-		unsigned int statesStandard[STATE_MAX];
-#endif
 
 		Fighter();
 		~Fighter();

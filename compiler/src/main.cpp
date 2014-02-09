@@ -159,25 +159,25 @@ void Fighter::create(std::string name_) {
 		} else if(parser.is("GRAVITY", 1)) {
 			gravity = parser.getArgFloat(1);
 		} else if(parser.is("PALETTES", 1)) {
-			c_palettes = parser.getArgInt(1);
+			nPalettes = parser.getArgInt(1);
 		}
 	}
 
 
 	//Palettes
-	palettes = new unsigned char[c_palettes * 255 * 3 * 2];
+	palettes = new unsigned char[nPalettes * 255 * 3 * 2];
 
-	for(int i = 0; i < c_palettes * 2; i++) {
+	for(int i = 0; i < nPalettes * 2; i++) {
 		char sz[16];
 
 		File act;
-		if(i < c_palettes) {
+		if(i < nPalettes) {
 			sprintf(sz, "%d", i+1);
 			if(!act.open(FILE_READ_NORMAL, "chars/" + name + "/palettes/" + sz + ".act")) {
 				die("Cannot open \"" + act.getFilename() + "\"!");
 			}
 		} else {
-			sprintf(sz, "%d", i-c_palettes+1);
+			sprintf(sz, "%d", i-nPalettes+1);
 			if(!act.open(FILE_READ_NORMAL, "chars/" + name + "/palettes/" + sz + "_nes.act")) {
 				die("Cannot open \"!" + act.getFilename() + "\"!");
 			}
@@ -194,13 +194,13 @@ void Fighter::create(std::string name_) {
 	parser.open("chars/" + name + "/sprites.ubu");
 
 	//First pass
-	c_sprites = 0;
+	nSprites = 0;
 	while(parser.parseLine()) {
 		if(parser.isGroup()) {
-			c_sprites++;
+			nSprites++;
 		}
 	}
-	sprites = new sprite::Sprite[c_sprites];
+	sprites = new sprite::Sprite[nSprites];
 
 	//Parse the damned sprites for god's sake
 	//Second pass
@@ -255,13 +255,13 @@ void Fighter::create(std::string name_) {
 	parser.open("chars/" + name + "/sounds.ubu");
 
 	//First pass (count sound groups)
-	c_sounds = 0;
+	nSounds = 0;
 	while(parser.parseLine()) {
 		if(parser.isGroup()) {
-			c_sounds++;
+			nSounds++;
 		}
 	}
-	sounds = new SoundGroup[c_sounds];
+	sounds = new SoundGroup[nSounds];
 
 	//Second pass (count sounds within groups, set group ids)
 	parser.reset();
@@ -300,13 +300,13 @@ void Fighter::create(std::string name_) {
 	parser.open("chars/" + name + "/voices.ubu");
 
 	//First pass (count voice groups)
-	c_voices = 0;
+	nVoices = 0;
 	while(parser.parseLine()) {
 		if(parser.isGroup()) {
-			c_voices++;
+			nVoices++;
 		}
 	}
-	voices = new VoiceGroup[c_voices];
+	voices = new VoiceGroup[nVoices];
 
 	//Second pass (count voices within groups, set group ids)
 	parser.reset();
@@ -346,13 +346,13 @@ void Fighter::create(std::string name_) {
 	parser.open("chars/" + name + "/states.ubu");
 
 	//First pass (count states)
-	c_states = 0;
+	nStates = 0;
 	while(parser.parseLine()) {
 		if(parser.isGroup()) {
-			c_states++;
+			nStates++;
 		}
 	}
-	states = new State[c_states];
+	states = new State[nStates];
 
 	//Second pass (get state names)
 	parser.reset();
@@ -389,7 +389,7 @@ void Fighter::create(std::string name_) {
 			_STEP(Sprite)
 			int _i_sprite = 0;
 			const char* sprite = parser.getArg(1);
-			for(int i = 0; i < c_sprites; i++) {
+			for(int i = 0; i < nSprites; i++) {
 				if(!sprites[i].name.compare(sprite)) {
 					_i_sprite = i;
 					break;
@@ -427,7 +427,7 @@ void Fighter::create(std::string name_) {
 
 			int sound = 0;
 			const char* g = parser.getArg(5);
-			for(int i = 0; i < c_states; i++) {
+			for(int i = 0; i < nStates; i++) {
 				if(!sounds[i].name.compare(g)) {
 					sound = i;
 					break;
@@ -439,7 +439,7 @@ void Fighter::create(std::string name_) {
 			STEP(Sound)
 			const char* g = parser.getArg(1);
 			int sound = -1;
-			for(int i = 0; i < c_sounds; i++) {
+			for(int i = 0; i < nSounds; i++) {
 				if(!sounds[i].name.compare(g)) {
 					sound = i;
 					break;
@@ -449,7 +449,7 @@ void Fighter::create(std::string name_) {
 			STEP(Say)
 			const char* g = parser.getArg(1);
 			int voice = -1;
-			for(int i = 0; i < c_voices; i++) {
+			for(int i = 0; i < nVoices; i++) {
 				if(!voices[i].name.compare(g)) {
 					voice = i;
 					break;
@@ -468,7 +468,7 @@ void Fighter::create(std::string name_) {
 			STEP(Shoot)
 			int state = 0;
 			const char* target = parser.getArg(1);
-			for(int i = 0; i < c_states; i++) {
+			for(int i = 0; i < nStates; i++) {
 				if(!states[i].name.compare(target)) {
 					state = i;
 					break;
@@ -480,7 +480,7 @@ void Fighter::create(std::string name_) {
 			STEP(OnHit)
 			int state = 0;
 			const char* target = parser.getArg(1);
-			for(int i = 0; i < c_states; i++) {
+			for(int i = 0; i < nStates; i++) {
 				if(!states[i].name.compare(target)) {
 					state = i;
 					break;
@@ -517,7 +517,7 @@ void Fighter::create(std::string name_) {
 			STEP(Cancel)
 			int state = 0;
 			const char* target = parser.getArg(1);
-			for(int i = 0; i < c_states; i++) {
+			for(int i = 0; i < nStates; i++) {
 				if(!states[i].name.compare(target)) {
 					state = i;
 					break;
@@ -540,16 +540,16 @@ void Fighter::create(std::string name_) {
 	parser.open("chars/" + name + "/commands.ubu");
 
 	//First pass (count commands)
-	c_commands = 0;
+	nCommands = 0;
 	while(parser.parseLine()) {
 		if(parser.isGroup()) {
 			if(parser.getArgC() < 1) {
 				continue;
 			}
-			c_commands++;
+			nCommands++;
 		}
 	}
-	commands = new Command[c_commands];
+	commands = new Command[nCommands];
 
 	//Second pass (process commands and count targets/conditions)
 	parser.reset();
@@ -670,7 +670,7 @@ void Fighter::create(std::string name_) {
 			//Its a new target!
 			targetCounter++;
 			const char* target = parser.getArg(0) + 1;
-			for(int i = 0; i < c_states; i++) {
+			for(int i = 0; i < nStates; i++) {
 				if(!states[i].name.compare(target)) {
 					commands[commandCounter].targets[targetCounter].state = i;
 					break;
@@ -707,7 +707,7 @@ void Fighter::create(std::string name_) {
 		//Load the state
 		int j = 0;
 		bool found = false;
-		for(; j < c_states; j++) {
+		for(; j < nStates; j++) {
 			if(!states[j].name.compare(stateNames[i])) {
 				found = true;
 				break;
@@ -777,14 +777,14 @@ int main(int argc, char** argv)
 	file.writeWord(fighter.widthLeft);
 	file.writeWord(fighter.widthRight);
 	file.writeFloat(fighter.gravity);
-	file.writeByte(fighter.c_palettes);
+	file.writeByte(fighter.nPalettes);
 
 	//Write palettes
-	file.write(fighter.palettes, fighter.c_palettes * 255 * 3 * 2);
+	file.write(fighter.palettes, fighter.nPalettes * 255 * 3 * 2);
 
 	//Write Sprites
-	file.writeWord(fighter.c_sprites);
-	for(int i = 0; i < fighter.c_sprites; i++) {
+	file.writeWord(fighter.nSprites);
+	for(int i = 0; i < fighter.nSprites; i++) {
 		int sprite_num = 0;
 		int ox = 0;
 		int oy = 0;
@@ -820,8 +820,8 @@ int main(int argc, char** argv)
 	}
 
 	//Write sounds
-	file.writeWord(fighter.c_sounds);
-	for(int i = 0; i < fighter.c_sounds; i++) {
+	file.writeWord(fighter.nSounds);
+	for(int i = 0; i < fighter.nSounds; i++) {
 		file.writeWord(fighter.sounds[i].size);
 		for(int j = 0; j < fighter.sounds[i].size; j++) {
 			file.writeStr(fighter.sounds[i].sounds[j]);
@@ -829,8 +829,8 @@ int main(int argc, char** argv)
 	}
 
 	//Write voices
-	file.writeWord(fighter.c_voices);
-	for(int i = 0; i < fighter.c_voices; i++) {
+	file.writeWord(fighter.nVoices);
+	for(int i = 0; i < fighter.nVoices; i++) {
 		file.writeWord(fighter.voices[i].size);
 		file.writeByte(fighter.voices[i].pct);
 		for(int j = 0; j < fighter.voices[i].size; j++) {
@@ -839,15 +839,15 @@ int main(int argc, char** argv)
 	}
 
 	//Write states (gah)
-	file.writeWord(fighter.c_states);
-	for(int state = 0; state < fighter.c_states; state++) {
+	file.writeWord(fighter.nStates);
+	for(int state = 0; state < fighter.nStates; state++) {
 		file.writeWord(fighter.states[state].size);
 		file.write(fighter.states[state].steps, fighter.states[state].size);
 	}
 
 	//Write commands
-	file.writeWord(fighter.c_commands);
-	for(int i = 0; i < fighter.c_commands; i++) {
+	file.writeWord(fighter.nCommands);
+	for(int i = 0; i < fighter.nCommands; i++) {
 		file.writeWord(fighter.commands[i].generic);
 		file.writeWord(fighter.commands[i].comboC);
 		for(int j = 0; j < fighter.commands[i].comboC; j++) {

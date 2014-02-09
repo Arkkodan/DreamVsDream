@@ -239,7 +239,7 @@ namespace game {
 
 
 	void Projectile::setState(int state_) {
-		if(state_ < 0 || state_ >= fighter->c_states) {
+		if(state_ < 0 || state_ >= fighter->nStates) {
 			return;
 		}
 
@@ -273,7 +273,7 @@ namespace game {
 
 	void Projectile::playSound(int id) {
 		//Play a random sound
-		if(id < 0 || id >= fighter->c_sounds) {
+		if(id < 0 || id >= fighter->nSounds) {
 			return;
 		}
 		fighter->sounds[id].sounds[util::roll(fighter->sounds[id].size)].play();
@@ -287,7 +287,7 @@ namespace game {
 		Player* p = (Player*)this;
 
 		//Play a random sound
-		if(id < 0 || id >= fighter->c_voices) {
+		if(id < 0 || id >= fighter->nVoices) {
 			return;
 		}
 		//Randomize on < 50% chance
@@ -468,7 +468,7 @@ namespace game {
 			//First, do multi-step commands.
 			//if(!executed)
 			{
-				for(int i = 0; i < fighter->c_commands; i++) {
+				for(int i = 0; i < fighter->nCommands; i++) {
 					if(fighter->commands[i].comboC > 1) {
 						if(fighter->commands[i].comboC <= nInputs) {
 							//Directional keys first
@@ -503,7 +503,7 @@ namespace game {
 
 			if(!executed) {
 				//Now do single-step commands
-				for(int i = 0; i < fighter->c_commands; i++) {
+				for(int i = 0; i < fighter->nCommands; i++) {
 					if(fighter->commands[i].comboC == 1) {
 						uint16_t cmp = input;
 						if(!(fighter->commands[i].combo[0] & INPUT_DIRMASK)) {

@@ -168,12 +168,17 @@ void init() {
 #endif
 
 	os::init();
+	graphics::init(disable_shaders, max_texture_size);
+	extern Image imgLoading;
+	imgLoading.createFromFile("menus/loading.png");
+	imgLoading.draw(0, 0);
+	os::refresh();
+
 	input::init();
 	if(!disable_sound) {
 		audio::init();
 	}
 	net::init(input_delay);
-	graphics::init(disable_shaders, max_texture_size);
 	game::init();
 	Menu::ginit(); //TODO fix this
 	Stage::ginit();
@@ -195,10 +200,10 @@ void deinit() {
 	Stage::deinit();
 	Menu::deinit();
 	game::deinit();
-	graphics::deinit();
 	net::deinit();
 	audio::deinit();
 
+	graphics::deinit();
 	os::deinit();
 
 #ifndef EMSCRIPTEN

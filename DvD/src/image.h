@@ -5,6 +5,7 @@
 
 enum {
 	COLORTYPE_NONE,
+	COLORTYPE_GRAYSCALE,
 	COLORTYPE_INDEXED,
 	COLORTYPE_RGB,
 	COLORTYPE_RGBA
@@ -48,9 +49,8 @@ public:
 	//SPRTOOL/compiler: Loads a 256-color PNG from a file
 	void createFromFile(std::string filename);
 #ifndef COMPILER
-	void createFromMemoryPNG(ubyte_t* imgdata, size_t size);
-	void createFromMemoryPal(ubyte_t* imgdata, unsigned int width, unsigned int height, const ubyte_t* palette);
-	void createFromMemory(ubyte_t* data, unsigned int width, unsigned int height, int format);
+	void createFromMemoryPNG(const ubyte_t* imgdata, size_t size);
+	void createFromMemory(const ubyte_t* data, unsigned int width, unsigned int height, int format, const ubyte_t* palette, bool pal_transparent = false);
 #endif
 
 	bool exists();
