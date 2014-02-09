@@ -7,18 +7,14 @@
 #include <string>
 #include <iostream>
 
-int channels[PIXEL_MAX] = {0, 1, 3, 4};
-
-int imageRead(std::string szFileName_, struct Image* img_, int type_) {
+void imageRead(std::string szFileName_, struct Image* img_) {
 	int i, j;
 
 	FILE* f = nullptr;
 	png_structp png_ptr = nullptr;
 	png_infop info_ptr = nullptr;
 	int w, h;
-	int bitdepth, channels;
-	int colortype = -1;
-	int type_png = -1;
+	int colortype;
 	unsigned char* raw;
 	png_bytep* row_pointers;
 
@@ -28,6 +24,8 @@ int imageRead(std::string szFileName_, struct Image* img_, int type_) {
 	img_->x_shift = 0;
 	img_->y_shift = 0;
 	img_->data = nullptr;
+
+	int leftpad = 0, rightpad = 0, toppad = 0, bottompad = 0;
 
 	f = util::ufopen(szFileName_, "rb");
 	if(!f) {
@@ -56,203 +54,95 @@ int imageRead(std::string szFileName_, struct Image* img_, int type_) {
 	//Read the PNG from the file, close the file
 	png_init_io(png_ptr, f);
 	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_PACKING, nullptr);
 
 	//Get some basic info
 	w = png_get_image_width(png_ptr, info_ptr);
 	h = png_get_image_height(png_ptr, info_ptr);
 
-	bitdepth = png_get_bit_depth(png_ptr, info_ptr);
-	channels = png_get_channels(png_ptr, info_ptr);
 	colortype = png_get_color_type(png_ptr, info_ptr);
 
-	//Load only the defined type
-	switch(type_) {
-	case PIXEL_INDEXED:
-		type_png = PNG_COLOR_TYPE_PALETTE;
-		break;
-	case PIXEL_RGB:
-		type_png = PNG_COLOR_TYPE_RGB;
-		break;
-	case PIXEL_RGBA:
-		type_png = PNG_COLOR_TYPE_RGBA;
-		break;
-	}
-
-	if(bitdepth != 8 || (type_png != -1 && colortype != type_png)) {
-		std::cerr << "error: file " << szFileName_ << " uses an incorrect pixel type." << std::endl;
+	if(colortype != PNG_COLOR_TYPE_GRAY && colortype != PNG_COLOR_TYPE_PALETTE) {
+		std::cerr << "error: file " << szFileName_ << " is not a grayscale or indexed image." << std::endl;
 		goto end;
 	}
 
 	//Let's get the pixel data now, and free the png struct
-	raw = (unsigned char*)malloc(w * h * channels);
+	raw = (unsigned char*)malloc(w * h);
 	row_pointers = png_get_rows(png_ptr, info_ptr);
 	for(j = 0; j < h; j++)
-		for(i = 0; i < w * channels; i++) {
-			raw[j * w * channels + i] = row_pointers[j][i];
+		for(i = 0; i < w; i++) {
+			raw[j * w + i] = row_pointers[j][i];
 		}
 
 	//Let's optimize the raw image. Remove empty space on all sides.
-	if(colortype == PNG_COLOR_TYPE_PALETTE) {
-		int leftpad = 0;
-		for(; leftpad < w; leftpad++) {
-			int found = 0;
-			for(i = 0; i < h; i++)
-				if(raw[leftpad + i * w]) {
-					found = 1;
-					break;
-				}
-			if(found) {
-				break;
-			}
-		}
-		int rightpad = 0;
-		for(; rightpad < w; rightpad++) {
-			int found = 0;
-			for(i = 0; i < h; i++)
-				if(raw[((w - 1) - rightpad) + i * w]) {
-					found = 1;
-					break;
-				}
-			if(found) {
-				break;
-			}
-		}
-		int toppad = 0;
-		for(; toppad < h; toppad++) {
-			int found = 0;
-			for(i = 0; i < w; i++)
-				if(raw[i + toppad * w]) {
-					found = 1;
-					break;
-				}
-			if(found) {
-				break;
-			}
-		}
-		int bottompad = 0;
-		for(; bottompad < h; bottompad++) {
-			int found = 0;
-			for(i = 0; i < w; i++)
-				if(raw[i + ((h - 1) - bottompad) * w]) {
-					found = 1;
-					break;
-				}
-			if(found) {
-				break;
-			}
-		}
+    for(; leftpad < w; leftpad++) {
+        int found = 0;
+        for(i = 0; i < h; i++)
+            if(raw[leftpad + i * w]) {
+                found = 1;
+                break;
+            }
+        if(found) {
+            break;
+        }
+    }
+    for(; rightpad < w; rightpad++) {
+        int found = 0;
+        for(i = 0; i < h; i++)
+            if(raw[((w - 1) - rightpad) + i * w]) {
+                found = 1;
+                break;
+            }
+        if(found) {
+            break;
+        }
+    }
+    for(; toppad < h; toppad++) {
+        int found = 0;
+        for(i = 0; i < w; i++)
+            if(raw[i + toppad * w]) {
+                found = 1;
+                break;
+            }
+        if(found) {
+            break;
+        }
+    }
+    for(; bottompad < h; bottompad++) {
+        int found = 0;
+        for(i = 0; i < w; i++)
+            if(raw[i + ((h - 1) - bottompad) * w]) {
+                found = 1;
+                break;
+            }
+        if(found) {
+            break;
+        }
+    }
 
-		//Make a new image
-		int newWidth = w - leftpad - rightpad;
-		int newHeight = h - toppad - bottompad;
+    //Make a new image
+    img_->w = w - leftpad - rightpad;
+    img_->h = h - toppad - bottompad;
 
-		unsigned char* data = (unsigned char*)malloc(newWidth * newHeight);
-		for(j = 0; j < newHeight; j++) {
-			for(i = 0; i < newWidth; i++) {
-				data[i + j * newWidth] = raw[leftpad + i + (toppad + j) * w];
-			}
-		}
-		free(raw);
+    img_->data = (unsigned char*)malloc(img_->w * img_->h);
+    for(j = 0; j < img_->h; j++) {
+        for(i = 0; i < img_->w; i++) {
+            img_->data[i + j * img_->w] = raw[leftpad + i + (toppad + j) * w];
+        }
+    }
+    free(raw);
 
-		img_->w = newWidth;
-		img_->h = newHeight;
-		img_->x_shift = leftpad;
-		img_->y_shift = bottompad;
-		img_->data = data;
-	} else if(colortype == PNG_COLOR_TYPE_RGBA) {
-		int leftpad = 0;
-		for(; leftpad < w; leftpad++) {
-			int found = 0;
-			for(i = 0; i < h; i++)
-				if(raw[(leftpad + i * w) * 4 + 3]) {
-					found = 1;
-					break;
-				}
-			if(found) {
-				break;
-			}
-		}
-		int rightpad = 0;
-		for(; rightpad < w; rightpad++) {
-			int found = 0;
-			for(i = 0; i < h; i++)
-				if(raw[(((w - 1) - rightpad) + i * w) * 4 + 3]) {
-					found = 1;
-					break;
-				}
-			if(found) {
-				break;
-			}
-		}
-		int toppad = 0;
-		for(; toppad < h; toppad++) {
-			int found = 0;
-			for(i = 0; i < w; i++)
-				if(raw[(i + toppad * w) * 4 + 3]) {
-					found = 1;
-					break;
-				}
-			if(found) {
-				break;
-			}
-		}
-		int bottompad = 0;
-		for(; bottompad < h; bottompad++) {
-			int found = 0;
-			for(i = 0; i < w; i++)
-				if(raw[(i + ((h - 1) - bottompad) * w) * 4 + 3]) {
-					found = 1;
-					break;
-				}
-			if(found) {
-				break;
-			}
-		}
-
-		//Make a new image
-		int newWidth = w - leftpad - rightpad;
-		int newHeight = h - toppad - bottompad;
-
-		unsigned char* data = (unsigned char*)malloc(newWidth * newHeight * 4);
-		for(j = 0; j < newHeight; j++) {
-			for(i = 0; i < newWidth * channels; i++) {
-				data[i + j * newWidth * 4] = raw[leftpad * 4 + i + (toppad + j) * w * 4];
-			}
-		}
-		free(raw);
-
-		img_->w = newWidth;
-		img_->h = newHeight;
-		img_->x_shift = leftpad;
-		img_->y_shift = toppad;
-		img_->data = data;
-	} else {
-		img_->w = w;
-		img_->h = h;
-		img_->data = raw;
-	}
+    img_->x_shift = leftpad;
+    img_->y_shift = bottompad;
 
 end:
 	if(f) {
 		fclose(f);
 	}
-	if(info_ptr) {
+	if(png_ptr || info_ptr) {
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-	}
-	if(png_ptr) {
-		png_destroy_read_struct(&png_ptr, (png_infopp)nullptr, (png_infopp)nullptr);
-	}
-
-	switch(colortype) {
-	case PNG_COLOR_TYPE_PALETTE:
-		return PIXEL_INDEXED;
-	case PNG_COLOR_TYPE_RGB:
-		return PIXEL_RGB;
-	case PNG_COLOR_TYPE_RGBA:
-		return PIXEL_RGBA;
-	default:
-		return PIXEL_NULL;
+		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 	}
 }
 
@@ -262,7 +152,6 @@ int imageReadPalette(std::string szFileName_, unsigned char* palette_) {
 	FILE* f = nullptr;
 	png_structp png_ptr = nullptr;
 	png_infop info_ptr = nullptr;
-	int bitdepth;
 	int colortype = -1;
 	png_colorp palette = nullptr;
 	int c_palette = 0;
@@ -298,10 +187,9 @@ int imageReadPalette(std::string szFileName_, unsigned char* palette_) {
 	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
 
 	//Get some basic info
-	bitdepth = png_get_bit_depth(png_ptr, info_ptr);
 	colortype = png_get_color_type(png_ptr, info_ptr);
 
-	if(bitdepth != 8 || colortype != PNG_COLOR_TYPE_PALETTE) {
+	if(colortype != PNG_COLOR_TYPE_PALETTE) {
 		std::cerr << "error: file " << szFileName_ << " uses an incorrect pixel type." << std::endl;
 		code = 1;
 		goto end;
@@ -321,20 +209,17 @@ end:
 	if(f) {
 		fclose(f);
 	}
-	if(info_ptr) {
+	if(png_ptr || info_ptr) {
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-	}
-	if(png_ptr) {
-		png_destroy_read_struct(&png_ptr, (png_infopp)nullptr, (png_infopp)nullptr);
+		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
 	}
 	return code;
 }
 
-void imageWrite(std::string szFileName_, struct Image* img_, int type_, const unsigned char* palette_) {
+void imageWrite(std::string szFileName_, struct Image* img_, const unsigned char* palette_) {
 	FILE* f = nullptr;
 	png_structp png_ptr = nullptr;
 	png_infop info_ptr = nullptr;
-	int type_png = 0;
 
 
 	//Open file for writing (binary mode)
@@ -363,42 +248,19 @@ void imageWrite(std::string szFileName_, struct Image* img_, int type_, const un
 
 	png_init_io(png_ptr, f);
 
-	switch(type_) {
-	case PIXEL_INDEXED:
-		type_png = PNG_COLOR_TYPE_PALETTE;
-		break;
-	case PIXEL_RGB:
-		type_png = PNG_COLOR_TYPE_RGB;
-		break;
-	case PIXEL_RGBA:
-		type_png = PNG_COLOR_TYPE_RGBA;
-		break;
-	default:
-		goto end;
-	}
-
 	//Write header
 	png_set_IHDR(png_ptr, info_ptr, img_->w, img_->h,
-	             8, type_png, PNG_INTERLACE_NONE,
+	             8, palette_ ? PNG_COLOR_TYPE_PALETTE : PNG_COLOR_TYPE_GRAY, PNG_INTERLACE_NONE,
 	             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-	if(type_ == PIXEL_INDEXED) {
+	if(palette_) {
 		png_set_PLTE(png_ptr, info_ptr, (png_colorp)palette_, 256);
 	}
-
-	// Set title
-	/*if (title != nullptr) {
-		png_text title_text;
-		title_text.compression = PNG_TEXT_COMPRESSION_NONE;
-		title_text.key = "Title";
-		title_text.text = title;
-		png_set_text(png_ptr, info_ptr, &title_text, 1);
-	}*/
 
 	png_write_info(png_ptr, info_ptr);
 
 	// Write image data
 	for(int i = 0; i < img_->h; i++) {
-		png_write_row(png_ptr, (png_bytep)(img_->data + img_->w * i * channels[type_]));
+		png_write_row(png_ptr, (png_bytep)(img_->data + img_->w * i));
 	}
 
 	// End write
@@ -408,10 +270,8 @@ end:
 	if(f) {
 		fclose(f);
 	}
-	if(info_ptr) {
+	if(png_ptr || info_ptr) {
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-	}
-	if(png_ptr) {
-		png_destroy_write_struct(&png_ptr, (png_infopp)nullptr);
+		png_destroy_write_struct(&png_ptr, &info_ptr);
 	}
 }

@@ -6,6 +6,7 @@
 enum {
 	COLORTYPE_NONE,
 	COLORTYPE_GRAYSCALE,
+	COLORTYPE_GRAYSCALE_ALPHA,
 	COLORTYPE_INDEXED,
 	COLORTYPE_RGB,
 	COLORTYPE_RGBA
@@ -50,7 +51,7 @@ public:
 	void createFromFile(std::string filename);
 #ifndef COMPILER
 	void createFromMemoryPNG(const ubyte_t* imgdata, size_t size);
-	void createFromMemory(const ubyte_t* data, unsigned int width, unsigned int height, int format, const ubyte_t* palette, bool pal_transparent = false);
+	void createFromMemory(const ubyte_t* data, unsigned int width, unsigned int height, int format);
 #endif
 
 	bool exists();
@@ -58,6 +59,8 @@ public:
 	static void setShake(bool _shake);
 
 	static bool shake;
+
+	static const ubyte_t palTransFirst[256];
 };
 
 #endif // IMAGE_H_INCLUDED

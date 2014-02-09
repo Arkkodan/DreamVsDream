@@ -127,7 +127,7 @@ int main(int argc, char** argv)
     fwrite(imgL, imgSize, 1, out);
     fclose(out);
 
-    printf("Successfully built %s.", argv[3]);
+    printf("Successfully built %s.\n", argv[3]);
 
     return 0;
 }

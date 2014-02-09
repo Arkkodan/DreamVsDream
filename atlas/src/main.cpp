@@ -12,7 +12,6 @@
 #define TEXTURE_SIZE_SQ (TEXTURE_SIZE*TEXTURE_SIZE)
 
 //Some globals
-static int pixel_type = PIXEL_NULL;
 static uint16_t c_images;
 static struct Image* images;
 static struct Vector* xy_images;
@@ -20,12 +19,9 @@ static struct Image atlas;
 static int i_atlas = 0;
 
 inline void imgcpy(struct Image* image, int x, int y) {
-	int i, j, k;
-	for(j = 0; j < image->h; j++) {
-		for(i = 0; i < image->w; i++) {
-			for(k = 0; k < channels[pixel_type]; k++) {
-				atlas.data[(TEXTURE_SIZE_SQ * i_atlas + TEXTURE_SIZE * (y + j) + (x + i)) * channels[pixel_type] + k] = image->data[(image->w * j + i) * channels[pixel_type] + k];
-			}
+	for(int j = 0; j < image->h; j++) {
+		for(int i = 0; i < image->w; i++) {
+            atlas.data[TEXTURE_SIZE_SQ * i_atlas + TEXTURE_SIZE * (y + j) + (x + i)] = image->data[image->w * j + i];
 		}
 	}
 }
@@ -151,8 +147,6 @@ int loadPalette(std::string szPalette, unsigned char* palette) {
 void usage() {
 	std::cerr << "usage: atlas [options] <images>\n"\
 	          "\t-o\tOutput filename prefix\n"\
-	          "\nFor writing to PNGs:\n"\
-	          "\t-P\tWrite to PNG files instead of atlas files\n"\
 	          "\t-p\tPath to palette for indexed PNGs\n"\
 	          "\t-q\tPath to palette to concatonate for indexed PNGs"
 	          << std::endl;
@@ -196,7 +190,6 @@ int main(int argc, char** argv)
 {
 	int code = 0;
 
-	int save_to_png = 0;
 	std::string sz_output = "";
 	std::string sz_palette = "";
 	std::string sz_palette2 = "";
@@ -226,10 +219,6 @@ int main(int argc, char** argv)
 				//Parse the letters
 				for(i = 1; argv[arg][i]; i++) {
 					switch(argv[arg][i]) {
-					case 'P':
-						save_to_png = 1;
-						break;
-
 					//Arguments which take arguments
 					case 'o':
 						arg_type = ARG_OUTPUT;
@@ -273,49 +262,42 @@ int main(int argc, char** argv)
 	//Load the images
 	for(i = 0; i < c_images; i++) {
 		images[i].name = argv[i + arg];
-		int type_new = imageRead(argv[i + arg], images + i, pixel_type);
-		if(pixel_type == PIXEL_NULL) {
-			pixel_type = type_new;
-		}
+		imageRead(argv[i + arg], images + i);
 	}
 
 	//Load up the palette
 	unsigned char palette[256 * 3];
 	unsigned char palette2[256 * 3];
-	if(save_to_png && pixel_type == PIXEL_INDEXED) {
-		if(!sz_palette.length()) {
-			std::cerr << "error: no palette specified for indexed images.\n";
-			code = 1;
-			goto end;
-		}
+    if(!sz_palette.empty()) {
+        if(loadPalette(sz_palette, palette)) {
+            code = 1;
+            goto end;
+        }
 
-		if(loadPalette(sz_palette, palette)) {
-			code = 1;
-			goto end;
-		}
+        if(sz_palette2.length()) {
+            if(loadPalette(sz_palette2, palette2)) {
+                code = 1;
+                goto end;
+            }
 
-		if(sz_palette2.length()) {
-			if(loadPalette(sz_palette2, palette2)) {
-				code = 1;
-				goto end;
-			}
+            //Concatonate the palettes
 
-			//Concatonate the palettes
+            //Find the first null triplet
+            for(int i = 255; i >= 0; i--) {
+                if(palette[i*3+0] || palette[i*3+1] || palette[i*3+2]) {
+                    memcpy(palette + (i+1) * 3, palette2 + (i+1) * 3, (256 - (i+1)) * 3);
+                    break;
+                }
+            }
+        }
+    }
 
-			//Find the first null triplet
-			for(int i = 255; i >= 0; i--) {
-				if(palette[i*3+0] || palette[i*3+1] || palette[i*3+2]) {
-					memcpy(palette + (i+1) * 3, palette2 + (i+1) * 3, (256 - (i+1)) * 3);
-					break;
-				}
-			}
-		}
-	}
+
 
 	//Create an atlas image
 	atlas.w = TEXTURE_SIZE;
 	atlas.h = TEXTURE_SIZE;
-	atlas.data = (unsigned char*)malloc(TEXTURE_SIZE_SQ * channels[pixel_type]);
+	atlas.data = (unsigned char*)malloc(TEXTURE_SIZE_SQ);
 
 	//Sort the images
 	qsort((void*)images, c_images, sizeof(struct Image), compare);
@@ -324,17 +306,11 @@ int main(int argc, char** argv)
 	for(;;) {
 
 		//Populate the atlas
-		memset(atlas.data + i_atlas * TEXTURE_SIZE_SQ * channels[pixel_type], 0, TEXTURE_SIZE_SQ * channels[pixel_type]);
+		memset(atlas.data + i_atlas * TEXTURE_SIZE_SQ, 0, TEXTURE_SIZE_SQ);
 		populate(0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
 
-		if(save_to_png) {
-			//Write to file
-			char number[16];
-			sprintf(number, "%02d", i++);
-			imageWrite(sz_output + number + ".png", &atlas, pixel_type, palette);
-		} else {
-			i_atlas++;
-		}
+        //Write to file
+        imageWrite(sz_output + util::toString(i++) + ".png", &atlas, sz_palette.empty() ? nullptr : palette);
 
 		//See if there are any images left; if there aren't,
 		//break out
@@ -348,60 +324,30 @@ int main(int argc, char** argv)
 		if(done) {
 			break;
 		}
-
-		if(!save_to_png) {
-			atlas.data = (unsigned char*)realloc(atlas.data, TEXTURE_SIZE_SQ * (i_atlas + 1) * channels[pixel_type]);
-		}
 	}
 
-	if(!save_to_png) {
-		//Write to an atlas gz
-		File file;
-		if(!file.open(FILE_WRITE_GZ, sz_output + ".atlas")) {
-			std::cerr << "error: could not open file " << file.getFilename() << " for writing." << std::endl;
-			code = 1;
-			goto end;
-		}
+    //Write to an info list
+    {
+        File file;
+        if(!file.open(FILE_WRITE_NORMAL, sz_output + ".atlas.list")) {
+            std::cerr << "error: could not open file " << file.getFilename() << " for writing." << std::endl;
+            code = 1;
+            goto end;
+        }
 
-		//Write the number of images
-		file.writeWord(c_images);
-		//Write data about each image
-		for(i = 0; i < c_images; i++) {
-			//Write the atlas, position and size
-			file.writeByte(images[i].atlas);
-			file.writeWord(images[i].x);
-			file.writeWord(images[i].y);
-			file.writeWord(images[i].w);
-			file.writeWord(images[i].h);
-		}
+        file.writeWord(c_images);
 
-		//Indicate the pixel type
-		file.writeByte(pixel_type);
+        for(i = 0; i < c_images; i++) {
+            //Write the name
+            std::string name = fstr(images[i].name);
+            file.writeByte(name.length());
+            file.write(name.c_str(), name.length());
 
-		//Write the atlases
-		file.writeByte(i_atlas);
-		file.write(atlas.data, TEXTURE_SIZE_SQ * i_atlas * channels[pixel_type]);
-
-		//Write to an info list
-		if(!file.open(FILE_WRITE_NORMAL, sz_output + ".atlas.list")) {
-			std::cerr << "error: could not open file " << file.getFilename() << " for writing." << std::endl;
-			code = 1;
-			goto end;
-		}
-
-		file.writeWord(c_images);
-
-		for(i = 0; i < c_images; i++) {
-			//Write the name
-			std::string name = fstr(images[i].name);
-			file.writeByte(name.length());
-			file.write(name.c_str(), name.length());
-
-			//Write the shift
-			file.writeWord(images[i].x_shift);
-			file.writeWord(images[i].y_shift);
-		}
-	}
+            //Write the shift
+            file.writeWord(images[i].x_shift);
+            file.writeWord(images[i].y_shift);
+        }
+    }
 
 end:
 	if(xy_images) {

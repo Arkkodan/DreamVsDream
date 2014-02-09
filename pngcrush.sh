@@ -1,7 +1,2 @@
 #!/bin/sh
-for png in `find $1 -name "*.png"`;
-do
-	echo "crushing $png"	
-	pngcrush -brute "$png" temp.png
-	mv -f temp.png $png
-done;
+find DvD/res -iname '*.png' -exec convert -strip {} tmp.png \; -exec pngcrush -brute tmp.png tmp2.png \; -exec mv -f tmp2.png {} \; -exec rm -f tmp.png \;

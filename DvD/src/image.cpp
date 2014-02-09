@@ -301,6 +301,8 @@ void Image::createFromFile(std::string szPath) {
 
 	int nPalette;
 	png_colorp palette = nullptr;
+	int nPalTrans;
+	png_bytep palTrans = nullptr;
 
 	f = util::ufopen(szPath, "rb");
 	if(!f) {
@@ -329,13 +331,12 @@ void Image::createFromFile(std::string szPath) {
 
 	png_init_io(png_ptr, f);
 	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, nullptr);
 
 	//Basic info
 	width = png_get_image_width(png_ptr, info_ptr);
 	height = png_get_image_height(png_ptr, info_ptr);
 
-	//int bitdepth = png_get_bit_depth(png_ptr, info_ptr);
 	channels = png_get_channels(png_ptr, info_ptr);
 	png_format = png_get_color_type(png_ptr, info_ptr);
 
@@ -345,8 +346,8 @@ void Image::createFromFile(std::string szPath) {
         format = COLORTYPE_GRAYSCALE;
         break;
 
-    case PNG_COLOR_TYPE_PALETTE:
-        format = COLORTYPE_INDEXED;
+    case PNG_COLOR_TYPE_GRAY_ALPHA:
+        format = COLORTYPE_GRAYSCALE_ALPHA;
         break;
 
 	case PNG_COLOR_TYPE_RGB:
@@ -377,12 +378,13 @@ void Image::createFromFile(std::string szPath) {
     //If applicable, get the color palette
 	if(format == COLORTYPE_INDEXED) {
         png_get_PLTE(png_ptr, info_ptr, &palette, &nPalette);
+        png_get_tRNS(png_ptr, info_ptr, &palTrans, &nPalTrans, nullptr);
 	}
 
 #ifdef GAME
-    createFromMemory(data, width, height, format, (ubyte_t*)palette, false);
+    createFromMemory(data, width, height, format);
 #else
-	createFromMemory(data, width, height, format, (ubyte_t*)palette, true);
+	createFromMemory(data, width, height, format);
 #endif
 
 	goto end;
@@ -429,6 +431,8 @@ void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size) {
 
 	int nPalette;
 	png_colorp palette = nullptr;
+	int nPalTrans;
+	png_bytep palTrans = nullptr;
 
 	//Check the header
 	if(png_sig_cmp(imgdata, 0, 8) != 0) {
@@ -449,7 +453,7 @@ void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size) {
 
 	png_set_read_fn(png_ptr, &stream, pngRead);
 	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
+	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, nullptr);
 
 	//Basic info
 	width = png_get_image_width(png_ptr, info_ptr);
@@ -464,8 +468,8 @@ void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size) {
         format = COLORTYPE_GRAYSCALE;
         break;
 
-    case PNG_COLOR_TYPE_PALETTE:
-        format = COLORTYPE_INDEXED;
+    case PNG_COLOR_TYPE_GRAY_ALPHA:
+        format = COLORTYPE_GRAYSCALE_ALPHA;
         break;
 
 	case PNG_COLOR_TYPE_RGB:
@@ -492,13 +496,14 @@ void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size) {
     //If applicable, get the color palette
 	if(format == COLORTYPE_INDEXED) {
         png_get_PLTE(png_ptr, info_ptr, &palette, &nPalette);
+        png_get_tRNS(png_ptr, info_ptr, &palTrans, &nPalTrans, nullptr);
 	}
 
 	//Turn this data into textures!
 #ifdef GAME
-    createFromMemory(data, width, height, format, (ubyte_t*)palette, false);
+    createFromMemory(data, width, height, format);
 #else
-	createFromMemory(data, width, height, format, (ubyte_t*)palette, true);
+	createFromMemory(data, width, height, format);
 #endif
 
 	goto end;
@@ -524,29 +529,41 @@ end:
 #ifndef COMPILER
 
 //Take data and convert it into textures
-void Image::createFromMemory(const ubyte_t* data_, unsigned int width_, unsigned int height_, int format_, const ubyte_t* palette, bool pal_transparent) {
+void Image::createFromMemory(const ubyte_t* data_, unsigned int width_, unsigned int height_, int format_) {
+#if 0
     //If we have an indexed image, transparently convert it to RGBA
     if(format_ == COLORTYPE_INDEXED && palette) {
-        ubyte_t* _data_new = (ubyte_t*)malloc((pal_transparent ? 4 : 3) * width_ * height_);
+        ubyte_t* _data_new = (ubyte_t*)malloc((palTrans ? 4 : 3) * width_ * height_);
         for(unsigned int j = 0; j < height_; j++) {
             for(unsigned int i = 0; i < width_; i++) {
-                if(pal_transparent) {
-                    if(data_[j * width_ + i]) {
-                        memcpy(&_data_new[(j*width_+i)*4], &palette[data_[j*width_+i]*3], 3);
-                        _data_new[(j*width_+i)*4+3] = 255;
+                int offset = j * width_ + i;
+                if(palTrans) {
+                    if(data_[offset] < nPal) {
+                        memcpy(&_data_new[offset * 4], &palette[data_[offset] * 3], 3);
                     } else {
-                        memset(_data_new + (j * width_ + i) * 4, 0, 4);
+                        memset(&_data_new[offset * 4], 0, 3);
+                    }
+
+                    if(data_[offset] < nPalTrans) {
+                        _data_new[offset * 4 + 3] = palTrans[data_[offset] * 3];
+                    } else {
+                        _data_new[offset * 4 + 3] = 255;
                     }
                 } else {
-                    memcpy(&_data_new[(j*width_+i)*3], &palette[data_[j*width_+i]*3], 3);
+                    if(data_[offset] < nPal) {
+                        memcpy(&_data_new[offset * 3], &palette[data_[offset] * 3], 3);
+                    } else {
+                        memset(&_data_new[offset * 3], 0, 3);
+                    }
                 }
             }
         }
 
-        createFromMemory(_data_new, width_, height_, pal_transparent ? COLORTYPE_RGBA : COLORTYPE_RGB, nullptr);
+        createFromMemory(_data_new, width_, height_, palTrans ? COLORTYPE_RGBA : COLORTYPE_RGB, nullptr, nullptr, 0, 0);
         free(_data_new);
         return;
     }
+#endif
 
 	//Determine channels
 	int _format = 0;
@@ -557,6 +574,10 @@ void Image::createFromMemory(const ubyte_t* data_, unsigned int width_, unsigned
 		_format = GL_LUMINANCE;
 		_channels = 1;
 		break;
+    case COLORTYPE_GRAYSCALE_ALPHA:
+        _format = GL_LUMINANCE_ALPHA;
+        _channels = 2;
+        break;
 	case COLORTYPE_RGB:
 		_format = GL_RGB;
 		_channels = 3;
@@ -794,3 +815,16 @@ bool Image::exists() {
 	return textures != nullptr;
 #endif
 }
+
+#define VAL_1X     255
+#define VAL_2X     VAL_1X,  VAL_1X
+#define VAL_4X     VAL_2X,  VAL_2X
+#define VAL_8X     VAL_4X,  VAL_4X
+#define VAL_16X    VAL_8X,  VAL_8X
+#define VAL_32X    VAL_16X, VAL_16X
+#define VAL_64X    VAL_32X, VAL_32X
+#define VAL_128X   VAL_64X, VAL_64X
+
+//Fucking brilliant
+//http://stackoverflow.com/a/1565469/3037307
+const ubyte_t Image::palTransFirst[256] = {0, VAL_128X, VAL_64X, VAL_32X, VAL_16X, VAL_8X, VAL_4X, VAL_2X, VAL_1X};

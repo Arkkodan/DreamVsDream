@@ -177,7 +177,7 @@ namespace game {
 		ubyte_t* data = (ubyte_t*)malloc(width * height);
 		file.read(data, width * height);
 
-        portrait_ui.createFromMemory(data, width, height, COLORTYPE_INDEXED, graphics::shader_support ? nullptr : palette_first, true);
+        portrait_ui.createFromMemory(data, width, height, COLORTYPE_INDEXED);
 		free(data);
 
 		//Portraits

@@ -94,7 +94,7 @@ bool Atlas::create(const std::string& szFilename) {
 		file.read(_b_pixel, TEXTURE_SIZE_SQ * channels[pixel_type]);
 
 		//Create the image
-		images[i].createFromMemory(_b_pixel, TEXTURE_SIZE, TEXTURE_SIZE, _format, nullptr);
+		images[i].createFromMemory(_b_pixel, TEXTURE_SIZE, TEXTURE_SIZE, _format);
 	}
 
 	//Free up memory
@@ -103,6 +103,8 @@ bool Atlas::create(const std::string& szFilename) {
 }
 
 bool Atlas::createFromPalette(const std::string& szFilename, const ubyte_t* palette) {
+    (void)palette;
+
 	File file;
 	if(!file.open(FILE_READ_GZ, szFilename)) {
 		return false;
@@ -138,7 +140,7 @@ bool Atlas::createFromPalette(const std::string& szFilename, const ubyte_t* pale
 	for(int i = 0; i < nImages; i++) {
 		file.read(_b_pixel, TEXTURE_SIZE_SQ);
 
-		images[i].createFromMemory(_b_pixel, TEXTURE_SIZE, TEXTURE_SIZE, COLORTYPE_INDEXED, palette, true);
+		images[i].createFromMemory(_b_pixel, TEXTURE_SIZE, TEXTURE_SIZE, COLORTYPE_INDEXED);
 
 		//Generate the OpenGL texture
 		/*glBindTexture(GL_TEXTURE_2D, textures[i]);
