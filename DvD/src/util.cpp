@@ -414,6 +414,26 @@ namespace util {
 	    std::vector<std::string> result;
 
 #ifdef _WIN32
+        wchar_t* directory16 = utf8to16((directory + "/*").c_str());
+
+        WIN32_FIND_DATAW findData;
+        HANDLE hFind = nullptr;
+
+        if(!(hFind = FindFirstFileW(directory16, &findData))) {
+            return result;
+        }
+
+        do {
+            if(wcscmp(findData.cFileName, L".") && wcscmp(findData.cFileName, L"..")) {
+                if(((findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0) == listFiles) {
+                    char* file8 = utf16to8(findData.cFileName);
+                    result.push_back(file8);
+                    free(file8);
+                }
+            }
+        } while(FindNextFileW(hFind, &findData));
+
+        free(directory16);
 #else
         DIR* dp = opendir(directory.c_str());
         if(dp == nullptr) {
