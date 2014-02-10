@@ -9,6 +9,7 @@
 #include "network.h"
 #include "atlas.h"
 #include "effect.h"
+#include "animation.h"
 
 #ifdef EMSCRIPTEN
 #include <emscripten/emscripten.h>

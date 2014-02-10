@@ -766,14 +766,6 @@ void Image::draw(int x, int y, bool mirror) {
 			glTexCoord2f(u1, v2);
 			glVertex3f(x1, y2, 0);
 
-			//Bottom Right
-			//glTexCoord2f(u2, v2);
-			//glVertex3f(x2, y2, 0);
-
-			//Top Left
-			//glTexCoord2f(u1, v1);
-			//glVertex3f(x1, y1, 0);
-
 			//Top Right
 			glTexCoord2f(u2, v1);
 			glVertex3f(x2, y1, 0);
@@ -815,16 +807,3 @@ bool Image::exists() {
 	return textures != nullptr;
 #endif
 }
-
-#define VAL_1X     255
-#define VAL_2X     VAL_1X,  VAL_1X
-#define VAL_4X     VAL_2X,  VAL_2X
-#define VAL_8X     VAL_4X,  VAL_4X
-#define VAL_16X    VAL_8X,  VAL_8X
-#define VAL_32X    VAL_16X, VAL_16X
-#define VAL_64X    VAL_32X, VAL_32X
-#define VAL_128X   VAL_64X, VAL_64X
-
-//Fucking brilliant
-//http://stackoverflow.com/a/1565469/3037307
-const ubyte_t Image::palTransFirst[256] = {0, VAL_128X, VAL_64X, VAL_32X, VAL_16X, VAL_8X, VAL_4X, VAL_2X, VAL_1X};

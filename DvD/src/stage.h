@@ -4,6 +4,7 @@
 #include "globals.h"
 
 #include "menu.h"
+#include "animation.h"
 
 extern int stage;
 #define STAGE stages[stage]
@@ -15,6 +16,8 @@ public:
 	MenuImage* imagesBelow;
 	audio::Music bgm;
 	audio::Music bgm2;
+
+	Animation thumbnail;
 
 	bool initialized;
 
@@ -45,6 +48,5 @@ public:
 };
 
 extern Stage stages[];
-extern const char* szStages[];
 
 #endif // STAGE_H_INCLUDED

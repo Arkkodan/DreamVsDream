@@ -59,8 +59,6 @@ public:
 	static void setShake(bool _shake);
 
 	static bool shake;
-
-	static const ubyte_t palTransFirst[256];
 };
 
 #endif // IMAGE_H_INCLUDED

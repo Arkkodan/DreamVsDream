@@ -196,12 +196,13 @@ void init() {
 }
 
 void deinit() {
+    audio::deinit();
+
 	effect::deinit();
 	Stage::deinit();
 	Menu::deinit();
 	game::deinit();
 	net::deinit();
-	audio::deinit();
 
 	graphics::deinit();
 	os::deinit();

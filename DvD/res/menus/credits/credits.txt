@@ -39,12 +39,15 @@ Billychan
 Ragtime
 
 :LEAD SPRITE ARTISTS
-NightMargin
-June
+Alichee
+Pico
 Sesaka
-Papertib
 
 :SPRITE ARTISTS
+M-256
+NightMargin
+June
+Papertib
 Spikewibble
 Stickers
 Ragtime

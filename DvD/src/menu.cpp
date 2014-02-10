@@ -663,6 +663,7 @@ MenuSelect::MenuSelect() : Menu("select") {
 	state = 0;
 
 	cursor_stage = 0;
+	cursor_stage_offset = 0;
 }
 
 MenuSelect::~MenuSelect() {
@@ -832,17 +833,44 @@ void MenuSelect::think() {
 			}
 		}
 	} else {
+		if(input(INPUT_LEFT)) {
+			sndMenu.play();
+			if(cursor_stage % 10 == 0) {
+                cursor_stage += 9;
+                cursor_stage_offset += 76 * 10;
+			} else {
+			    cursor_stage--;
+			    cursor_stage_offset += -76;
+			}
+		}
+
+		if(input(INPUT_RIGHT)) {
+			sndMenu.play();
+			if(cursor_stage % 10 == 9) {
+				cursor_stage -= 9;
+				cursor_stage_offset += -76 * 10;
+			} else {
+			    cursor_stage++;
+			    cursor_stage_offset += 76;
+			}
+		}
+
+
 		if(input(INPUT_UP)) {
 			sndMenu.play();
-			if(--cursor_stage < 0) {
-				cursor_stage = 9;
+			if(cursor_stage < 10) {
+				cursor_stage += 10;
+			} else {
+			    cursor_stage -= 10;
 			}
 		}
 
 		if(input(INPUT_DOWN)) {
 			sndMenu.play();
-			if(++cursor_stage > 9) {
-				cursor_stage = 0;
+			if(cursor_stage >= 11) {
+				cursor_stage -= 10;
+			} else {
+			    cursor_stage += 10;
 			}
 		}
 
@@ -976,14 +1004,20 @@ void MenuSelect::draw() {
 		glEnd();
 
 		//Draw the stage list
-		for(int i = 0; i < 10; i++) {
-			if(cursor_stage == i) {
-				font_stage.drawText(32+16, 32 + 32 * i, szStages[i], 180, 120, 190);
-			} else {
-				font_stage.drawText(32+16, 32 + 32 * i, szStages[i]);
-			}
+		for(int i = 0; i < 20; i++) {
+            int x = 38 + (8 + 76) * (i % 10 + 3 - cursor_stage % 10) + cursor_stage_offset;
+            int y = 150 + (8 + 50) * (i / 10);
+            cursor_stage_offset *= 0.95;
+            if(!stages[i].thumbnail.isPlaying())
+                stages[i].thumbnail.setPlaying(true);
+		    if(cursor_stage == i) {
+                graphics::setColor(255, 255, 255, 1.0f);
+                stages[i].thumbnail.draw(x, y);
+		    } else {
+		        graphics::setColor(127, 127, 127, 1.0f);
+		        stages[i].thumbnail.draw(x, y);
+		    }
 		}
-		font_stage.drawText(32, FLIP(64), "(Temporary derpy stage selection screen)");
 	}
 }
 

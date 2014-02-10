@@ -7,20 +7,7 @@
 #include "graphics.h"
 
 int stage = -1;
-Stage stages[10];
-
-const char* szStages[10] = {
-	"Madotsuki's Balcony",
-	"Block World",
-	"White Desert",
-	"Famicom Dungeon",
-	"Sky Garden",
-	"Masada's Ship",
-	"Numbers World",
-	"Poniko's House",
-	"Sewers",
-	"The Wilderness",
-};
+Stage stages[20];
 
 void Stage::ginit() {
 	stages[0].create("yn_balcony");
@@ -33,18 +20,16 @@ void Stage::ginit() {
 	stages[7].create("yn_poniko");
 	stages[8].create("yn_sewers");
 	stages[9].create("yn_wilderness");
-	/*
-	stages[0].create("flow_child");
-	stages[1].create("flow_helltech");
-	stages[2].create("flow_hotel");
-	stages[3].create("flow_plant");
-	stages[4].create("flow_rainbow");
-	stages[5].create("flow_rot");
-	stages[6].create("flow_school");
-	stages[7].create("flow_sugar");
-	stages[8].create("flow_underwater");
-	stages[9].create("flow_white");
-	*/
+	stages[10].create("flow_child");
+	stages[11].create("flow_helltech");
+	stages[12].create("flow_hotel");
+	stages[13].create("flow_plant");
+	stages[14].create("flow_rainbow");
+	stages[15].create("flow_rot");
+	stages[16].create("flow_school");
+	stages[17].create("flow_sugar");
+	stages[18].create("flow_underwater");
+	stages[19].create("flow_white");
 
 	//stages[0].create("y2_mushroom");
 }
@@ -69,8 +54,10 @@ Stage::~Stage() {
 	delete imagesBelow;
 }
 
-void Stage::create(std::string name) {
-	this->name = std::move(name);
+void Stage::create(std::string _name) {
+	this->name = std::move(_name);
+
+	thumbnail = Animation("stages/" + name + "/thumbnail.gif");
 }
 
 void Stage::init() {
