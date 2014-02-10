@@ -10,7 +10,7 @@
 
 #define FPS_BUFFER 2
 
-#ifdef GAME
+#if defined GAME && !defined __APPLE__
 #define LOAD_GL_PROC(name, type) name = (PFN##type##PROC)SDL_GL_GetProcAddress(#name)
 #define LOAD_GL_ARB_PROC(name, type, arbname) name = (PFN##type##PROC)SDL_GL_GetProcAddress(arbname)
 
@@ -118,6 +118,10 @@ namespace graphics {
 #ifdef SPRTOOL
         (void)disable_shaders_;
 #else
+#ifdef __APPLE__
+		//These functions are all available in OS X 10.6+
+		shader_support = !disable_shaders_;
+#else
 		//Shader support?
 		if(!disable_shaders_) {
             //See if we have opengl >= 2.0; this means we have non-arb
@@ -185,6 +189,7 @@ namespace graphics {
 		if(shader_support) {
 			shader_palette.create("shaders/vertex.v.glsl", "shaders/palette.f.glsl");
 		}
+#endif
 #endif
 
 		//Remove garbage data

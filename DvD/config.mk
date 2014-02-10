@@ -48,11 +48,11 @@ else
 		LD		:= g++
 	else ifeq ($(PLATFORM),osx)
 		TARGET		:= $(NAME)
-		CXXFLAGS	:= -arch i386 -arch x86_64 -pthread
-		LDFLAGS		:= -arch i386 -arch x86_64 -pthread -framework OpenGL
+		CXXFLAGS	:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -pthread -stdlib=libc++
+		LDFLAGS		:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -stdlib=libc++ -framework OpenGL
 
-		CXX		:= g++
-		LD		:= g++
+		CXX		:= /opt/clang/bin/clang++
+		LD		:= /opt/clang/bin/clang++
 	else ifeq ($(PLATFORM),w32)
 		TARGET		:= $(NAME)-$(ARCH).exe
 		CXXFLAGS	:= 

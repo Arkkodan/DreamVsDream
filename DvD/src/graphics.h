@@ -5,7 +5,7 @@
 
 #include "shader.h"
 
-#ifdef GAME
+#if defined GAME && !defined __APPLE__
 #ifdef _WIN32
 //1.3
 extern PFNGLACTIVETEXTUREPROC           glActiveTexture;
