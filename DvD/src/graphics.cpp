@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "graphics.h"
+
 #include "input.h"
 #include "error.h"
 #include "player.h"
@@ -28,6 +28,7 @@ PFNGLCREATESHADERPROC			glCreateShader;
 PFNGLDELETESHADERPROC			glDeleteShader;
 PFNGLGETPROGRAMINFOLOGPROC		glGetProgramInfoLog;
 PFNGLGETPROGRAMIVPROC	        glGetProgramiv;
+PFNGLGETPROGRAMINFOLOGPROC	    glGetShaderInfoLog;
 PFNGLGETSHADERIVPROC			glGetShaderiv;
 PFNGLGETUNIFORMLOCATIONPROC	 	glGetUniformLocation;
 PFNGLLINKPROGRAMPROC 			glLinkProgram;
@@ -137,6 +138,7 @@ namespace graphics {
 				LOAD_GL_PROC(glDeleteShader, GLDELETESHADER);
 				LOAD_GL_PROC(glGetProgramInfoLog, GLGETPROGRAMINFOLOG);
 				LOAD_GL_PROC(glGetProgramiv, GLGETPROGRAMIV);
+				LOAD_GL_PROC(glGetShaderInfoLog, GLGETSHADERINFOLOG);
 				LOAD_GL_PROC(glGetShaderiv, GLGETSHADERIV);
 				LOAD_GL_PROC(glGetUniformLocation, GLGETUNIFORMLOCATION);
 				LOAD_GL_PROC(glLinkProgram, GLLINKPROGRAM);
@@ -150,9 +152,9 @@ namespace graphics {
 
                 shader_support = glAttachShader && glCompileShader && glCreateProgram && glDeleteProgram &&
                                  glCreateShader && glDeleteShader && glGetProgramInfoLog && glGetProgramiv &&
-                                 glGetShaderiv && glGetUniformLocation && glLinkProgram && glShaderSource &&
-                                 glUniform1i && glUniform1f && glUniform2f && glUniform3f && glUniform4f &&
-                                 glUseProgram;
+                                 glGetShaderInfoLog && glGetShaderiv && glGetUniformLocation && glLinkProgram &&
+                                 glShaderSource && glUniform1i && glUniform1f && glUniform2f && glUniform3f &&
+                                 glUniform4f && glUseProgram;
 			}
 			if(!shader_support &&
                 SDL_GL_ExtensionSupported("GL_ARB_shader_objects") &&

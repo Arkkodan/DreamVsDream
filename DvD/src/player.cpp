@@ -801,7 +801,7 @@ namespace game {
 			pause(2500 * SPF);
 			((MenuSelect*)menus[MENU_SELECT])->newEffect(playerNum, 0);
 			effect::newEffect("Actionlines", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, false, false, 1, 5);
-			effect::newEffect("YumeNikkiTransform", pos.x, pos.y + fighter->height / 2, true, dir == LEFT, 1, 1);
+			effect::newEffect("Transform_yn", pos.x, pos.y + fighter->height / 2, true, dir == LEFT, 1, 1);
 			flash = 1.0f;
 			break;
 		case STEP_Shoot:

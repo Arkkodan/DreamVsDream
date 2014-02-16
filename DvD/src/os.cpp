@@ -29,6 +29,9 @@ namespace os {
 			die("Failed to initialize SDL.");
 		}
 
+        //Create the opengl context
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 		glcontext = SDL_GL_CreateContext(window);
 
 #ifdef EMSCRIPTEN

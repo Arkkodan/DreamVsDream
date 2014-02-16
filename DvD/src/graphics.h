@@ -3,6 +3,8 @@
 
 #include "globals.h"
 
+#include <SDL2/SDL_opengl.h>
+
 #include "shader.h"
 
 #if defined GAME && !defined __APPLE__
@@ -20,6 +22,7 @@ extern PFNGLCREATESHADERPROC			glCreateShader;
 extern PFNGLDELETESHADERPROC			glDeleteShader;
 extern PFNGLGETPROGRAMINFOLOGPROC		glGetProgramInfoLog;
 extern PFNGLGETPROGRAMIVPROC			glGetProgramiv;
+extern PFNGLGETPROGRAMINFOLOGPROC		glGetShaderInfoLog;
 extern PFNGLGETSHADERIVPROC				glGetShaderiv;
 extern PFNGLGETUNIFORMLOCATIONPROC	 	glGetUniformLocation;
 extern PFNGLLINKPROGRAMPROC 			glLinkProgram;

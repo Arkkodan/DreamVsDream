@@ -79,7 +79,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		glGetShaderiv(vertex, GL_INFO_LOG_LENGTH , &length);
 		if(length > 1) {
 			char* log = (char*)malloc(length);
-			glGetProgramInfoLog(vertex, length, nullptr, log);
+			glGetShaderInfoLog(vertex, length, nullptr, log);
 			fprintf(stderr, "GLSL: %s:\n%s\n", szVertexFile, log);
 			free(log);
 		}
@@ -107,7 +107,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &length);
 		if(length > 1) {
 			char* log = (char*)malloc(length);
-			glGetProgramInfoLog(vertex, length, nullptr, log);
+			glGetShaderInfoLog(fragment, length, nullptr, log);
 			fprintf(stderr, "GLSL: %s:\n%s\n", szFragmentFile, log);
 			free(log);
 		}

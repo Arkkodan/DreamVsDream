@@ -7,6 +7,7 @@
 #include "image.h"
 #include "sprite.h"
 #include "util.h"
+#include "graphics.h"
 
 namespace game {
 #ifdef GAME

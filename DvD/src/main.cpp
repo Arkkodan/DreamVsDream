@@ -122,8 +122,8 @@ void mainLoop() {
 		poniko.drawSpecial();
 
 		if(stage != 3) {
-			madotsuki.draw(true, 0);
-			poniko.draw(true, 0);
+			madotsuki.draw(0, true);
+			poniko.draw(0, true);
 		}
 
 		//Which order do we draw these in?
@@ -134,11 +134,11 @@ void mainLoop() {
 			_pal_off_poni = poniko.fighter->nPalettes;
 		}
 		if(madotsuki.drawPriorityFrame < poniko.drawPriorityFrame) {
-			madotsuki.draw(false, madotsuki_palette + _pal_off_mado);
-			poniko.draw(false, poniko_palette + _pal_off_poni);
+			madotsuki.draw(madotsuki_palette + _pal_off_mado, false);
+			poniko.draw(poniko_palette + _pal_off_poni, false);
 		} else {
-			poniko.draw(false, poniko_palette + _pal_off_poni);
-			madotsuki.draw(false, madotsuki_palette + _pal_off_mado);
+			poniko.draw(poniko_palette + _pal_off_poni, false);
+			madotsuki.draw(madotsuki_palette + _pal_off_mado, false);
 		}
 
 		//Draw projectiles
