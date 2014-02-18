@@ -38,14 +38,11 @@ public:
 	long tell();
 	size_t size();
 
-	std::string getFilename();
-
 private:
     void close();
 
 	void* fp;
 	int flags;
-	std::string szFileName;
 };
 
 #endif // FILE_H_INCLUDED

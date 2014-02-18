@@ -45,7 +45,8 @@ Animation::Animation(const std::string& filename) {
     //pixel buffer for rendering gif
     ubyte_t* pixels = nullptr;
 
-    f = util::ufopen(filename.c_str(), "rb");
+	std::string path = util::getPath(filename);
+    f = util::ufopen(path, "rb");
     if(!f) {
         error = true;
         goto end;
@@ -124,7 +125,7 @@ Animation::Animation(const std::string& filename) {
 		}
 
 		//Create the Image
-		frames[i].createFromMemory(pixels, gif->SWidth, gif->SHeight, COLORTYPE_RGBA);
+		frames[i].createFromMemory(pixels, gif->SWidth, gif->SHeight, COLORTYPE_RGBA, nullptr);
     }
 
 end:
@@ -141,7 +142,7 @@ end:
     }
 
     if(error) {
-        die("Could not load GIF file \"" + filename + "\"");
+        die("Could not load GIF file \"" + path + "\"");
     }
 }
 

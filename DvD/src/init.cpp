@@ -78,7 +78,6 @@ void parseArgs(int argc, char** argv) {
 	}
 }
 
-#ifndef EMSCRIPTEN
 #define OPTIONS_VERSION 0
 
 void optionsLoad() {
@@ -116,7 +115,6 @@ void optionsSave() {
 	file.writeByte(optionVoiceVolume);
 	file.writeByte(optionEpilepsy);
 }
-#endif
 
 void init() {
 	void deinit();
@@ -124,7 +122,6 @@ void init() {
 
 	srand(time(nullptr));
 
-#ifndef EMSCRIPTEN
 	//Create settings path first
 	//Find correct directory
 #if defined _WIN32
@@ -165,7 +162,6 @@ void init() {
 #endif
 
 	optionsLoad();
-#endif
 
 	os::init();
 	graphics::init(disable_shaders, max_texture_size);
@@ -207,7 +203,5 @@ void deinit() {
 	graphics::deinit();
 	os::deinit();
 
-#ifndef EMSCRIPTEN
 	optionsSave();
-#endif
 }

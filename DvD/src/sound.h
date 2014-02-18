@@ -3,6 +3,8 @@
 
 #include "globals.h"
 
+#include "file.h"
+
 namespace audio {
 	void init();
 	void deinit();
@@ -21,18 +23,14 @@ namespace audio {
 		bool playing();
 
 		void createFromFile(const std::string& filename);
+		void createFromEmbed(File& file);
 		bool exists();
 		void destroy();
 
-#ifdef EMSCRIPTEN
-		Mix_Chunk* sound;
-		int channel;
-#else
 		float* samples;
 		unsigned int c_samples;
 		unsigned int sample_rate;
 		int channels;
-#endif
 	};
 
 #define AUDIO_STREAM_BUFFER_MAX 3
@@ -51,13 +49,8 @@ namespace audio {
 
 		bool isPlaying();
 
-#ifdef EMSCRIPTEN
-		Mix_Music* intro;
-		Mix_Music* loop;
-#else
 		Sound intro;
 		Sound loop;
-#endif
 	};
 
 	/*
@@ -80,10 +73,6 @@ namespace audio {
 	public:
 		Speaker();
 		~Speaker();
-
-#ifdef EMSCRIPTEN
-		int channel;
-#endif
 
 		void init();
 		void play(Voice* voice);

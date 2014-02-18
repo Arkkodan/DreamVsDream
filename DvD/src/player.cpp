@@ -1416,39 +1416,21 @@ namespace game {
 	}
 
 	int16_t Projectile::readWord() {
-	#ifdef EMSCRIPTEN
-		int16_t value = 0;
-		value |= (uint16_t)(*((unsigned char*)fighter->states[state].steps + step + 0)) << (unsigned int)0;
-		value |= (uint16_t)(*((unsigned char*)fighter->states[state].steps + step + 1)) << (unsigned int)8;
-	#else
 		int16_t value = *((int16_t*)((char*)fighter->states[state].steps + step));
-	#endif
 		step += 2;
 		return value;
 	}
 
 	int32_t Projectile::readDword() {
-	#ifdef EMSCRIPTEN
-		int32_t value = 0;
-		value |= (uint32_t)(*((unsigned char*)fighter->states[state].steps + step + 0)) << (unsigned int)0;
-		value |= (uint32_t)(*((unsigned char*)fighter->states[state].steps + step + 1)) << (unsigned int)8;
-		value |= (uint32_t)(*((unsigned char*)fighter->states[state].steps + step + 2)) << (unsigned int)16;
-		value |= (uint32_t)(*((unsigned char*)fighter->states[state].steps + step + 3)) << (unsigned int)24;
-	#else
 		int32_t value = *((int32_t*)((char*)fighter->states[state].steps + step));
-	#endif
 		step += 4;
 		return value;
 	}
 
 	float Projectile::readFloat() {
-	#ifdef EMSCRIPTEN
-		return readDword() / (float)FLOAT_ACCURACY;
-	#else
 		int32_t value = *((int32_t*)((char*)fighter->states[state].steps + step));
 		step += 4;
 		return value / (float)FLOAT_ACCURACY;
-	#endif
 	}
 
     std::string Projectile::readString() {

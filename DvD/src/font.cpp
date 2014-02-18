@@ -20,8 +20,9 @@ Font::~Font() {
 
 void Font::createFromFile(std::string filename) {
 	File file;
-	if(!file.open(FILE_READ_NORMAL, filename)) {
-		error("Unable to load font \"" + filename + "\".");
+	std::string path = util::getPath(filename);
+	if(!file.open(FILE_READ_NORMAL, path)) {
+		error("Unable to load font \"" + path + "\".");
 		return;
 	}
 
@@ -54,7 +55,7 @@ void Font::createFromFile(std::string filename) {
 	}
 	file.read(pngdata, size);
 
-	img.createFromMemoryPNG(pngdata, size);
+	img.createFromMemoryPNG(pngdata, size, nullptr);
 	free(pngdata);
 }
 

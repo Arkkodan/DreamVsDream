@@ -1,0 +1,25 @@
+GENERAL
+q: invert BG color
+
+MOVEMENT
+<with ctrl: gotta go fast>
+<with shift: resize, if applicable>
+hjkl/arrow keys: move sprite/selected hitbox(es)
+i/o: previous/next sprite
+
+HITBOXES
+a: new hurtbox (attack hitbox)
+s: new hitbox (defense hitbox)
+p/n: select previous/next hitbox
+d: deselect
+x: delete selected
+
+SELECTING
+ctrl+a: select/deselect all
+
+
+COPY/PASTE
+ctrl+c (all hitboxes selected): copy hitboxes
+ctrl+v (after previous): paste hitboxes (OVERWRITES EXISTING)
+ctrl+c (no hitboxes selected): copy position
+ctrl+v (after previous): paste position

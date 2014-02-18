@@ -7,13 +7,14 @@
 
 #include "shader.h"
 
-#if defined GAME && !defined __APPLE__
+#ifndef __APPLE__
 #ifdef _WIN32
 //1.3
 extern PFNGLACTIVETEXTUREPROC           glActiveTexture;
 extern PFNGLBLENDEQUATIONPROC           glBlendEquation;
 #endif
 
+#ifdef GAME
 extern PFNGLATTACHSHADERPROC			glAttachShader;
 extern PFNGLCOMPILESHADERPROC			glCompileShader;
 extern PFNGLCREATEPROGRAMPROC			glCreateProgram;
@@ -33,6 +34,7 @@ extern PFNGLUNIFORM2FPROC 				glUniform2f;
 extern PFNGLUNIFORM3FPROC 				glUniform3f;
 extern PFNGLUNIFORM4FPROC 				glUniform4f;
 extern PFNGLUSEPROGRAMPROC		 		glUseProgram;
+#endif
 #endif
 
 namespace graphics {

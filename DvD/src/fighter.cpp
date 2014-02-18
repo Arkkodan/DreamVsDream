@@ -26,8 +26,9 @@ namespace game {
 
 		//Get that file opened
 		File file;
-		if(!file.open(FILE_READ_NORMAL, "chars/" + name + ".char")) {
-			return;
+		std::string path = util::getPath("chars/" + name + ".char");
+		if(!file.open(FILE_READ_NORMAL, path)) {
+			die("Could not load fighter \"" + path + "\"");
 		}
 
 		//Read header
@@ -87,7 +88,7 @@ namespace game {
 			}
 		}
 
-		//Read sprite::Sprites
+		//Read sprites
 		nSprites = file.readWord();
 		sprites = new sprite::Sprite[nSprites];
 		for(int i = 0; i < nSprites; i++) {
@@ -111,11 +112,7 @@ namespace game {
 				sprites[i].aHitBoxes.boxes[j].size.y = file.readWord();
 			}
 		}
-		if(graphics::shader_support) {
-			atlas_sprites.create("chars/" + name + ".atlas");
-		} else {
-			atlas_sprites.createFromPalette("chars/" + name + ".atlas", palette_first);
-		}
+		atlas_sprites.create(file, graphics::shader_support ? nullptr : palette_first);
 
 		//Read sounds
 		nSounds = file.readWord();
@@ -123,7 +120,7 @@ namespace game {
 		for(int i = 0; i < nSounds; i++) {
 			sounds[i].init(file.readWord());
 			for(int j = 0; j < sounds[i].size; j++) {
-				sounds[i].sounds[j].createFromFile("chars/" + name + "/sounds/" + file.readStr() + ".wav");
+				sounds[i].sounds[j].createFromEmbed(file);
 			}
 		}
 
@@ -134,7 +131,7 @@ namespace game {
 			voices[i].init(file.readWord());
 			voices[i].pct = file.readByte();
 			for(int j = 0; j < voices[i].size; j++) {
-				voices[i].voices[j].createFromFile("chars/" + name + "/voices/" + file.readStr() + ".wav");
+				voices[i].voices[j].createFromEmbed(file);
 			}
 		}
 
@@ -171,20 +168,12 @@ namespace game {
 			statesStandard[i] = file.readWord();
 		}
 
-		//Load UI portrait
-		int width = file.readWord();
-		int height = file.readWord();
-		ubyte_t* data = (ubyte_t*)malloc(width * height);
-		file.read(data, width * height);
-
-        portrait_ui.createFromMemory(data, width, height, COLORTYPE_INDEXED);
-		free(data);
-
 		//Portraits
-		select.createFromFile("chars/" + name + "/portraits/select.png");
-		portrait.createFromFile("chars/" + name + "/portraits/portrait.png");
-		special.createFromFile("chars/" + name + "/portraits/special.png");
-		ender.createFromFile("chars/" + name + "/portraits/super.png");
+		select.createFromEmbed(file, nullptr);
+		portrait.createFromEmbed(file, nullptr);
+		special.createFromEmbed(file, nullptr);
+		ender.createFromEmbed(file, nullptr);
+		portrait_ui.createFromEmbed(file, graphics::shader_support ? nullptr : palette_first);
 	}
 #endif
 

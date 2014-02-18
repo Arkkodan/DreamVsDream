@@ -32,9 +32,7 @@ enum {
 
 	MENU_MAX,
 
-#ifndef EMSCRIPTEN
 	MENU_QUIT, //Dummy menu for quitting
-#endif
 };
 
 class MenuImage {

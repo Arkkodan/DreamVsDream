@@ -40,7 +40,7 @@ namespace effect {
 
     EffectAnimation::EffectAnimation(std::string _name) : name(std::move(_name)) {
         //Get the list of files
-        std::vector<std::string> files = util::listDirectory("effects/" + name, true);
+        std::vector<std::string> files = util::listDirectory(util::getPath("effects/" + name), true);
 
         nFrames = 0;
         frames = nullptr;
@@ -51,7 +51,7 @@ namespace effect {
 
         //See if all of our images exist first, and count them.
         //Thumbs.db, .DS_Store, etc could screw the list up.
-        for(std::vector<int>::size_type i = 0, last = -1; i < files.size(); i++) {
+        for(std::vector<std::string>::size_type i = 0, last = -1; i < files.size(); i++) {
             if(std::find(files.begin(), files.end(), util::toString(i+1) + ".png") != files.end()) {
                 if(last != i - 1) {
                     error("Missing frames in effect animation \"" + name + "\".");
@@ -155,7 +155,7 @@ namespace effect {
     //MISC FUNCS
     void init() {
         //See what's in the effects directory
-        std::vector<std::string> dirs = util::listDirectory("effects", false);
+        std::vector<std::string> dirs = util::listDirectory(util::getPath("effects"), false);
 
         nEffectAnims = dirs.size();
         if(nEffectAnims <= 0)

@@ -9,9 +9,7 @@
 #endif
 
 #ifndef NO_SOUND
-#ifndef EMSCRIPTEN
 #include <sndfile.h>
-#endif
 #endif
 
 #include "sound.h"
@@ -32,21 +30,6 @@ namespace audio {
 	Music* music = nullptr;
 
 #ifndef NO_SOUND
-
-#ifdef EMSCRIPTEN
-	Sound* sound_channels[SOUND_SOURCE_MAX] = {nullptr};
-	void sound_channelDone(int channel) {
-		sound_channels[channel]->channel = -1;
-		sound_channels[channel] = nullptr;
-	}
-
-	void sound_musicDone() {
-		if(music) {
-			Mix_HaltMusic();
-			Mix_PlayMusic(music->loop, -1);
-		}
-	}
-#else
 
 	class SoundSource {
 	public:
@@ -184,20 +167,10 @@ namespace audio {
 		}
 	}
 
-#endif //EMSCRIPTEN
 #endif //NO_SOUND
 
 	void init() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-	//    if(Mix_OpenAudio(48000, AUDIO_S16, 2, SOUND_SOURCE_MAX))
-		if(Mix_OpenAudio(0, 0, 0, 0)) {
-			error("SDL_mixer could not initialize.");
-			return;
-		}
-		Mix_ChannelFinished(sound_channelDone);
-		Mix_HookMusicFinished(sound_musicDone);
-#else
         SDL_AudioSpec want;
         SDL_zero(want);
         want.freq = 44100;
@@ -215,26 +188,18 @@ namespace audio {
 
 		enabled = true;
 #endif
-#endif
 	}
 
 	void deinit() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		if(enabled) {
-			Mix_CloseAudio();
-		}
-#else
 		if(enabled) {
 			SDL_CloseAudio();
 		}
-#endif
 #endif
 	}
 
 	void refresh() {
 #ifndef NO_SOUND
-#ifndef EMSCRIPTEN
 		if(menu == MENU_FIGHT && stage == 3) {
 			float amplitude = FIGHT->round * 0.1;
 			music_frequency = 1.0f + util::rollf() * amplitude - amplitude / 2;
@@ -242,31 +207,19 @@ namespace audio {
 			music_frequency = 1.0f;
 		}
 #endif
-#endif
 	}
 
 	Sound::Sound() {
-#ifdef EMSCRIPTEN
-		sound = nullptr;
-		channel = -1;
-#else
 		samples = nullptr;
 		c_samples = 0;
 		sample_rate = 0;
 		channels = 0;
-#endif
 	}
 
 	Sound::~Sound() {
-#ifdef EMSCRIPTEN
-		if(sound) {
-			Mix_FreeChunk(sound);
-		}
-#else
 		if(samples) {
 			delete [] samples;
 		}
-#endif
 	}
 
 	void Sound::play() {
@@ -275,10 +228,6 @@ namespace audio {
 
 	void Sound::play(float freq) {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		channel = Mix_PlayChannel(-1, sound, 0);
-		Mix_Volume(channel, optionSfxVolume * MIX_MAX_VOLUME / 100);
-#else
 		for(int i = 0; i < SOUND_SOURCE_MAX; i++) {
 			if(!sound_sources[i].sound) {
 				sound_sources[i].sound = this;
@@ -288,17 +237,10 @@ namespace audio {
 			}
 		}
 #endif
-#endif
 	}
 
 	void Sound::stop() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		if(channel != -1) {
-			Mix_HaltChannel(channel);
-			channel = -1;
-		}
-#else
 		for(int i = 0; i < SOUND_SOURCE_MAX; i++) {
 			if(sound_sources[i].sound == this) {
 				sound_sources[i].sound = nullptr;
@@ -306,38 +248,31 @@ namespace audio {
 			}
 		}
 #endif
-#endif
 	}
 
 	bool Sound::playing() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		return channel != -1;
-#else
 		for(int i = 0; i < SOUND_SOURCE_MAX; i++) {
 			if(sound_sources[i].sound == this) {
 				return true;
 			}
 		}
 #endif
-#endif
 		return false;
 	}
 
 	void Sound::createFromFile(const std::string& szFileName) {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		if(!(sound = Mix_LoadWAV(szFileName.c_str()))) {
-			error("Unable to load audio file \"" + szFileName + "\".");
-		}
-#else
 		if(enabled) {
+			bool err = false;
+			
 			//Open stream
 			SNDFILE* stream = nullptr;
 			SF_INFO info;
 			//memset(&info, 0, sizeof(_info));
 
-			FILE* fp = util::ufopen(szFileName, "rb");
+			std::string path = util::getPath(szFileName);
+			FILE* fp = util::ufopen(path, "rb");
 			if(!fp) {
 				goto error;
 			}
@@ -359,13 +294,13 @@ namespace audio {
 			goto end;
 
 	error:
-			error("Unable to load audio file \"" + szFileName + "\".");
 			if(samples) {
 				delete [] samples;
 				samples = nullptr;
 			}
 			c_samples = 0;
 			channels = 0;
+			err = true;
 
 	end:
 			if(stream) {
@@ -374,18 +309,24 @@ namespace audio {
 			if(fp) {
 				fclose(fp);
 			}
+			
+			if(err) {
+				die("Unable to load audio file \"" + path + "\".");
+			}
 		}
 #endif
-#endif
+	}
+	
+	void Sound::createFromEmbed(File& file) {
+		uint32_t size = file.readDword();
+		ubyte_t* wav = new ubyte_t[size];
+		file.read(wav, size);
+		delete [] wav;
 	}
 
 	bool Sound::exists() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		return sound != nullptr;
-#else
 		return samples != nullptr;
-#endif
 #else
 		return true; //don't generate errors
 #endif
@@ -393,55 +334,21 @@ namespace audio {
 
 	void Sound::destroy() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		if(sound) {
-			Mix_FreeChunk(sound);
-		}
-#else
 		if(samples) {
 			delete [] samples;
 		}
-#endif
 #endif
 	}
 
 	//Music
 	Music::Music() {
-#ifdef EMSCRIPTEN
-		intro = nullptr;
-		loop = nullptr;
-#endif
 	}
 
 	Music::~Music() {
 	}
 
-	bool fileExists(const char* sz_file) {
-#ifndef NO_SOUND
-#ifdef _WIN32
-		wchar_t* sz_file16 = util::utf8to16(sz_file);
-		DWORD dwAttrib = GetFileAttributesW((LPCWSTR)sz_file16);
-		free(sz_file16);
-		return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-#else
-		struct stat sts;
-		return !(stat((const char*)sz_file, &sts) == -1 && errno == ENOENT);
-#endif
-#else
-		return true; //don't generate errors
-#endif
-	}
-
 	void Music::play() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		Mix_HaltMusic();
-		music = this;
-		//if(intro)
-		//Mix_PlayMusic(intro, 0);
-		//else
-		Mix_PlayMusic(loop, -1);
-#else
 		music = nullptr;
 		if(enabled) {
 #if 0
@@ -497,7 +404,6 @@ namespace audio {
 			music = this;
 			i_music_sample = 0.0;
 		}
-#endif
 #else
 		music = this;
 #endif
@@ -505,21 +411,10 @@ namespace audio {
 
 	void Music::stop() {
 		music = nullptr;
-#ifdef EMSCRIPTEN
-		Mix_HaltMusic();
-#endif
 	}
 
 	void Music::createFromFile(const std::string& szIntro_, const std::string& szLoop_) {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		if(szIntro_.length()) {
-			intro = Mix_LoadMUS(szIntro_.c_str());
-		}
-		if(szLoop_.length()) {
-			loop = Mix_LoadMUS(szLoop_.c_str());
-		}
-#else
 		if(szIntro_.length()) {
 			intro.createFromFile(szIntro_);
 		}
@@ -527,16 +422,11 @@ namespace audio {
 			loop.createFromFile(szLoop_);
 		}
 #endif
-#endif
 	}
 
 	bool Music::exists() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		return loop != nullptr;
-#else
 		return loop.exists();
-#endif
 #else
 		return true; //don't generate errors
 #endif
@@ -572,11 +462,6 @@ namespace audio {
 
 	void Speaker::init() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		//Dirty dirty hack, but for the most part it shouldn't cause noticable issues
-		static int lastChannel = SOUND_SOURCE_MAX - 1;
-		channel = --lastChannel;
-#else
 		for(int i = 0; i < SPEAKER_SOURCE_MAX; i++) {
 			if(!speaker_sources[i].speaker) {
 				speaker_sources[i].speaker = this;
@@ -584,15 +469,10 @@ namespace audio {
 			}
 		}
 #endif
-#endif
 	}
 
 	void Speaker::play(Voice* voice) {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		//Mix_PlayChannel(channel, voice->sound, 0);
-		Mix_Volume(Mix_PlayChannel(-1, voice->sound, 0), optionVoiceVolume * MIX_MAX_VOLUME / 100);
-#else
 		for(int i = 0; i < SPEAKER_SOURCE_MAX; i++) {
 			if(speaker_sources[i].speaker == this) {
 				speaker_sources[i].sound = (Sound*)voice;
@@ -606,20 +486,15 @@ namespace audio {
 			}
 		}
 #endif
-#endif
 	}
 
 	void Speaker::stop() {
 #ifndef NO_SOUND
-#ifdef EMSCRIPTEN
-		//Mix_HaltChannel(channel);
-#else
 		for(int i = 0; i < SPEAKER_SOURCE_MAX; i++) {
 			if(speaker_sources[i].speaker == this) {
 				speaker_sources[i].sound = nullptr;
 			}
 		}
-#endif
 #endif
 	}
 }

@@ -119,9 +119,10 @@ std::string fstr(std::string sz_) {
 int loadPalette(std::string szPalette, unsigned char* palette) {
 	//See if we're trying to load an act or a PNG
 	std::string ext = szPalette.substr(szPalette.find_last_of(".") + 1);
+	std::string path = util::getPath(szPalette);
 
 	if(!ext.compare("act")) {
-		FILE* f = util::ufopen(szPalette, "rb");
+		FILE* f = util::ufopen(path, "rb");
 		if(!f) {
 			std::cerr << "error: cannot open palette file." << std::endl;
 			return 1;
@@ -133,7 +134,7 @@ int loadPalette(std::string szPalette, unsigned char* palette) {
 		}
 		fclose(f);
 	} else if(!ext.compare("png")) {
-		if(imageReadPalette(szPalette, palette)) {
+		if(imageReadPalette(path, palette)) {
 			std::cerr << "error: problem reading from palette file." << std::endl;
 			return 1;
 		}
@@ -310,7 +311,7 @@ int main(int argc, char** argv)
 		populate(0, 0, TEXTURE_SIZE, TEXTURE_SIZE);
 
         //Write to file
-        imageWrite(sz_output + util::toString(i++) + ".png", &atlas, sz_palette.empty() ? nullptr : palette);
+        imageWrite(sz_output + "/" + util::toString(i++) + ".png", &atlas, sz_palette.empty() ? nullptr : palette);
 
 		//See if there are any images left; if there aren't,
 		//break out
@@ -329,8 +330,9 @@ int main(int argc, char** argv)
     //Write to an info list
     {
         File file;
-        if(!file.open(FILE_WRITE_NORMAL, sz_output + ".atlas.list")) {
-            std::cerr << "error: could not open file " << file.getFilename() << " for writing." << std::endl;
+		std::string path = util::getPath(sz_output + "/atlas.list");
+        if(!file.open(FILE_WRITE_NORMAL, path)) {
+            std::cerr << "error: could not open file " << path << " for writing." << std::endl;
             code = 1;
             goto end;
         }
@@ -342,6 +344,13 @@ int main(int argc, char** argv)
             std::string name = fstr(images[i].name);
             file.writeByte(name.length());
             file.write(name.c_str(), name.length());
+			
+			//Write the position/size
+			file.writeByte(images[i].atlas);
+			file.writeWord(images[i].x);
+			file.writeWord(images[i].y);
+			file.writeWord(images[i].w);
+			file.writeWord(images[i].h);
 
             //Write the shift
             file.writeWord(images[i].x_shift);

@@ -7,34 +7,42 @@
 #include "os.h"
 #include "util.h"
 
-#ifdef EMSCRIPTEN
-#include <emscripten/emscripten.h>
-
-void alert(const std::string& sz) {
-}
-#endif
-
 #if defined _WIN32 || defined __APPLE__
 namespace os {
     extern SDL_Window* window;
 }
 #endif
 
+#ifdef _WIN32
+#include <SDL2/SDL_syswm.h>
+void w32_messageBox(const char* title, const char* text, int flags) {
+	SDL_SysWMinfo info;
+	SDL_VERSION(&info.version);
+	if(SDL_GetWindowWMInfo(os::window, &info)) {
+		wchar_t* title16 = util::utf8to16(title);
+		wchar_t* text16 = util::utf8to16(text);
+		MessageBoxW(info.info.win.window, text16, title16, flags);
+		free(text16);
+		free(title16);
+	}
+}
+#endif
+
 void error(const std::string& sz) {
-#if defined _WIN32 || defined __APPLE__
+#if defined _WIN32
+	w32_messageBox("Warning", sz.c_str(), MB_ICONWARNING);
+#elif defined __APPLE__
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", sz.c_str(), os::window);
-#elif defined EMSCRIPTEN
-	alert("Warning:\n" + sz);
 #else
 	std::cerr << "error: " << sz << std::endl;
 #endif
 }
 
 void die(const std::string& sz) {
-#if defined _WIN32 || defined __APPLE__
+#if defined _WIN32
+	w32_messageBox("Error", sz.c_str(), MB_ICONERROR);
+#elif defined __APPLE__
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", sz.c_str(), os::window);
-#elif defined EMSCRIPTEN
-	alert("Error:\n" + sz);
 #else
 	std::cerr << "fatal error: " << sz << std::endl;
 #endif

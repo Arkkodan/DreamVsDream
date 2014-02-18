@@ -3,6 +3,8 @@
 
 #include "globals.h"
 
+#include "file.h"
+
 enum {
 	COLORTYPE_NONE,
 	COLORTYPE_GRAYSCALE,
@@ -49,9 +51,12 @@ public:
 	//DvD: Loads a RGB, RGBA, Greyscale, or GA png file
 	//SPRTOOL/compiler: Loads a 256-color PNG from a file
 	void createFromFile(std::string filename);
+#ifdef GAME
+	void createFromEmbed(File& file, const ubyte_t* palette);
+	void createFromMemoryPNG(const ubyte_t* imgdata, size_t size, const ubyte_t* palette);
+#endif
 #ifndef COMPILER
-	void createFromMemoryPNG(const ubyte_t* imgdata, size_t size);
-	void createFromMemory(const ubyte_t* data, unsigned int width, unsigned int height, int format);
+	void createFromMemory(const ubyte_t* data, unsigned int width, unsigned int height, int format, const ubyte_t* palette);
 #endif
 
 	bool exists();

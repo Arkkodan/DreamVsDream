@@ -4,14 +4,7 @@
 #include "globals.h"
 
 #include "image.h"
-
-enum {
-	PIXEL_NULL,
-	PIXEL_INDEXED,
-	PIXEL_RGB,
-	PIXEL_RGBA,
-	PIXEL_MAX
-};
+#include "file.h"
 
 //Describes a sprite
 class AtlasSprite {
@@ -35,19 +28,14 @@ public:
 	Atlas(const Atlas& other) = delete;
 	Atlas& operator=(Atlas& other) = delete;
 
-	bool create(const std::string& szFilename);
-	bool createFromPalette(const std::string& szFilename, const ubyte_t* palette);
+	bool create(File& file, const ubyte_t* palette);
 
 	void draw(int sprite, int x, int y, bool mirror);
 	void drawSprite(int sprite, int x, int y, bool mirror);
 
 	AtlasSprite getSprite(int sprite);
 
-	static const int channels[PIXEL_MAX];
-
 private:
-	int pixel_type;
-
 	int nSprites;
 	AtlasSprite* sprites;
 

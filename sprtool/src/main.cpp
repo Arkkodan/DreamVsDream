@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 
-#ifdef _WIN32
-#else
+#ifndef _WIN32
 #include <unistd.h>
 #endif
 
@@ -11,6 +10,7 @@
 #include "../../DvD/src/graphics.h"
 #include "../../DvD/src/error.h"
 #include "../../DvD/src/globals.h"
+#include "../../DvD/src/error.h"
 
 game::Fighter fighter;
 int frame = 0;
@@ -22,19 +22,22 @@ extern bool blackBG;
 
 void moveFile(std::string old, std::string nw) {
 #ifdef _WIN32
-	WCHAR* old16 = util::utf8to16(old.c_str());
-	WCHAR* nw16 = util::utf8to16(nw.c_str());
+	WCHAR* old16 = util::toFilename(old.c_str());
+	WCHAR* nw16 = util::toFilename(nw.c_str());
 	DWORD dwAttrib = GetFileAttributesW(nw16);
 	if(dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY)) {
 		DeleteFileW(nw16);
 	}
-	MoveFileW(old16, nw16);
+	bool err = !MoveFileW(old16, nw16);
 	free(nw16);
 	free(old16);
 #else
 	unlink(nw.c_str());
-	rename(old.c_str(), nw.c_str());
+	bool err = rename(old.c_str(), nw.c_str()) == -1;
 #endif
+	if(err) {
+		error("Could not move file \"" + old + "\" to \"" + nw + "\"");
+	}
 }
 
 namespace game {
@@ -115,6 +118,7 @@ void Fighter::saveSpr() {
 	Parser parser("chars/" + name + "/sprites.ubu.bak");
 	FILE* out = util::ufopen("chars/" + name + "/sprites.ubu", "wb");
 	if(!out) {
+		error("Could not write to file \"chars/" + name + "/sprites.ubu\"");
 		return;
 	}
 

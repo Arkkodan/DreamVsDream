@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string>
 #include <iostream>
+#include <algorithm>
 
 #include "../../DvD/src/fighter.h"
 #include "../../DvD/src/file.h"
@@ -10,10 +11,16 @@
 #include "../../DvD/src/player.h"
 #include "../../DvD/src/error.h"
 
+//ATLAS DATA
 struct AtlasOffset {
 	std::string name;
+	int atlas;
 	int x;
 	int y;
+	int w;
+	int h;
+	int xShift;
+	int yShift;
 };
 
 class AtlasList {
@@ -44,10 +51,43 @@ bool AtlasList::create(std::string szFileName) {
 	sprites = new AtlasOffset[nSprites];
 	for(int i = 0; i < nSprites; i++) {
 		sprites[i].name = file.readStr();
+		sprites[i].atlas = file.readByte();
 		sprites[i].x = file.readWord();
 		sprites[i].y = file.readWord();
+		sprites[i].w = file.readWord();
+		sprites[i].h = file.readWord();
+		sprites[i].xShift = file.readWord();
+		sprites[i].yShift = file.readWord();
 	}
 	return true;
+}
+
+//Embedding files
+void embedFile(File& out, const std::string& file) {
+	//Load the file into memory
+	FILE* f = util::ufopen(util::getPath(file), "rb");
+	if(!f) {
+		out.writeDword(0);
+		return;
+	}
+	fseek(f, 0, SEEK_END);
+	size_t size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	if(size == 0) {
+		fclose(f);
+		out.writeDword(0);
+		return;
+	}
+	ubyte_t* data = (ubyte_t*)malloc(size);
+	fread(data, size, 1, f);
+	fclose(f);
+	
+	//Write the size/data
+	out.writeDword(size);
+	out.write(data, size);
+	
+	//Free
+	free(data);
 }
 
 //Writing to memory
@@ -168,25 +208,24 @@ void Fighter::create(std::string name_) {
 	palettes = new unsigned char[nPalettes * 255 * 3 * 2];
 
 	for(int i = 0; i < nPalettes * 2; i++) {
-		char sz[16];
-
 		File act;
+		std::string path;
+		
 		if(i < nPalettes) {
-			sprintf(sz, "%d", i+1);
-			if(!act.open(FILE_READ_NORMAL, "chars/" + name + "/palettes/" + sz + ".act")) {
-				die("Cannot open \"" + act.getFilename() + "\"!");
+			path = util::getPath("chars/" + name + "/palettes/" + util::toString(i+1) + ".act");
+			if(!act.open(FILE_READ_NORMAL, path)) {
+				die("Cannot open \"" + path + "\"!");
 			}
 		} else {
-			sprintf(sz, "%d", i-nPalettes+1);
-			if(!act.open(FILE_READ_NORMAL, "chars/" + name + "/palettes/" + sz + "_nes.act")) {
-				die("Cannot open \"!" + act.getFilename() + "\"!");
+			path = util::getPath("chars/" + name + "/palettes/" + util::toString(i-nPalettes+1) + "_nes.act");
+			if(!act.open(FILE_READ_NORMAL, path)) {
+				die("Cannot open \"!" + path + "\"!");
 			}
 		}
 		act.seek(3);
 
 		if(act.read(palettes + i * 255 * 3, 255 * 3) != 1) {
-			std::string filename = act.getFilename();
-			die(filename + " not a valid ACT file!");
+			die("\"" + path + "\" not a valid ACT file!");
 		}
 	}
 
@@ -720,9 +759,6 @@ void Fighter::create(std::string name_) {
 			statesStandard[i] = -1;
 		}
 	}
-
-	//Load the UI portrait
-	portrait_ui.createFromFile("chars/" + name + "/portraits/ui.png");
 }
 }
 
@@ -752,24 +788,26 @@ int main(int argc, char** argv)
 	std::string name = argv[1];
 #endif
 
-	std::cout << "Attempting to load fighter \"" << name << "\"..." << std::endl;
-
 	game::Fighter fighter;
 	fighter.create(name);
+	
+	std::string fighterPrefix = "chars/" + name;
 
 	//Load also the atlas
 	AtlasList atlas_list;
-	if(!atlas_list.create("chars/" + name + ".atlas.list")) {
-		die("Could not load atlas list \"chars/" + name + ".atlas.list\".");
+	std::string path = util::getPath(fighterPrefix + "/atlas/atlas.list");
+	if(!atlas_list.create(path)) {
+		die("Could not load atlas list \"" + path + "\".");
 	}
 
 
 	//Open the file
 	File file;
-	file.open(FILE_WRITE_NORMAL, "chars/" + name + ".char");
-	std::cout << "Compiling character to " << file.getFilename() << "..." << std::endl;
+	path = util::getPath(fighterPrefix + ".char");
+	file.open(FILE_WRITE_NORMAL, path);
 
 	//Write Header
+	std::cout << "Writing header..." << std::endl;
 	file.writeStr(fighter.dname);
 	file.writeByte(fighter.group);
 	file.writeFloat(fighter.defense);
@@ -780,9 +818,11 @@ int main(int argc, char** argv)
 	file.writeByte(fighter.nPalettes);
 
 	//Write palettes
+	std::cout << "Writing palettes..." << std::endl;
 	file.write(fighter.palettes, fighter.nPalettes * 255 * 3 * 2);
 
 	//Write Sprites
+	std::cout << "Writing sprite information..." << std::endl;
 	file.writeWord(fighter.nSprites);
 	for(int i = 0; i < fighter.nSprites; i++) {
 		int sprite_num = 0;
@@ -790,8 +830,8 @@ int main(int argc, char** argv)
 		int oy = 0;
 		for(int j = 0; j < atlas_list.nSprites; j++) {
 			if(!atlas_list.sprites[j].name.compare(fighter.sprites[i].name)) {
-				ox = atlas_list.sprites[j].x;
-				oy = atlas_list.sprites[j].y;
+				ox = atlas_list.sprites[j].xShift;
+				oy = atlas_list.sprites[j].yShift;
 				sprite_num = j;
 				break;
 			}
@@ -818,27 +858,68 @@ int main(int argc, char** argv)
 			file.writeWord(fighter.sprites[i].aHitBoxes.boxes[j].size.y);
 		}
 	}
+	
+	//Write atlases
+	std::cout << "Writing atlases..." << std::endl;
+	
+	//First write the sprite info
+	file.writeWord(atlas_list.nSprites);
+	for(int i = 0; i < atlas_list.nSprites; i++) {
+		file.writeByte(atlas_list.sprites[i].atlas);
+		file.writeWord(atlas_list.sprites[i].x);
+		file.writeWord(atlas_list.sprites[i].y);
+		file.writeWord(atlas_list.sprites[i].w);
+		file.writeWord(atlas_list.sprites[i].h);
+		//file.writeWord(atlas_list.sprites[i].xShift);
+		//file.writeWord(atlas_list.sprites[i].yShift);
+	}
+	
+	int nAtlases = 0;
+	std::vector<std::string> files = util::listDirectory(util::getPath(fighterPrefix + "/atlas"), true);
+
+	//See if all of our images exist first, and count them.
+	//Thumbs.db, .DS_Store, etc could screw the list up.
+	for(std::vector<std::string>::size_type i = 0; i < files.size(); i++) {
+		if(std::find(files.begin(), files.end(), util::toString(i) + ".png") != files.end()) {
+			nAtlases++;
+		}
+	}
+
+	if(!nAtlases) {
+		die("Could not find any atlas graphics in \"" + fighterPrefix + "/atlas\"");
+	}
+	
+	//Write the atlases
+	file.writeByte(nAtlases);
+	for(int i = 0; i < nAtlases; i++) {
+		embedFile(file, fighterPrefix + "/atlas/" + util::toString(i) + ".png");
+	}
 
 	//Write sounds
+	std::cout << "Writing sounds..." << std::endl;
 	file.writeWord(fighter.nSounds);
 	for(int i = 0; i < fighter.nSounds; i++) {
 		file.writeWord(fighter.sounds[i].size);
 		for(int j = 0; j < fighter.sounds[i].size; j++) {
-			file.writeStr(fighter.sounds[i].sounds[j]);
+			//file.writeStr(fighter.sounds[i].sounds[j]);
+			embedFile(file, fighterPrefix + "/sounds/" + fighter.sounds[i].sounds[j] + ".wav");
 		}
 	}
 
 	//Write voices
+	std::cout << "Writing voices..." << std::endl;
 	file.writeWord(fighter.nVoices);
 	for(int i = 0; i < fighter.nVoices; i++) {
 		file.writeWord(fighter.voices[i].size);
 		file.writeByte(fighter.voices[i].pct);
 		for(int j = 0; j < fighter.voices[i].size; j++) {
-			file.writeStr(fighter.voices[i].voices[j]);
+			//file.writeStr(fighter.voices[i].voices[j]);
+			embedFile(file, fighterPrefix + "/voices/" + fighter.voices[i].voices[j] + ".wav");
 		}
 	}
 
 	//Write states (gah)
+	std::cout << "Writing states..." << std::endl;
 	file.writeWord(fighter.nStates);
 	for(int state = 0; state < fighter.nStates; state++) {
 		file.writeWord(fighter.states[state].size);
@@ -846,6 +927,7 @@ int main(int argc, char** argv)
 	}
 
 	//Write commands
+	std::cout << "Writing commands..." << std::endl;
 	file.writeWord(fighter.nCommands);
 	for(int i = 0; i < fighter.nCommands; i++) {
 		file.writeWord(fighter.commands[i].generic);
@@ -864,14 +946,18 @@ int main(int argc, char** argv)
 	}
 
 	//Write standard states
+	std::cout << "Writing standard state index..." << std::endl;
 	for(int i = 0; i < game::STATE_MAX; i++) {
 		file.writeWord(fighter.statesStandard[i]);
 	}
 
-	//Write portrait
-	file.writeWord(fighter.portrait_ui.w);
-	file.writeWord(fighter.portrait_ui.h);
-	file.write(fighter.portrait_ui.data, fighter.portrait_ui.w*fighter.portrait_ui.h);
+	//Write portraits
+	std::cout << "Writing portraits..." << std::endl;
+	embedFile(file, fighterPrefix + "/portraits/select.png");
+	embedFile(file, fighterPrefix + "/portraits/portrait.png");
+	embedFile(file, fighterPrefix + "/portraits/special.png");
+	embedFile(file, fighterPrefix + "/portraits/super.png");
+	embedFile(file, fighterPrefix + "/portraits/ui.png");
 
 	return 0;
 }

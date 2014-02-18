@@ -56,7 +56,14 @@ namespace util {
 #ifdef _WIN32
 	wchar_t* utf8to16(const char* string);
 	char* utf16to8(const wchar_t* string);
+	
+	wchar_t* getPathUtf16(const std::string& filename);
 #endif
+
+	std::string getPath(const std::string& filename);
+	
+	//Returns true if the file exists
+	bool fileExists(const std::string& filename);
 
 	//This function determines if the character(s) at c
 	//represent a newline. If it does, it returns the number

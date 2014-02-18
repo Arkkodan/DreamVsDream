@@ -5,6 +5,7 @@
 #include <stdarg.h>
 
 #include <sstream>
+#include <algorithm>
 
 #ifndef _WIN32
 #include <dirent.h>
@@ -116,7 +117,7 @@ namespace util {
 
 	FILE* ufopen(const std::string& szFileName, const char* flags) {
 #ifdef _WIN32
-		wchar_t* filename16 = utf8to16(szFileName.c_str());
+		wchar_t* filename16 = getPathUtf16(szFileName);
 		wchar_t* flags16 = utf8to16(flags);
 		FILE* file = _wfopen(filename16, flags16);
 		free(flags16);
@@ -153,7 +154,75 @@ namespace util {
 		}
 		return nullptr;
 	}
+	
+	wchar_t* getPathUtf16(const std::string& filename) {
+		return utf8to16(("\\\\?\\" + filename).c_str());
+	}
 #endif
+
+	std::string getPath(const std::string& filename) {
+#ifdef _WIN32
+		static std::string wd;
+		if(wd.empty()) {
+			//Allocate the module filename from the brain-damaged win32 api
+			int size = 1;
+			wchar_t* wd16 = nullptr;
+			do {
+				//Allocate buffer
+				free(wd16);
+				size *= 2;
+				wd16 = (wchar_t*)malloc(size * 2);
+			} while(GetModuleFileNameW(nullptr, wd16, size) == size);
+			PathRemoveFileSpecW(wd16);
+			PathAddBackslashW(wd16);
+			
+			//Convert to utf-8
+			char* wd8 = utf16to8(wd16);
+			free(wd16);
+			
+			//Allocate the c++ string; skip over \\?\ if it exists
+			if(memcmp(wd8, "\\\\?\\", 4)) {
+				wd = std::string(wd8);
+			} else {
+				wd = std::string(wd8 + 4);
+			}
+#ifdef GAME
+			wd += "data\\";
+#endif
+			
+			free(wd8);
+		}
+		
+		//Concatonate long path specifier + working directory + filename
+		//Then turn forward slashes into backslashes
+		std::string buffer;
+		if(PathIsRelativeA(filename.c_str())) {
+			buffer = wd + filename;
+		} else {
+			buffer = filename;
+		}
+		std::replace(buffer.begin(), buffer.end(), '/', '\\');
+		return buffer;
+#else
+#ifdef GAME
+		return "data/" + filename;
+#else
+		return filename;
+#endif
+#endif
+	}
+	
+	bool fileExists(const std::string& filename) {
+#ifdef _WIN32
+		wchar_t* sz_file16 = util::getPathUtf16(filename.c_str());
+		DWORD dwAttrib = GetFileAttributesW(sz_file16);
+		free(sz_file16);
+		return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+#else
+		struct stat sts;
+		return !(stat(filename.c_str(), &sts) == -1 && errno == ENOENT);
+#endif
+	}
 
 	int isNewline(char* cs, int size) {
 		unsigned char* c = (unsigned char*)cs;
@@ -414,7 +483,7 @@ namespace util {
 	    std::vector<std::string> result;
 
 #ifdef _WIN32
-        wchar_t* directory16 = utf8to16((directory + "/*").c_str());
+        wchar_t* directory16 = getPathUtf16(directory + "\\*");
 
         WIN32_FIND_DATAW findData;
         HANDLE hFind = nullptr;

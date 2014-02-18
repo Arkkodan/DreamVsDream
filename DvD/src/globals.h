@@ -15,6 +15,7 @@
 #define WINVER 0x0500
 #endif
 #include <windows.h>
+#include <shlwapi.h>
 #endif
 
 #include "os.h"

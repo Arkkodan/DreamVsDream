@@ -11,10 +11,6 @@
 #include "effect.h"
 #include "animation.h"
 
-#ifdef EMSCRIPTEN
-#include <emscripten/emscripten.h>
-#endif
-
 game::Player madotsuki;
 game::Player poniko;
 util::Vector cameraPos(0,0);
@@ -38,7 +34,7 @@ extern void parseArgs(int, char**);
 int madotsuki_palette = 0;
 int poniko_palette = 1;
 
-void mainLoop() {
+static inline void mainLoop() {
 	os::refresh();
 
 	if(menu == MENU_FIGHT) {
@@ -173,7 +169,6 @@ int main(int foo, char** bar)
 int main(int argc, char** argv)
 #endif
 {
-#ifndef EMSCRIPTEN
 #ifdef _WIN32
 	int argc;
 	wchar_t** argv16 = CommandLineToArgvW(GetCommandLineW(), &argc);
@@ -192,7 +187,6 @@ int main(int argc, char** argv)
 	}
 	free(argv);
 #endif
-#endif
 	extern void init();
 	init();
 
@@ -202,13 +196,9 @@ int main(int argc, char** argv)
 	poniko.playerNum = 1;
 	poniko.speaker.init();
 
-#ifdef EMSCRIPTEN
-	emscripten_set_main_loop(mainLoop, FPS, 1);
-#else
 	for(;;) {
 		mainLoop();
 	}
-#endif
 
 	return 0;
 }

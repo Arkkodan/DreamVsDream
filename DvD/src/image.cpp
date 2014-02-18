@@ -1,13 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#ifdef EMSCRIPTEN
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <emscripten/emscripten.h>
-#else
 #include <png.h>
-#endif
 
 #include "image.h"
 #include "sprite.h"
@@ -77,192 +71,6 @@ Image::~Image() {
 #endif
 }
 
-#if defined EMSCRIPTEN
-
-void image_loadPng(void* arg, const char* filename) {
-	Image* img = (Image*)arg;
-	img->createFromFile(std::string(filename));
-}
-
-void Image::createFromFile(std::string szPath) {
-	SDL_Surface* surface = IMG_Load(szPath.c_str());
-	if(!surface) {
-		error("Cannot read \"" + szPath + "\".");
-		goto end;
-	}
-
-	int format;
-	switch(surface->format->BytesPerPixel) {
-	case 3:
-		format = COLORTYPE_RGB;
-		break;
-	case 4:
-		format = COLORTYPE_RGBA;
-		break;
-	default:
-		error("Not an RGB or RGBA png.");
-		goto end;
-	}
-	createFromMemory((ubyte_t*)surface->pixels, surface->w, surface->h, format, nullptr);
-
-	w = surface->w;
-	h = surface->h;
-
-end:
-	if(surface) {
-		SDL_FreeSurface(surface);
-	}
-}
-
-void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size) {
-	emscripten_async_prepare_data((char*)imgdata, size, "png", (void*)this, image_loadPng, nullptr);
-}
-
-#elif defined COMPILER
-
-void Image::createFromFile(std::string szPath) {
-    std::string err;
-
-	png_structp png_ptr = nullptr;
-	png_infop info_ptr = nullptr;
-	FILE* f = nullptr;
-	png_bytep* row_pointers = nullptr;
-
-	ubyte_t* raw = nullptr;
-
-	unsigned int leftpad = 0, rightpad = 0, toppad = 0, bottompad = 0;
-
-	f = util::ufopen(szPath, "rb");
-	if(!f) {
-		err = "Cannot read \"" + szPath + "\".";
-		goto end;
-	}
-
-	//Check the header
-	png_byte header[8];
-	fread(header, 8, 1, f);
-	if(png_sig_cmp(header, 0, 8) != 0) {
-		err = "\"" + szPath + "\" not a valid PNG file.";
-		goto end;
-	}
-
-	//Create
-	png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-	info_ptr = png_create_info_struct(png_ptr);
-	if(!info_ptr) {
-		goto error;
-	}
-
-	if(setjmp(png_jmpbuf(png_ptr))) {
-		goto error;
-	}
-
-	png_init_io(png_ptr, f);
-	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, nullptr);
-
-	//Basic info
-	w = png_get_image_width(png_ptr, info_ptr);
-	h = png_get_image_height(png_ptr, info_ptr);
-
-	//This thing only returns indexed sprites, since its only being used by the compiler
-	if(png_get_channels(png_ptr, info_ptr) != 1 || png_get_color_type(png_ptr, info_ptr) != PNG_COLOR_TYPE_PALETTE) {
-        err = "\"" + szPath + "\" not an indexed PNG.";
-		goto end;
-	}
-
-    //Let's get the pixel data now
-	raw = (ubyte_t*)malloc(w * h);
-	row_pointers = png_get_rows(png_ptr, info_ptr);
-	for(unsigned int i = 0; i < h; i++)
-		for(unsigned int j = 0; j < w; j++) {
-			raw[j + i * w] = row_pointers[i][j];
-		}
-
-	//Let's optimize the raw image. Remove empty space on all sides.
-	for(; leftpad < w; leftpad++) {
-		bool found = false;
-		for(unsigned int i = 0; i < h; i++)
-			if(raw[leftpad + i * w]) {
-				found = true;
-				break;
-			}
-		if(found) {
-			break;
-		}
-	}
-	for(; rightpad < w; rightpad++) {
-		bool found = false;
-		for(unsigned int i = 0; i < h; i++)
-			if(raw[((w - 1) - rightpad) + i * w]) {
-				found = true;
-				break;
-			}
-		if(found) {
-			break;
-		}
-	}
-	for(; toppad < h; toppad++) {
-		bool found = false;
-		for(unsigned int i = 0; i < w; i++)
-			if(raw[i + toppad * w]) {
-				found = true;
-				break;
-			}
-		if(found) {
-			break;
-		}
-	}
-	for(; bottompad < h; bottompad++) {
-		bool found = false;
-		for(unsigned int i = 0; i < w; i++)
-			if(raw[i + ((h - 1) - bottompad) * w]) {
-				found = true;
-				break;
-			}
-		if(found) {
-			break;
-		}
-	}
-
-	//Make a new image
-	this->w = w - leftpad - rightpad;
-	this->h = h - toppad - bottompad;
-
-	data = (ubyte_t*)malloc(this->w * this->h);
-	for(unsigned int y = 0; y < this->h; y++) {
-		for(unsigned int x = 0; x < this->w; x++) {
-			data[x + y * this->w] = raw[leftpad + x + (toppad + y) * w];
-		}
-	}
-
-	xpad = leftpad;
-	ypad = bottompad;
-
-	goto end;
-
-error:
-	err = "Unknown error while reading PNG file \"" + szPath + "\".";
-
-end:
-	if(raw) {
-		free(raw);
-	}
-	if(f) {
-		fclose(f);
-	}
-	if(png_ptr || info_ptr) {
-		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
-		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-	}
-
-	if(!err.empty()) {
-        die(err);
-	}
-}
-
-#else
-
 //For reading of PNGs from memory
 struct pngStream {
 	const ubyte_t* data;
@@ -284,7 +92,7 @@ void pngRead(png_structp ptr, png_bytep data, png_size_t size) {
 	stream->offset += size;
 }
 
-void Image::createFromFile(std::string szPath) {
+void Image::createFromFile(std::string filename) {
     std::string err;
 
 	png_structp png_ptr = nullptr;
@@ -299,14 +107,15 @@ void Image::createFromFile(std::string szPath) {
 	int height;
 	int format;
 
+#ifdef SPRTOOL
 	int nPalette;
 	png_colorp palette = nullptr;
-	int nPalTrans;
-	png_bytep palTrans = nullptr;
+#endif
 
-	f = util::ufopen(szPath, "rb");
+	std::string path = util::getPath(filename);
+	f = util::ufopen(path, "rb");
 	if(!f) {
-		err = "Cannot read \"" + szPath + "\".";
+		err = "Cannot read image \"" + path + "\".";
 		goto end;
 	}
 
@@ -314,7 +123,7 @@ void Image::createFromFile(std::string szPath) {
 	png_byte header[8];
 	fread(header, 8, 1, f);
 	if(png_sig_cmp(header, 0, 8) != 0) {
-		err = "\"" + szPath + "\" not a valid PNG file.";
+		err = "\"" + path + "\" not a valid PNG file.";
 		goto end;
 	}
 
@@ -331,7 +140,13 @@ void Image::createFromFile(std::string szPath) {
 
 	png_init_io(png_ptr, f);
 	png_set_sig_bytes(png_ptr, 8);
-	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, nullptr);
+	png_read_png(png_ptr, info_ptr,
+#ifdef GAME
+		PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND,
+#else
+		PNG_TRANSFORM_IDENTITY,
+#endif
+		nullptr);
 
 	//Basic info
 	width = png_get_image_width(png_ptr, info_ptr);
@@ -342,6 +157,12 @@ void Image::createFromFile(std::string szPath) {
 
 	//Check the colortype
 	switch(png_format) {
+#ifdef SPRTOOL
+	case PNG_COLOR_TYPE_PALETTE:
+		format = COLORTYPE_GRAYSCALE;
+		break;
+#endif
+	
     case PNG_COLOR_TYPE_GRAY:
         format = COLORTYPE_GRAYSCALE;
         break;
@@ -359,7 +180,7 @@ void Image::createFromFile(std::string szPath) {
 		break;
 
 	default:
-		err = "\"" + szPath + "\" not a grayscale, indexed, RGB, or RGBA PNG.";
+		err = "\"" + path + "\" not a grayscale, indexed, RGB, or RGBA PNG.";
 		goto end;
 	}
 
@@ -375,22 +196,25 @@ void Image::createFromFile(std::string szPath) {
             }
 		}
 
+#ifdef SPRTOOL
     //If applicable, get the color palette
-	if(format == COLORTYPE_INDEXED) {
+	if(png_format == PNG_COLOR_TYPE_PALETTE) {
         png_get_PLTE(png_ptr, info_ptr, &palette, &nPalette);
-        png_get_tRNS(png_ptr, info_ptr, &palTrans, &nPalTrans, nullptr);
 	}
-
-#ifdef GAME
-    createFromMemory(data, width, height, format);
-#else
-	createFromMemory(data, width, height, format);
 #endif
+
+    createFromMemory(data, width, height, format,
+#ifdef GAME
+		nullptr
+#else
+		(const ubyte_t*)palette
+#endif
+		);
 
 	goto end;
 
 error:
-	err = "Unknown error while reading PNG file \"" + szPath + "\".";
+	err = "Unknown error while reading PNG file \"" + path + "\".";
 
 end:
 	if(data) {
@@ -409,7 +233,16 @@ end:
 	}
 }
 
-void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size) {
+#ifdef GAME
+void Image::createFromEmbed(File& file, const ubyte_t* palette) {
+	uint32_t size = file.readDword();
+	ubyte_t* png = new ubyte_t[size];
+	file.read(png, size);
+	createFromMemoryPNG(png, size, palette);
+	delete [] png;
+}
+
+void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size, const ubyte_t* palette) {
     std::string err;
 
 	png_structp png_ptr = nullptr;
@@ -428,11 +261,6 @@ void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size) {
 	int width;
 	int height;
 	int format;
-
-	int nPalette;
-	png_colorp palette = nullptr;
-	int nPalTrans;
-	png_bytep palTrans = nullptr;
 
 	//Check the header
 	if(png_sig_cmp(imgdata, 0, 8) != 0) {
@@ -493,18 +321,8 @@ void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size) {
 			data[j * (width * channels) + i] = row_pointers[j][i];
 		}
 
-    //If applicable, get the color palette
-	if(format == COLORTYPE_INDEXED) {
-        png_get_PLTE(png_ptr, info_ptr, &palette, &nPalette);
-        png_get_tRNS(png_ptr, info_ptr, &palTrans, &nPalTrans, nullptr);
-	}
-
 	//Turn this data into textures!
-#ifdef GAME
-    createFromMemory(data, width, height, format);
-#else
-	createFromMemory(data, width, height, format);
-#endif
+	createFromMemory(data, width, height, format, palette);
 
 	goto end;
 
@@ -529,41 +347,26 @@ end:
 #ifndef COMPILER
 
 //Take data and convert it into textures
-void Image::createFromMemory(const ubyte_t* data_, unsigned int width_, unsigned int height_, int format_) {
-#if 0
+void Image::createFromMemory(const ubyte_t* data_, unsigned int width_, unsigned int height_, int format_, const ubyte_t* palette) {
     //If we have an indexed image, transparently convert it to RGBA
-    if(format_ == COLORTYPE_INDEXED && palette) {
-        ubyte_t* _data_new = (ubyte_t*)malloc((palTrans ? 4 : 3) * width_ * height_);
+    if(format_ == COLORTYPE_GRAYSCALE && palette) {
+        ubyte_t* _data_new = new ubyte_t[4 * width_ * height_];
         for(unsigned int j = 0; j < height_; j++) {
             for(unsigned int i = 0; i < width_; i++) {
                 int offset = j * width_ + i;
-                if(palTrans) {
-                    if(data_[offset] < nPal) {
-                        memcpy(&_data_new[offset * 4], &palette[data_[offset] * 3], 3);
-                    } else {
-                        memset(&_data_new[offset * 4], 0, 3);
-                    }
-
-                    if(data_[offset] < nPalTrans) {
-                        _data_new[offset * 4 + 3] = palTrans[data_[offset] * 3];
-                    } else {
-                        _data_new[offset * 4 + 3] = 255;
-                    }
-                } else {
-                    if(data_[offset] < nPal) {
-                        memcpy(&_data_new[offset * 3], &palette[data_[offset] * 3], 3);
-                    } else {
-                        memset(&_data_new[offset * 3], 0, 3);
-                    }
-                }
+				if(data_[offset]) {
+					memcpy(&_data_new[offset * 4], &palette[data_[offset] * 3], 3);
+					_data_new[offset * 4 + 3] = 255;
+				} else {
+					memset(&_data_new[offset * 4], 0, 4);
+				}
             }
         }
 
-        createFromMemory(_data_new, width_, height_, palTrans ? COLORTYPE_RGBA : COLORTYPE_RGB, nullptr, nullptr, 0, 0);
-        free(_data_new);
+        createFromMemory(_data_new, width_, height_, COLORTYPE_RGBA, nullptr);
+        delete [] _data_new;
         return;
     }
-#endif
 
 	//Determine channels
 	int _format = 0;

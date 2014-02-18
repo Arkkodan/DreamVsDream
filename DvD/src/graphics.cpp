@@ -10,7 +10,7 @@
 
 #define FPS_BUFFER 2
 
-#if defined GAME && !defined __APPLE__
+#ifndef __APPLE__
 #define LOAD_GL_PROC(name, type) name = (PFN##type##PROC)SDL_GL_GetProcAddress(#name)
 #define LOAD_GL_ARB_PROC(name, type, arbname) name = (PFN##type##PROC)SDL_GL_GetProcAddress(arbname)
 
@@ -20,6 +20,7 @@ PFNGLACTIVETEXTUREPROC          glActiveTexture;
 PFNGLBLENDEQUATIONPROC          glBlendEquation;
 #endif
 
+#ifdef GAME
 PFNGLATTACHSHADERPROC			glAttachShader;
 PFNGLCOMPILESHADERPROC			glCompileShader;
 PFNGLCREATEPROGRAMPROC			glCreateProgram;
@@ -39,6 +40,7 @@ PFNGLUNIFORM2FPROC 				glUniform2f;
 PFNGLUNIFORM3FPROC 				glUniform3f;
 PFNGLUNIFORM4FPROC 				glUniform4f;
 PFNGLUSEPROGRAMPROC		 		glUseProgram;
+#endif
 #endif
 
 //double oldTime = 0.0f;
@@ -232,7 +234,6 @@ namespace graphics {
 		}
 #endif
 
-#ifndef EMSCRIPTEN
 		//Calculate fps, wait
 		unsigned long delta = os::getTime() - time;
 		if(delta < MSPF) {
@@ -260,7 +261,6 @@ namespace graphics {
 #endif // SHOW_FPS
 
 		time = os::getTime();
-#endif
 
 		glClear(GL_COLOR_BUFFER_BIT);
 	}

@@ -5,10 +5,6 @@
 #include "input.h"
 #include "graphics.h"
 
-#ifdef EMSCRIPTEN
-#include <SDL_image.h>
-#endif
-
 extern game::Player madotsuki;
 extern game::Player poniko;
 
@@ -33,10 +29,6 @@ namespace os {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 		glcontext = SDL_GL_CreateContext(window);
-
-#ifdef EMSCRIPTEN
-		IMG_Init(IMG_INIT_PNG);
-#endif
 	}
 
 	void deinit() {
@@ -66,11 +58,9 @@ namespace os {
 			if(e.type == SDL_QUIT) {
 				exit(0);
 			} else if(e.type == SDL_KEYDOWN) {
-#ifndef EMSCRIPTEN
 				if(e.key.keysym.sym == SDLK_ESCAPE) {
 					exit(0);
 				} else
-#endif
 					input::keyPress(e.key.keysym.sym, true);
 			} else if(e.type == SDL_KEYUP) {
 				input::keyPress(e.key.keysym.sym, false);

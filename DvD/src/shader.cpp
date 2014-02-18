@@ -62,9 +62,12 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 	int nLines;
 	char** szLines;
 	int isCompiled;
+	
+	std::string vertexPath = util::getPath(szVertexFile);
+	std::string fragmentPath = util::getPath(szFragmentFile);
 
 	//Compile the vertex shader
-	if(!(szLines = util::getLinesFromFile(&nLines, szVertexFile))) {
+	if(!(szLines = util::getLinesFromFile(&nLines, vertexPath))) {
 		return false;
 	}
 	vertex = glCreateShader(GL_VERTEX_SHADER);
@@ -74,23 +77,21 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &isCompiled);
 	if(!isCompiled) {
-#ifndef EMSCRIPTEN
 		int length = 0;
 		glGetShaderiv(vertex, GL_INFO_LOG_LENGTH , &length);
 		if(length > 1) {
 			char* log = (char*)malloc(length);
 			glGetShaderInfoLog(vertex, length, nullptr, log);
-			fprintf(stderr, "GLSL: %s:\n%s\n", szVertexFile, log);
+			fprintf(stderr, "GLSL: %s:\n%s\n", vertexPath.c_str(), log);
 			free(log);
 		}
-#endif
 		glDeleteShader(vertex);
 		vertex = 0;
 		return false;
 	}
 
 	//Compile the fragment shader
-	if(!(szLines = util::getLinesFromFile(&nLines, szFragmentFile))) {
+	if(!(szLines = util::getLinesFromFile(&nLines, fragmentPath))) {
 		glDeleteShader(vertex);
 		vertex = 0;
 		return false;
@@ -102,16 +103,14 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &isCompiled);
 	if(!isCompiled) {
-#ifndef EMSCRIPTEN
 		int length = 0;
 		glGetShaderiv(fragment, GL_INFO_LOG_LENGTH, &length);
 		if(length > 1) {
 			char* log = (char*)malloc(length);
 			glGetShaderInfoLog(fragment, length, nullptr, log);
-			fprintf(stderr, "GLSL: %s:\n%s\n", szFragmentFile, log);
+			fprintf(stderr, "GLSL: %s:\n%s\n", fragmentPath.c_str(), log);
 			free(log);
 		}
-#endif
 		glDeleteShader(vertex);
 		glDeleteShader(fragment);
 		vertex = 0;
@@ -132,7 +131,7 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 		if(length > 1) {
 			char* log = (char*)malloc(length);
 			glGetProgramInfoLog(program, length, nullptr, log);
-			fprintf(stderr, "GLSL: %s, %s\n%s\n", szVertexFile, szFragmentFile, log);
+			fprintf(stderr, "GLSL: %s, %s\n%s\n", vertexPath.c_str(), fragmentPath.c_str(), log);
 			free(log);
 		}
 

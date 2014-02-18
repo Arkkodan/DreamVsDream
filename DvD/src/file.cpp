@@ -18,7 +18,7 @@ File::~File() {
 	close();
 }
 
-bool File::open(int flags, std::string _szFileName) {
+bool File::open(int flags, std::string szFileName) {
     close();
 
 	//Prepare the correct flag string
@@ -27,7 +27,6 @@ bool File::open(int flags, std::string _szFileName) {
 		szFlags = "wb";
 	}
 
-    szFileName = std::move(_szFileName);
 	this->flags = flags;
 
 	//Open either a FILE* or a gzFile
@@ -160,10 +159,6 @@ size_t File::size() {
 	size_t size = ftell((FILE*)fp);
 	fseek((FILE*)fp, pos, SEEK_SET);
 	return size;
-}
-
-std::string File::getFilename() {
-	return szFileName;
 }
 
 //Private

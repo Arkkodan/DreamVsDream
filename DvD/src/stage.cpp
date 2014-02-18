@@ -5,6 +5,7 @@
 #include "stage.h"
 #include "parser.h"
 #include "graphics.h"
+#include "error.h"
 
 int stage = -1;
 Stage stages[20];
@@ -102,8 +103,9 @@ void Stage::reset() {
 
 void Stage::parseFile(const std::string& szFileName) {
 	Parser parser;
-	if(!parser.open(szFileName)) {
-		return;
+	std::string path = util::getPath(szFileName);
+	if(!parser.open(path)) {
+		die("Cannot parse file \"" + path + "\"");
 	}
 
 	//Get all the data

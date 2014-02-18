@@ -6,13 +6,9 @@
 #include "fighter.h"
 #include "graphics.h"
 #include "network.h"
-
+#include "error.h"
 #include "parser.h"
 #include "util.h"
-
-#ifdef EMSCRIPTEN
-#include <SDL/SDL_mixer.h>
-#endif
 
 #define PORTRAIT_FADE 50
 
@@ -141,11 +137,9 @@ void Menu::think() {
 					fadeIn = true;
 
 					//Are we quitting?
-#ifndef EMSCRIPTEN
 					if(menuNew == MENU_QUIT) {
 						exit(0);
 					}
-#endif
 					menu = menuNew;
 
 					audio::Music::stop();
@@ -253,8 +247,9 @@ void Menu::parseLine(Parser& parser) {
 
 void Menu::parseFile(std::string szFileName) {
 	Parser parser;
-	if(!parser.open(szFileName)) {
-		return;
+	std::string path = util::getPath(szFileName);
+	if(!parser.open(path)) {
+		die("Cannot parse file \"" + path + "\"");
 	}
 
 	//Get all the data
@@ -366,9 +361,7 @@ enum {
 	CHOICE_NETPLAY,
 #endif
 	CHOICE_OPTIONS,
-#ifndef EMSCRIPTEN
 	CHOICE_QUIT,
-#endif
 
 	CHOICE_MAX
 };
@@ -394,9 +387,7 @@ const char* menuChoicesMain[CHOICE_MAX] = {
 	"Netplay",
 #endif
 	"Options",
-#ifndef EMSCRIPTEN
 	"Quit",
-#endif
 };
 
 const char* menuChoicesVersus[CHOICE_VS_MAX] = {
@@ -524,11 +515,9 @@ void MenuTitle::think() {
 				sndSelect.play();
 				setMenu(MENU_OPTIONS);
 				break;
-#ifndef EMSCRIPTEN
 			case CHOICE_QUIT:
 				setMenu(MENU_QUIT);
 				break;
-#endif
 			}
 			break;
 
@@ -557,9 +546,7 @@ void MenuTitle::think() {
 	} else if(input(INPUT_B)) {
 		if(submenu == TM_MAIN) {
 			//Quit
-#ifndef EMSCRIPTEN
 			setMenu(MENU_QUIT);
-#endif
 		} else if(submenu == TM_VERSUS) {
 			//Return
 			sndBack.play();
@@ -589,9 +576,7 @@ void MenuTitle::draw() {
 #ifndef NO_NETWORK
 				case CHOICE_NETPLAY:
 #endif
-#ifndef EMSCRIPTEN
 				case CHOICE_QUIT:
-#endif
 					gray = 1;
 					break;
 				}
@@ -1471,9 +1456,6 @@ void MenuOptions::think() {
 						optionMusVolume += 10;
 					}
 				}
-#ifdef EMSCRIPTEN
-				Mix_VolumeMusic(optionMusVolume * MIX_MAX_VOLUME / 100);
-#endif
 				break;
 
 			case OPTION_VOICE_VOLUME:

@@ -10,17 +10,13 @@
 #define TEXTURE_SIZE 2048
 #define TEXTURE_SIZE_SQ (TEXTURE_SIZE*TEXTURE_SIZE)
 
-const int Atlas::channels[PIXEL_MAX] = {0, 1, 3, 4};
-
 Atlas::Atlas() {
-	pixel_type = PIXEL_NULL;
 	nImages = nSprites = 0;
 	images = nullptr;
 	sprites = nullptr;
 }
 
 Atlas::Atlas(Atlas&& other) {
-    pixel_type = other.pixel_type;
     nSprites = other.nSprites;
     sprites = other.sprites;
 
@@ -31,7 +27,6 @@ Atlas::Atlas(Atlas&& other) {
 }
 
 Atlas& Atlas::operator=(Atlas&& other) {
-    pixel_type = other.pixel_type;
     nSprites = other.nSprites;
     nImages = other.nImages;
 
@@ -49,17 +44,14 @@ Atlas::~Atlas() {
 	delete [] images;
 }
 
-bool Atlas::create(const std::string& szFilename) {
-	File file;
-	if(!file.open(FILE_READ_GZ, szFilename)) {
-		return false;
-	}
-
+bool Atlas::create(File& file, const ubyte_t* palette) {
+	(void)palette;
+	
 	//Setup sprite buffers
 	nSprites = file.readWord();
 	sprites = new AtlasSprite[nSprites];
 
-	//Read sprites
+	//Read sprite info
 	for(int i = 0; i < nSprites; i++) {
 		sprites[i].atlas = file.readByte();
 		sprites[i].x = file.readWord();
@@ -67,90 +59,14 @@ bool Atlas::create(const std::string& szFilename) {
 		sprites[i].w = file.readWord();
 		sprites[i].h = file.readWord();
 	}
-
-	//Setup pixel type
-	pixel_type = file.readByte();
-
-	//Setup pixel buffer, texture buffer
+	
+	//Read images
 	nImages = file.readByte();
 	images = new Image[nImages];
-	ubyte_t* _b_pixel = (ubyte_t*)malloc(TEXTURE_SIZE_SQ * channels[pixel_type]);
-
-	int _format = 0;
-	switch(pixel_type) {
-	case PIXEL_INDEXED:
-		_format = COLORTYPE_INDEXED;
-		break;
-	case PIXEL_RGB:
-		_format = COLORTYPE_RGB;
-		break;
-	case PIXEL_RGBA:
-		_format = COLORTYPE_RGBA;
-		break;
-	};
-
-	//Read each image and create each texture
 	for(int i = 0; i < nImages; i++) {
-		file.read(_b_pixel, TEXTURE_SIZE_SQ * channels[pixel_type]);
-
-		//Create the image
-		images[i].createFromMemory(_b_pixel, TEXTURE_SIZE, TEXTURE_SIZE, _format);
+		images[i].createFromEmbed(file, palette);
 	}
-
-	//Free up memory
-	free(_b_pixel);
-	return true;
-}
-
-bool Atlas::createFromPalette(const std::string& szFilename, const ubyte_t* palette) {
-    (void)palette;
-
-	File file;
-	if(!file.open(FILE_READ_GZ, szFilename)) {
-		return false;
-	}
-
-	//Setup sprite buffers
-	nSprites = file.readWord();
-	sprites = new AtlasSprite[nSprites];
-
-	//Read sprites
-	for(int i = 0; i < nSprites; i++) {
-		sprites[i].atlas = file.readByte();
-		sprites[i].x = file.readWord();
-		sprites[i].y = file.readWord();
-		sprites[i].w = file.readWord();
-		sprites[i].h = file.readWord();
-	}
-
-	//Setup pixel type
-	pixel_type = file.readByte();
-	if(pixel_type != PIXEL_INDEXED) {
-		return false;
-	}
-
-	//Setup pixel buffer, texture buffer
-	nImages = file.readByte();
-	//textures = new unsigned int[c_textures];
-	//glGenTextures(c_textures, textures);
-	images = new Image[nImages];
-	ubyte_t* _b_pixel = (ubyte_t*)malloc(TEXTURE_SIZE_SQ);
-
-	//Read each image and create each texture
-	for(int i = 0; i < nImages; i++) {
-		file.read(_b_pixel, TEXTURE_SIZE_SQ);
-
-		images[i].createFromMemory(_b_pixel, TEXTURE_SIZE, TEXTURE_SIZE, COLORTYPE_INDEXED);
-
-		//Generate the OpenGL texture
-		/*glBindTexture(GL_TEXTURE_2D, textures[i]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTURE_SIZE, TEXTURE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, _b_rgba);*/
-	}
-
-	//Free up memory
-	free(_b_pixel);
+	
 	return true;
 }
 

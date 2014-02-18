@@ -268,12 +268,14 @@ namespace game {
 		unsigned int statesStandard[STATE_MAX];
 #endif
 
+#ifdef GAME
 		//Portraits
 		Image select;
 		Image portrait;
 		Image special;
 		Image ender;
 		Image portrait_ui;
+#endif
 
 		Fighter();
 		~Fighter();
