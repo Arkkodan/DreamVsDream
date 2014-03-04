@@ -60,8 +60,9 @@ namespace os {
 			} else if(e.type == SDL_KEYDOWN) {
 				if(e.key.keysym.sym == SDLK_ESCAPE) {
 					exit(0);
-				} else
+				} else if(!e.key.repeat) {
 					input::keyPress(e.key.keysym.sym, true);
+				}
 			} else if(e.type == SDL_KEYUP) {
 				input::keyPress(e.key.keysym.sym, false);
 			}

@@ -29,8 +29,8 @@ ifeq ($(PLATFORM),linux)
 	CXXFLAGS	:= -m$(ARCH) -pthread
 	LDFLAGS		:= -m$(ARCH) -pthread -lGL
 
-	CXX		:= g++
-	LD		:= g++
+	CXX		:= clang++
+	LD		:= clang++
 else ifeq ($(PLATFORM),osx)
 	TARGET		:= $(NAME)
 	CXXFLAGS	:= -arch i386 -arch x86_64 -pthread

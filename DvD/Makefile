@@ -32,7 +32,6 @@ $(OBJ_DIR)/%.o: $(RES_FILE) | $(OBJ_DIR)
 
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET)
-	rm -rf DvD.data DvD.js DvD.html DvD.html.map
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)

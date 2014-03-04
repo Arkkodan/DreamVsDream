@@ -33,11 +33,21 @@ move 10, 0
 [WalkB]
 type N, S
 ctrl true
-sprite wb00, 8
+sprite wc00, 6
 move -10, 0
-sprite wb01, 8
-move -20, 0
-sprite wb02, 8
+sprite wc07, 6
+move -10, 0
+sprite wc06, 6
+move -10, 0
+sprite wc05, 6
+move -10, 0
+sprite wc04, 6
+move -10, 0
+sprite wc03, 6
+move -10, 0
+sprite wc02, 6
+move -10, 0
+sprite wc01, 6
 move -10, 0
 
 [BeginCrouch]
@@ -223,6 +233,7 @@ sprite lose09, 1000
 //Jump
 [Jumping]
 type N, J
+doublejump true
 sprite jumping00, 1
 
 [BeginJump]
@@ -261,7 +272,7 @@ sprite jump_begin02, 2
 //Techs
 [JTech]
 type T, J
-sprite falling00, 1
+sprite jump_begin00, 1
 
 //Dashes
 [BDashF]
@@ -269,8 +280,8 @@ type D, S
 force 8, 0
 gravity false
 //effect Dash, -10, 40, true, false, 1, 1
-sprite dash00, 4
-sprite dash01, 4
+sprite dash00, 5
+sprite dash01, 5
 
 [DashF]
 type D, S
@@ -282,17 +293,17 @@ sprite dash03, 4
 [EDashF]
 type D, S
 gravity true
-sprite dash01, 4
-sprite dash00, 4
+sprite dash01, 3
+sprite dash00, 3
 
 [BDashB]
 type D, S
-sprite bdash00, 4
-sprite bdash01, 4
-sprite bdash02, 4
+sprite bdash00, 2
+sprite bdash01, 2
+sprite bdash02, 2
 
 [DashB]
-force -8, 0
+force -6, 0
 gravity false
 sprite bdash03, 2
 sprite bdash04, 2
@@ -302,54 +313,9 @@ sprite bdash06, 2
 [EDashB]
 type D, S
 gravity true
-sprite bdash02, 4
-sprite bdash01, 4
-sprite bdash00, 4
-
-[JDashF]
-type D, J
-force 8, 0
-gravity false
-airdash true
-sprite dash_air00, 2
-sprite dash_air01, 2
-sprite dash_air02, 2
-sprite dash_air03, 2
-
-sprite dash_air04, 2
-sprite dash_air05, 2
-sprite dash_air04, 2
-sprite dash_air05, 2
-
-gravity true
-
-sprite dash_air03, 2
-sprite dash_air02, 2
-sprite dash_air01, 2
-sprite dash_air00, 2
-
-[JDashB]
-type D, J
-force -8, 0
-gravity false
-airdash true
-mirror true
-sprite dash_air00, 2
-sprite dash_air01, 2
-sprite dash_air02, 2
-sprite dash_air03, 2
-
-sprite dash_air04, 2
-sprite dash_air05, 2
-sprite dash_air04, 2
-sprite dash_air05, 2
-
-gravity true
-
-sprite dash_air03, 2
-sprite dash_air02, 2
-sprite dash_air01, 2
-sprite dash_air00, 2
+sprite bdash02, 2
+sprite bdash01, 2
+sprite bdash00, 2
 
 [CBlock]
 type B, C
@@ -394,17 +360,17 @@ ctrl true
 [5C]
 type A, S
 ctrl false
-sprite f5C00, 4
-sprite f5C01, 4
-sprite f5C02, 2
+sprite f5C00, 8
+sprite f5C01, 6
+sprite f5C02, 4
 hitspark MediumBash
 attack 5, mid, 5, 0, HitMid, true
 sprite f5C03, 2
 sprite f5C04, 2
 sprite f5C03, 2
-sprite f5C04, 2
-sprite f5C01, 4
-sprite f5C00, 4
+sprite f5C04, 4
+sprite f5C01, 6
+sprite f5C00, 6
 ctrl true
 
 [3C]
@@ -428,7 +394,7 @@ sprite 3C01, 4
 sprite 3C00, 4
 ctrl true
 
-[2A]
+[2C]
 cancel 5A
 cancel 3C
 cancel 5C
@@ -453,6 +419,21 @@ sprite j5A00, 3
 sprite j5A01, 3
 attack 2.5, high, 2, 0, HitMid, true
 sprite j5A02, 12
+
+//Special moves
+[GunA]
+type A, S
+ctrl false
+hitspark SmallCutHit
+sprite gun00, 4
+sprite gun01, 4
+sprite gun02, 4
+sprite gun03, 8
+attack 4, mid, -1, 17, HitMid, true
+sprite gun04, 4
+sprite gun05, 12
+sprite gun06, 8
+ctrl true
 
 [DarkDiaryC]
 type A, S

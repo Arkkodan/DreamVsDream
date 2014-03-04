@@ -10,4 +10,8 @@ mkdir -p "chars/$1/atlas"
 echo "Compiling character..."
 ./compiler "$1"
 
+#Move
+echo "Moving character..."
+mv -f "chars/$1.char" ../DvD/data/chars
+
 echo "Done!"

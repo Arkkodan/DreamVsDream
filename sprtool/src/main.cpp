@@ -115,98 +115,27 @@ void Fighter::create(std::string name_) {
 void Fighter::saveSpr() {
 	//Initialize buffers
 	moveFile("chars/" + name + "/sprites.ubu", "chars/" + name + "/sprites.ubu.bak");
-	Parser parser("chars/" + name + "/sprites.ubu.bak");
 	FILE* out = util::ufopen("chars/" + name + "/sprites.ubu", "wb");
 	if(!out) {
 		error("Could not write to file \"chars/" + name + "/sprites.ubu\"");
 		return;
 	}
-
-	int index = -1;
-	int hitboxCounter = 0;
-	int attackCounter = 0;
-	int oldHitCount = 0;
-	int oldAHitCount = 0;
-	while(parser.parseLine()) {
-		int argc = parser.getArgC();
-		if(parser.isGroup()) {
-			index++;
-			fprintf(out, "\r\n[%s %d, %d, %d, %d]\r\n", sprites[index].name.c_str(), sprites[index].x, sprites[index].y, sprites[index].hitBoxes.size, sprites[index].aHitBoxes.size);
-			hitboxCounter = 0;
-			attackCounter = 0;
-			oldHitCount = 0;
-			oldAHitCount = 0;
-			if(argc == 5) {
-				oldHitCount = parser.getArgInt(3);
-				oldAHitCount = parser.getArgInt(4);
-			}
-
-			if(!oldHitCount) {
-				while(hitboxCounter < sprites[index].hitBoxes.size) {
-					fprintf(out, "%d, %d, %d, %d\r\n",
-					        sprites[index].hitBoxes.boxes[hitboxCounter].pos.x,
-					        sprites[index].hitBoxes.boxes[hitboxCounter].pos.y,
-					        sprites[index].hitBoxes.boxes[hitboxCounter].size.x,
-					        sprites[index].hitBoxes.boxes[hitboxCounter].size.y);
-					hitboxCounter++;
-				}
-			}
-
-			if(!oldAHitCount) {
-				while(attackCounter < sprites[index].aHitBoxes.size) {
-					fprintf(out, "%d, %d, %d, %d\r\n",
-					        sprites[index].aHitBoxes.boxes[attackCounter].pos.x,
-					        sprites[index].aHitBoxes.boxes[attackCounter].pos.y,
-					        sprites[index].aHitBoxes.boxes[attackCounter].size.x,
-					        sprites[index].aHitBoxes.boxes[attackCounter].size.y);
-					attackCounter++;
-				}
-			}
-			continue;
+	
+	for(int i = 0; i < nSprites; i++) {
+		fprintf(out, "\r\n[%s %d, %d, %d, %d]\r\n", sprites[i].name.c_str(), sprites[i].x, sprites[i].y, sprites[i].hitBoxes.size, sprites[i].aHitBoxes.size);
+		for(int j = 0; j < sprites[i].hitBoxes.size; j++) {
+			fprintf(out, "%d, %d, %d, %d\r\n",
+					sprites[i].hitBoxes.boxes[j].pos.x,
+					sprites[i].hitBoxes.boxes[j].pos.y,
+					sprites[i].hitBoxes.boxes[j].size.x,
+					sprites[i].hitBoxes.boxes[j].size.y);
 		}
-
-		if(argc == 4) {
-			if(hitboxCounter < sprites[index].hitBoxes.size) {
-				fprintf(out, "%d, %d, %d, %d\n",
-				        sprites[index].hitBoxes.boxes[hitboxCounter].pos.x,
-				        sprites[index].hitBoxes.boxes[hitboxCounter].pos.y,
-				        sprites[index].hitBoxes.boxes[hitboxCounter].size.x,
-				        sprites[index].hitBoxes.boxes[hitboxCounter].size.y);
-				hitboxCounter++;
-
-				if(hitboxCounter == oldHitCount) {
-					while(hitboxCounter < sprites[index].hitBoxes.size) {
-						fprintf(out, "%d, %d, %d, %d\n",
-						        sprites[index].hitBoxes.boxes[hitboxCounter].pos.x,
-						        sprites[index].hitBoxes.boxes[hitboxCounter].pos.y,
-						        sprites[index].hitBoxes.boxes[hitboxCounter].size.x,
-						        sprites[index].hitBoxes.boxes[hitboxCounter].size.y);
-						hitboxCounter++;
-					}
-				}
-			} else if(attackCounter < sprites[index].aHitBoxes.size) {
-				if(hitboxCounter < oldHitCount) {
-					hitboxCounter++;
-				} else {
-					fprintf(out, "%d, %d, %d, %d\n",
-					        sprites[index].aHitBoxes.boxes[attackCounter].pos.x,
-					        sprites[index].aHitBoxes.boxes[attackCounter].pos.y,
-					        sprites[index].aHitBoxes.boxes[attackCounter].size.x,
-					        sprites[index].aHitBoxes.boxes[attackCounter].size.y);
-					attackCounter++;
-
-					if(attackCounter == oldAHitCount) {
-						while(attackCounter < sprites[index].aHitBoxes.size) {
-							fprintf(out, "%d, %d, %d, %d\n",
-							        sprites[index].aHitBoxes.boxes[attackCounter].pos.x,
-							        sprites[index].aHitBoxes.boxes[attackCounter].pos.y,
-							        sprites[index].aHitBoxes.boxes[attackCounter].size.x,
-							        sprites[index].aHitBoxes.boxes[attackCounter].size.y);
-							attackCounter++;
-						}
-					}
-				}
-			}
+		for(int j = 0; j < sprites[i].aHitBoxes.size; j++) {
+			fprintf(out, "%d, %d, %d, %d\r\n",
+					sprites[i].aHitBoxes.boxes[j].pos.x,
+					sprites[i].aHitBoxes.boxes[j].pos.y,
+					sprites[i].aHitBoxes.boxes[j].size.x,
+					sprites[i].aHitBoxes.boxes[j].size.y);
 		}
 	}
 	fclose(out);
