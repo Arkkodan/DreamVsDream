@@ -47,16 +47,7 @@ void Font::createFromFile(std::string filename) {
 			width[c] = w;
 		}
 	}
-
-	size_t size = file.size() - file.tell();
-	ubyte_t* pngdata = (ubyte_t*)malloc(size);
-	if(!pngdata) {
-		return;
-	}
-	file.read(pngdata, size);
-
-	img.createFromMemoryPNG(pngdata, size, nullptr);
-	free(pngdata);
+	img.createFromEmbed(file, nullptr);
 }
 
 bool Font::exists() {

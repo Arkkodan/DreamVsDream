@@ -40,10 +40,19 @@ Ragtime
 
 :LEAD SPRITE ARTISTS
 Alichee
-Pico
-Sesaka
+picopuri
+
+:LEGACY LEAD SPRITE ARTISTS
+NightMargin
+June
 
 :SPRITE ARTISTS
+Sesaka
+siaria
+meri
+Nyrator
+
+:LEGACY SPRITE ARTISTS
 M-256
 NightMargin
 June
@@ -53,11 +62,14 @@ Stickers
 Ragtime
 Corviday
 M3ltd0wn
-Tangy
+Tangyoranges
 Neko
 AbyssianLight
 KAJ
 J
+
+:EFFECT ARTIST
+Shadow624
 
 :PORTRAIT ARTIST
 Kippersnack
@@ -93,7 +105,7 @@ GIR
 
 :VOICE ACTORS
 Ragtime (Madotsuki)
-Odin (Secret Character)
+MedicHaus (Maddysucky)
 
 :MISC. MANAGEMENT
 Ragtime

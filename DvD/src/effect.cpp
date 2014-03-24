@@ -98,7 +98,9 @@ namespace effect {
         speed = frameStart = frameEnd = x = y = 0;
     }
 
-    Effect::Effect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops) {
+    Effect::Effect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops, game::Projectile* _parent) :
+		parent(_parent)
+	{
         anim = nullptr;
 
         //Look up the animation
@@ -124,7 +126,7 @@ namespace effect {
 
             //Calculate the start and end frames
             this->frameStart = os::frame;
-            this->frameEnd = this->frameStart + (unsigned int)(anim->getNumFrames() * nLoops);
+            this->frameEnd = this->frameStart + (unsigned int)(anim->getNumFrames() * nLoops * speed);
         }
     }
 
@@ -144,12 +146,20 @@ namespace effect {
             return;
 
         Image* frame = anim->getFrame((os::frame - frameStart) / speed);
+		
+		int x1 = x - frame->w / 2;
+		int y1 = y - frame->h / 2;
+		
+		if(parent) {
+			x1 += parent->pos.x;
+			y1 += parent->pos.y;
+		}
 
         graphics::setRender(RENDER_ADDITIVE);
         if(moveWithCamera)
-            frame->drawSprite(x - frame->w / 2, y - frame->h / 2, mirror);
+            frame->drawSprite(x1, y1, mirror);
         else
-            frame->draw(x - frame->w / 2, y - frame->h / 2, mirror);
+            frame->draw(x1, y1, mirror);
     }
 
     //MISC FUNCS
@@ -171,10 +181,10 @@ namespace effect {
         delete [] effectAnims;
     }
 
-    void newEffect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops) {
+    void newEffect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops, game::Projectile* parent) {
         for(int i = 0; i < EFFECT_MAX; i++) {
             if(!effects[i].exists()) {
-                effects[i] = Effect(name, x, y, moveWithCamera, mirror, speed, nLoops);
+                effects[i] = Effect(name, x, y, moveWithCamera, mirror, speed, nLoops, parent);
                 break;
             }
         }

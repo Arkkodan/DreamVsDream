@@ -44,6 +44,8 @@ namespace game {
 		flags(F_VISIBLE),
 		scale(1.0f),
 		idealScale(1.0f),
+		spriteAlpha(1.0f),
+		idealAlpha(1.0f),
 		sprite(0),
 		wait(0),
 		timer(0),
@@ -65,6 +67,16 @@ namespace game {
 		pos.y += vel.y;
 		if(flags & F_GRAVITY) {
 			vel.y -= 1.0f;
+		}
+		
+		//Scale!
+		if(idealScale != scale) {
+			scale = (scale + idealScale) / 2;
+		}
+		
+		//Alpha!
+		if(idealAlpha != spriteAlpha) {
+			spriteAlpha = (spriteAlpha + idealAlpha) /2 ;
 		}
 	}
 
@@ -214,16 +226,19 @@ namespace game {
                 std::string effect = readString();
                 int x = readWord();
                 int y = readWord();
-                bool spr = readByte();
+                int type = readByte();
                 bool mirror = readByte();
                 int speed = readByte();
                 int loops = readByte();
-                bool realMirror = (spr && ((dir == LEFT) != mirror)) || (!spr && mirror);
-                effect::newEffect(effect, x * (realMirror ? -1 : 1) + (spr ? pos.x : 0), y + (spr ? pos.y: 0), spr, realMirror, speed, loops);
+                bool realMirror = (type > 0 && ((dir == LEFT) != mirror)) || (type == 0 && mirror);
+                effect::newEffect(effect, x * (realMirror ? -1 : 1) + (type == 1 ? pos.x : 0), y + (type == 1 ? pos.y: 0), type > 0, realMirror, speed, loops, type == 2 ? this : nullptr);
 		    }
 			break;
 		case STEP_Knockdown:
 			knockdownOther = true;
+			break;
+		case STEP_Alpha:
+			idealAlpha = readFloat();
 			break;
 		}
 	}
@@ -233,7 +248,7 @@ namespace game {
 
 	void Projectile::draw(unsigned int palette) {
 		if(flags & F_VISIBLE) {
-			fighter->draw(sprite, pos.x, pos.y, isMirrored(), scale, palette, 1.0, 0.0f, 0.0f, 0.0f, 0.0f);
+			fighter->draw(sprite, pos.x, pos.y, isMirrored(), scale, palette, spriteAlpha, 0.0f, 0.0f, 0.0f, 0.0f);
 		}
 	}
 
@@ -605,7 +620,7 @@ namespace game {
 						pos.y = 0;
 
 
-                        effect::newEffect("DustShockWave", pos.x, pos.y, true, dir == LEFT, 1, 1);
+                        effect::newEffect("DustShockWave", pos.x, pos.y, true, dir == LEFT, 1, 1, nullptr);
 						flags |= F_ON_GROUND;
 						flags &= ~(F_DOUBLEJUMP | F_AIRDASH);
 
@@ -708,10 +723,15 @@ namespace game {
 				}
 			}
 		}
-
+		
 		//Scale!
 		if(idealScale != scale) {
 			scale = (scale + idealScale) / 2;
+		}
+		
+		//Alpha!
+		if(idealAlpha != spriteAlpha) {
+			spriteAlpha = (spriteAlpha + idealAlpha) /2 ;
 		}
 
 		//Color flash
@@ -800,8 +820,8 @@ namespace game {
 			special = 2500 * SPF;
 			pause(2500 * SPF);
 			((MenuSelect*)menus[MENU_SELECT])->newEffect(playerNum, 0);
-			effect::newEffect("Actionlines", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, false, false, 1, 5);
-			effect::newEffect("Transform_yn", pos.x, pos.y + fighter->height / 2, true, dir == LEFT, 1, 1);
+			effect::newEffect("Actionlines", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
+			effect::newEffect("Transform_yn", pos.x, pos.y + fighter->height / 2, true, dir == LEFT, 1, 1, this);
 			flash = 1.0f;
 			break;
 		case STEP_Shoot:
@@ -911,7 +931,7 @@ namespace game {
 						}
 
 						if(blocked) {
-							effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1);
+							effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1, nullptr);
 
 							//Horizontal velocity caps when on ground
 							float _force = attack.vX;
@@ -950,7 +970,7 @@ namespace game {
 							}
 
                             if(spark != "none")
-                                effect::newEffect(spark, colpos.x, colpos.y, true, dir == LEFT, 1, 1);
+                                effect::newEffect(spark, colpos.x, colpos.y, true, dir == LEFT, 1, 1, nullptr);
 
 							pother->takeDamage(attack.damage);
 							pother->bounce.force.x = bounceOther.force.x * mirror;
@@ -1028,7 +1048,7 @@ namespace game {
 					pother->frameHit = true;
 					pause(12);
 					shake(12);
-					effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1);
+					effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1, nullptr);
 					playSound(0);
 				}
 			}
@@ -1127,7 +1147,7 @@ namespace game {
 			if(shadow) {
 				fighter->drawShadow(sprite, pos.x, isMirrored(), scale);
 			} else {
-				fighter->draw(sprite, pos.x + (pausestun % 4) * PAUSE_AMPLITUDE * 2 - PAUSE_AMPLITUDE, pos.y, isMirrored(), scale, palette, 1.0f, r, g, b, pct);
+				fighter->draw(sprite, pos.x + (pausestun % 4) * PAUSE_AMPLITUDE * 2 - PAUSE_AMPLITUDE, pos.y, isMirrored(), scale, palette, spriteAlpha, r, g, b, pct);
 			}
 		}
 	}

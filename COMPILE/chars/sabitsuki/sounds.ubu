@@ -25,17 +25,6 @@ lSwipe2
 DiaryHit1
 DiaryHit2
 
-//Diary paper sounds
-[Papers]
-papers1
-papers2
-papers3
-papers4
-
-//Knife
-[HitKnife]
-KnifeHit1
-
 //Hand
 [Hand]
 hand
@@ -45,3 +34,6 @@ frog
 
 [Pinch]
 pinch
+
+[Gun]
+gun

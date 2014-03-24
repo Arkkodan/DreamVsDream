@@ -316,12 +316,102 @@ namespace audio {
 		}
 #endif
 	}
+
+	/*
+	 * CREATE FROM EMBED
+	 */
+	 
+	struct vio_Stream {
+		sf_count_t origin;
+		sf_count_t size;
+		File* file;
+	};
 	
+	static sf_count_t vio_filelen(void* data) {
+		vio_Stream* stream = (vio_Stream*)data;
+		return stream->size;
+	}
+
+	static sf_count_t vio_seek(sf_count_t offset, int whence, void* data) {
+		vio_Stream* stream = (vio_Stream*)data;
+		switch(whence) {
+		case SEEK_CUR:
+			stream->file->seek(stream->file->tell() + offset);
+			return stream->file->tell() - stream->origin;
+		case SEEK_SET:
+			stream->file->seek(stream->origin + offset);
+			return offset;
+		case SEEK_END:
+			stream->file->seek(stream->size + stream->origin + offset);
+			return stream->file->tell() - stream->origin;
+		}
+		return 0;
+	}
+
+	static sf_count_t vio_read(void* ptr, sf_count_t count, void* data) {
+		vio_Stream* stream = (vio_Stream*)data;
+		
+		if(stream->file->tell() + count > stream->origin + stream->size)
+			count = (stream->origin + stream->size) - stream->file->tell();
+
+		stream->file->read(ptr, count);
+		return count;
+	}
+
+	static sf_count_t vio_write(const void* ptr, sf_count_t count, void* data) {
+		(void)ptr; (void)count; (void)data;
+		return 0;
+	}
+
+	static sf_count_t vio_tell(void* data) {
+		vio_Stream* stream = (vio_Stream*)data;
+		return stream->file->tell() - stream->origin;
+	}
+
+	SF_VIRTUAL_IO sfio = {
+		vio_filelen,
+		vio_seek,
+		vio_read,
+		vio_write,
+		vio_tell,
+	};
+
 	void Sound::createFromEmbed(File& file) {
 		uint32_t size = file.readDword();
-		ubyte_t* wav = new ubyte_t[size];
-		file.read(wav, size);
-		delete [] wav;
+		
+		SNDFILE* stream = NULL;
+		SF_INFO info;
+		
+		vio_Stream vio = {file.tell(), size, &file};
+
+		//Open stream
+		if(!(stream = sf_open_virtual(&sfio, SFM_READ, &info, &vio)))
+			goto end;
+
+		//Read audio data
+		c_samples = info.frames;
+		channels = info.channels;
+		sample_rate = info.samplerate;
+		samples = new float[c_samples * channels];
+
+		if(sf_readf_float(stream, samples, c_samples) != c_samples) {
+			goto error;
+		}
+		goto end;
+	error:
+		if(samples) {
+			delete [] samples;
+			samples = nullptr;
+		}
+		c_samples = 0;
+		channels = 0;
+
+	end:
+		if(stream)
+			sf_close(stream);
+		
+		//Make sure file's in the right spot for the next thing
+		file.seek(vio.origin + vio.size);
 	}
 
 	bool Sound::exists() {

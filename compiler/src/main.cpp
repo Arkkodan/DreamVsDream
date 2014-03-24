@@ -549,7 +549,16 @@ void Fighter::create(std::string name_) {
 			STRING(parser.getArg(1));
 			WORD(parser.getArgInt(2));
 			WORD(parser.getArgInt(3));
-			BYTE(parser.getArgBool(4, true));
+			const char* type = parser.getArg(4);
+			if(!strcmp(type, "screen")) {
+				BYTE(0);
+			} else if(!strcmp(type, "stay")) {
+				BYTE(1);
+			} else if(!strcmp(type, "follow")) {
+				BYTE(2);
+			} else {
+				die(std::string("Unknown effect type: ") + type);
+			}
 			BYTE(parser.getArgBool(5, false));
 			BYTE(parser.getArgInt(6));
 			BYTE(parser.getArgInt(7));
@@ -564,6 +573,8 @@ void Fighter::create(std::string name_) {
 			}
 			WORD(state);
 			STEP(Knockdown)
+			STEP(Alpha)
+			FLOAT(parser.getArgFloat(1));
 			STEP_END();
 		}
 	}

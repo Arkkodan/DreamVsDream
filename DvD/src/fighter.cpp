@@ -214,7 +214,9 @@ namespace game {
 			glUseProgram(0);
 		} else {
 			if(palette) {
-				graphics::setColor(150, 150, 150, 1.0);
+				graphics::setColor(150, 150, 150, alpha);
+			} else {
+				graphics::setColor(255, 255, 255, alpha);
 			}
 			sprites[sprite].draw(x, y, mirror, scale);
 		}

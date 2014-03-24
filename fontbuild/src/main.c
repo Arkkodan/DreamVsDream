@@ -124,6 +124,7 @@ int main(int argc, char** argv)
     }
     flag = 0;
     fwrite(&flag, 1, 1, out);
+	fwrite(&imgSize, 4, 1, out);
     fwrite(imgL, imgSize, 1, out);
     fclose(out);
 

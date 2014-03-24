@@ -2,6 +2,7 @@
 
 [Stand]
 type N, S
+alpha 1.0
 ctrl true
 sprite stand00, 12
 sprite stand01, 12
@@ -12,6 +13,7 @@ sprite stand05, 12
 
 [WalkF]
 type N, S
+alpha 1.0
 ctrl true
 sprite wc00, 6
 move 10, 0
@@ -32,6 +34,7 @@ move 10, 0
 
 [WalkB]
 type N, S
+alpha 1.0
 ctrl true
 sprite wc00, 6
 move -10, 0
@@ -52,6 +55,7 @@ move -10, 0
 
 [BeginCrouch]
 type N, C
+alpha 1.0
 ctrl true
 sprite crouch00, 4
 sprite crouch01, 4
@@ -59,6 +63,7 @@ sprite crouch02, 4
 
 [BeginStand]
 type N, S
+alpha 1.0
 ctrl true
 sprite crouch02, 4
 sprite crouch01, 4
@@ -66,20 +71,24 @@ sprite crouch00, 4
 
 [Crouch]
 type N, C
+alpha 1.0
 ctrl true
 sprite crouching, 4
 
 [BeginFall]
 type N, J
+alpha 1.0
 ctrl true
 sprite falling00, 6
 
 [Falling]
 type N, J
+alpha 1.0
 sprite falling00, 6
 
 [Land]
 type N, S
+alpha 1.0
 ctrl true
 invincible false
 sprite jump_begin01, 4
@@ -88,6 +97,7 @@ sprite jump_begin00, 4
 //Get hits
 [HitHigh]
 type H, S
+alpha 1.0
 ctrl false
 say Hurt
 sprite hitH00, 3
@@ -95,6 +105,7 @@ sprite hitH01, 1
 
 [HitMid]
 type H, S
+alpha 1.0
 ctrl false
 say Hurt
 sprite hitM00, 3
@@ -102,6 +113,7 @@ sprite hitM01, 1
 
 [HitLow]
 type H, S
+alpha 1.0
 ctrl false
 say Hurt
 sprite hitL00, 3
@@ -110,31 +122,37 @@ sprite hitL01, 1
 //KNOCKPRONE
 [KP]
 type H, J
+alpha 1.0
 ctrl false
 sprite fallp00, 4
 
 [KPFall]
 type H, J
+alpha 1.0
 ctrl false
 sprite fallp01, 10
 
 [KPFalling]
 type H, J
+alpha 1.0
 ctrl false
 sprite fallp02, 4
 
 [KPLand]
 type H, S
+alpha 1.0
 ctrl false
 sprite fallp03, 2
 
 [Prone]
 type H, S
+alpha 1.0
 ctrl false
 sprite prone, 30
 
 [RecoverProne]
 type N, S
+alpha 1.0
 ctrl false
 say Recover
 sprite recoverp00, 4
@@ -145,42 +163,50 @@ ctrl true
 //KNOCKBACK
 [KB]
 type H, J
+alpha 1.0
 ctrl false
 sprite fallb00, 4
 sprite fallb001, 4
 
 [KBFall]
 type H, J
+alpha 1.0
 ctrl false
 sprite fallb01, 10
 
 [KBFalling]
 type H, J
+alpha 1.0
 ctrl false
 sprite fallb02, 4
 
 [KBBounce]
 type H, J
+alpha 1.0
 ctrl false
 sprite fallb01, 2
 
 [KBBouncing]
 type H, J
+alpha 1.0
 ctrl false
 sprite fallb03, 2
 
 [KBLand]
 type H, S
+alpha 1.0
 ctrl false
 sprite fallb01, 4
 
 [OnBack]
 type H, S
+alpha 1.0
 ctrl false
 sprite onback, 30
 
 [RecoverBack]
 type N, S
+alpha 1.0
 ctrl false
 say Recover
 sprite recoverb00, 4
@@ -192,10 +218,10 @@ ctrl true
 //Win!
 [Victory]
 type N, S
+alpha 1.0
 say Win
 sprite win00, 32
 sprite win01, 6
-sound pinch
 sprite win02, 20
 sprite win03, 2
 sprite win04, 2
@@ -218,6 +244,7 @@ sprite win08, 1000
 
 [Defeat]
 type N, S
+alpha 1.0
 say Lose
 sprite lose00, 4
 sprite lose01, 4
@@ -233,11 +260,13 @@ sprite lose09, 1000
 //Jump
 [Jumping]
 type N, J
+alpha 1.0
 doublejump true
 sprite jumping00, 1
 
 [BeginJump]
 type N, J
+alpha 1.0
 ctrl false
 doublejump true
 sprite jump_begin00, 2
@@ -249,6 +278,7 @@ sprite jump_begin02, 2
 
 [BeginJumpB]
 type N, J
+alpha 1.0
 ctrl false
 doublejump true
 sprite jump_begin00, 2
@@ -260,6 +290,7 @@ sprite jump_begin02, 2
 
 [BeginJumpF]
 type N, J
+alpha 1.0
 ctrl false
 doublejump true
 sprite jump_begin00, 2
@@ -272,19 +303,20 @@ sprite jump_begin02, 2
 //Techs
 [JTech]
 type T, J
+alpha 1.0
 sprite jump_begin00, 1
 
 //Dashes
 [BDashF]
 type D, S
-force 8, 0
-gravity false
-//effect Dash, -10, 40, true, false, 1, 1
-sprite dash00, 5
-sprite dash01, 5
+//effect Dash, -10, 40, stay, false, 1, 1
+sprite dash00, 6
+sprite dash01, 6
+alpha 0.5
 
 [DashF]
 type D, S
+force 8, 0
 gravity false
 ctrl true
 sprite dash02, 4
@@ -295,14 +327,18 @@ type D, S
 gravity true
 sprite dash01, 3
 sprite dash00, 3
+alpha 1.0
 
 [BDashB]
 type D, S
+alpha 1.0
 sprite bdash00, 2
 sprite bdash01, 2
 sprite bdash02, 2
 
 [DashB]
+type D, S
+alpha 1.0
 force -6, 0
 gravity false
 sprite bdash03, 2
@@ -312,6 +348,7 @@ sprite bdash06, 2
 
 [EDashB]
 type D, S
+alpha 1.0
 gravity true
 sprite bdash02, 2
 sprite bdash01, 2
@@ -319,11 +356,13 @@ sprite bdash00, 2
 
 [CBlock]
 type B, C
+alpha 1.0
 ctrl false
 sprite block00, 2
 
 [Block]
 type B, S
+alpha 1.0
 ctrl false
 sprite block00, 2
 sprite block01, 10
@@ -334,9 +373,10 @@ cancel 3C
 cancel 5C
 
 type A, S
+alpha 1.0
 ctrl false
 sprite f5A00, 4
-hitspark MediumBash
+hitspark Bash_Med
 attack 4, mid, 5, 0, HitMid, true
 sprite f5A01, 6
 sprite c5A02, 6
@@ -347,11 +387,12 @@ cancel 3C
 cancel 5C
 
 type A, S
+alpha 1.0
 ctrl false
 sprite c5A00, 4
 sprite c5A01, 8
 sprite c5A02, 4
-hitspark MediumBash
+hitspark Bash_Med
 attack 5 mid, 5, 0, HitMid, true
 sprite c5A03, 2
 sprite c5A04, 6
@@ -359,12 +400,14 @@ ctrl true
 
 [5C]
 type A, S
+alpha 1.0
 ctrl false
 sprite f5C00, 8
 sprite f5C01, 6
 sprite f5C02, 4
-hitspark MediumBash
+hitspark Bash_Med
 attack 5, mid, 5, 0, HitMid, true
+effect Sabi_5C, 137, 121, follow, false, 2, 1
 sprite f5C03, 2
 sprite f5C04, 2
 sprite f5C03, 2
@@ -377,8 +420,9 @@ ctrl true
 cancel 5C
 
 type A, S
+alpha 1.0
 ctrl false
-hitspark MediumBash
+hitspark Bash_Med
 sprite 3C00, 4
 sprite 3C01, 4
 sprite 3C02, 4
@@ -400,8 +444,9 @@ cancel 3C
 cancel 5C
 
 type A, C
+alpha 1.0
 ctrl false
-hitspark MediumBash
+hitspark Bash_Med
 sprite 2C00, 4
 sprite 2C01, 6
 sprite 2C02, 3
@@ -414,6 +459,7 @@ ctrl true
 //Jump normals
 [j5A]
 type A, J
+alpha 1.0
 ctrl false
 sprite j5A00, 3
 sprite j5A01, 3
@@ -423,193 +469,17 @@ sprite j5A02, 12
 //Special moves
 [GunA]
 type A, S
+alpha 1.0
 ctrl false
-hitspark SmallCutHit
+hitspark Cut_Small
 sprite gun00, 4
 sprite gun01, 4
 sprite gun02, 4
 sprite gun03, 8
+sound Gun
 attack 4, mid, -1, 17, HitMid, true
 sprite gun04, 4
 sprite gun05, 12
 sprite gun06, 8
 ctrl true
 
-[DarkDiaryC]
-type A, S
-ctrl false
-sprite dd_1_00, 2
-sprite dd_1_01, 2
-sprite dd_1_02, 2
-sprite dd_1_03, 2
-sprite dd_1_04, 2
-sprite dd_1_05, 2
-sprite dd_1_04, 2
-sprite dd_1_05, 2
-sprite dd_1_04, 2
-sprite dd_1_06, 2
-sprite dd_1_07, 2
-sprite dd_1_08, 2
-sprite dd_1_00, 2
-
-[DarkDiaryA]
-type A, S
-ctrl false
-sprite dd_2_00, 2
-sprite dd_2_01, 2
-sprite dd_2_02, 2
-sprite dd_2_03, 2
-sprite dd_2_02, 2
-sprite dd_2_04, 2
-sprite dd_2_05, 2
-shoot DDBullet, 7, 0
-sprite dd_2_06, 2
-sprite dd_2_07, 2
-sprite dd_2_08, 2
-sprite dd_2_00, 2
-
-[DarkDiaryB]
-type A, S
-ctrl false
-sprite dd_3_00, 2
-sprite dd_3_01, 2
-sprite dd_3_02, 2
-sprite dd_3_03, 2
-sprite dd_3_02, 2
-sprite dd_3_04, 2
-sprite dd_3_05, 2
-sprite dd_3_06, 2
-sprite dd_3_07, 2
-sprite dd_3_08, 2
-
-[DDBullet]
-type A, J
-hitspark MediumBash
-attack 2, mid, 5, 0, HitMid, false
-onhit DDBulletDie
-sprite dd_bullet00, 2
-sprite dd_bullet01, 2
-sprite dd_bullet02, 2
-sprite dd_bullet03, 2
-sprite dd_bullet04, 2
-sprite dd_bullet05, 2
-sprite dd_bullet06, 2
-sprite dd_bullet07, 2
-
-[DDBulletDie]
-type A, J
-force 0, 0
-sprite dd_bullet_impact00, 2
-sprite dd_bullet_impact01, 2
-sprite dd_bullet_impact02, 2
-sprite dd_bullet_impact03, 2
-sprite dd_bullet_impact04, 2
-sprite dd_bullet_impact05, 2
-sprite dd_bullet_impact06, 2
-sprite dd_bullet_impact07, 2
-sprite dd_bullet_impact08, 2
-sprite dd_bullet_impact09, 2
-sprite dd_bullet_impact10, 2
-destroy
-
-[YukiA]
-type A, S
-ctrl false
-sprite yuki00, 4
-sprite yuki01, 6
-say Cold
-sprite yuki02, 4
-shoot Snowball, 12, 0
-sprite yuki03, 6
-sprite yuki04, 8
-move 50, 0
-ctrl true
-
-[YukiB]
-type A, S
-ctrl false
-sprite yuki00, 4
-sprite yuki01, 6
-say Cold
-sprite yuki02, 4
-shoot SnowballArc, 10, 17
-sprite yuki03, 6
-sprite yuki04, 8
-move 50, 0
-ctrl true
-
-[YukiC]
-type A, S
-ctrl false
-say Frozen
-special false
-sprite yuki01, 1
-sprite yuki02, 4
-shoot SnowballFast, 16, 0
-sprite yuki03, 3
-sprite yuki04, 3
-sprite yuki02, 4
-shoot SnowballFast, 16, 0
-sprite yuki03, 3
-sprite yuki04, 3
-sprite yuki02, 4
-shoot SnowballFast, 16, 0
-sprite yuki03, 3
-sprite yuki04, 3
-sprite yuki01, 8
-sprite yuki02, 4
-shoot SnowballSuper, 32, 0
-sprite yuki03, 6
-sprite yuki04, 12
-move 50, 0
-ctrl true
-
-[Snowball]
-type A, J
-onhit SnowballDie
-attack 4.5, mid, 5, 0, HitMid, false
-hitspark MediumBash
-sprite snowball, 16
-
-[SnowballArc]
-type A, J
-onhit SnowballDie
-gravity true
-attack 4.5, high, 5, 0, HitMid, false
-hitspark MediumBash
-sprite snowball, 16
-
-[SnowballFast]
-type A, J
-onhit SnowballDie
-attack 3.5, mid, 5, 0, HitMid, false
-hitspark MediumBash
-sprite snowball_fast, 16
-
-[SnowballSuper]
-type A, J
-onhit SnowballDie
-knockdown
-attack 3.5, mid, 5, 5, HitMid, false
-hitspark MediumBash
-sprite snowball_fast, 16
-
-[SnowballDie]
-type A, J
-force 0, 0
-sprite snowball_splat, 2
-destroy
-
-[NeonRaveA]
-type A, S
-sprite neonrave00, 4
-sprite neonrave01, 4
-sprite neonrave02, 4
-sprite neonrave03, 4
-sprite neonrave04, 4
-sprite neonrave05, 8
-sprite neonrave04, 4
-sprite neonrave03, 4
-sprite neonrave02, 4
-sprite neonrave01, 4
-sprite neonrave00, 4

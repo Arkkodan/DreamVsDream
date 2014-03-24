@@ -72,24 +72,20 @@ Image::~Image() {
 }
 
 //For reading of PNGs from memory
-struct pngStream {
-	const ubyte_t* data;
-	unsigned int offset;
-	size_t size;
+struct png_Stream {
+	png_size_t origin;
+	png_size_t size;
+	File* file;
 };
 
-void pngRead(png_structp ptr, png_bytep data, png_size_t size) {
-	pngStream* stream = (pngStream*)png_get_io_ptr(ptr);
-	if(stream == nullptr) {
+static void vio_read(png_structp ptr, png_bytep data, png_size_t size) {
+	png_Stream* stream = (png_Stream*)png_get_io_ptr(ptr);
+
+	if(stream->file->tell() + size > stream->origin + stream->size) {
 		return;
 	}
 
-	if(stream->offset + size > stream->size) {
-		return;
-	}
-
-	memcpy(data, stream->data + stream->offset, size);
-	stream->offset += size;
+	stream->file->read(data, size);
 }
 
 void Image::createFromFile(std::string filename) {
@@ -235,14 +231,6 @@ end:
 
 #ifdef GAME
 void Image::createFromEmbed(File& file, const ubyte_t* palette) {
-	uint32_t size = file.readDword();
-	ubyte_t* png = new ubyte_t[size];
-	file.read(png, size);
-	createFromMemoryPNG(png, size, palette);
-	delete [] png;
-}
-
-void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size, const ubyte_t* palette) {
     std::string err;
 
 	png_structp png_ptr = nullptr;
@@ -252,10 +240,8 @@ void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size, const ubyte
 	int png_format;
 
 	//Stream
-	pngStream stream;
-	stream.data = imgdata;
-	stream.offset = 8;
-	stream.size = size;
+	png_size_t size = file.readDword();
+	png_Stream stream = {(png_size_t)file.tell(), size, &file};
 
 	ubyte_t* data = nullptr;
 	int width;
@@ -263,7 +249,9 @@ void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size, const ubyte
 	int format;
 
 	//Check the header
-	if(png_sig_cmp(imgdata, 0, 8) != 0) {
+	png_byte header[8];
+	file.read(header, 8);
+	if(png_sig_cmp(header, 0, 8) != 0) {
 		err = "Embedded image not a valid PNG file.";
 		goto end;
 	}
@@ -279,7 +267,7 @@ void Image::createFromMemoryPNG(const ubyte_t* imgdata, size_t size, const ubyte
 		goto error;
 	}
 
-	png_set_read_fn(png_ptr, &stream, pngRead);
+	png_set_read_fn(png_ptr, &stream, vio_read);
 	png_set_sig_bytes(png_ptr, 8);
 	png_read_png(png_ptr, info_ptr, PNG_TRANSFORM_STRIP_16 | PNG_TRANSFORM_EXPAND, nullptr);
 
@@ -337,6 +325,9 @@ end:
 	if(data) {
 		free(data);
 	}
+	
+	//Move cursor back in place
+	file.seek(stream.origin + stream.size);
 
 	if(!err.empty()) {
         die(err);

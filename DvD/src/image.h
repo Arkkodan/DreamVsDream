@@ -53,7 +53,6 @@ public:
 	void createFromFile(std::string filename);
 #ifdef GAME
 	void createFromEmbed(File& file, const ubyte_t* palette);
-	void createFromMemoryPNG(const ubyte_t* imgdata, size_t size, const ubyte_t* palette);
 #endif
 #ifndef COMPILER
 	void createFromMemory(const ubyte_t* data, unsigned int width, unsigned int height, int format, const ubyte_t* palette);

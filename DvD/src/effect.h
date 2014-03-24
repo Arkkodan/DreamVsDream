@@ -4,6 +4,7 @@
 #include "globals.h"
 
 #include "image.h"
+#include "player.h"
 
 namespace effect {
     class EffectAnimation {
@@ -32,7 +33,7 @@ namespace effect {
     class Effect {
     public:
         Effect();
-        Effect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops);
+        Effect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops, game::Projectile* parent);
         ~Effect();
 
         unsigned int getCreationFrame();
@@ -49,12 +50,14 @@ namespace effect {
         int x, y;
         bool moveWithCamera;
         bool mirror;
+		
+		game::Projectile* parent;
     };
 
     void init();
     void deinit();
 
-    void newEffect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops);
+    void newEffect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops, game::Projectile* parent);
     void draw();
 }
 

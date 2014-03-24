@@ -75,6 +75,8 @@ namespace game {
 
 		float scale;
 		float idealScale;
+		float spriteAlpha;
+		float idealAlpha;
 
 		//State control stuff
 		int sprite;

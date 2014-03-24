@@ -349,7 +349,7 @@ scale 1.0
 type D, S
 force 8, 0
 gravity false
-effect Dash, -10, 40, true, false, 1, 1
+effect Dash, -10, 40, stay, false, 1, 1
 
 [DashF]
 scale 1.0
@@ -391,7 +391,7 @@ type D, J
 force 8, 0
 gravity false
 airdash true
-effect Dash, -10, 40, true, false, 1, 1
+effect Dash, -10, 40, stay, false, 1, 1
 sprite dash_air00, 2
 sprite dash_air01, 2
 sprite dash_air02, 2
@@ -416,7 +416,7 @@ force -8, 0
 gravity false
 airdash true
 mirror true
-effect Dash, 10, 40, true, true, 1, 1
+effect Dash, 10, 40, stay, true, 1, 1
 sprite dash_air00, 2
 sprite dash_air01, 2
 sprite dash_air02, 2
@@ -459,10 +459,11 @@ cancel YukiC
 type A, S
 scale 1.0
 ctrl false
+effect Mado_5A, 30, 100, follow, false, 1, 1
 sprite 5Af00, 2
 sound Papers
 say Grunt
-hitspark MediumBash
+hitspark Bash_Med
 attack 2, mid, 5, 0, HitDiary, true
 sprite 5Af01, 2
 sprite 5Af02, 4
@@ -482,10 +483,10 @@ type A, S
 scale 1.0
 ctrl false
 say 5Bf
-effect MadoStab, 30, 100, true, false, 1, 1
+effect Mado_5B, 30, 100, follow, false, 1, 1
 sprite 5Bf00, 6
 sound Swipe
-hitspark SmallCutHit
+hitspark Cut_Small
 attack 5.5, mid, 5, 0, HitKnife, true
 sprite 5Bf01, 6
 sprite 5Bf00, 8
@@ -501,7 +502,7 @@ scale 1.0
 ctrl false
 sprite throw00, 8
 sound Hand
-hitspark MediumBash
+hitspark Bash_Med
 attack 2, mid, 5, 0, HitMid, false
 sprite throw01, 4
 say 5Cf
@@ -525,9 +526,10 @@ scale 1.0
 ctrl false
 sprite 4C00, 12
 sound Hand
+effect Mado_4C, 80, 110, follow, false, 2, 1
 sprite 4C01, 4
 say 5Cf
-hitspark MediumBash
+hitspark Bash_Med
 attack 3, mid, 0, 0, HitMid, false
 sprite 4C02, 2
 attack 4, mid, -1, 17, HitMid, true
@@ -554,7 +556,7 @@ ctrl false
 sprite 5Af00, 2
 sound Papers
 say Grunt
-hitspark MediumBash
+hitspark Bash_Med
 attack 2, low, 5, 0, HitDiary, true
 sprite 5Af01, 2
 sprite 5Af02, 4
@@ -577,7 +579,7 @@ ctrl false
 say 5Bf
 sprite 5Bf00, 4
 sound Swipe
-hitspark SmallCutHit
+hitspark Cut_Small
 attack 5.5, low, 5, 0, HitKnife, true
 sprite 5Bf01, 6
 sprite 5Bf00, 8
@@ -595,7 +597,7 @@ scale 0.6
 ctrl false
 sprite throw00, 8
 sound Hand
-hitspark MediumBash
+hitspark Bash_Med
 attack 2, low, 3, 0, HitMid, false
 sprite throw01, 4
 say 5Cf
@@ -619,11 +621,12 @@ cancel j2C
 type A, J
 scale 1.0
 ctrl false
+effect Mado_j5A, 0, 80, follow, false, 2, 1
 sprite j5A00, 2
 say Grunt
 sprite j5A01, 4
 sound Papers
-hitspark MediumBash
+hitspark Bash_Med
 attack 2.5, high, 2, 0, HitDiary, true
 sprite j5A02, 3
 sprite j5A03, 8
@@ -639,9 +642,10 @@ force 0, 0
 sprite j5B00, 2
 say DualKnives
 force 2, 12
+effect Mado_j5B, 20, 130, follow, false, 2, 1
 sound Swipe
 sprite j5B01, 6
-hitspark SmallCutHit
+hitspark Cut_Small
 attack 5, high, 5, 0, HitKnife, true
 sprite j5B02, 4
 sprite j5B03, 8
@@ -658,7 +662,7 @@ ctrl false
 sprite j6B00, 4
 sound Swipe
 bounce 5, 15, 10
-hitspark SmallCutHit
+hitspark Cut_Small
 attack 7, high, 20, -40, HitKnife, true
 sprite j6B01, 4
 sprite j6B02, 6
@@ -674,7 +678,7 @@ ctrl false
 sprite j2C00, 4
 sound Hand
 say Grunt
-hitspark MediumBash
+hitspark Bash_Med
 attack 3, high, 5, 0, HitMid, false
 sprite j2C01, 4
 attack 3, high, 5, 0, HitMid, false
@@ -701,7 +705,6 @@ sprite dd_1_00, 2
 
 [DarkDiaryA]
 type A, S
-scale 1.0
 ctrl false
 sprite dd_2_00, 2
 sprite dd_2_01, 2
@@ -709,16 +712,15 @@ sprite dd_2_02, 2
 sprite dd_2_03, 2
 sprite dd_2_02, 2
 sprite dd_2_04, 2
-shoot DDBullet, 7, 0
 sprite dd_2_05, 2
-sprite dd_2_06, 2
-sprite dd_2_07, 2
-sprite dd_2_08, 2
-sprite dd_2_00, 2
+shoot DDBullet, 7, 0
+sprite dd_2_06, 4
+sprite dd_2_07, 4
+sprite dd_2_08, 4
+sprite dd_2_00, 4
 
 [DarkDiaryB]
 type A, S
-scale 1.0
 ctrl false
 sprite dd_3_00, 2
 sprite dd_3_01, 2
@@ -726,14 +728,15 @@ sprite dd_3_02, 2
 sprite dd_3_03, 2
 sprite dd_3_02, 2
 sprite dd_3_04, 2
-sprite dd_3_05, 2
-sprite dd_3_06, 2
-sprite dd_3_07, 2
-sprite dd_3_08, 2
+shoot DDBullet, 5, 5
+sprite dd_3_05, 4
+sprite dd_3_06, 4
+sprite dd_3_07, 4
+sprite dd_3_08, 4
 
 [DDBullet]
 type A, J
-hitspark MediumBash
+hitspark Bash_Med
 attack 2, mid, 5, 0, HitMid, false
 onhit DDBulletDie
 sprite dd_bullet00, 2
@@ -820,7 +823,7 @@ ctrl true
 type A, J
 onhit SnowballDie
 attack 4.5, mid, 5, 0, HitMid, false
-hitspark MediumBash
+hitspark Bash_Med
 sprite snowball, 16
 
 [SnowballArc]
@@ -828,14 +831,14 @@ type A, J
 onhit SnowballDie
 gravity true
 attack 4.5, high, 5, 0, HitMid, false
-hitspark MediumBash
+hitspark Bash_Med
 sprite snowball, 16
 
 [SnowballFast]
 type A, J
 onhit SnowballDie
 attack 3.5, mid, 5, 0, HitMid, false
-hitspark MediumBash
+hitspark Bash_Med
 sprite snowball_fast, 16
 
 [SnowballSuper]
@@ -843,7 +846,7 @@ type A, J
 onhit SnowballDie
 knockdown
 attack 3.5, mid, 5, 5, HitMid, false
-hitspark MediumBash
+hitspark Bash_Med
 sprite snowball_fast, 16
 
 [SnowballDie]

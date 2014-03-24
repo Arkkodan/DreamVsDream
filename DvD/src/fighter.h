@@ -138,6 +138,7 @@ namespace game {
 		STEP_Effect,
 		STEP_Cancel,
 		STEP_Knockdown,
+		STEP_Alpha,
 	};
 
 	#define HT_LOW 0
