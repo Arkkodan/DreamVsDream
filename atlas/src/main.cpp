@@ -168,7 +168,7 @@ int main() {
 	wchar_t** argv16 = CommandLineToArgvW(GetCommandLineW(), &argc);
 	char** argv = (char**)malloc(argc * sizeof(char*));
 	for(int i = 0; i < argc; i++) {
-		argv[i] = utf16to8(argv16[i]);
+		argv[i] = util::utf16to8(argv16[i]);
 	}
 	LocalFree(argv16);
 

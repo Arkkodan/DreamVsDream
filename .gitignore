@@ -1,0 +1,25 @@
+#Projects
+codelite/
+codeblocks/
+
+#Binary files
+obj/
+DvD/DvD
+DvD-*
+sprtool-*
+
+fontbuild/fontbuild
+COMPILE/atlas
+COMPILE/compiler
+COMPILE/sprtool
+COMPILE/chars/*/atlas/
+
+#Generated files
+*.atlas.*
+*.char
+*.bak
+
+#OSX/Windows binaries
+*.dll
+*.dylib
+*.exe

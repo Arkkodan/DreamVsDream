@@ -22,8 +22,8 @@ extern bool blackBG;
 
 void moveFile(std::string old, std::string nw) {
 #ifdef _WIN32
-	WCHAR* old16 = util::toFilename(old.c_str());
-	WCHAR* nw16 = util::toFilename(nw.c_str());
+	WCHAR* old16 = util::getPathUtf16(old);
+	WCHAR* nw16 = util::getPathUtf16(nw);
 	DWORD dwAttrib = GetFileAttributesW(nw16);
 	if(dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY)) {
 		DeleteFileW(nw16);

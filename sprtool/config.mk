@@ -26,33 +26,35 @@ endif
 
 ifeq ($(PLATFORM),linux)
 	TARGET		:= $(NAME)-$(ARCH)
-	CXXFLAGS	:= -m$(ARCH) -pthread
-	LDFLAGS		:= -m$(ARCH) -pthread -lGL
+	CXXFLAGS	:= -m$(ARCH)
+	LDFLAGS		:= -m$(ARCH) -lGL
 
 	CXX		:= clang++
 	LD		:= clang++
 else ifeq ($(PLATFORM),osx)
-	TARGET		:= $(NAME)
-	CXXFLAGS	:= -arch i386 -arch x86_64 -pthread
-	LDFLAGS		:= -arch i386 -arch x86_64 -pthread -framework OpenGL
+	TARGET	:= $(NAME)
+	CXXFLAGS	:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -stdlib=libc++
+	LDFLAGS		:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -stdlib=libc++ -framework OpenGL
 
-	CXX		:= g++
-	LD		:= g++
+	CXX		:= /opt/clang/bin/clang++
+	LD		:= /opt/clang/bin/clang++
 else ifeq ($(PLATFORM),w32)
 	TARGET		:= $(NAME)-$(ARCH).exe
 	CXXFLAGS	:= 
-	LDFLAGS		:= -mwindows -lmingw32 -lSDL2main -lws2_32 -lopengl32
+	LDFLAGS		:= -mwindows -lmingw32 -lSDL2main -lshlwapi -lopengl32
 
 	ifeq ($(ARCH),32)
 		CXX	:= i686-w64-mingw32-g++
 		LD	:= i686-w64-mingw32-g++
+		WINDRES	:= i686-w64-mingw32-windres
 	else
 		CXX	:= x86_64-w64-mingw32-g++
 		LD	:= x86_64-w64-mingw32-g++
+		WINDRES	:= x86_64-w64-mingw32-windres
 	endif
 endif
 
 # flags
-CXXFLAGS	+= -DVERSION=\"$(VERSION)\" -DSPRTOOL -std=c++11
-LDFLAGS		+= -lSDL2 -lpng -lz -std=c++11
+CXXFLAGS	+= -DVERSION=\"$(VERSION)\" -DSPRTOOL -DNO_ZLIB -std=c++11
+LDFLAGS		+= -lSDL2 -lpng -std=c++11
 

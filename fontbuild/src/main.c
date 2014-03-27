@@ -71,9 +71,9 @@ int main(int argc, char** argv)
                 //Copy everything up to this line
                 if(dataL[first] >= '0' && dataL[first] <= '9')
                     mono = atoi(dataL + first);
-                else if(!strcasecmp(dataL + first, "var")) mono = 0;
-                else if(!strcasecmp(dataL + first, "insensitive")) sensitive = 0;
-                else if(!strcasecmp(dataL + first, "sensitive")) sensitive = 1;
+                else if(!strcmp(dataL + first, "var")) mono = 0;
+                else if(!strcmp(dataL + first, "insensitive")) sensitive = 0;
+                else if(!strcmp(dataL + first, "sensitive")) sensitive = 1;
                 option++;
             }
         }

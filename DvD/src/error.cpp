@@ -7,13 +7,13 @@
 #include "os.h"
 #include "util.h"
 
-#if defined _WIN32 || defined __APPLE__
+#if !defined COMPILER && (defined _WIN32 || defined __APPLE__)
 namespace os {
     extern SDL_Window* window;
 }
 #endif
 
-#ifdef _WIN32
+#if defined _WIN32 && !defined COMPILER
 #include <SDL2/SDL_syswm.h>
 void w32_messageBox(const char* title, const char* text, int flags) {
 	SDL_SysWMinfo info;
@@ -29,22 +29,30 @@ void w32_messageBox(const char* title, const char* text, int flags) {
 #endif
 
 void error(const std::string& sz) {
+#if defined __linux__ || defined COMPILER
+	std::cerr << "error: " << sz << std::endl;
+#else
 #if defined _WIN32
 	w32_messageBox("Warning", sz.c_str(), MB_ICONWARNING);
 #elif defined __APPLE__
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", sz.c_str(), os::window);
 #else
-	std::cerr << "error: " << sz << std::endl;
+#error "don't know what error to use!"
+#endif
 #endif
 }
 
 void die(const std::string& sz) {
+#if defined __linux__ || defined COMPILER
+	std::cerr << "fatal error: " << sz << std::endl;
+#else
 #if defined _WIN32
 	w32_messageBox("Error", sz.c_str(), MB_ICONERROR);
 #elif defined __APPLE__
 	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", sz.c_str(), os::window);
 #else
-	std::cerr << "fatal error: " << sz << std::endl;
+#error "don't know what error to use!"
+#endif
 #endif
 	exit(1);
 }

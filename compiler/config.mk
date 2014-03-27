@@ -1,4 +1,4 @@
-NAME		:= DvD
+NAME		:= compiler
 VERSION		:= 0.2
 ARCH		?= 64
 CFG		?= release
@@ -27,21 +27,21 @@ endif
 ifeq ($(PLATFORM),linux)
 	TARGET		:= $(NAME)-$(ARCH)
 	CXXFLAGS	:= -m$(ARCH)
-	LDFLAGS		:= -m$(ARCH) -lGL
+	LDFLAGS		:= -m$(ARCH)
 
 	CXX		:= clang++
 	LD		:= clang++
 else ifeq ($(PLATFORM),osx)
 	TARGET	:= $(NAME)
-	CXXFLAGS	:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -stdlib=libc++ -I/opt/local/include
-	LDFLAGS		:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -stdlib=libc++ -framework OpenGL -L/opt/local/lib
+	CXXFLAGS	:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -stdlib=libc++
+	LDFLAGS		:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -stdlib=libc++
 
 	CXX		:= /opt/clang/bin/clang++
 	LD		:= /opt/clang/bin/clang++
 else ifeq ($(PLATFORM),w32)
 	TARGET		:= $(NAME)-$(ARCH).exe
 	CXXFLAGS	:= 
-	LDFLAGS		:= -mwindows -lmingw32 -lSDL2main -lws2_32 -lshlwapi -lopengl32
+	LDFLAGS		:= -lshlwapi
 
 	ifeq ($(ARCH),32)
 		CXX	:= i686-w64-mingw32-g++
@@ -55,6 +55,6 @@ else ifeq ($(PLATFORM),w32)
 endif
 
 # flags
-CXXFLAGS	+= -DVERSION=\"$(VERSION)\" -DGAME -std=c++11
-LDFLAGS		+= -lSDL2 -lpng -lgif -lz -lsndfile -std=c++11
+CXXFLAGS	+= -DVERSION=\"$(VERSION)\" -DCOMPILER -DNO_ZLIB -std=c++11
+LDFLAGS		+= -std=c++11
 

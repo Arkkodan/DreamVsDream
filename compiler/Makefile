@@ -7,7 +7,7 @@ SRC_DIR		:= src
 SRC_FILES	:= $(wildcard $(SRC_DIR)/*.cpp)
 
 DVD_SRC_DIR	:= ../DvD/src
-DVD_SRC		:= error fighter graphics image os parser sprite util file
+DVD_SRC		:= error fighter file parser sprite util
 DVD_SRC_FILES	:= $(addsuffix .cpp, $(addprefix $(DVD_SRC_DIR)/, $(DVD_SRC)))
 
 OBJ_FILES	:= $(SRC_FILES:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)

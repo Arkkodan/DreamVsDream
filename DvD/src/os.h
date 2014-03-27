@@ -1,5 +1,6 @@
 #ifndef OS_H_INCLUDED
 #define OS_H_INCLUDED
+#ifndef COMPILER
 
 #include "globals.h"
 
@@ -29,4 +30,5 @@ namespace os {
 	extern unsigned int frame;
 }
 
+#endif
 #endif // OS_H_INCLUDED

@@ -837,7 +837,7 @@ namespace game {
 				break;
 			case 2:
 				sndTransformFlow.play();
-				effect::newEffect("Transform_2kki", 0, fighter->height / 2, true, dir == LEFT, 1, 1, this);
+				effect::newEffect("Transform_flow", 0, fighter->height / 2, true, dir == LEFT, 1, 1, this);
 				break;
 			}
 			flash = 1.0f;
