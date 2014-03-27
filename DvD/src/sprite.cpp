@@ -100,6 +100,17 @@ namespace sprite {
 			} else {
 				colpos->y = pos.y + (other->pos.y + other->size.y - pos.y) / 2;
 			}
+			
+			if(colpos->x < other->pos.x) {
+				colpos->x = other->pos.x;
+			} else if(colpos->x > other->pos.x + other->size.x - 1) {
+				colpos->x = other->pos.x + other->size.x - 1;
+			}
+			if(colpos->y < other->pos.y) {
+				colpos->y = other->pos.y;
+			} else if(colpos->y > pos.y + other->size.y - 1) {
+				colpos->y = other->pos.y + other->size.y - 1;
+			}
 		}
 		return true;
 	}

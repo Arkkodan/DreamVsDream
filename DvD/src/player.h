@@ -97,6 +97,7 @@ namespace game {
 		StepBounce bounce;
 		StepBounce bounceOther;
 		bool knockdownOther;
+		int stunOther;
 
 		//Draw above priority frame
 		unsigned int drawPriorityFrame;
@@ -133,7 +134,7 @@ namespace game {
 		virtual bool isPlayer();
 	};
 
-	#define MAX_PROJECTILES 16
+	#define MAX_PROJECTILES 128
 
 	class Player : public Projectile {
 	public:

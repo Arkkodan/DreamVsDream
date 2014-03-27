@@ -1,24 +1,60 @@
 [2 4 A]
 @GunA
 onground
+[2 4 ~2 A]
+@GunA
+onground
+
+[2 4 B]
+@GunB
+onground
+[2 4 ~2 B]
+@GunB
+onground
+
+[2 4 C]
+@GunC
+onground
+[2 4 ~2 C]
+@GunC
+onground
+
+[2 6 A]
+@WhistleA
+onground
+[2 6 ~2 A]
+@WhistelA
+onground
+
+[2 6 B]
+@WhistleB
+onground
+[2 6 ~2 B]
+@WhistelB
+onground
+
+[2 6 C]
+@WhistleC
+onground
+[2 6 ~2 C]
+@WhistelC
+onground
 
 [6 ~6 6]
 @BDashF
 onground
-@JDashF
-!onground
-!airdash
 
 [4 ~4 4]
 @BDashB
 onground
-@JDashB
-!onground
-!airdash
 
 [3C]
 @3C
 onground
+
+[bC]
+@j4C
+!onground
 
 [dA]
 @2A
@@ -32,10 +68,6 @@ onground
 @2C
 onground
 @j2C
-!onground
-
-[fB]
-@j6B
 !onground
 
 [A]

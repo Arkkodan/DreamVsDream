@@ -1,4 +1,5 @@
-BGM bgm
+BGM loop
+BGM2 intro2, loop2
 THUMBNAIL thumbnail
 
 IMAGE_B 1.0, 1

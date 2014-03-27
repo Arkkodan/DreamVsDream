@@ -7,7 +7,7 @@
 #include "graphics.h"
 #include "util.h"
 
-#define EFFECT_MAX 64
+#define EFFECT_MAX 256
 
 namespace effect {
     //VARIABLES

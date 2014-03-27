@@ -1,11 +1,11 @@
 [A]
 @Punch
-onGround
+onground
 
 [B]
 @Stab
-onGround
+onground
 
 [C]
 @Kick
-onGround
+onground
