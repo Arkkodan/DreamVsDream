@@ -819,9 +819,21 @@ namespace game {
 		case STEP_Special:
 			special = 2500 * SPF;
 			pause(2500 * SPF);
-			((MenuSelect*)menus[MENU_SELECT])->newEffect(playerNum, 0);
 			effect::newEffect("Actionlines", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
-			effect::newEffect("Transform_yn", pos.x, pos.y + fighter->height / 2, true, dir == LEFT, 1, 1, this);
+			switch(fighter->group) {
+			case 0:
+				sndTransformYn.play();
+				effect::newEffect("Transform_yn", 0, fighter->height / 2, true, dir == LEFT, 1, 1, this);
+				break;
+			case 1:
+				sndTransform2kki.play();
+				effect::newEffect("Transform_2kki", 0, fighter->height, true, dir == LEFT, 1, 1, this);
+				break;
+			case 2:
+				sndTransformFlow.play();
+				effect::newEffect("Transform_2kki", 0, fighter->height / 2, true, dir == LEFT, 1, 1, this);
+				break;
+			}
 			flash = 1.0f;
 			break;
 		case STEP_Shoot:
@@ -973,9 +985,11 @@ namespace game {
                                 effect::newEffect(spark, colpos.x, colpos.y, true, dir == LEFT, 1, 1, nullptr);
 
 							pother->takeDamage(attack.damage);
-							pother->bounce.force.x = bounceOther.force.x * mirror;
-							pother->bounce.force.y = bounceOther.force.y;
-							pother->bounce.pause = bounceOther.pause;
+							if(pother->flags & F_ON_GROUND) {
+								pother->bounce.force.x = bounceOther.force.x * mirror;
+								pother->bounce.force.y = bounceOther.force.y;
+								pother->bounce.pause = bounceOther.pause;
+							}
 							if(knockdownOther) {
 								pother->flags |= F_KNOCKDOWN;
 							}

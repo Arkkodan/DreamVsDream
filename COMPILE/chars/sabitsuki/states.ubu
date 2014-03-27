@@ -273,7 +273,7 @@ sprite jump_begin00, 2
 sprite jump_begin01, 2
 say Grunt
 ctrl true
-force 0, 18
+force 0, 16
 sprite jump_begin02, 2
 
 [BeginJumpB]
@@ -285,7 +285,7 @@ sprite jump_begin00, 2
 sprite jump_begin01, 2
 say Grunt
 ctrl true
-force -3, 18
+force -4, 16
 sprite jump_begin02, 2
 
 [BeginJumpF]
@@ -297,7 +297,7 @@ sprite jump_begin00, 2
 sprite jump_begin01, 2
 say Grunt
 ctrl true
-force 3, 18
+force 4, 16
 sprite jump_begin02, 2
 
 //Techs
@@ -368,6 +368,12 @@ sprite block00, 2
 sprite block01, 10
 
 [5A]
+cancel GunA
+cancel GunB
+cancel GunC
+cancel BeginJumpF
+cancel BeginJumpB
+cancel BeginJump
 cancel 5B
 cancel 3C
 cancel 5C
@@ -383,6 +389,12 @@ sprite c5A02, 6
 ctrl true
 
 [5B]
+cancel GunA
+cancel GunB
+cancel GunC
+cancel BeginJumpF
+cancel BeginJumpB
+cancel BeginJump
 cancel 3C
 cancel 5C
 
@@ -392,13 +404,20 @@ ctrl false
 sprite c5A00, 4
 sprite c5A01, 8
 sprite c5A02, 4
+bounce 5, 15, 10
 hitspark Bash_Med
-attack 5 mid, 5, 0, HitMid, true
+attack 6 mid, 5, -20, HitMid, true
 sprite c5A03, 2
 sprite c5A04, 6
 ctrl true
 
 [5C]
+cancel GunA
+cancel GunB
+cancel GunC
+cancel BeginJumpF
+cancel BeginJumpB
+cancel BeginJump
 type A, S
 alpha 1.0
 ctrl false
@@ -406,17 +425,24 @@ sprite f5C00, 8
 sprite f5C01, 6
 sprite f5C02, 4
 hitspark Bash_Med
-attack 5, mid, 5, 0, HitMid, true
+attack 1.5, mid, 10, 0, HitMid, false
 effect Sabi_5C, 137, 121, follow, false, 2, 1
 sprite f5C03, 2
 sprite f5C04, 2
 sprite f5C03, 2
+attack 1.5, mid, 10, 0, HitMid, true
 sprite f5C04, 4
 sprite f5C01, 6
 sprite f5C00, 6
 ctrl true
 
 [3C]
+cancel GunA
+cancel GunB
+cancel GunC
+cancel BeginJumpF
+cancel BeginJumpB
+cancel BeginJump
 cancel 5C
 
 type A, S
@@ -426,9 +452,11 @@ hitspark Bash_Med
 sprite 3C00, 4
 sprite 3C01, 4
 sprite 3C02, 4
-attack 4, mid, -1, 17, HitMid, true
+attack 1.5, low, 1, 4, HitMid, false
 sprite 3C03, 4
 sprite 3C04, 4
+knockdown
+attack 2.5, low, 1, 4, HitMid, true
 sprite 3C05, 4
 sprite 3C06, 4
 sprite 3C07, 4
@@ -438,7 +466,35 @@ sprite 3C01, 4
 sprite 3C00, 4
 ctrl true
 
+[2B]
+cancel GunA
+cancel GunB
+cancel GunC
+cancel BeginJumpF
+cancel BeginJumpB
+cancel BeginJump
+cancel 5B
+cancel 2C
+cancel 3C
+cancel 5C
+
+type A, C
+alpha 1.0
+ctrl false
+hitspark Bash_Med
+sprite 2B01, 4
+attack 6, low, 5, 0, HitMid, true
+sprite 2B00, 4
+sprite 2B01, 6
+ctrl true
+
 [2C]
+cancel GunA
+cancel GunB
+cancel GunC
+cancel BeginJumpF
+cancel BeginJumpB
+cancel BeginJump
 cancel 5A
 cancel 3C
 cancel 5C
@@ -450,7 +506,7 @@ hitspark Bash_Med
 sprite 2C00, 4
 sprite 2C01, 6
 sprite 2C02, 3
-attack 4, mid, -1, 17, HitMid, true
+attack 6.3, mid, 6, 0, HitMid, true
 sprite 2C03, 4
 sprite 2C02, 2
 sprite 2C01, 2
@@ -458,13 +514,51 @@ ctrl true
 
 //Jump normals
 [j5A]
+cancel j5B
+
 type A, J
 alpha 1.0
 ctrl false
+hitspark Bash_Med
 sprite j5A00, 3
 sprite j5A01, 3
-attack 2.5, high, 2, 0, HitMid, true
+attack 3.8, high, 2, 0, HitMid, true
 sprite j5A02, 12
+
+[j5B]
+cancel j5C
+
+type A, J
+alpha 1.0
+ctrl false
+hitspark Bash_Med
+sprite j5B00, 2
+sprite j5B01, 3
+sprite j5B02, 6
+sprite j5B03, 2
+attack 7, high, 5, -20, HitMid, true
+sprite j5B04, 4
+sprite j5B05, 4
+ctrl true
+
+[j4C]
+type A, J
+alpha 1.0
+ctrl false
+hitspark Cut_Small
+gravity false
+force 0, 0
+sprite jgun00, 2
+sprite jgun01, 2
+sprite jgun02, 4
+force -7, 0
+sound Gun
+attack 2, high, 5, 0, HitMid, true
+sprite jgun03, 4
+gravity true
+sprite jgun04, 4
+sprite jgun05, 6
+ctrl true
 
 //Special moves
 [GunA]
@@ -477,9 +571,54 @@ sprite gun01, 4
 sprite gun02, 4
 sprite gun03, 8
 sound Gun
-attack 4, mid, -1, 17, HitMid, true
+attack 2, mid, 5, 0, HitMid, true
 sprite gun04, 4
 sprite gun05, 12
 sprite gun06, 8
 ctrl true
 
+[GunB]
+type A, S
+alpha 1.0
+ctrl false
+hitspark Cut_Small
+sprite gun00, 4
+sprite gun01, 4
+sprite gun02, 4
+sprite gun03, 16
+sound Gun
+attack 2, mid, 5, 0, HitMid, true
+sprite gun04, 4
+sprite gun03, 4
+sound Gun
+attack 2, mid, 5, 0, HitMid, true
+sprite gun04, 4
+sprite gun05, 12
+sprite gun06, 8
+ctrl true
+
+[GunC]
+type A, S
+alpha 1.0
+ctrl false
+hitspark Cut_Small
+special false
+sprite gun00, 4
+sprite gun01, 4
+sprite gun02, 4
+sprite gun03, 16
+sound Gun
+attack 2, mid, 5, 0, HitMid, true
+sprite gun04, 2
+sprite gun03, 2
+sound Gun
+attack 2, mid, 5, 0, HitMid, true
+sprite gun04, 2
+sprite gun03, 2
+knockdown
+sound Gun
+attack 4, mid, 5, 2, HitMid, true
+sprite gun04, 2
+sprite gun05, 12
+sprite gun06, 8
+ctrl true

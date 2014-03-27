@@ -14,6 +14,10 @@ namespace game {
 	//Init/deinit
 	void init();
 	void deinit();
+	
+	extern audio::Sound sndTransformYn;
+	extern audio::Sound sndTransform2kki;
+	extern audio::Sound sndTransformFlow;
 #endif
 	enum {
 		SBOOL_UNDEFINED = -1,

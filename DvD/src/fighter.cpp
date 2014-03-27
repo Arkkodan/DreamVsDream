@@ -11,7 +11,14 @@ namespace game {
 	Fighter fighters[FIGHTERS_MAX];
 
 #ifdef GAME
+	audio::Sound sndTransformYn;
+	audio::Sound sndTransform2kki;
+	audio::Sound sndTransformFlow;
+	
 	void init() {
+		sndTransformYn.createFromFile("effects/Transform_yn.wav");
+		sndTransform2kki.createFromFile("effects/Transform_2kki.wav");
+		sndTransformFlow.createFromFile("effects/Transform_flow.wav");
 		fighters[0].create("madotsuki");
 		fighters[1].create("maddysucky");
 		fighters[2].create("sabitsuki");
