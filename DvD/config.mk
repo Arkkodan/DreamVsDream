@@ -32,11 +32,7 @@ ifeq ($(PLATFORM),linux)
 	CXX		:= clang++
 	LD		:= clang++
 else ifeq ($(PLATFORM),osx)
-	ifeq ($(CFG,debug)
-		TARGET	:= $(NAME)
-	else
-		TARGET	:= ../OSX/Dream vs. Dream.app/Contents/MacOS/$(NAME)
-	endif
+	TARGET	:= $(NAME)
 	CXXFLAGS	:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -pthread -stdlib=libc++
 	LDFLAGS		:= -mmacosx-version-min=10.6 -isysroot /Developer/SDKs/MacOSX10.6.sdk -arch i386 -arch x86_64 -stdlib=libc++ -framework OpenGL
 

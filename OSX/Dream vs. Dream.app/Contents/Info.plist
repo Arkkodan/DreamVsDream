@@ -19,7 +19,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>org.dreamvsdream.DvD</string>
 	<key>CFBundleIconFile</key>
-	<string>dreamvsdream.icns</string>
+	<string>icon.icns</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleInfoDictionaryVersion</key>
