@@ -575,6 +575,8 @@ void Fighter::create(std::string name_) {
 			STEP(Knockdown)
 			STEP(Alpha)
 			FLOAT(parser.getArgFloat(1));
+			STEP(Stun)
+			WORD(parser.getArgInt(1));
 			STEP_END();
 		}
 	}

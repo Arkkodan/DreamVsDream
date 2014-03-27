@@ -15,25 +15,25 @@ mid2
 //mid3
 mid4
 
+[Pipe]
+pipe1
+pipe2
+pipe3
+pipe4
+
 //Swipes
 [Swipe]
-lSwipe1
-lSwipe2
+mSwipe1
+mSwipe2
 
 //Diary sounds
 [HitDiary]
 DiaryHit1
 DiaryHit2
 
-//Hand
-[Hand]
-hand
-
-[Frog]
-frog
-
-[Pinch]
-pinch
+//Misc
+[Whistle]
+whistle
 
 [Gun]
 gun

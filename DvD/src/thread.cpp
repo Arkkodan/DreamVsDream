@@ -35,17 +35,17 @@ void Thread::join() {
 //Mutex
 
 Mutex::Mutex() {
-    mutex = SDL_CreateMutex();
+    //mutex = SDL_CreateMutex();
 }
 
 Mutex::~Mutex() {
-    SDL_DestroyMutex(mutex);
+    //SDL_DestroyMutex(mutex);
 }
 
 void Mutex::lock() {
-    SDL_LockMutex(mutex);
+    //SDL_LockMutex(mutex);
 }
 
 void Mutex::unlock() {
-    SDL_UnlockMutex(mutex);
+    //SDL_UnlockMutex(mutex);
 }

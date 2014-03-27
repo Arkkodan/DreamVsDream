@@ -383,7 +383,7 @@ alpha 1.0
 ctrl false
 sprite f5A00, 4
 hitspark Bash_Med
-attack 4, mid, 5, 0, HitMid, true
+attack 4, mid, 5, 0, Pipe, true
 sprite f5A01, 6
 sprite c5A02, 6
 ctrl true
@@ -403,10 +403,11 @@ alpha 1.0
 ctrl false
 sprite c5A00, 4
 sprite c5A01, 8
+sound Swipe
 sprite c5A02, 4
 bounce 5, 15, 10
 hitspark Bash_Med
-attack 6 mid, 5, -20, HitMid, true
+attack 6 mid, 5, -20, Pipe, true
 sprite c5A03, 2
 sprite c5A04, 6
 ctrl true
@@ -424,7 +425,7 @@ ctrl false
 sprite f5C00, 8
 sprite f5C01, 6
 sprite f5C02, 4
-hitspark Bash_Med
+hitspark Electric
 attack 1.5, mid, 10, 0, HitMid, false
 effect Sabi_5C, 137, 121, follow, false, 2, 1
 sprite f5C03, 2
@@ -483,7 +484,7 @@ alpha 1.0
 ctrl false
 hitspark Bash_Med
 sprite 2B01, 4
-attack 6, low, 5, 0, HitMid, true
+attack 6, low, 5, 0, Pipe, true
 sprite 2B00, 4
 sprite 2B01, 6
 ctrl true
@@ -534,9 +535,10 @@ ctrl false
 hitspark Bash_Med
 sprite j5B00, 2
 sprite j5B01, 3
+sound Swipe
 sprite j5B02, 6
 sprite j5B03, 2
-attack 7, high, 5, -20, HitMid, true
+attack 7, high, 5, -20, Pipe, true
 sprite j5B04, 4
 sprite j5B05, 4
 ctrl true
@@ -622,3 +624,76 @@ sprite gun04, 2
 sprite gun05, 12
 sprite gun06, 8
 ctrl true
+
+[WhistleA]
+type A, S
+alpha 1.0
+ctrl false
+sprite whistle00, 3
+sprite whistle01, 3
+sprite whistle02, 3
+sprite whistle03, 3
+sound Whistle
+effect Sabi_whistle_boom, 100, 100, stay, false, 2, 1
+shoot ShockwaveA, 5, 0
+sprite whistle04, 4
+sprite whistle05, 4
+sprite whistle06, 4
+ctrl true
+
+[WhistleB]
+type A, S
+alpha 1.0
+ctrl false
+sprite whistle00, 4
+sprite whistle01, 4
+sprite whistle02, 4
+sprite whistle03, 4
+sound Whistle
+shoot ShockwaveB, 0, 0
+sprite whistle04, 4
+sprite whistle05, 5
+sprite whistle06, 5
+ctrl true
+
+[WhistleC]
+type A, S
+alpha 1.0
+ctrl false
+special false
+sprite whistle00, 3
+sprite whistle01, 3
+sprite whistle02, 3
+sprite whistle03, 3
+sound Whistle
+shoot ShockwaveC, 0, 0
+sprite whistle04, 4
+sprite whistle05, 5
+sprite whistle06, 5
+ctrl true
+
+[ShockwaveA]
+effect Sabi_whistle_projectile, 0, 0, follow, false, 2, 20
+hitspark none
+stun 40
+knockdown
+attack 0, mid, 0, 0, HitMid, false
+sprite whistle_a, 255
+
+[ShockwaveB]
+effect Sabi_whistle_radial, 0, 0, follow, false, 2, 1
+hitspark none
+stun 40
+knockdown
+attack 0, mid, 0, 0, HitMid, false
+sprite whistle_b, 10
+destroy
+
+[ShockwaveC]
+effect Sabi_whistle_super, 0, 0, follow, false, 2, 1
+hitspark none
+stun 80
+knockdown
+attack 0, mid, 0, 0, HitMid, false
+sprite whistle_c, 10
+destroy

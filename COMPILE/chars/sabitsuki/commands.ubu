@@ -19,6 +19,27 @@ onground
 @GunC
 onground
 
+[2 6 A]
+@WhistleA
+onground
+[2 6 ~2 A]
+@WhistelA
+onground
+
+[2 6 B]
+@WhistleB
+onground
+[2 6 ~2 B]
+@WhistelB
+onground
+
+[2 6 C]
+@WhistleC
+onground
+[2 6 ~2 C]
+@WhistelC
+onground
+
 [6 ~6 6]
 @BDashF
 onground

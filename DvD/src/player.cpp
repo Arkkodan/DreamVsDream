@@ -56,6 +56,7 @@ namespace game {
 		type('N'),
 		movetype('S'),
 		knockdownOther(false),
+		stunOther(0),
 		drawPriorityFrame(0),
 		flash(0.0f) {
 	}
@@ -240,6 +241,9 @@ namespace game {
 		case STEP_Alpha:
 			idealAlpha = readFloat();
 			break;
+		case STEP_Stun:
+			stunOther = readWord();
+			break;
 		}
 	}
 
@@ -268,6 +272,7 @@ namespace game {
 		bounceOther.force.y = 0.0f;
 		bounceOther.pause = 0;
 		knockdownOther = false;
+		stunOther = false;
 		if(isPlayer()) {
 			flags |= F_GRAVITY;
 			flags &= ~F_MIRROR;
@@ -568,7 +573,7 @@ namespace game {
 					vel.x = 0;
 				}
 				vel.y = TECH_GROUND_FORCE_Y;
-			} else if(!hitstun) {
+			} else if(!hitstun && !pausestun && !(flags & F_KNOCKDOWN)) {
 				//Enter air tech
 				juggle = 1.0f;
 				setStandardStateByInput(STATE_JTECH);
@@ -639,6 +644,7 @@ namespace game {
 							vel.y = bounce.force.y;
 							bounce.force.x = 0;
 							bounce.force.y = 0;
+							hitstun = JHITSTUN;
 							if(isKnockedBack()) {
 								setStandardState(STATE_KB_BOUNCE);
 							} else if(isKnockedProne()) {
@@ -899,7 +905,7 @@ namespace game {
 			pself = (Player*)this;
 		}
 		if(fighter->sprites[sprite].aHitBoxes.size && !(other->flags & F_INVINCIBLE)) {
-			if(!frameHit && attack.damage) {
+			if(!frameHit && (attack.damage || stunOther)) {
 				util::Vector colpos;
 				int hit = fighter->sprites[sprite].collide(
 					      (int)pos.x, (int)pos.y, (int)other->pos.x, (int)other->pos.y,
@@ -980,12 +986,14 @@ namespace game {
 							if(pself) {
 								pself->comboCounter++;
 							}
+							
+							pother->pausestun = 0;
 
                             if(spark != "none")
                                 effect::newEffect(spark, colpos.x, colpos.y, true, dir == LEFT, 1, 1, nullptr);
 
 							pother->takeDamage(attack.damage);
-							if(pother->flags & F_ON_GROUND) {
+							if(!(pother->flags & F_ON_GROUND)) {
 								pother->bounce.force.x = bounceOther.force.x * mirror;
 								pother->bounce.force.y = bounceOther.force.y;
 								pother->bounce.pause = bounceOther.pause;
@@ -1039,6 +1047,9 @@ namespace game {
 								break;
 							}
 
+							if(stunOther) {
+								pother->pausestun = stunOther;
+							}
 							if(pother->flags & F_ON_GROUND) {
 								pother->hitstun = HITSTUN;
 							} else {
@@ -1050,7 +1061,7 @@ namespace game {
 									}
 								}
 							}
-						}
+					}
 					}
 
 					if(onhit != STATE_NONE) {
