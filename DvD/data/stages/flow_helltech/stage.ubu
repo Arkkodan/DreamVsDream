@@ -6,7 +6,7 @@ IMAGE_B 0.4, 0.4
 IMAGE_B 0.6, 0.6
 IMAGE_B 1.0, 1
 
-IMAGE_A 1.2, 0, 0, 1.2
+IMAGE_A 1.2, 1.2
 
 //Height from bottom of stage that chars will stand on
 HEIGHT 30
