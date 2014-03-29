@@ -573,6 +573,8 @@ namespace game {
 					vel.x = 0;
 				}
 				vel.y = TECH_GROUND_FORCE_Y;
+				
+				flags &= ~F_OTG;
 			} else if(!hitstun && !pausestun && !(flags & F_KNOCKDOWN)) {
 				//Enter air tech
 				juggle = 1.0f;
@@ -581,6 +583,8 @@ namespace game {
 				flags |= F_INVINCIBLE;
 				vel.x = TECH_FORCE_X * (dir == RIGHT ? -1 : 1);
 				vel.y = TECH_FORCE_Y;
+				
+				flags &= ~F_OTG;
 			}
 		}
 
@@ -650,7 +654,14 @@ namespace game {
 							} else if(isKnockedProne()) {
 								setStandardState(STATE_KP_FALLING);
 							}
+							//If character was already knocked to the ground, make her invincible
 							flags &= ~F_ON_GROUND;
+							if(flags & F_OTG) {
+								flags |= F_INVINCIBLE;
+								flags &= ~F_OTG;
+							} else {
+								flags |= F_OTG;
+							}
 						} else {
 							vel.y = 0;
 							if(isKnockedBack()) {
@@ -912,7 +923,7 @@ namespace game {
 					      isMirrored(), other->isMirrored(),
 					      scale, other->scale,
 					      other->fighter->sprites + other->sprite,
-					      &colpos);
+					      &colpos, false);
 
 				if(hit == sprite::HIT_HIT) {
 					//Automatically reset draw priority
@@ -1103,7 +1114,7 @@ namespace game {
 			}
 
 			util::Vector c;
-			if(me.collideOther(&you, &c)) {
+			if(me.collideOther(&you, &c, true)) {
 				//Move us away from each other
 				if(me.pos.x < you.pos.x) {
 					//pos.x = other->pos.x - other->fighter->widthLeft * 2 - fighter->widthRight * 2;
@@ -1143,7 +1154,7 @@ namespace game {
 			}
 
 			//Check combo counter
-			if(!pother->isBeingHit() && !pself->isAttacking()) {
+			if(!pother->isBeingHit()) {
 				pself->comboCounter = 0;
 			}
 		}

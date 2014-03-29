@@ -261,7 +261,6 @@ sprite lose09, 1000
 [Jumping]
 type N, J
 alpha 1.0
-doublejump true
 sprite jumping00, 1
 
 [BeginJump]
@@ -404,6 +403,7 @@ ctrl false
 sprite c5A00, 4
 sprite c5A01, 8
 sound Swipe
+effect Sabi_5B, 50, 140, follow, false, 1, 1
 sprite c5A02, 4
 bounce 5, 15, 10
 hitspark Bash_Med
@@ -516,6 +516,7 @@ ctrl true
 //Jump normals
 [j5A]
 cancel j5B
+cancel j5C
 
 type A, J
 alpha 1.0
@@ -535,12 +536,27 @@ ctrl false
 hitspark Bash_Med
 sprite j5B00, 2
 sprite j5B01, 3
+effect Sabi_j5B, 60, 90, follow, false, 2, 1
 sound Swipe
 sprite j5B02, 6
 sprite j5B03, 2
+knockdown
 attack 7, high, 5, -20, Pipe, true
 sprite j5B04, 4
 sprite j5B05, 4
+ctrl true
+
+[j5C]
+type A, J
+alpha 1.0
+ctrl false
+hitspark Bash_Med
+sprite j5C00, 5
+sprite j5C01, 5
+sound Swipe
+attack 9, high, 5, 0, Pipe, true
+sprite j5C02, 3
+sprite j5C03, 6
 ctrl true
 
 [j4C]

@@ -72,7 +72,7 @@ namespace sprite {
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	bool HitBox::collideOther(HitBox* other, util::Vector* colpos) {
+	bool HitBox::collideOther(HitBox* other, util::Vector* colpos, bool allowOutOfBounds) {
 		if(pos.x + size.x < other->pos.x) {
 			return false;
 		}
@@ -101,15 +101,17 @@ namespace sprite {
 				colpos->y = pos.y + (other->pos.y + other->size.y - pos.y) / 2;
 			}
 			
-			if(colpos->x < other->pos.x) {
-				colpos->x = other->pos.x;
-			} else if(colpos->x > other->pos.x + other->size.x - 1) {
-				colpos->x = other->pos.x + other->size.x - 1;
-			}
-			if(colpos->y < other->pos.y) {
-				colpos->y = other->pos.y;
-			} else if(colpos->y > pos.y + other->size.y - 1) {
-				colpos->y = other->pos.y + other->size.y - 1;
+			if(!allowOutOfBounds) {
+				if(colpos->x < other->pos.x) {
+					colpos->x = other->pos.x;
+				} else if(colpos->x > other->pos.x + other->size.x - 1) {
+					colpos->x = other->pos.x + other->size.x - 1;
+				}
+				if(colpos->y < other->pos.y) {
+					colpos->y = other->pos.y;
+				} else if(colpos->y > pos.y + other->size.y - 1) {
+					colpos->y = other->pos.y + other->size.y - 1;
+				}
 			}
 		}
 		return true;
@@ -130,7 +132,7 @@ namespace sprite {
 		return adj;
 	}
 
-	int Sprite::collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1, float scale2, Sprite* other, util::Vector* colpos) {
+	int Sprite::collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1, float scale2, Sprite* other, util::Vector* colpos, bool allowOutOfBounds) {
 		//Check for attack hitbox collision with other sprite
 		for(int i = 0; i < aHitBoxes.size; i++) {
 			HitBox me = aHitBoxes.boxes[i].adjust(x1, y1, m1, scale1);
@@ -138,14 +140,14 @@ namespace sprite {
 			//First, enemy attack hitboxes
 			for(int j = 0; j < other->aHitBoxes.size; j++) {
 				HitBox you = other->aHitBoxes.boxes[j].adjust(x2, y2, m2, scale2);
-				if(me.collideOther(&you, colpos)) {
+				if(me.collideOther(&you, colpos, allowOutOfBounds)) {
 					return HIT_ATTACK;
 				}
 			}
 			//Now, normal enemy hitboxes
 			for(int j = 0; j < other->hitBoxes.size; j++) {
 				HitBox you = other->hitBoxes.boxes[j].adjust(x2, y2, m2, scale2);
-				if(me.collideOther(&you, colpos)) {
+				if(me.collideOther(&you, colpos, allowOutOfBounds)) {
 					return HIT_HIT;
 				}
 			}

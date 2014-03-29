@@ -48,6 +48,16 @@ void Menu::setMenu(int _menu) {
 	if(_menu == menu) {
 		return;
 	}
+	if(_menu == MENU_FIGHT) {
+		madotsuki.reset();
+		poniko.reset();
+		extern util::Vector cameraPos;
+		extern util::Vector idealCameraPos;
+		cameraPos.x = 0;
+		cameraPos.y = 0;
+		idealCameraPos.x = 0;
+		idealCameraPos.y = 0;
+	}
 	menuNew = _menu;
 	fade = 1.0f;
 	fadeIn = false;
@@ -1209,12 +1219,6 @@ void MenuVersus::think() {
 	} else if(timer6 > 0) {
 		timer6--;
 		if(!timer6) {
-			/*extern util::Vector cameraPos;
-			extern util::Vector idealCameraPos;
-			cameraPos.x = 0;
-			cameraPos.y = 0;
-			idealCameraPos.x = 0;
-			idealCameraPos.y = 0;*/
 			setMenu(MENU_FIGHT);
 		}
 	}
@@ -1812,14 +1816,22 @@ void MenuFight::think() {
 
 		//Combo counters
 		//LEFT
-		if(madotsuki.comboCounter > 1 && !ko_player) {
-			if(comboLeftLast < madotsuki.comboCounter) {
-				comboLeftTimer = FPS;
-			} else if(comboLeftLast > madotsuki.comboCounter) {
-				comboLeftOff = 0;
-				comboLeftTimer = FPS;
+		if(!ko_player) {
+			if(madotsuki.comboCounter) {
+				if(madotsuki.comboCounter == 1) {
+					comboLeftOff = 0;
+					comboLeftTimer = 0;
+				}
+				else if(madotsuki.comboCounter >= 2) {
+					if(comboLeftLast < madotsuki.comboCounter) {
+						comboLeftTimer = FPS;
+					} else if(comboLeftLast > madotsuki.comboCounter) {
+						comboLeftOff = 0;
+						comboLeftTimer = FPS;
+					}
+				}
+				comboLeftLast = madotsuki.comboCounter;
 			}
-			comboLeftLast = madotsuki.comboCounter;
 		}
 
 		if(comboLeftTimer) {
@@ -1879,14 +1891,6 @@ void MenuFight::think() {
 			}
 		}
 		if(timer_round_in == (int)(4.0 * FPS)) {
-			madotsuki.reset();
-			poniko.reset();
-			extern util::Vector cameraPos;
-			extern util::Vector idealCameraPos;
-			cameraPos.x = 0;
-			cameraPos.y = 0;
-			idealCameraPos.x = 0;
-			idealCameraPos.y = 0;
 			fadeinSnd.play();
 		}
 		if(timer_round_out == (int)(1.5 * FPS)) {

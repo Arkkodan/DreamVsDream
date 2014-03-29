@@ -85,6 +85,8 @@ onground
 [C]
 @5C
 onground
+@j5C
+!onground
 
 [7]
 @BeginJumpB
