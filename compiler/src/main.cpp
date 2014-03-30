@@ -156,6 +156,7 @@ namespace game {
 
 		"Block",
 		"CBlock",
+		"JBlock",
 
 		"KB",
 		"KBFall",

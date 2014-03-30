@@ -1891,6 +1891,14 @@ void MenuFight::think() {
 			}
 		}
 		if(timer_round_in == (int)(4.0 * FPS)) {
+			madotsuki.reset();
+			poniko.reset();
+			extern util::Vector cameraPos;
+			extern util::Vector idealCameraPos;
+			cameraPos.x = 0;
+			cameraPos.y = 0;
+			idealCameraPos.x = 0;
+			idealCameraPos.y = 0;
 			fadeinSnd.play();
 		}
 		if(timer_round_out == (int)(1.5 * FPS)) {

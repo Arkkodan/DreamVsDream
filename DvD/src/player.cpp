@@ -986,6 +986,8 @@ namespace game {
 
 							if(pother->isCrouching()) {
 								pother->setStandardState(STATE_CROUCH_BLOCK);
+							} else if(pother->isJumping()) {
+								pother->setStandardState(STATE_JUMP_BLOCK);
 							} else {
 								pother->setStandardState(STATE_BLOCK);
 							}

@@ -129,12 +129,22 @@ namespace audio {
 			for(int j = 0; j < SOUND_SOURCE_MAX; j++) {
 				Sound* sound = sound_sources[j].sound;
 				if(sound) {
-					if(sound->channels == 1) {
-						out[0] += sound->samples[(int)sound_sources[j].i_sample] * sound_volume;
-						out[1] += sound->samples[(int)sound_sources[j].i_sample] * sound_volume;
-					} else if(sound->channels == 2) {
-						out[0] += sound->samples[((int)sound_sources[j].i_sample) * 2] * sound_volume;
-						out[1] += sound->samples[((int)sound_sources[j].i_sample) * 2 + 1] * sound_volume;
+					if(menu == MENU_FIGHT && stage == 3) {
+						if(sound->channels == 1) {
+							out[0] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] * sound_volume;
+							out[1] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] * sound_volume;
+						} else if(sound->channels == 2) {
+							out[0] += sound->samples[((int)sound_sources[j].i_sample) / 8 * 8 * 2] * sound_volume;
+							out[1] += sound->samples[((int)sound_sources[j].i_sample) / 8 * 8 * 2 + 1] * sound_volume;
+						}
+					} else {
+						if(sound->channels == 1) {
+							out[0] += sound->samples[(int)sound_sources[j].i_sample] * sound_volume;
+							out[1] += sound->samples[(int)sound_sources[j].i_sample] * sound_volume;
+						} else if(sound->channels == 2) {
+							out[0] += sound->samples[((int)sound_sources[j].i_sample) * 2] * sound_volume;
+							out[1] += sound->samples[((int)sound_sources[j].i_sample) * 2 + 1] * sound_volume;
+						}
 					}
 
 					//Increase sound buffer counters
@@ -148,12 +158,22 @@ namespace audio {
 			for(int j = 0; j < SPEAKER_SOURCE_MAX; j++) {
 				Sound* sound = speaker_sources[j].sound;
 				if(sound) {
-					if(sound->channels == 1) {
-						out[0] += sound->samples[(int)speaker_sources[j].i_sample] * voice_volume;
-						out[1] += sound->samples[(int)speaker_sources[j].i_sample] * voice_volume;
-					} else if(sound->channels == 2) {
-						out[0] += sound->samples[((int)speaker_sources[j].i_sample) * 2] * voice_volume;
-						out[1] += sound->samples[((int)speaker_sources[j].i_sample) * 2 + 1] * voice_volume;
+					if(menu == MENU_FIGHT && stage == 3) {
+						if(sound->channels == 1) {
+							out[0] += sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] * voice_volume;
+							out[1] += sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] * voice_volume;
+						} else if(sound->channels == 2) {
+							out[0] += sound->samples[((int)speaker_sources[j].i_sample) / 8 * 8 * 2] * voice_volume;
+							out[1] += sound->samples[((int)speaker_sources[j].i_sample) / 8 * 8 * 2 + 1] * voice_volume;
+						}
+					} else {
+						if(sound->channels == 1) {
+							out[0] += sound->samples[(int)speaker_sources[j].i_sample] * voice_volume;
+							out[1] += sound->samples[(int)speaker_sources[j].i_sample] * voice_volume;
+						} else if(sound->channels == 2) {
+							out[0] += sound->samples[((int)speaker_sources[j].i_sample) * 2] * voice_volume;
+							out[1] += sound->samples[((int)speaker_sources[j].i_sample) * 2 + 1] * voice_volume;
+						}
 					}
 
 					//Increase sound buffer counters

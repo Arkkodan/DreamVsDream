@@ -201,6 +201,7 @@ namespace game {
 
 		STATE_BLOCK,
 		STATE_CROUCH_BLOCK,
+		STATE_JUMP_BLOCK,
 
 		STATE_KB,
 		STATE_KB_FALL,
