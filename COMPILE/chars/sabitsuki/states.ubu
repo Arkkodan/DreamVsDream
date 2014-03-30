@@ -220,27 +220,9 @@ ctrl true
 type N, S
 alpha 1.0
 say Win
-sprite win00, 32
-sprite win01, 6
-sprite win02, 20
-sprite win03, 2
-sprite win04, 2
-sprite win05, 2
-sprite win06, 2
-sprite win07, 2
-sprite win08, 2
-sprite win07, 2
-sprite win06, 2
-sprite win05, 2
-sprite win04, 2
-sprite win03, 2
-sprite win04, 2
-sprite win05, 2
-sprite win06, 2
-sprite win07, 2
-sprite win08, 2
-visible false
-sprite win08, 1000
+sprite win00, 8
+sprite win01, 8
+sprite win02, 1000
 
 [Defeat]
 type N, S
@@ -353,12 +335,6 @@ sprite bdash02, 2
 sprite bdash01, 2
 sprite bdash00, 2
 
-[CBlock]
-type B, C
-alpha 1.0
-ctrl false
-sprite block00, 2
-
 [Block]
 type B, S
 alpha 1.0
@@ -366,16 +342,33 @@ ctrl false
 sprite block00, 2
 sprite block01, 10
 
+[CBlock]
+type B, C
+alpha 1.0
+ctrl true
+sprite crouch_block00, 2
+
+[JBlock]
+type B, J
+alpha 1.0
+ctrl true
+sprite block00, 2
+sprite block01, 10
+
 [5A]
 cancel GunA
 cancel GunB
 cancel GunC
+cancel WhistleA
+cancel WhistleB
+cancel WhistleC
 cancel BeginJumpF
 cancel BeginJumpB
 cancel BeginJump
 cancel 5B
 cancel 3C
 cancel 5C
+cancel 6C
 
 type A, S
 alpha 1.0
@@ -391,10 +384,14 @@ ctrl true
 cancel GunA
 cancel GunB
 cancel GunC
+cancel WhistleA
+cancel WhistleB
+cancel WhistleC
 cancel BeginJumpF
 cancel BeginJumpB
 cancel BeginJump
 cancel 3C
+cancel 6C
 cancel 5C
 
 type A, S
@@ -416,9 +413,13 @@ ctrl true
 cancel GunA
 cancel GunB
 cancel GunC
+cancel WhistleA
+cancel WhistleB
+cancel WhistleC
 cancel BeginJumpF
 cancel BeginJumpB
 cancel BeginJump
+cancel 6C
 type A, S
 alpha 1.0
 ctrl false
@@ -428,6 +429,7 @@ sprite f5C02, 4
 hitspark Electric
 attack 1.5, mid, 10, 0, HitMid, false
 effect Sabi_5C, 137, 121, follow, false, 2, 1
+sound Lazer
 sprite f5C03, 2
 sprite f5C04, 2
 sprite f5C03, 2
@@ -437,14 +439,44 @@ sprite f5C01, 6
 sprite f5C00, 6
 ctrl true
 
+[6C]
+cancel GunA
+cancel GunB
+cancel GunC
+cancel WhistleA
+cancel WhistleB
+cancel WhistleC
+cancel BeginJumpF
+cancel BeginJumpB
+cancel BeginJump
+type A, S
+alpha 1.0
+ctrl false
+sprite 6C00, 4
+sprite 6C01, 4
+sprite 6C02, 8
+hitspark Bash_Med
+stun 10
+knockdown
+attack 9, mid, 15, 3, HitMid, false
+sprite 6C03, 2
+sprite 6C04, 8
+sprite 6C05, 6
+sprite 6C06, 6
+ctrl true
+
 [3C]
 cancel GunA
 cancel GunB
 cancel GunC
+cancel WhistleA
+cancel WhistleB
+cancel WhistleC
 cancel BeginJumpF
 cancel BeginJumpB
 cancel BeginJump
 cancel 5C
+cancel 6C
 
 type A, S
 alpha 1.0
@@ -471,6 +503,9 @@ ctrl true
 cancel GunA
 cancel GunB
 cancel GunC
+cancel WhistleA
+cancel WhistleB
+cancel WhistleC
 cancel BeginJumpF
 cancel BeginJumpB
 cancel BeginJump
@@ -478,6 +513,7 @@ cancel 5B
 cancel 2C
 cancel 3C
 cancel 5C
+cancel 6C
 
 type A, C
 alpha 1.0
@@ -493,12 +529,16 @@ ctrl true
 cancel GunA
 cancel GunB
 cancel GunC
+cancel WhistleA
+cancel WhistleB
+cancel WhistleC
 cancel BeginJumpF
 cancel BeginJumpB
 cancel BeginJump
 cancel 5A
 cancel 3C
 cancel 5C
+cancel 6C
 
 type A, C
 alpha 1.0

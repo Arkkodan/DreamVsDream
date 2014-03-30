@@ -67,8 +67,10 @@ onground
 [dC]
 @2C
 onground
-@j2C
-!onground
+
+[fC]
+@6C
+onground
 
 [A]
 @5A

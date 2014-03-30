@@ -434,15 +434,21 @@ sprite dash_air02, 2
 sprite dash_air01, 2
 sprite dash_air00, 2
 
+[Block]
+scale 1.0
+type B, S
+ctrl false
+sprite block00, 2
+
 [CBlock]
 scale 0.6
 type B, C
 ctrl false
 sprite block00, 2
 
-[Block]
+[JBlock]
 scale 1.0
-type B, S
+type B, J
 ctrl false
 sprite block00, 2
 

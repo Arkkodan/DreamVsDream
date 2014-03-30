@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$#" == 0 ]; then
+    echo "error: no fighter specified." 2>&1
+    exit 1
+fi
+
 #Create atlas
 echo "Creating atlas..."
 rm -rf "chars/$1/atlas"
