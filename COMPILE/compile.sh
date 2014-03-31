@@ -17,6 +17,7 @@ echo "Compiling character..."
 
 #Move
 echo "Moving character..."
-mv -f "chars/$1.char" ../DvD/data/chars
+mkdir -p ../DvD/data/chars
+mv -f "chars/$1.char" ../DvD/data/chars/
 
 echo "Done!"
