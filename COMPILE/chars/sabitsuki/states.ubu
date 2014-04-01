@@ -452,8 +452,8 @@ cancel BeginJump
 type A, S
 alpha 1.0
 ctrl false
-sprite 6C00, 4
-sprite 6C01, 4
+sprite 6C00, 6
+sprite 6C01, 8
 sprite 6C02, 8
 hitspark Bash_Med
 stun 10
@@ -499,6 +499,36 @@ sprite 3C01, 4
 sprite 3C00, 4
 ctrl true
 
+[2A]
+cancel GunA
+cancel GunB
+cancel GunC
+cancel WhistleA
+cancel WhistleB
+cancel WhistleC
+cancel BeginJumpF
+cancel BeginJumpB
+cancel BeginJump
+cancel 2B
+cancel 5B
+cancel 2C
+cancel 3C
+cancel 5C
+cancel 6C
+
+type A, C
+alpha 1.0
+ctrl false
+hitspark Bash_Med
+sprite 2A00, 2
+sound Swipe
+sprite 2A01, 2
+sprite 2A02, 2
+attack 4.7, mid, 5, 0, Pipe, true
+sprite 2A03, 2
+sprite 2A04, 6
+ctrl true
+
 [2B]
 cancel GunA
 cancel GunB
@@ -519,7 +549,7 @@ type A, C
 alpha 1.0
 ctrl false
 hitspark Bash_Med
-sprite 2B01, 4
+sprite 2B01, 6
 attack 6, low, 5, 0, Pipe, true
 sprite 2B00, 4
 sprite 2B01, 6

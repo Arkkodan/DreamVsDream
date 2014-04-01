@@ -131,9 +131,9 @@ void Menu::think() {
 
 	//Fade timer
 	if(fade) {
-		if(fadeIn && menu == MENU_VERSUS) {
-			fade = 0.0f;
-		} else {
+		//if(fadeIn && menu == MENU_VERSUS) {
+		//	fade = 0.0f;
+		//} else {
 			if(menu == MENU_FIGHT) {
 				fade -= 0.02;
 			} else {
@@ -172,7 +172,7 @@ void Menu::think() {
 
 			//Always disable controls during fades
 			madotsuki.frameInput = 0;
-		}
+		//}
 	}
 }
 
