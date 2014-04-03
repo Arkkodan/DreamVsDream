@@ -9,6 +9,8 @@ codeblocks/
 #Binary files
 obj/
 DvD/DvD*
+DvD-32*
+DvD-64*
 sprtool-*
 atlas-*
 compiler-*
@@ -28,3 +30,8 @@ COMPILE/chars/*/atlas/
 *.dll
 *.dylib
 *.exe
+
+#Generated archives
+*.zip
+*.bz2
+*.dmg

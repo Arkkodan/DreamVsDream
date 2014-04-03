@@ -1,8 +1,8 @@
 :LEAD DEVELOPERS
 Mathew
-NightMargin
+Alichee
+picopuri
 Sesaka
-Ragtime
 
 :PROGRAMMING
 Mathew
@@ -76,6 +76,7 @@ Kippersnack
 
 :SPECIAL PORTRAIT ARTIST
 NightMargin
+picopuri
 
 :MISCELLANEOUS PORTRAIT ARTISTS
 June
@@ -97,19 +98,28 @@ MedicHaus
 MedicHaus
 Delphy
 Mathew
-NightMargin
-Sesaka
 Ragtime
 Mraof
-GIR
 
 :VOICE ACTORS
 Ragtime (Madotsuki)
+BloodCri (Sabitsuki)
 MedicHaus (Maddysucky)
 
 :MISC. MANAGEMENT
 Ragtime
 Inujuju
+Noxnema
+
+:HITBOXES
+Divinus
+Neko
+
+:COLORSWAPS
+Delphy
+MedicHaus
+Novabee
+Mathew
 
 :SPECIAL THANKS
 UndeadHarlequin
@@ -123,16 +133,16 @@ FoX
 Malchut
 Striker
 Nick
-Noxnema
 CC
-Neko
 Saniblues
 ThatOddHaystack
 UnicornBullshizzery
+ZeroGuilt
+rustedpath
 Misha-Desu
-1,157 YouTube Subscribers
-618 Tumblr Followers
-87 Twitter Followers
+1,556 YouTube Subscribers
+815 Tumblr Followers
+139 Twitter Followers
 4 Shirt-buyers
 
 :Thank You!
