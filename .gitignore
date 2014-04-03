@@ -1,3 +1,7 @@
+#OS Files
+.DS_Store
+Thumbs.db
+
 #Projects
 codelite/
 codeblocks/
