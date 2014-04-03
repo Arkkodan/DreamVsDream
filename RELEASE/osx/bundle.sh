@@ -14,7 +14,7 @@ PATH_LIB_SYS="/opt/local/lib"
 cd "${0%/*}"
 
 echo "Bundling binary..."
-rm -f "$PATH_BIN" && cp -f "../DvD/DvD" "$PATH_BIN"
+rm -f "$PATH_BIN" && cp -f "../../DvD/DvD" "$PATH_BIN"
 
 echo "Bundling resources..."
 rm -rf "$PATH_DATA"
