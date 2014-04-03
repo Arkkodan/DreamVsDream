@@ -8,8 +8,7 @@ codeblocks/
 
 #Binary files
 obj/
-DvD/DvD
-DvD-*
+DvD/DvD*
 sprtool-*
 atlas-*
 compiler-*
