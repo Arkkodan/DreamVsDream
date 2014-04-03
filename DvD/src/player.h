@@ -65,6 +65,7 @@ namespace game {
 
 	class Projectile {
 	public:
+		int palette;
 		Fighter* fighter;
 
 		util::Vectorf pos;
@@ -113,7 +114,7 @@ namespace game {
 		virtual void advanceFrame();
 		virtual void handleFrame(ubyte_t command = 0);
 		virtual void shootProjectile();
-		virtual void draw(unsigned int palette);
+		virtual void draw();
 
 		//Non-virtual
 		void setState(int state);
@@ -188,7 +189,7 @@ namespace game {
 		void shootProjectile();
 		void applyInput();
 		void handleInput();
-		void draw(unsigned int palette, bool shadow);
+		void draw(bool shadow);
 		void drawSpecial();
 
 		void takeDamage(float damage);

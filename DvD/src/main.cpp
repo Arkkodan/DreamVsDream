@@ -31,8 +31,6 @@ void shake(int frames) {
 }
 
 extern void parseArgs(int, char**);
-int madotsuki_palette = 0;
-int poniko_palette = 1;
 
 static inline void mainLoop() {
 	os::refresh();
@@ -118,32 +116,26 @@ static inline void mainLoop() {
 		poniko.drawSpecial();
 
 		if(stage != 3) {
-			madotsuki.draw(0, true);
-			poniko.draw(0, true);
+			madotsuki.draw(true);
+			poniko.draw(true);
 		}
 
 		//Which order do we draw these in?
-		int _pal_off_mado = 0;
-		int _pal_off_poni = 0;
-		if(graphics::shader_support && stage == 3) {
-			_pal_off_mado = madotsuki.fighter->nPalettes;
-			_pal_off_poni = poniko.fighter->nPalettes;
-		}
 		if(madotsuki.drawPriorityFrame < poniko.drawPriorityFrame) {
-			madotsuki.draw(madotsuki_palette + _pal_off_mado, false);
-			poniko.draw(poniko_palette + _pal_off_poni, false);
+			madotsuki.draw(false);
+			poniko.draw(false);
 		} else {
-			poniko.draw(poniko_palette + _pal_off_poni, false);
-			madotsuki.draw(madotsuki_palette + _pal_off_mado, false);
+			poniko.draw(false);
+			madotsuki.draw(false);
 		}
 
 		//Draw projectiles
 		for(int i = 0; i < MAX_PROJECTILES; i++) {
 			if(madotsuki.projectiles[i].state != STATE_NONE) {
-				madotsuki.projectiles[i].draw(0);
+				madotsuki.projectiles[i].draw();
 			}
 			if(poniko.projectiles[i].state != STATE_NONE) {
-				poniko.projectiles[i].draw(1);
+				poniko.projectiles[i].draw();
 			}
 		}
 

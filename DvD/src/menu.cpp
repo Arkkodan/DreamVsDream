@@ -655,8 +655,6 @@ MenuSelect::MenuSelect() : Menu("select") {
 
 	curData = nullptr;
 
-	state = 0;
-
 	cursor_stage = 0;
 	cursor_stage_offset = 0;
 }
@@ -688,18 +686,22 @@ void MenuSelect::think() {
 	}
 
 	//Move cursor
-	if(state < 2) {
+	if(cursors[0].lockState != CURSOR_LOCKED || cursors[1].lockState != CURSOR_LOCKED) {
 		for(int cur = 0; cur < 2; cur++) {
 			uint16_t input = madotsuki.frameInput;
 			if(cur == 1) {
 				input = poniko.frameInput;
 			}
 			if(FIGHT->gametype == GAMETYPE_TRAINING) {
-				cur = state;
+				if(cursors[0].lockState == CURSOR_LOCKED) {
+					cur = 1;
+				} else {
+					cur = 0;
+				}
 			}
 			int group = cursors[cur].getGroup(width, gWidth, gHeight);
 
-			if(!cursors[cur].locked) {
+			if(cursors[cur].lockState == CURSOR_UNLOCKED) {
 				if(input & INPUT_DIRMASK) {
 					//Old cursor pos SET
 					cursors[cur].posOld = cursors[cur].pos;
@@ -774,41 +776,82 @@ void MenuSelect::think() {
 
 				if(input & INPUT_A) {
 					if(gridFighters[cursors[cur].pos] >= 0) {
-                        cursors[cur].locked = true;
+						if(cur == 0) {
+							madotsuki.palette = 0;
+						} else {
+							poniko.palette = 0;
+						}
+                        cursors[cur].lockState = CURSOR_COLORSWAP;
                         newEffect(cur, group);
-                        if(FIGHT->gametype == GAMETYPE_TRAINING) {
-                            state++;
-                        } else if(cursors[0].locked && cursors[1].locked) {
-                            state = 2;
-                        }
 					} else {
 						sndInvalid.play();
 					}
+				}
+			} else if(cursors[cur].lockState == CURSOR_COLORSWAP) {
+				if(input & INPUT_LEFT) {
+					sndMenu.play();
+					
+					if(cur == 0) {
+						if(madotsuki.palette == 0) {
+							madotsuki.palette = game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1;
+						} else {
+							madotsuki.palette--;
+						}
+					} else {
+						if(poniko.palette == 0) {
+							poniko.palette = game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1;
+						} else {
+							poniko.palette--;
+						}
+					}
+				} else if(input & INPUT_RIGHT) {
+					sndMenu.play();
+					
+					if(cur == 0) {
+						if(madotsuki.palette == game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1) {
+							madotsuki.palette = 0;
+						} else {
+							madotsuki.palette++;
+						}
+					} else {
+						if(poniko.palette == game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1) {
+							poniko.palette = 0;
+						} else {
+							poniko.palette++;
+						}
+					}
+				}
+				
+				if(input & INPUT_A) {
+					sndSelect.play();
+					cursors[cur].lockState = CURSOR_LOCKED;
 				}
 			}
 
 			if(input & INPUT_B) {
 				if(FIGHT->gametype == GAMETYPE_TRAINING) {
-					if(cur == 0) {
-						state = 0;
-
+					if(cursors[0].lockState == CURSOR_UNLOCKED) {
 						sndBack.play();
 						setMenu(MENU_TITLE);
-					} else {
+					} else if(cursors[cur].lockState == CURSOR_UNLOCKED) {
+						sndBack.play();
 						cur--;
-						cursors[cur].locked = false;
-
+						cursors[cur].lockState = CURSOR_COLORSWAP;
+					} else if(cursors[cur].lockState == CURSOR_COLORSWAP) {
+						cursors[cur].lockState = CURSOR_UNLOCKED;
+						
 						if(curData) {
 							group = cursors[cur].getGroup(width, gWidth, gHeight);
 							curData[group].sndDeselect.play();
 							curData[group].sndSelect.stop();
 						}
-						state--;
 					}
 				} else {
-					if(cursors[cur].locked) {
-						cursors[cur].locked = false;
-
+					if(cursors[cur].lockState == CURSOR_LOCKED) {
+						sndBack.play();
+						cursors[cur].lockState = CURSOR_COLORSWAP;
+					} else if(cursors[cur].lockState == CURSOR_COLORSWAP) {
+						cursors[cur].lockState = CURSOR_UNLOCKED;
 						if(curData) {
 							group = cursors[cur].getGroup(width, gWidth, gHeight);
 							curData[group].sndDeselect.play();
@@ -871,29 +914,28 @@ void MenuSelect::think() {
 
 		if(FIGHT->gametype == GAMETYPE_TRAINING) {
 			if(input(INPUT_B)) {
-				cursors[1].locked = false;
+				cursors[1].lockState = CURSOR_COLORSWAP;
 
 				if(curData) {
 					int group = cursors[1].getGroup(width, gWidth, gHeight);
 					curData[group].sndDeselect.play();
 					curData[group].sndSelect.stop();
 				}
-				state--;
 			}
 		} else {
 			if(input(INPUT_B)) {
-				cursors[0].locked = false;
-				cursors[1].locked = false;
+				sndBack.play();
+				cursors[0].lockState = CURSOR_COLORSWAP;
+				cursors[1].lockState = CURSOR_COLORSWAP;
 
-				if(curData) {
+				/*if(curData) {
 					int group = cursors[0].getGroup(width, gWidth, gHeight);
 					curData[group].sndDeselect.play();
 					curData[group].sndSelect.stop();
 					group = cursors[1].getGroup(width, gWidth, gHeight);
 					curData[group].sndDeselect.play();
 					curData[group].sndSelect.stop();
-				}
-				state = 0;
+				}*/
 			}
 		}
 
@@ -916,22 +958,23 @@ void MenuSelect::think() {
 void MenuSelect::reset() {
 	Menu::reset();
 
-	state = 0;
 	for(int i = 0; i < 2; i++) {
-		cursors[i].locked = false;
+		cursors[i].lockState = CURSOR_UNLOCKED;
 		cursors[i].timer = 0;
 		cursors[i].timerPortrait = 0;
 		cursors[i].frame = 0;
 	}
 	cursors[0].pos = cursors[0].posDefault;
 	cursors[1].pos = cursors[1].posDefault;
+	
+	cursor_stage = 0;
 }
 
 void MenuSelect::draw() {
 	Menu::draw();
 
 	//Draw portraits first
-	if(state >= 1 || FIGHT->gametype == GAMETYPE_VERSUS) {
+	if(cursors[0].lockState == CURSOR_LOCKED || FIGHT->gametype == GAMETYPE_VERSUS) {
 		if(cursors[1].timerPortrait) {
 			if(gridFighters[cursors[1].posOld] >= 0) {
 				graphics::setColor(255, 255, 255, (float)(cursors[1].timerPortrait) / PORTRAIT_FADE);
@@ -958,6 +1001,29 @@ void MenuSelect::draw() {
 	if(gui) {
 		gui->draw(false);
 	}
+	
+	if(cursors[1].lockState >= CURSOR_COLORSWAP) {
+		if(gridFighters[cursors[1].pos] >= 0) {
+			game::Fighter& fighter = game::fighters[gridFighters[cursors[1].pos]];
+			sprite::Sprite& spr = fighter.sprites[0];
+			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
+			
+			graphics::setPalette(fighter.palettes[poniko.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+			fighter.sprites[0].atlas->draw(spr.atlas_sprite, WINDOW_WIDTH - 50 + spr.x - sprAtlas.w, WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
+			glUseProgram(0);
+		}
+	}
+	if(cursors[0].lockState >= CURSOR_COLORSWAP) {
+		if(gridFighters[cursors[0].pos] >= 0) {
+			game::Fighter& fighter = game::fighters[gridFighters[cursors[0].pos]];
+			sprite::Sprite& spr = fighter.sprites[0];
+			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
+			
+			graphics::setPalette(fighter.palettes[madotsuki.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+			fighter.sprites[0].atlas->draw(spr.atlas_sprite, 50 - spr.x, WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
+			glUseProgram(0);
+		}
+	}
 
 	//Draw the select sprites
 	for(int i = 0; i < gridC; i++) {
@@ -969,14 +1035,14 @@ void MenuSelect::draw() {
 	//Cursor
 	//Get the current group
 	if(curData) {
-		int count = MIN(state, 1);
-		if(FIGHT->gametype == GAMETYPE_VERSUS) {
-			count = 1;
+		int count = 1;
+		if(FIGHT->gametype == GAMETYPE_TRAINING && cursors[0].lockState != CURSOR_LOCKED) {
+			count = 0;
 		}
 		for(int i = 0; i <= count; i++) {
 			int group = cursors[i].getGroup(width, gWidth, gHeight);;
 
-			if(!cursors[i].locked) {
+			if(cursors[i].lockState == CURSOR_UNLOCKED) {
 				graphics::setColor(cursors[i].r, cursors[i].g, cursors[i].b);
 			}
 			curData[group].img.draw(grid[cursors[i].pos].x + curData[group].off.x, grid[cursors[i].pos].y + curData[group].off.y);
@@ -987,7 +1053,7 @@ void MenuSelect::draw() {
 	}
 
 	//Finally draw the stage selection screen
-	if(state >= 2) {
+	if(cursors[0].lockState == CURSOR_LOCKED && cursors[1].lockState == CURSOR_LOCKED) {
 		//Darken background
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
@@ -2111,14 +2177,12 @@ void MenuFight::draw() {
 		}
 
 		//Draw character portraits
-		extern int madotsuki_palette;
-		extern int poniko_palette;
 		if(graphics::shader_support) {
-			graphics::setPalette(madotsuki.fighter->palettes[madotsuki_palette], 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			graphics::setPalette(madotsuki.fighter->palettes[madotsuki.palette], 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		}
 		madotsuki.fighter->portrait_ui.draw(portraitPos.x, portraitPos.y);
 		if(graphics::shader_support) {
-			graphics::setPalette(poniko.fighter->palettes[poniko_palette], 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+			graphics::setPalette(poniko.fighter->palettes[poniko.palette], 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		} else {
 			graphics::setColor(150, 150, 150, 1.0);
 		}
@@ -2953,7 +3017,7 @@ Cursor::Cursor() {
 	frame = 0;
 	timer = 0;
 
-	locked = false;
+	lockState = CURSOR_UNLOCKED;
 }
 
 int Cursor::getGroup(int w, int gW, int gH) {

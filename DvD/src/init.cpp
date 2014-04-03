@@ -28,8 +28,6 @@ static int input_delay = 0;
 void parseArgs(int argc, char** argv) {
 	extern game::Player madotsuki;
 	extern game::Player poniko;
-	extern int madotsuki_palette;
-	extern int poniko_palette;
 
 	madotsuki.fighter = &game::fighters[0];
 	poniko.fighter = &game::fighters[0];
@@ -56,11 +54,11 @@ void parseArgs(int argc, char** argv) {
 			}
 		} else if(!strcasecmp(argv[i], "-pal1")) {
 			if(++i < argc) {
-				madotsuki_palette = atoi(argv[i]);
+				madotsuki.palette = atoi(argv[i]);
 			}
 		} else if(!strcasecmp(argv[i], "-pal2")) {
 			if(++i < argc) {
-				poniko_palette = atoi(argv[i]);
+				poniko.palette = atoi(argv[i]);
 			}
 		} else if(!strcasecmp(argv[i], "-stage")) {
 			if(++i < argc) {

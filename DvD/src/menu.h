@@ -172,6 +172,12 @@ public:
 	~CursorData();
 };
 
+enum {
+	CURSOR_UNLOCKED,
+	CURSOR_COLORSWAP,
+	CURSOR_LOCKED,
+};
+
 class Cursor {
 public:
 	int pos;
@@ -183,7 +189,7 @@ public:
 
 	int timerPortrait;
 
-	bool locked;
+	int lockState;
 
 	ubyte_t r;
 	ubyte_t g;
@@ -216,8 +222,6 @@ public:
 	Cursor cursors[2];
 
 	CursorData* curData;
-
-	int state;
 
 	Font font_stage;
 	int cursor_stage;

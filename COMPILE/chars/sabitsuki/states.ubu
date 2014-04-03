@@ -291,8 +291,8 @@ sprite jump_begin00, 1
 [BDashF]
 type D, S
 //effect Dash, -10, 40, stay, false, 1, 1
-sprite dash00, 6
-sprite dash01, 6
+sprite dash00, 3
+sprite dash01, 3
 alpha 0.5
 
 [DashF]
@@ -375,6 +375,7 @@ alpha 1.0
 ctrl false
 sprite f5A00, 4
 hitspark Bash_Med
+say Attack
 attack 4, mid, 5, 0, Pipe, true
 sprite f5A01, 6
 sprite c5A02, 6
@@ -400,6 +401,7 @@ ctrl false
 sprite c5A00, 4
 sprite c5A01, 8
 sound Swipe
+say Attack
 effect Sabi_5B, 50, 140, follow, false, 1, 1
 sprite c5A02, 4
 bounce 5, 15, 10
@@ -455,6 +457,7 @@ ctrl false
 sprite 6C00, 6
 sprite 6C01, 8
 sprite 6C02, 8
+say GetAway
 hitspark Bash_Med
 stun 10
 knockdown
@@ -522,6 +525,7 @@ ctrl false
 hitspark Bash_Med
 sprite 2A00, 2
 sound Swipe
+say Attack
 sprite 2A01, 2
 sprite 2A02, 2
 attack 4.7, mid, 5, 0, Pipe, true
@@ -550,6 +554,7 @@ alpha 1.0
 ctrl false
 hitspark Bash_Med
 sprite 2B01, 6
+say Attack
 attack 6, low, 5, 0, Pipe, true
 sprite 2B00, 4
 sprite 2B01, 6
@@ -594,6 +599,7 @@ ctrl false
 hitspark Bash_Med
 sprite j5A00, 3
 sprite j5A01, 3
+say Attack
 attack 3.8, high, 2, 0, HitMid, true
 sprite j5A02, 12
 
@@ -607,6 +613,7 @@ hitspark Bash_Med
 sprite j5B00, 2
 sprite j5B01, 3
 effect Sabi_j5B, 60, 90, follow, false, 2, 1
+say Attack
 sound Swipe
 sprite j5B02, 6
 sprite j5B03, 2
@@ -623,6 +630,7 @@ ctrl false
 hitspark Bash_Med
 sprite j5C00, 5
 sprite j5C01, 5
+say Attack
 sound Swipe
 attack 9, high, 5, 0, Pipe, true
 sprite j5C02, 3
@@ -690,6 +698,7 @@ type A, S
 alpha 1.0
 ctrl false
 hitspark Cut_Small
+say Gun
 special false
 sprite gun00, 4
 sprite gun01, 4
@@ -745,6 +754,7 @@ ctrl true
 [WhistleC]
 type A, S
 alpha 1.0
+say Gotcha
 ctrl false
 special false
 sprite whistle00, 3

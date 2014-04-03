@@ -1,0 +1,40 @@
+[Attack 40]
+attack1
+hit1
+hit2
+
+[Hurt 30]
+cough1
+cough2
+cough3
+cough4
+
+[Recover 30]
+hadenough
+cough_short
+
+[Gun 100]
+gun
+
+[Win 100]
+laugh
+win2
+win3
+
+[Lose 100]
+lose1
+lose2
+
+[GetAway 100]
+getaway
+
+[Gotcha 100]
+gotcha
+
+[Die 100]
+dead1
+dead2
+dead3
+thankyou1
+thankyou2
+

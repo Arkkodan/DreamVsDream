@@ -27,9 +27,6 @@ dream2
 nightmare1
 nightmare2
 
-[Die 100]
-die
-
 [5Bf 20]
 here1
 here2
@@ -49,3 +46,7 @@ frozen
 dualknives2
 dualknives3
 dualknives4
+
+[Die 100]
+die
+

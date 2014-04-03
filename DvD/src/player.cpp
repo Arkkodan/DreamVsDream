@@ -37,6 +37,7 @@ namespace game {
 	#define STAGE_BUFFER 10
 
 	Projectile::Projectile() :
+		palette(0),
 		fighter(nullptr),
 		pos(0, 0),
 		vel(0, 0),
@@ -250,7 +251,7 @@ namespace game {
 	void Projectile::shootProjectile() {
 	}
 
-	void Projectile::draw(unsigned int palette) {
+	void Projectile::draw() {
 		if(flags & F_VISIBLE) {
 			fighter->draw(sprite, pos.x, pos.y, isMirrored(), scale, palette, spriteAlpha, 0.0f, 0.0f, 0.0f, 0.0f);
 		}
@@ -888,6 +889,7 @@ namespace game {
 			hotspot.x = fighter->sprites[sprite].aHitBoxes.boxes[0].pos.x + fighter->sprites[sprite].aHitBoxes.boxes[0].size.x / 2;
 			hotspot.y = fighter->sprites[sprite].aHitBoxes.boxes[0].pos.y + fighter->sprites[sprite].aHitBoxes.boxes[0].size.y / 2;
 
+			projectiles[projectileId].palette = palette;
 			projectiles[projectileId].fighter = fighter;
 			projectiles[projectileId].vel.x = shoot.force.x * mirror2;
 			projectiles[projectileId].vel.y = shoot.force.y;
@@ -1162,7 +1164,7 @@ namespace game {
 		}
 	}
 
-	void Player::draw(unsigned int palette, bool shadow) {
+	void Player::draw(bool shadow) {
 		float pct = flash;
 		float r = 250 / 256.0f;
 		float g = 80 / 256.0f;
