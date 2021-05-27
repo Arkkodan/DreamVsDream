@@ -78,11 +78,18 @@ set(SPRTOOL_FILES
 
 
 # Add executables
+
 add_executable(Atlas
   ${ATLAS_FILES}
   DvD/file.cpp
   DvD/util.cpp
 )
+target_compile_definitions(Atlas
+  PRIVATE VERSION="${DreamVsDream_VERSION}"
+  PRIVATE COMPILER
+  PRIVATE NO_ZLIB
+)
+
 add_executable(Compiler
   ${COMPILER_FILES}
   DvD/error.cpp
@@ -92,12 +99,29 @@ add_executable(Compiler
   DvD/sprite.cpp
   DvD/util.cpp
 )
+target_compile_definitions(Compiler
+  PRIVATE VERSION="${DreamVsDream_VERSION}"
+  PRIVATE COMPILER
+  PRIVATE NO_ZLIB
+)
+
 add_executable(DvD
   ${DVD_FILES}
 )
+target_compile_definitions(DvD
+  PRIVATE VERSION="${DreamVsDream_VERSION}"
+  PRIVATE GAME
+)
+
 add_executable(Fontbuild
   ${FONTBUILD_FILES}
 )
+target_compile_definitions(Fontbuild
+  PRIVATE VERSION="${DreamVsDream_VERSION}"
+  PRIVATE COMPILER
+  PRIVATE NO_ZLIB
+)
+
 add_executable(Sprtool
   ${SPRTOOL_FILES}
   DvD/error.cpp
@@ -108,6 +132,11 @@ add_executable(Sprtool
   DvD/parser.cpp
   DvD/sprite.cpp
   DvD/util.cpp
+)
+target_compile_definitions(Sprtool
+  PRIVATE VERSION="${DreamVsDream_VERSION}"
+  PRIVATE SPRTOOL
+  PRIVATE NO_ZLIB
 )
 
 

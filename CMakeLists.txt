@@ -3,7 +3,9 @@
 cmake_minimum_required(VERSION 3.14.0)
 
 
-project("DreamVsDream")
+project("DreamVsDream"
+  VERSION 0.2
+)
 
 
 # Set CMAKE_BUILD_TYPE to DEBUG if not specified
