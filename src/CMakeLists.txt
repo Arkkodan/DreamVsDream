@@ -1,0 +1,157 @@
+# src/CMakeLists.txt
+
+
+# Gather files
+
+# Atlas
+set(ATLAS_FILES
+  Atlas/image.cpp
+  Atlas/image.h
+  Atlas/main.cpp
+)
+
+# Compiler
+set(COMPILER_FILES
+  Compiler/main.cpp
+)
+
+# DvD
+set(DVD_FILES
+  DvD/animation.cpp
+  DvD/animation.h
+  DvD/atlas.cpp
+  DvD/atlas.h
+  DvD/effect.cpp
+  DvD/effect.h
+  DvD/error.cpp
+  DvD/error.h
+  DvD/fighter.cpp
+  DvD/fighter.h
+  DvD/file.cpp
+  DvD/file.h
+  DvD/font.cpp
+  DvD/font.h
+  DvD/globals.h
+  DvD/graphics.cpp
+  DvD/graphics.h
+  DvD/image.cpp
+  DvD/image.h
+  DvD/init.cpp
+  DvD/input.cpp
+  DvD/input.h
+  DvD/main.cpp
+  DvD/menu.cpp
+  DvD/menu.h
+  DvD/network.cpp
+  DvD/network.h
+  DvD/os.cpp
+  DvD/os.h
+  DvD/parser.cpp
+  DvD/parser.h
+  DvD/player.cpp
+  DvD/player.h
+  DvD/shader.cpp
+  DvD/shader.h
+  DvD/sound.cpp
+  DvD/sound.h
+  DvD/sprite.cpp
+  DvD/sprite.h
+  DvD/stage.cpp
+  DvD/stage.h
+  DvD/thread.cpp
+  DvD/thread.h
+  DvD/util.cpp
+  DvD/util.h
+)
+
+# Fontbuild
+set(FONTBUILD_FILES
+  Fontbuild/main.c
+)
+
+# Sprtool
+set(SPRTOOL_FILES
+  Sprtool/init.cpp
+  Sprtool/input.cpp
+  Sprtool/main.cpp
+)
+
+
+# Add executables
+add_executable(Atlas
+  ${ATLAS_FILES}
+  DvD/file.cpp
+  DvD/util.cpp
+)
+add_executable(Compiler
+  ${COMPILER_FILES}
+  DvD/error.cpp
+  DvD/fighter.cpp
+  DvD/file.cpp
+  DvD/parser.cpp
+  DvD/sprite.cpp
+  DvD/util.cpp
+)
+add_executable(DvD
+  ${DVD_FILES}
+)
+add_executable(Fontbuild
+  ${FONTBUILD_FILES}
+)
+add_executable(Sprtool
+  ${SPRTOOL_FILES}
+  DvD/error.cpp
+  DvD/fighter.cpp
+  DvD/graphics.cpp
+  DvD/image.cpp
+  DvD/os.cpp
+  DvD/parser.cpp
+  DvD/sprite.cpp
+  DvD/util.cpp
+)
+
+
+# TODO: Target includes and links with dependencies
+
+# target_include_directories(Atlas
+  # ...
+# )
+# target_link_libraries(Atlas
+  # ...
+# )
+
+# target_include_directories(Compiler
+  # ...
+# )
+# target_link_libraries(Compiler
+  # ...
+# )
+
+# target_include_directories(DvD
+  # ...
+# )
+# target_link_libraries(DvD
+  # ...
+# )
+
+# target_include_directories(Fontbuild
+  # ...
+# )
+# target_link_libraries(Fontbuild
+  # ...
+# )
+
+# target_include_directories(Sprtool
+  # ...
+# )
+# target_link_libraries(Sprtool
+  # ...
+# )
+
+
+# Organize files for IDEs
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Atlas" PREFIX "Atlas" FILES ${ATLAS_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Compiler" PREFIX "Compiler" FILES ${COMPILER_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD" PREFIX "DvD" FILES ${DVD_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Fontbuild" PREFIX "Fontbuild" FILES ${FONTBUILD_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Sprtool" PREFIX "Sprtool" FILES ${SPRTOOL_FILES})
