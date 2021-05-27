@@ -1,7 +1,7 @@
-#include "../../DvD/src/globals.h"
-#include "../../DvD/src/input.h"
-#include "../../DvD/src/fighter.h"
-#include "../../DvD/src/graphics.h"
+#include "../DvD/globals.h"
+#include "../DvD/input.h"
+#include "../DvD/fighter.h"
+#include "../DvD/graphics.h"
 
 extern game::Fighter fighter;
 extern int frame;

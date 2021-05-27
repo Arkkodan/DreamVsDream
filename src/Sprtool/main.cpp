@@ -5,12 +5,12 @@
 #include <unistd.h>
 #endif
 
-#include "../../DvD/src/parser.h"
-#include "../../DvD/src/fighter.h"
-#include "../../DvD/src/graphics.h"
-#include "../../DvD/src/error.h"
-#include "../../DvD/src/globals.h"
-#include "../../DvD/src/error.h"
+#include "../DvD/parser.h"
+#include "../DvD/fighter.h"
+#include "../DvD/graphics.h"
+#include "../DvD/error.h"
+#include "../DvD/globals.h"
+#include "../DvD/error.h"
 
 game::Fighter fighter;
 int frame = 0;

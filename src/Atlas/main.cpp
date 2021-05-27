@@ -4,8 +4,8 @@
 #include <string>
 #include <iostream>
 
-#include "../../DvD/src/file.h"
-#include "../../DvD/src/util.h"
+#include "../DvD/file.h"
+#include "../DvD/util.h"
 #include "image.h"
 
 #define TEXTURE_SIZE 2048

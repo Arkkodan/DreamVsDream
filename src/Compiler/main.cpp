@@ -5,11 +5,11 @@
 #include <iostream>
 #include <algorithm>
 
-#include "../../DvD/src/fighter.h"
-#include "../../DvD/src/file.h"
-#include "../../DvD/src/parser.h"
-#include "../../DvD/src/player.h"
-#include "../../DvD/src/error.h"
+#include "../DvD/fighter.h"
+#include "../DvD/file.h"
+#include "../DvD/parser.h"
+#include "../DvD/player.h"
+#include "../DvD/error.h"
 
 //ATLAS DATA
 struct AtlasOffset {

@@ -1,7 +1,7 @@
-#include "../../DvD/src/globals.h"
-#include "../../DvD/src/graphics.h"
-#include "../../DvD/src/error.h"
-#include "../../DvD/src/fighter.h"
+#include "../DvD/globals.h"
+#include "../DvD/graphics.h"
+#include "../DvD/error.h"
+#include "../DvD/fighter.h"
 
 void init() {
 	void deinit();

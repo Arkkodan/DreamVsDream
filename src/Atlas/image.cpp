@@ -1,5 +1,5 @@
 #include "image.h"
-#include "../../DvD/src/util.h"
+#include "../DvD/util.h"
 
 #include <stdlib.h>
 #include <png.h>
