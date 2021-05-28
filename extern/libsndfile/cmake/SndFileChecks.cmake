@@ -1,3 +1,7 @@
+# DreamVsDream: Change from repo
+# M1: Do not search for Enc in find_package(Vorbis), maybe outdated cmake script
+
+
 include (CheckFunctionExists)
 include (CheckIncludeFile)
 include (CheckLibraryExists)
@@ -35,7 +39,8 @@ endif ()
 
 if (CMAKE_FIND_PACKAGE_PREFER_CONFIG)
 	find_package (Ogg 1.3 CONFIG)
-	find_package (Vorbis CONFIG COMPONENTS Enc)
+	# M1: Do not search for Enc in find_package(Vorbis), maybe outdated cmake script
+	find_package (Vorbis CONFIG)
 	find_package (FLAC CONFIG)
 	find_package (Opus CONFIG)
 
@@ -46,7 +51,8 @@ if (CMAKE_FIND_PACKAGE_PREFER_CONFIG)
 	find_package_handle_standard_args (Opus CONFIG_MODE)
 else ()
 	find_package (Ogg 1.3)
-	find_package (Vorbis COMPONENTS Enc)
+	# M1: Do not search for Enc in find_package(Vorbis), maybe outdated cmake script
+	find_package (Vorbis)
 	find_package (FLAC)
 	find_package (Opus)
 endif ()

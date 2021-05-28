@@ -140,14 +140,22 @@ target_compile_definitions(Sprtool
 )
 
 
-# TODO: Target includes and links with dependencies
+# Target includes and links with dependencies
 
-# target_include_directories(Atlas
-  # ...
-# )
-# target_link_libraries(Atlas
-  # ...
-# )
+# png does not work normally for some reason
+if(png IN_LIST SHARED_LIBRARIES)
+  set(libpng_LIBRARY png)
+else()
+  set(libpng_LIBRARY png_static)
+endif()
+get_target_property(libpng_INCLUDE_DIRS ${libpng_LIBRARY} INCLUDE_DIRECTORIES)
+
+target_include_directories(Atlas
+  PRIVATE ${libpng_INCLUDE_DIRS}
+)
+target_link_libraries(Atlas
+  PRIVATE ${libpng_LIBRARY}
+)
 
 # target_include_directories(Compiler
   # ...
@@ -156,12 +164,20 @@ target_compile_definitions(Sprtool
   # ...
 # )
 
-# target_include_directories(DvD
-  # ...
-# )
-# target_link_libraries(DvD
-  # ...
-# )
+target_include_directories(DvD
+  PRIVATE SDL2
+  PRIVATE zlib
+  PRIVATE ${libpng_INCLUDE_DIRS}
+  PRIVATE stb_image
+  PRIVATE sndfile
+)
+target_link_libraries(DvD
+  PRIVATE SDL2
+  PRIVATE zlib
+  PRIVATE ${libpng_LIBRARY}
+  PRIVATE stb_image
+  PRIVATE sndfile
+)
 
 # target_include_directories(Fontbuild
   # ...
@@ -170,12 +186,14 @@ target_compile_definitions(Sprtool
   # ...
 # )
 
-# target_include_directories(Sprtool
-  # ...
-# )
-# target_link_libraries(Sprtool
-  # ...
-# )
+target_include_directories(Sprtool
+  PRIVATE SDL2
+  PRIVATE ${libpng_INCLUDE_DIRS}
+)
+target_link_libraries(Sprtool
+  PRIVATE SDL2
+  PRIVATE ${libpng_LIBRARY}
+)
 
 
 # Organize files for IDEs

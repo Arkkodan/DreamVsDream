@@ -1,3 +1,7 @@
+// DreamVsDream: Change from repo
+// M1: Shift opus include directory up to match with opus subrepo
+
+
 /*
 ** Copyright (C) 2013-2020 Erik de Castro Lopo <erikd@mega-nerd.com>
 ** Copyright (C) 2018 Arthur Taylor <art@ified.ca>
@@ -162,8 +166,9 @@
 #if HAVE_EXTERNAL_XIPH_LIBS
 
 #include <ogg/ogg.h>
-#include <opus/opus.h>
-#include <opus/opus_multistream.h>
+// M1: Shift opus include directory up to match with opus subrepo
+#include <opus.h>
+#include <opus_multistream.h>
 
 #include "ogg.h"
 #include "ogg_vcomment.h"

@@ -26,16 +26,31 @@ else()
 endif()
 
 
-# TODO: Add external libraries from extern
-# add_subdirectory("extern" EXCLUDE_FROM_ALL)
+# First, mark all external libraries as shared
+set(SHARED_LIBRARIES
+  SDL2
+  zlib
+  png
+  ogg
+  vorbis
+  vorbisenc
+  FLAC
+  opus
+  sndfile
+)
+# Then, unmark external libraries that cause problems if shared
+if(MINGW)
+  list(REMOVE_ITEM SHARED_LIBRARIES
+    png
+    vorbis
+    vorbisenc
+  )
+endif()
 
-# TODO: First, mark all external libraries as shared
-# set(SHARED_LIBRARIES
-#   ...
-# )
-# TODO: Then, unmark external libraries that cause problems if shared
+message(STATUS "Shared libraries: ${SHARED_LIBRARIES}")
 
-# message(STATUS "Shared libraries: ${SHARED_LIBRARIES}")
+# Add external libraries from extern
+add_subdirectory("extern" EXCLUDE_FROM_ALL)
 
 
 # Add executables from src
@@ -55,7 +70,7 @@ message(STATUS "Dream Vs. Dream binaries: ${DREAMVSDREAM_BINARIES}")
 # Set binary build directory inside bin
 set(BINARY_BUILD_TARGETS
   ${DREAMVSDREAM_BINARIES}
-  # ${SHARED_LIBRARIES}
+  ${SHARED_LIBRARIES}
 )
 
 set_target_properties(${BINARY_BUILD_TARGETS}
