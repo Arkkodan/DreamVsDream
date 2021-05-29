@@ -1,3 +1,6 @@
+#CMake out-of-source build directories
+build*/
+
 #OS Files
 .DS_Store
 Thumbs.db
