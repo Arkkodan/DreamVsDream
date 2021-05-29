@@ -16,6 +16,7 @@
 
 #ifdef _WIN32
 //1.3
+// SDL_opengl.h already defines glActiveTexture and glBlendEquation
 PFNGLACTIVETEXTUREPROC          glActiveTexture;
 PFNGLBLENDEQUATIONPROC          glBlendEquation;
 #endif
@@ -109,6 +110,7 @@ namespace graphics {
 
 #ifdef _WIN32
 		//1.2+ functions are not defined in Windows
+		// SDL_opengl.h already defines glActiveTexture and glBlendEquation
 		LOAD_GL_PROC(glActiveTexture, GLACTIVETEXTURE);
 		LOAD_GL_PROC(glBlendEquation, GLBLENDEQUATION);
 		if(!glBlendEquation)

@@ -41,6 +41,7 @@ set(SHARED_LIBRARIES
 # Then, unmark external libraries that cause problems if shared
 if(MINGW)
   list(REMOVE_ITEM SHARED_LIBRARIES
+    zlib
     png
     vorbis
     vorbisenc

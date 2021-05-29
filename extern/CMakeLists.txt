@@ -23,6 +23,12 @@ message(STATUS "Library: SDL")
 conditional_set_BUILD_SHARED_LIBS(SDL2)
 add_subdirectory("SDL" EXCLUDE_FROM_ALL)
 
+if(MINGW)
+  target_link_libraries(SDL2
+    PRIVATE iconv
+  )
+endif()
+
 
 # zlib
 message(STATUS "Library: zlib")
@@ -30,11 +36,6 @@ conditional_set_BUILD_SHARED_LIBS(zlib)
 add_subdirectory("zlib" EXCLUDE_FROM_ALL)
 
 get_target_property(ZLIB_INCLUDE_DIR zlib INCLUDE_DIRECTORIES)
-# get_target_property(ZLIB_INCLUDE_DIRS zlib INCLUDE_DIRECTORIES)
-set(ZLIB_LIBRARY
-  zlib
-  zlib_static
-)
 
 # Install export zlib targets because libpng is exported as well
 install(TARGETS zlib zlibstatic
@@ -49,9 +50,11 @@ install(EXPORT zlib_targets
 message(STATUS "Library: libpng")
 conditional_set_BUILD_SHARED_LIBS(png)
 if(png IN_LIST SHARED_LIBRARIES)
+  set(ZLIB_LIBRARY zlib)
   set(PNG_SHARED ON CACHE BOOL "libpng: Build shared lib" FORCE)
   set(PNG_STATIC OFF CACHE BOOL "libpng: Build static lib" FORCE)
 else()
+  set(ZLIB_LIBRARY zlibstatic)
   set(PNG_SHARED OFF CACHE BOOL "libpng: Build shared lib" FORCE)
   set(PNG_STATIC ON CACHE BOOL "libpng: Build static lib" FORCE)
 endif()

@@ -1,3 +1,6 @@
+// We have a main function
+#define SDL_MAIN_HANDLED
+
 #include "globals.h"
 #include "player.h"
 #include "fighter.h"

@@ -14,7 +14,7 @@ namespace os {
 #endif
 
 #if defined _WIN32 && !defined COMPILER
-#include <SDL2/SDL_syswm.h>
+#include <SDL_syswm.h>
 void w32_messageBox(const char* title, const char* text, int flags) {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);

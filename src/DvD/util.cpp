@@ -12,6 +12,10 @@
 #include <sys/stat.h>
 #endif
 
+#if(_MSC_VER) // MSVC uses _stricmp instead of strcasecmp
+#define strcasecmp(str1, str2) _stricmp(str1, str2)
+#endif
+
 namespace util {
 	Vector::Vector() :
 	    x(0), y(0)
@@ -117,7 +121,13 @@ namespace util {
 
 	FILE* ufopen(const std::string& szFileName, const char* flags) {
 #ifdef _WIN32
+		// Either MSVC or Windows requires an inner getPath call
+		// Use a temporary hack
+#ifdef _MSC_VER
+#define szFileName getPath(szFileName)
+#endif
 		wchar_t* filename16 = getPathUtf16(szFileName);
+#undef szFileName
 		wchar_t* flags16 = utf8to16(flags);
 		FILE* file = _wfopen(filename16, flags16);
 		free(flags16);

@@ -142,6 +142,12 @@ target_compile_definitions(Sprtool
 
 # Target includes and links with dependencies
 
+if(zlib IN_LIST SHARED_LIBRARIES)
+  set(zlib_LIBRARY zlib)
+else()
+  set(zlib_LIBRARY zlibstatic)
+endif()
+
 # png does not work normally for some reason
 if(png IN_LIST SHARED_LIBRARIES)
   set(libpng_LIBRARY png)
@@ -149,6 +155,7 @@ else()
   set(libpng_LIBRARY png_static)
 endif()
 get_target_property(libpng_INCLUDE_DIRS ${libpng_LIBRARY} INCLUDE_DIRECTORIES)
+
 
 target_include_directories(Atlas
   PRIVATE ${libpng_INCLUDE_DIRS}
@@ -166,14 +173,16 @@ target_link_libraries(Atlas
 
 target_include_directories(DvD
   PRIVATE SDL2
-  PRIVATE zlib
+  PRIVATE SDL2main
+  PRIVATE ${zlib_LIBRARY}
   PRIVATE ${libpng_INCLUDE_DIRS}
   PRIVATE stb_image
   PRIVATE sndfile
 )
 target_link_libraries(DvD
   PRIVATE SDL2
-  PRIVATE zlib
+  PRIVATE SDL2main
+  PRIVATE ${zlib_LIBRARY}
   PRIVATE ${libpng_LIBRARY}
   PRIVATE stb_image
   PRIVATE sndfile
@@ -188,12 +197,33 @@ target_link_libraries(DvD
 
 target_include_directories(Sprtool
   PRIVATE SDL2
+  PRIVATE SDL2main
   PRIVATE ${libpng_INCLUDE_DIRS}
 )
 target_link_libraries(Sprtool
   PRIVATE SDL2
+  PRIVATE SDL2main
   PRIVATE ${libpng_LIBRARY}
 )
+
+# Platform specific linking
+if(WIN32)
+  target_link_libraries(Atlas
+    PRIVATE shlwapi
+  )
+  target_link_libraries(Compiler
+    PRIVATE shlwapi
+  )
+  target_link_libraries(DvD
+    PRIVATE ws2_32
+    PRIVATE shlwapi
+    PRIVATE opengl32
+  )
+  target_link_libraries(Sprtool
+    PRIVATE shlwapi
+    PRIVATE opengl32
+  )
+endif()
 
 
 # Organize files for IDEs

@@ -16,6 +16,10 @@
 #include "input.h"
 #include "effect.h"
 
+#if(_MSC_VER) // MSVC uses _stricmp instead of strcasecmp
+#define strcasecmp(str1, str2) _stricmp(str1, str2)
+#endif
+
 std::string szConfigPath;
 
 static bool disable_shaders = false;

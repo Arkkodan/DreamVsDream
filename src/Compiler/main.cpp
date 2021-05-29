@@ -11,6 +11,10 @@
 #include "../DvD/player.h"
 #include "../DvD/error.h"
 
+#if(_MSC_VER) // MSVC uses _stricmp instead of strcasecmp
+#define strcasecmp(str1, str2) _stricmp(str1, str2)
+#endif
+
 //ATLAS DATA
 struct AtlasOffset {
 	std::string name;

@@ -3,15 +3,23 @@
 
 #include "globals.h"
 
-#include <SDL2/SDL_opengl.h>
+#ifndef COMPILER // Assume Compiler does not need to know about SDL_opengl.h
+#include <SDL_opengl.h>
+#endif
 
 #include "shader.h"
 
 #ifndef __APPLE__
 #ifdef _WIN32
+#ifndef COMPILER
 //1.3
+// SDL_opengl.h already defines glActiveTexture and glBlendEquation
+// Temporary hack
+#define glActiveTexture procGlActiveTexture
+#define glBlendEquation procGlBlendEquation
 extern PFNGLACTIVETEXTUREPROC           glActiveTexture;
 extern PFNGLBLENDEQUATIONPROC           glBlendEquation;
+#endif
 #endif
 
 #ifdef GAME
