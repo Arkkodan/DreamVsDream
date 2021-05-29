@@ -1,6 +1,6 @@
 # Dream vs. Dream
 
-Current version: **v0.2**
+Current version: **0.2.1**
 
 Development Status: **Slow and Unstable**
 
