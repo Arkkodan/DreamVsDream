@@ -19,6 +19,7 @@ namespace net {
 
 	#define NET_VERSION 2
 
+	/// @brief Basic data packet format
 	struct NetHeader {
 	#define NETF_SYN (1<<0)
 	#define NETF_ACK (1<<1)
@@ -45,23 +46,36 @@ namespace net {
 	extern int inputDelay;
 	extern volatile uint32_t frame;
 
+	/// @brief Unused
+	/// @details There exists a used overload of this function
 	void* run(void*);
+	/// @brief Close the connection cleanly
 	void terminate();
 
+	/// @brief Start the network
 	void start(uint32_t _ip, uint16_t _port);
+	/// @brief Stop the network
 	void stop();
 
+	/// @brief Send data
 	int send(const void* data, size_t size);
 	//int sendRaw(const NetHeader* header, const void* data, size_t size);
+
+	/// @brief Receive data
 	int recv(void* data, size_t size);
 	//int recvRaw(NetHeader* header, void* data, size_t size);
 
+	/// @brief Get local player
 	game::Player* getMyPlayer();
+	/// @brief Get opponent to local player
 	game::Player* getYourPlayer();
 
+	/// @brief Do one frame
 	void refresh();
 
+	/// @brief Initialize network framework
 	void init(int input_delay);
+	/// @brief Deinitialize network framework
 	void deinit();
 }
 

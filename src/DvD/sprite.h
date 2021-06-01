@@ -7,9 +7,13 @@
 #include "util.h"
 
 namespace sprite {
+	/// @brief Unused
 	void init();
+	/// @brief Unused
 	void deinit();
 
+	/// @brief Data structure containing a hitbox with some methods
+	/// @details A hitbox is either an attacking hitbox or a defending hurtbox
 	class HitBox {
 	public:
 		util::Vector pos;
@@ -26,6 +30,7 @@ namespace sprite {
 		void draw(int x, int y, bool attack, bool selected);
 	};
 
+	/// @brief Data structure containing a group of hitboxes
 	class HitBoxGroup {
 	public:
 		int size;
@@ -48,6 +53,7 @@ namespace sprite {
 		HIT_ATTACK,
 	};
 
+	/// @brief Sprite class containing data from atlases with helper methods
 	class Sprite {
 	public:
 		Sprite();

@@ -21,6 +21,9 @@ enum {
 	RENDER_MULTIPLY
 };
 
+/// @brief Image class ready for rendering
+/// @details createFromFile assumes png but createFromMemory takes an
+/// OpenGL-ready format
 class Image {
 public:
 	Image();

@@ -55,6 +55,7 @@ namespace game {
 	#define SUPER_MAX 1000
 	#define SUPER_DEFAULT (SUPER_MAX * 0.20)
 
+	/// @brief Data structure containing information about an input
 	class InputBuff {
 	public:
 		uint32_t frame;
@@ -63,6 +64,8 @@ namespace game {
 		InputBuff();
 	};
 
+	/// @brief In-game interactable object
+	/// @details Extended by Player
 	class Projectile {
 	public:
 		int palette;
@@ -137,6 +140,8 @@ namespace game {
 
 	#define MAX_PROJECTILES 128
 
+	/// @brief Active instance of in-game player
+	/// @details Do not confuse with Fighter
 	class Player : public Projectile {
 	public:
 		char playerNum;

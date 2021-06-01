@@ -11,8 +11,10 @@
 
 namespace game {
 #ifdef GAME
-	//Init/deinit
+	/// @brief Create fighters
+	/// @details Also creates transform sounds
 	void init();
+	/// @brief Deinit
 	void deinit();
 	
 	extern audio::Sound sndTransformYn;
@@ -35,6 +37,7 @@ namespace game {
 		CND_DOUBLEJUMP,
 	};
 
+	/// @brief Data structure containing a command target
 	class CommandTarget {
 	public:
 		CommandTarget();
@@ -44,6 +47,7 @@ namespace game {
 		ubyte_t conditions[16];
 	};
 
+	/// @brief Data structure containing a command
 	class Command {
 	public:
 		Command();
@@ -56,6 +60,7 @@ namespace game {
 		CommandTarget* targets;
 	};
 
+	/// @brief Data structure containing a group of sounds
 	class SoundGroup {
 	public:
 		SoundGroup();
@@ -72,6 +77,7 @@ namespace game {
 #endif
 	};
 
+	/// @brief Data structure containing a group of voice sounds
 	class VoiceGroup {
 	public:
 		VoiceGroup();
@@ -89,6 +95,7 @@ namespace game {
 #endif
 	};
 
+	/// @brief Data structure containing a state
 	class State {
 	public:
 		State();
@@ -106,6 +113,7 @@ namespace game {
 	#define SVT_CONST 0
 	#define SVT_VAR 1
 	#define SVT_GLOBAL 2
+	/// @brief Unused
 	class StepVar {
 	public:
 		byte_t type;
@@ -150,6 +158,7 @@ namespace game {
 	#define HT_MID 1
 	#define HT_HIGH 2
 
+	/// @brief Data structure containing information about an attack
 	struct StepAttack {
 		float damage;
 		char type;
@@ -159,11 +168,13 @@ namespace game {
 		bool cancel;
 	};
 
+	/// @brief Data structure containing information about a shoot action
 	struct StepShoot {
 		unsigned int state;
 		util::Vectorf force;
 	};
 
+	/// @brief Data structure containing information about a bounce action
 	struct StepBounce {
 		util::Vectorf force;
 		int pause;
@@ -229,6 +240,9 @@ namespace game {
 
 	#define STATE_NONE (UINT_MAX)
 
+	/// @brief Fighter class containing data of different fighters and helper
+	/// methods
+	/// @details Do not confuse with Projectile or Player
 	class Fighter {
 	public:
 		//General fighter stuff
@@ -304,7 +318,9 @@ namespace game {
 	#define FIGHTERS_MAX 3
 	extern Fighter fighters[FIGHTERS_MAX];
 
+	/// @brief Set a boolean output parameter based on an enum input parameter
 	void setBool(bool& dst, char src);
+	/// @brief Set an enum output parameter based on a boolean input parameter
 	void setStateBool(char& dst, bool src);
 }
 
