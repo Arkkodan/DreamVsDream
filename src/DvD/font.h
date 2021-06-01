@@ -5,6 +5,8 @@
 
 #include "image.h"
 
+/// @brief Font class for rendering
+/// @details Uses Dream vs. Dream's font format
 class Font {
 public:
 	Font();

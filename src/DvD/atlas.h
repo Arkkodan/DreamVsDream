@@ -6,7 +6,7 @@
 #include "image.h"
 #include "file.h"
 
-//Describes a sprite
+/// @brief Data structure representing a sprite in an atlas
 class AtlasSprite {
 public:
 	AtlasSprite();
@@ -15,7 +15,7 @@ public:
 	int x, y, w, h;
 };
 
-//ATLAS - A collection of sprites
+/// @brief Atlas class representing a collection of sprites in crammed images
 class Atlas {
 public:
 

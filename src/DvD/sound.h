@@ -6,12 +6,16 @@
 #include "file.h"
 
 namespace audio {
+	/// @brief Initialize audio device for playback
 	void init();
+	/// @brief Deinitialize audio
 	void deinit();
+	/// @brief Apply audio effects with the game
 	void refresh();
 
 	extern bool enabled;
 
+	/// @brief Sound class containing sample data and interacting with mixer
 	class Sound {
 	public:
 		Sound();
@@ -35,6 +39,7 @@ namespace audio {
 
 #define AUDIO_STREAM_BUFFER_MAX 3
 
+	/// @brief Music wrapper class around Sound
 	class Music {
 	public:
 		Music();
@@ -69,6 +74,7 @@ namespace audio {
 
 	typedef Sound Voice;
 
+	/// @brief Speaker object that can only play one active voice
 	class Speaker {
 	public:
 		Speaker();

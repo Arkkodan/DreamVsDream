@@ -5,6 +5,8 @@
 
 #include "image.h"
 
+/// @brief Animation class represented by a sequence of images
+/// @details Based on gif
 class Animation {
 public:
     Animation();

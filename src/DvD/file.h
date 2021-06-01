@@ -13,6 +13,8 @@
 #define FILE_WRITE_NORMAL (FILE_IO_WRITE|FILE_COMPRESS_NORMAL)
 #define FILE_WRITE_GZ     (FILE_IO_WRITE|FILE_COMPRESS_GZ)
 
+/// @brief High-level file read/write
+/// @details Designed for binary files, has its own RW protocol
 class File {
 public:
 	File();

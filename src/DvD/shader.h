@@ -3,6 +3,7 @@
 
 #include "globals.h"
 
+/// @brief RAII wrapper for OpenGL shaders
 class Shader {
 public:
 	Shader();

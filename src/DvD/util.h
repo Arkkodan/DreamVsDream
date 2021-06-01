@@ -9,6 +9,8 @@
 #define ARRAYSIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 namespace util {
+
+	/// @brief Class of vectors using 2 int types
 	class Vector {
 	public:
 		Vector();
@@ -29,6 +31,7 @@ namespace util {
 		int y;
 	};
 
+	/// @brief Class of vectors using 2 float types
 	class Vectorf {
 	public:
 		Vectorf();
@@ -49,36 +52,60 @@ namespace util {
 		float y;
 	};
 
-	//This is equivalent to fopen, but works with unicode filenames
-	//on Windows.
+	/// @brief Unicode-ambivalent fopen
+	/// @details Equivalent to fopen but works with unicode filenames on Windows
+	/// @param szFileName Filename to open
+	/// @param flags flags parameter to fopen
+	/// @return FILE pointer to the file.
 	FILE* ufopen(const std::string& szFileName, const char* flags);
 
 #ifdef _WIN32
+	/// @brief Convert UTF-8 to UTF-16
 	wchar_t* utf8to16(const char* string);
+
+	/// @brief Convert UTF-16 to UTF-8
 	char* utf16to8(const wchar_t* string);
 	
+	/// @brief Prepend necessary information for Windows
 	wchar_t* getPathUtf16(const std::string& filename);
 #endif
 
+	/// @brief Retrieve the correct filepath from a filename
+	/// @detail For DvD, prepend the data directory
 	std::string getPath(const std::string& filename);
 	
-	//Returns true if the file exists
+	/// @brief Check if the file exists
 	bool fileExists(const std::string& filename);
 
-	//This function determines if the character(s) at c
-	//represent a newline. If it does, it returns the number
-	//of characters that the newline uses.
+	/// @brief Determine if the character(s) at a pointer represents a newline
+	/// @param c Pointer to a char
+	/// @param Max number of chars to check
+	/// @return Number of characters that this newline uses.
+	/// If c does not represent a newline, return 0.
 	int isNewline(char* c, int size);
 
-	//Same, but with whitespace. This does NOT consider newlines
-	//to be whitespace!
+	/// @brief Determine if the character(s) at a pointer represents whitespace
+	/// @details Newlines are NOT considered whitespace.
+	/// @param c Pointer to a char
+	/// @param Max number of chars to check.
+	/// @return Number of characters that this whitespace uses.
 	int isWhitespace(char* c, int size);
 
-	//Determines if string is "true" or "false", returning def
-	//if it matches neither.
+	/// @brief Read a string for "true" or "false"
+	/// @details This string is case insensitive.
+	/// @param str String
+	/// @param def Default bool value
+	/// @return Boolean value that str has.
+	/// If str is neither "true" or "false", return def.
 	bool strtobool(const char* str, bool def);
 
-	//This determines the start and the end position of the next word.
+	/// @brief Determine the start and end positions of the next word
+	/// @details Words are delimited by commas and whitespaces.
+	/// @param[in] c String
+	/// @param[in] index Starting index to look
+	/// @param[in] size Ending index to look
+	/// @param[out] start Start index of the next word
+	/// @param[out] end End index of the next word
 	//The start index is written to start, the end to end.
 	void nextWord(char* c, int index, int size, int* start, int* end);
 
@@ -88,14 +115,26 @@ namespace util {
 	void freeLines(char** lines);
 
 	//RNG
+
+	/// @brief Generate random int
+	/// @return Int value ranges from 0 (inclusive) to size (exclusive).
 	int roll(int size);
+
+	/// @brief Generate random int
+	/// @return Int value ranges from min to max inclusively.
 	int roll(int min, int max);
+
+	/// @brief Generate random float
+	/// @return Float value ranges from 0.0f (inclusive) to 1.0f (exclusive).
 	float rollf();
 
-	//Number->string conversion
+	/// @brief Convert int to std::string
 	std::string toString(int);
 
-	//Directory listing
+	/// @brief Retrieve a list of directories OR files
+	/// @param directory The directory to look in
+	/// @param listFiles Look for files if true, look for directories if false
+	/// @return std::vector of directories or files specified by listFiles
 	std::vector<std::string> listDirectory(const std::string& directory, bool listFiles);
 }
 
