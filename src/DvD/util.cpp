@@ -121,13 +121,9 @@ namespace util {
 
 	FILE* ufopen(const std::string& szFileName, const char* flags) {
 #ifdef _WIN32
-		// Either MSVC or Windows requires an inner getPath call
+		// Windows requires an inner getPath call
 		// Use a temporary hack
-#ifdef _MSC_VER
-#define szFileName getPath(szFileName)
-#endif
-		wchar_t* filename16 = getPathUtf16(szFileName);
-#undef szFileName
+		wchar_t* filename16 = getPathUtf16(getPath(szFileName));
 		wchar_t* flags16 = utf8to16(flags);
 		FILE* file = _wfopen(filename16, flags16);
 		free(flags16);
