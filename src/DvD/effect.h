@@ -7,6 +7,7 @@
 #include "player.h"
 
 namespace effect {
+    /// @brief Data entry containing animation of an effect
     class EffectAnimation {
     public:
         EffectAnimation();
@@ -30,6 +31,7 @@ namespace effect {
         int nFrames;
     };
 
+    /// @brief In-game effect object
     class Effect {
     public:
         Effect();
@@ -54,10 +56,14 @@ namespace effect {
 		game::Projectile* parent;
     };
 
+    /// @brief Create EffectAnimation objects
     void init();
+    /// @brief Free EffectAnimation objects
     void deinit();
 
+    /// @brief Create a new in-game effect
     void newEffect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops, game::Projectile* parent);
+    /// @brief Draw all in-game effects
     void draw();
 }
 

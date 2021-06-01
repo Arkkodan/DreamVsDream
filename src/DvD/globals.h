@@ -24,9 +24,9 @@ typedef char byte_t;
 typedef unsigned char ubyte_t;
 
 #ifdef SPRTOOL
-#define WINDOW_TITLE "Dream vs. Dream Sprite Tool"
+#define WINDOW_TITLE "Dream vs. Dream Sprite Tool v" VERSION
 #else
-#define WINDOW_TITLE "Dream vs. Dream v0.2"
+#define WINDOW_TITLE "Dream vs. Dream v" VERSION
 #endif
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480

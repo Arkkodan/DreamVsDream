@@ -5,6 +5,8 @@
 
 #include "os.h"
 
+/// @brief Simple thread class
+/// @details Uses SDL_Thread
 class Thread {
 public:
 	Thread();
@@ -25,6 +27,8 @@ private:
     SDL_Thread* thread;
 };
 
+/// @brief Simple mutex class
+/// @details Uses SDL_mutex
 class Mutex {
 public:
 	Mutex();

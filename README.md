@@ -1,6 +1,6 @@
 # Dream vs. Dream
 
-Current version: **v0.2**
+Current version: **0.2.1**
 
 Development Status: **Slow and Unstable**
 
@@ -16,8 +16,8 @@ Disclaimer from version 0.2 (modified):
 
 ## Preface about the [Original Dream vs. Dream Project][v0.2 repo]
 
-The latest version of Dream vs. Dream is v0.2.
-Dream vs. Dream is currently not in active development and has not been for years.
+The latest official version of Dream vs. Dream is 0.2.
+The original Dream vs. Dream project is currently not in active development and has not been for years.
 You can view the original repo at [GitHub][v0.2 repo].
 See the original [README.md](./docs/old/README.md).
 
@@ -31,9 +31,13 @@ As such, the development of Dream vs. Dream is limited.
 
 If this repo has been inactive for a substantial amount of time, you can assume that development on this repo has stopped, at least for now. Feel free to continue development on a different fork. Please try to contact the project maintainer first.
 
+## Users
+
+If you have an error with a binary, please check [docs/users/ERRORS.md](./docs/users/ERRORS.md).
+
 ## Build Instructions
 
-WIP: Instructions on how to build here or in some other documentation file.
+User based build instructions located in [docs/users/BUILD.md](./docs/users/BUILD.md).
 
 ## Documentation
 
@@ -55,16 +59,25 @@ Otherwise, contact the project maintainer.
 
 ## License
 
-In accordance with the previous repo, Dream vs. Dream is licensed under the GNU General Public License v3.0. See [LICENSE](./LICENSE). All Dream vs. Dream source files (.cpp, .h, Makefiles) are licensed under this license _unless otherwise stated_.
+In accordance with the previous repo, Dream vs. Dream is licensed under the GNU General Public License v3.0. See [LICENSE](./LICENSE).
+All Dream vs. Dream source files (.cpp and .h under [src](./src)) are licensed under this license _unless otherwise stated_.
+This basically means:
 
-Third-party libraries have their own licenses.
+- If you release a distribution of any Dream vs. Dream binary (e.g. DvD), you must disclose its source. Linking back to this repo should be fine.
+- If you use this code for another project (e.g. a fork), it too must be licensed under the same license.
 
-Dream vs. Dream's assets (pretty much everything under [the data directory](./DvD/data)) are owned by their creators. Their licenses is **unknown**.
+Please note that further development on Dream vs. Dream should be licensed under the GNU GPL v3 or any other compatible license.
+
+Third-party libraries used in Dream vs. Dream have their own licenses. See [docs/EXTERNAL_LIBRARIES.md](./docs/EXTERNAL_LIBRARIES.md)
+
+Dream vs. Dream's assets (pretty much everything under [the data directory](./data)) are owned by their creators. Their licenses are **unknown**.
 
 If you are a creator of an asset or assets that exists in this repo used or unused and you wish to remove your content, please contact the project maintainer.
-Otherwise, I will assume that they are permissible for usage and distribution with the project.
+Otherwise, it will be assumed for now that they are permissible for usage and distribution with the project.
 
-## Credits
+## General Credits
+
+See specific credits at [docs/CREDITS.md](./docs/CREDITS.md). If any information is missing or incorrect, please contact the project maintainer.
 
 ### This Repo
 
@@ -73,7 +86,7 @@ Otherwise, I will assume that they are permissible for usage and distribution wi
 
 ### [v0.2][v0.2 repo]
 
-Credits can be found inside [a game file](./DvD/data/menus/credits/credits.txt). Unfortunately, these credits were meant to be displayed in game and do not contain specific details about who worked on what.
+Credits can be found inside [a game file](./data/menus/credits/credits.txt). Unfortunately, these credits were meant to be displayed in game and do not contain specific details about who worked on what.
 
 If you were involved in the development of Dream vs. Dream and you wish to:
 

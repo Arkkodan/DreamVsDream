@@ -35,6 +35,7 @@ enum {
 	MENU_QUIT, //Dummy menu for quitting
 };
 
+/// @brief Image for displaying, intended for menus
 class MenuImage {
 public:
 	MenuImage(Image& _image, float _x, float _y, float _parallax, char _render, float _xvel, float _yvel, bool wrap, int round);
@@ -56,6 +57,7 @@ public:
 	void draw(bool _stage);
 };
 
+/// @brief Menu base class
 class Menu {
 public:
 	Menu(std::string name_);
@@ -105,6 +107,7 @@ public:
 	static void deinit();
 };
 
+/// @brief Menu for the introductory sceen
 class MenuIntro : public Menu {
 public:
 	MenuIntro();
@@ -125,6 +128,7 @@ public:
 	void parseLine(Parser& parser);
 };
 
+/// @brief Menu for the title menu
 class MenuTitle : public Menu {
 public:
 	MenuTitle();
@@ -156,6 +160,7 @@ public:
 	void parseLine(Parser& parser);
 };
 
+/// @brief Helper data structure for MenuSelect
 class CursorData {
 public:
 	util::Vector off;
@@ -178,6 +183,7 @@ enum {
 	CURSOR_LOCKED,
 };
 
+/// @brief Helper object for MenuSelect
 class Cursor {
 public:
 	int pos;
@@ -203,6 +209,7 @@ public:
 	int getGroup(int w, int gW, int gH);
 };
 
+/// @brief Character and stage selection
 class MenuSelect : public Menu {
 public:
 	MenuSelect();
@@ -238,6 +245,7 @@ public:
 	void parseLine(Parser& parser);
 };
 
+/// @brief Versus splash cutscene
 class MenuVersus : public Menu {
 public:
 	MenuVersus();
@@ -264,7 +272,7 @@ public:
 	void parseLine(Parser& parser);
 };
 
-
+/// @brief Menu for modifying options
 class MenuOptions : public Menu {
 public:
 	MenuOptions();
@@ -306,6 +314,7 @@ public:
 	void parseLine(Parser& parser);
 };
 
+/// @brief Helper object for drawing meters, primarily for MenuFight
 class MenuMeter {
 public:
 	MenuMeter();
@@ -322,6 +331,7 @@ enum {
 	GAMETYPE_TRAINING,
 };
 
+/// @brief Fighting game scene
 class MenuFight : public Menu {
 public:
 	MenuFight();
@@ -408,6 +418,7 @@ public:
 	void parseLine(Parser& parser);
 };
 
+/// @brief Menu for navigating netplay and connections
 class MenuNetplay : public Menu {
 public:
 	MenuNetplay();
@@ -454,6 +465,7 @@ public:
 	void parseLine(Parser& parser);
 };
 
+/// @brief In-game credits
 class MenuCredits : public Menu {
 public:
 

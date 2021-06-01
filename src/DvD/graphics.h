@@ -46,18 +46,26 @@ extern PFNGLUSEPROGRAMPROC		 		glUseProgram;
 #endif
 
 namespace graphics {
-	//Init/deinit
+	/// @brief Set some OpenGL variables, load procedures, check support
 	void init(bool disable_shaders, unsigned int max_texture_size);
+	/// @brief Deinit
 	void deinit();
 
+	/// @brief Apply shader effects and wait for 1 frame
 	void refresh();
 
+	/// @brief Primitive clear color
 	void setClearColor(ubyte_t r, ubyte_t g, ubyte_t b);
+	/// @brief Primitive rectangle
 	void setRect(int sX, int sY, int sW, int sH);
+	/// @brief Primitive color
 	void setColor(ubyte_t r, ubyte_t g, ubyte_t b, float a = 1.0f);
+	/// @brief Primitive scaling
 	void setScale(float scale, float yscale = 0.0f);
+	/// @brief Primitive render
 	void setRender(int render);
 
+	/// @brief Input data into shader
 	void setPalette(unsigned int palette, float alpha, float r, float g, float b, float pct);
 
 	//Immutable stuff

@@ -9,6 +9,7 @@
 extern int stage;
 #define STAGE stages[stage]
 
+/// @brief Stage class including creation, logic, and drawing
 class Stage {
 public:
 	std::string name;

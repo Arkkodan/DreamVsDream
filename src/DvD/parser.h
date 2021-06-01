@@ -14,6 +14,7 @@
 #define EXT_VIDEO "avi"
 #define EXT_TEXT "txt"
 
+/// @brief Data structure to hold information about a parsed line from Parser
 class ParserLine {
 public:
 	ParserLine();
@@ -24,6 +25,8 @@ public:
 	char* argv[ARGV_SIZE];
 };
 
+/// @brief Parser for a text file
+/// @details Designed for ubu scripts
 class Parser {
 public:
 	bool open(std::string szFileName);
