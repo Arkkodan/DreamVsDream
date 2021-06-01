@@ -2939,7 +2939,7 @@ void MenuCredits::draw() {
 			font.drawText(WINDOW_WIDTH - font.getTextWidth(_sz) - CREDITS_OFFSET, FLIP(font.img.h * 2), _sz, 255, 255, 255, secret_alpha);
 		} else {
 			int y = (WINDOW_HEIGHT - logo.h) / 4 - oy;
-			if(y - (int)logo.h >= 0) {
+			if(y + (int)logo.h >= 0) {
 				logo.draw(WINDOW_WIDTH - logo.w, y);
 			}
 
