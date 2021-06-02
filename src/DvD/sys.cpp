@@ -1,4 +1,5 @@
-#include "os.h"
+#include "sys.h"
+
 #include "error.h"
 #include "globals.h"
 #include "network.h"
@@ -7,7 +8,9 @@
 
 #include "scene/fight.h"
 
-namespace os {
+#include <SDL.h>
+
+namespace sys {
 	unsigned int frame = 0;
 
 	SDL_Window* window = nullptr;

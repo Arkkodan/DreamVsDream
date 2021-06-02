@@ -4,7 +4,7 @@
 
 #include "../network.h"
 
-#include "../os.h"
+#include "../sys.h"
 
 //NETPLAY
 #ifndef NO_NETWORK
@@ -29,7 +29,7 @@ SceneNetplay::~SceneNetplay() {
 void SceneNetplay::think() {
 	Scene::think();
 
-	if (os::frame % 2) {
+	if (sys::frame % 2) {
 		drawShake = !drawShake;
 	}
 
@@ -169,7 +169,7 @@ void SceneNetplay::think() {
 
 						//Copy IP and port from clipboard
 						char _sz_input[80];
-						std::string clipboard = os::getClipboard();
+						std::string clipboard = sys::getClipboard();
 						strncpy(_sz_input, clipboard.c_str(), sizeof(_sz_input));
 
 						char* _sz_ip = nullptr;

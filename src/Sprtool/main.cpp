@@ -15,7 +15,7 @@
 #include "../DvD/globals.h"
 #include "../DvD/error.h"
 
-#include "../DvD/os.h"
+#include "../DvD/sys.h"
 
 game::Fighter fighter;
 int frame = 0;
@@ -182,7 +182,7 @@ int main(int argc, char** argv)
 	fighter.create(name);
 
 	for(;;) {
-		os::refresh();
+		sys::refresh();
 
 		//Draw a crosshair
 		glBindTexture(GL_TEXTURE_2D, 0);

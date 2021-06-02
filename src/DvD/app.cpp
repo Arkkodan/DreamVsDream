@@ -8,7 +8,7 @@
 #include "stage.h"
 #include "effect.h"
 
-#include "os.h"
+#include "sys.h"
 
 #include <ctime>
 
@@ -40,7 +40,7 @@ void app::run() {
 	SceneFight::poniko.speaker.init();
 
 	for (;;) {
-		os::refresh();
+		sys::refresh();
 
 		SCENE->think();
 		SCENE->draw();
@@ -130,11 +130,11 @@ static void app::init() {
 
 	optionsLoad();
 
-	os::init();
+	sys::init();
 	graphics::init(disable_shaders, max_texture_size);
 	Scene::imgLoading.createFromFile("scenes/loading.png");
 	Scene::imgLoading.draw(0, 0);
-	os::refresh();
+	sys::refresh();
 
 	input::init();
 	if (!disable_sound) {
@@ -167,7 +167,7 @@ static void app::deinit() {
 	net::deinit();
 
 	graphics::deinit();
-	os::deinit();
+	sys::deinit();
 
 	optionsSave();
 }

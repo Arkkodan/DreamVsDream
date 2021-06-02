@@ -1,5 +1,5 @@
-#ifndef OS_H_INCLUDED
-#define OS_H_INCLUDED
+#ifndef DVD_SYS_H
+#define DVD_SYS_H
 #ifndef COMPILER
 
 #include "globals.h"
@@ -10,9 +10,9 @@
 #include <stdint.h>
 #include <math.h>
 
-#include <SDL.h>
+#include <SDL_video.h>
 
-namespace os {
+namespace sys {
 	/// @brief Create GL context
 	void init();
 	/// @brief Delete GL context
@@ -41,5 +41,5 @@ namespace os {
 	extern SDL_Window* window;
 }
 
-#endif
-#endif // OS_H_INCLUDED
+#endif // COMPILER
+#endif // DVD_SYS_H

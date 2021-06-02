@@ -3,7 +3,9 @@
 
 #include "globals.h"
 
-#include "os.h"
+#include "sys.h"
+
+#include <SDL_thread.h>
 
 /// @brief Simple thread class
 /// @details Uses SDL_Thread

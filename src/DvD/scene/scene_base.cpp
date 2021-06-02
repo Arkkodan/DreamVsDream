@@ -5,7 +5,7 @@
 #include "../stage.h"
 #include "../error.h"
 
-#include "../os.h"
+#include "../sys.h"
 
 Scene* Scene::scenes[SCENE_MAX] = { nullptr };
 int Scene::scene = SCENE_INTRO;
@@ -150,13 +150,13 @@ void Scene::think() {
 				if (!SCENE->initialized) {
 					//Loading graphic
 					imgLoading.draw(0, 0);
-					os::refresh();
+					sys::refresh();
 					SCENE->init();
 				}
 				if (scene == SCENE_FIGHT && !STAGE.initialized) {
 					//Loading graphic
 					imgLoading.draw(0, 0);
-					os::refresh();
+					sys::refresh();
 					STAGE.init();
 				}
 				SCENE->reset();

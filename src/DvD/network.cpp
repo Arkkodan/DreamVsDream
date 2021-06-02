@@ -17,6 +17,8 @@
 #include "scene/scene.h"
 #include "thread.h"
 
+#include "sys.h"
+
 
 namespace net {
 	enum {
@@ -111,13 +113,13 @@ namespace net {
 							buff.option1 = SceneOptions::optionWins;
 							buff.option2 = SceneOptions::optionTime;
 							if(send(&buff, sizeof(buff))) {
-								unsigned long _timer = os::getTime(); //Latency calculation
+								unsigned long _timer = sys::getTime(); //Latency calculation
 								if(recv(&buff, sizeof(buff))) {
 									//Check if its an ACK; if so, connection established; send calculated
 									//input delay
 									if(buff.flags & NetHeader::NETF_ACK && !(buff.flags & NetHeader::NETF_SYN)) {
 										//Calculate the input delay
-										float time = (os::getTime() - _timer) / 1000.0f;
+										float time = (sys::getTime() - _timer) / 1000.0f;
 										inputDelay = ceil((time + 0.01) / (2 * globals::SPF));
 										if(force_input_delay) {
 											inputDelay = force_input_delay;
@@ -330,7 +332,7 @@ namespace net {
 			bool sentRequest = false;
 			unsigned int timer;
 			unsigned int timeout;
-			timer = timeout = os::getTime();
+			timer = timeout = sys::getTime();
 			while(!haveInput && frame > 20) {
 				for(i = 0; i < game::NETBUFF_SIZE; i++) {
 					if(py->netBuff[i].frame == frame) {
@@ -340,7 +342,7 @@ namespace net {
 				}
 				//If we don't have input, send a request for it every half second.
 				if(!haveInput) {
-					unsigned int now = os::getTime();
+					unsigned int now = sys::getTime();
 					if((now - timer) > 500 || !sentRequest) {
 						//Pack a simple message and send it
 						*buffer = PACKET_REQUEST;

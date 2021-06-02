@@ -8,7 +8,7 @@
 #include "graphics.h"
 #include "effect.h"
 
-#include "os.h"
+#include "sys.h"
 
 namespace game {
 	constexpr auto HITSTUN = 14;
@@ -135,7 +135,7 @@ namespace game {
 			type = readByte();
 			if(type == 'A') {
 				//Set the draw priority frame
-				drawPriorityFrame = os::frame;
+				drawPriorityFrame = sys::frame;
 			}
 			movetype = readByte();
 			//if(type == 'A')
@@ -402,7 +402,7 @@ namespace game {
 
 		if(frameInput) {
 			inputs[nInputs].input = frameInput;
-			inputs[nInputs].frame = os::frame;
+			inputs[nInputs].frame = sys::frame;
 			//Adjust queue if necessary
 			if(++nInputs >= INBUFF_SIZE) {
 				//Move the input queue back one, then add it
@@ -496,7 +496,7 @@ namespace game {
 							for(int j = nInputs - 1; j >= 0; j--) {
 								if(keycmp(inputs[j].input, fighter->commands[i].combo[c], fighter->commands[i].generic & (1<<c))) {
 									if(!c) {
-										if(os::frame - inputs[j].frame < 15) {
+										if(sys::frame - inputs[j].frame < 15) {
 											equal = true;
 										}
 										break;
@@ -548,7 +548,7 @@ namespace game {
 		//See if a key was pressed within the last 3 frames
 		bool press = false;
 		for(int i = 0; i < nInputs; i++) {
-			if(os::frame - inputs[i].frame <= 3 && inputs[i].input & INPUT_KEYMASK) {
+			if(sys::frame - inputs[i].frame <= 3 && inputs[i].input & INPUT_KEYMASK) {
 				press = true;
 				break;
 			}
@@ -927,7 +927,7 @@ namespace game {
 
 				if(hit == sprite::HIT_HIT) {
 					//Automatically reset draw priority
-					drawPriorityFrame = os::frame;
+					drawPriorityFrame = sys::frame;
 
 					frameHit = true;
 					if(attack.cancel && pself) {
@@ -1175,7 +1175,7 @@ namespace game {
 			if(SceneOptions::optionEpilepsy) {
 				pct = 0.5f;
 			} else {
-				if(os::frame % 3 == 0) {
+				if(sys::frame % 3 == 0) {
 					pct = 0.9f;
 				}
 			}

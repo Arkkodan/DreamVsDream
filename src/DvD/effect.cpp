@@ -7,7 +7,7 @@
 #include "graphics.h"
 #include "util.h"
 
-#include "os.h"
+#include "sys.h"
 
 namespace effect {
     constexpr auto EFFECT_MAX = 256;
@@ -127,7 +127,7 @@ namespace effect {
             this->speed = speed;
 
             //Calculate the start and end frames
-            this->frameStart = os::frame;
+            this->frameStart = sys::frame;
             this->frameEnd = this->frameStart + (unsigned int)(anim->getNumFrames() * nLoops * speed);
         }
     }
@@ -140,14 +140,14 @@ namespace effect {
     }
 
     bool Effect::exists() {
-        return frameEnd > os::frame;
+        return frameEnd > sys::frame;
     }
 
     void Effect::draw() {
         if(!exists())
             return;
 
-        Image* frame = anim->getFrame((os::frame - frameStart) / speed);
+        Image* frame = anim->getFrame((sys::frame - frameStart) / speed);
 		
 		int x1 = x - frame->w / 2;
 		int y1 = y - frame->h / 2;

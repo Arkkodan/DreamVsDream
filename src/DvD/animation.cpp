@@ -9,7 +9,7 @@
 #include "error.h"
 #include "util.h"
 
-#include "os.h"
+#include "sys.h"
 
 #include <fstream>
 
@@ -117,7 +117,7 @@ end:
 void Animation::setPlaying(bool playing) {
     this->playing = playing;
     if(playing) {
-        startFrame = os::frame;
+        startFrame = sys::frame;
     }
 }
 
@@ -135,7 +135,7 @@ void Animation::draw(int x, int y) {
         }
 
         //Determine the frame we must be on
-        int time = (os::frame - startFrame) % total;
+        int time = (sys::frame - startFrame) % total;
         for(int i = 0; i < nFrames; i++) {
             if(time < frameTimes[i]) {
                 frame = i;

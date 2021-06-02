@@ -65,8 +65,6 @@ set(DVD_FILES
   DvD/main.cpp
   DvD/network.cpp
   DvD/network.h
-  DvD/os.cpp
-  DvD/os.h
   DvD/parser.cpp
   DvD/parser.h
   DvD/player.cpp
@@ -79,6 +77,8 @@ set(DVD_FILES
   DvD/sprite.h
   DvD/stage.cpp
   DvD/stage.h
+  DvD/sys.cpp
+  DvD/sys.h
   DvD/thread.cpp
   DvD/thread.h
   DvD/util.cpp
@@ -150,9 +150,9 @@ add_executable(Sprtool
   DvD/fighter.cpp
   DvD/graphics.cpp
   DvD/image.cpp
-  DvD/os.cpp
   DvD/parser.cpp
   DvD/sprite.cpp
+  DvD/sys.cpp
   DvD/util.cpp
 )
 target_compile_definitions(Sprtool

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 
-#include "os.h"
+#include "sys.h"
 #include "util.h"
 
 #if defined _WIN32 && !defined COMPILER
@@ -17,7 +17,7 @@ namespace error {
 static void error::w32_messageBox(const char* title, const char* text, int flags) {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
-	if(SDL_GetWindowWMInfo(os::window, &info)) {
+	if(SDL_GetWindowWMInfo(sys::window, &info)) {
 		wchar_t* title16 = util::utf8to16(title);
 		wchar_t* text16 = util::utf8to16(text);
 		MessageBoxW(info.info.win.window, text16, title16, flags);
@@ -34,7 +34,7 @@ void error::error(const std::string& sz) {
 #if defined _WIN32
 	w32_messageBox("Warning", sz.c_str(), MB_ICONWARNING);
 #elif defined __APPLE__
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", sz.c_str(), os::window);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", sz.c_str(), sys::window);
 #else
 #error "don't know what error to use!"
 #endif
@@ -48,7 +48,7 @@ void error::die(const std::string& sz) {
 #if defined _WIN32
 	w32_messageBox("Error", sz.c_str(), MB_ICONERROR);
 #elif defined __APPLE__
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", sz.c_str(), os::window);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", sz.c_str(), sys::window);
 #else
 #error "don't know what error to use!"
 #endif

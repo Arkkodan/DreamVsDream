@@ -8,7 +8,7 @@
 #include "shader.h"
 #include "stage.h"
 
-#include "os.h"
+#include "sys.h"
 
 #ifndef __APPLE__
 #define LOAD_GL_PROC(name, type) name = (PFN##type##PROC)SDL_GL_GetProcAddress(#name)
@@ -239,20 +239,20 @@ namespace graphics {
 #endif
 
 		//Calculate fps, wait
-		unsigned long delta = os::getTime() - time;
+		unsigned long delta = sys::getTime() - time;
 		if(delta < globals::MSPF) {
 			if(delta > FPS_BUFFER) {
-				os::sleep(globals::MSPF - delta);
+				sys::sleep(globals::MSPF - delta);
 			}
 			for(;;) {
-				if(os::getTime() - time >= globals::MSPF) {
+				if(sys::getTime() - time >= globals::MSPF) {
 					break;
 				}
 			}
 		}
 
 #ifdef SHOW_FPS
-		delta = os::getTime() - time;
+		delta = sys::getTime() - time;
 		tickSum -= tickValues[tickIndex];
 		tickSum += delta;
 		tickValues[tickIndex] = delta;
@@ -261,10 +261,10 @@ namespace graphics {
 		}
 		char buff[256];
 		sprintf8(buff, "[%f] " WINDOW_TITLE, 1000 / ((float)tickSum / FPS_COUNTER_SIZE));
-		OS::setTitle(buff);
+		sys::setTitle(buff);
 #endif // SHOW_FPS
 
-		time = os::getTime();
+		time = sys::getTime();
 
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
