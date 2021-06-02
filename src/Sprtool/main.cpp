@@ -1,6 +1,3 @@
-// We have a main function
-#define SDL_MAIN_HANDLED
-
 #include <stdio.h>
 #include <iostream>
 

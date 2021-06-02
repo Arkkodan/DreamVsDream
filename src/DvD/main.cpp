@@ -1,6 +1,3 @@
-// We have a main function
-#define SDL_MAIN_HANDLED
-
 #ifdef _WIN32
 #ifndef WINVER
 #define WINVER 0x0500
