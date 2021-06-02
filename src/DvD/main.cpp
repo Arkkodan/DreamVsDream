@@ -14,42 +14,13 @@
 #include "effect.h"
 #include "animation.h"
 
-namespace g_main {
-	game::Player madotsuki;
-	game::Player poniko;
-	util::Vector cameraPos(0,0);
-	util::Vector idealCameraPos(0,0);
-	util::Vector cameraShake(0,0);
+#include "app.h"
 
-	int framePauseTimer = 0;
-	int frameShakeTimer = 0;
+#if(_MSC_VER) // MSVC uses _stricmp instead of strcasecmp
+#define strcasecmp(str1, str2) _stricmp(str1, str2)
+#endif
 
-	void pause(int frames);
-	void shake(int frames);
-
-	static inline void mainLoop();
-}
-
-void g_main::pause(int frames) {
-	framePauseTimer += frames;
-}
-
-void g_main::shake(int frames) {
-	frameShakeTimer += frames;
-}
-
-namespace init {
-	extern void parseArgs(int, char**);
-	extern void init();
-}
-
-static inline void g_main::mainLoop() {
-	os::refresh();
-
-	SCENE->think();
-	SCENE->draw();
-	Scene::drawFade();
-}
+static void parseArgs(int argc, char** argv);
 
 #ifdef _WIN32
 int main(int foo, char** bar)
@@ -67,7 +38,7 @@ int main(int argc, char** argv)
 	LocalFree(argv16);
 #endif
 
-	init::parseArgs(argc, (char**)argv);
+	parseArgs(argc, (char**)argv);
 
 #ifdef _WIN32
 	for(int i = 0; i < argc; i++) {
@@ -75,17 +46,67 @@ int main(int argc, char** argv)
 	}
 	free(argv);
 #endif
-	init::init();
-
-	g_main::madotsuki.playerNum = 0;
-	g_main::madotsuki.speaker.init();
-
-	g_main::poniko.playerNum = 1;
-	g_main::poniko.speaker.init();
-
-	for(;;) {
-		g_main::mainLoop();
-	}
+	
+	app::run();
 
 	return 0;
+}
+
+static void parseArgs(int argc, char** argv) {
+	SceneFight::madotsuki.fighter = &game::fighters[0];
+	SceneFight::poniko.fighter = &game::fighters[0];
+
+	for (int i = 1; i < argc; i++) {
+		if (!strcasecmp(argv[i], "--disable-shaders")) {
+			app::disable_shaders = true;
+		}
+		else if (!strcasecmp(argv[i], "--disable-sound")) {
+			app::disable_sound = true;
+		}
+		else if (!strcasecmp(argv[i], "--training")) {
+			Scene::scene = Scene::SCENE_FIGHT;
+		}
+		else if (!strcasecmp(argv[i], "--versus")) {
+			Scene::scene = Scene::SCENE_FIGHT;
+			app::versus = true;
+		}
+		else if (!strcasecmp(argv[i], "--fullscreen")) {
+			app::fullscreen = true;
+		}
+		else if (!strcasecmp(argv[i], "-char1")) {
+			if (++i < argc) {
+				SceneFight::madotsuki.fighter = &game::fighters[atoi(argv[i])];
+			}
+		}
+		else if (!strcasecmp(argv[i], "-char2")) {
+			if (++i < argc) {
+				SceneFight::poniko.fighter = &game::fighters[atoi(argv[i])];
+			}
+		}
+		else if (!strcasecmp(argv[i], "-pal1")) {
+			if (++i < argc) {
+				SceneFight::madotsuki.palette = atoi(argv[i]);
+			}
+		}
+		else if (!strcasecmp(argv[i], "-pal2")) {
+			if (++i < argc) {
+				SceneFight::poniko.palette = atoi(argv[i]);
+			}
+		}
+		else if (!strcasecmp(argv[i], "-stage")) {
+			if (++i < argc) {
+				Stage::stage = atoi(argv[i]);
+			}
+		}
+		else if (!strcasecmp(argv[i], "-input-delay")) {
+			if (++i < argc) {
+				app::input_delay = atoi(argv[i]);
+			}
+		}
+		else if (!strcasecmp(argv[i], "-max-texture-size")) {
+			if (++i < argc) {
+				app::max_texture_size = atoi(argv[i]);
+			}
+		}
+	}
 }

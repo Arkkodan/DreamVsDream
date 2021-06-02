@@ -204,13 +204,13 @@ void SceneOptions::think() {
 					if (optionVoiceVolume > 0) {
 						optionVoiceVolume -= 10;
 					}
-					g_main::madotsuki.speaker.play(&dame);
+					SceneFight::madotsuki.speaker.play(&dame);
 				}
 				else {
 					if (optionVoiceVolume < 100) {
 						optionVoiceVolume += 10;
 					}
-					g_main::madotsuki.speaker.play(&muri);
+					SceneFight::madotsuki.speaker.play(&muri);
 				}
 				break;
 

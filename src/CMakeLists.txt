@@ -41,6 +41,8 @@ set(DVD_SCENE_FILES
 set(DVD_FILES
   DvD/animation.cpp
   DvD/animation.h
+  DvD/app.cpp
+  DvD/app.h
   DvD/atlas.cpp
   DvD/atlas.h
   DvD/effect.cpp
@@ -58,7 +60,6 @@ set(DVD_FILES
   DvD/graphics.h
   DvD/image.cpp
   DvD/image.h
-  DvD/init.cpp
   DvD/input.cpp
   DvD/input.h
   DvD/main.cpp

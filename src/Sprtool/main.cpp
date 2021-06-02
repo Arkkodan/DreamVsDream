@@ -15,6 +15,8 @@
 #include "../DvD/globals.h"
 #include "../DvD/error.h"
 
+#include "../DvD/os.h"
+
 game::Fighter fighter;
 int frame = 0;
 int anim = 0;

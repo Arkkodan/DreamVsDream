@@ -18,8 +18,6 @@
 #include <shlwapi.h>
 #endif
 
-#include "os.h"
-
 typedef char byte_t;
 typedef unsigned char ubyte_t;
 

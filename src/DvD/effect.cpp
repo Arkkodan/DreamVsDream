@@ -7,6 +7,8 @@
 #include "graphics.h"
 #include "util.h"
 
+#include "os.h"
+
 namespace effect {
     constexpr auto EFFECT_MAX = 256;
 

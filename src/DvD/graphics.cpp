@@ -8,6 +8,8 @@
 #include "shader.h"
 #include "stage.h"
 
+#include "os.h"
+
 #ifndef __APPLE__
 #define LOAD_GL_PROC(name, type) name = (PFN##type##PROC)SDL_GL_GetProcAddress(#name)
 #define LOAD_GL_ARB_PROC(name, type, arbname) name = (PFN##type##PROC)SDL_GL_GetProcAddress(arbname)

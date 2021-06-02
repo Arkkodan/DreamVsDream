@@ -3,6 +3,8 @@
 #include "../DvD/fighter.h"
 #include "../DvD/graphics.h"
 
+#include <SDL_keycode.h>
+
 extern game::Fighter fighter;
 extern int frame;
 extern int anim;

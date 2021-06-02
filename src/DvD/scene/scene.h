@@ -14,11 +14,6 @@
 #include "../player.h"
 #include "../image.h"
 
-namespace g_main {
-	extern game::Player madotsuki;
-	extern game::Player poniko;
-}
-
 #define SCENE Scene::scenes[Scene::scene]
 #define FIGHT ((SceneFight*)Scene::scenes[Scene::SCENE_FIGHT])
 

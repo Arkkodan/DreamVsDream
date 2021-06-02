@@ -9,6 +9,8 @@
 #include "error.h"
 #include "util.h"
 
+#include "os.h"
+
 #include <fstream>
 
 Animation::Animation() :

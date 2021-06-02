@@ -18,6 +18,7 @@
 #include "scene/scene.h"
 #include "stage.h"
 
+#include <SDL_audio.h>
 
 namespace audio {
 	constexpr auto SAMPLE_RATE = 44100;

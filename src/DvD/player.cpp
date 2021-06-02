@@ -8,11 +8,7 @@
 #include "graphics.h"
 #include "effect.h"
 
-namespace g_main {
-	extern void pause(int);
-	extern void shake(int);
-	extern int framePauseTimer;
-}
+#include "os.h"
 
 namespace game {
 	constexpr auto HITSTUN = 14;
@@ -596,7 +592,7 @@ namespace game {
 	}
 
 	void Player::think() {
-		if(!g_main::framePauseTimer) {
+		if(!SceneFight::framePauseTimer) {
 			if(pausestun) {
 				pausestun--;
 			} else {
@@ -838,7 +834,7 @@ namespace game {
 			break;
 		case STEP_Special:
 			special = 2500 * globals::SPF;
-			g_main::pause(2500 * globals::SPF);
+			SceneFight::pause(2500 * globals::SPF);
 			effect::newEffect("Actionlines", globals::WINDOW_WIDTH / 2, globals::WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
 			switch(fighter->group) {
 			case 0:
@@ -938,8 +934,8 @@ namespace game {
 						pself->flags |= F_CTRL;
 					}
 
-					g_main::pause(6);
-					g_main::shake(6);
+					SceneFight::pause(6);
+					SceneFight::shake(6);
 					int mirror = 1;
 					if(dir == LEFT) {
 						mirror = -1;
@@ -1088,8 +1084,8 @@ namespace game {
 				} else if(hit == sprite::HIT_ATTACK) {
 					frameHit = true;
 					pother->frameHit = true;
-					g_main::pause(12);
-					g_main::shake(12);
+					SceneFight::pause(12);
+					SceneFight::shake(12);
 					effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1, nullptr);
 					playSound(0);
 				}

@@ -5,10 +5,7 @@
 #include "../stage.h"
 #include "../error.h"
 
-namespace g_main {
-	extern util::Vector cameraPos;
-	extern util::Vector idealCameraPos;
-}
+#include "../os.h"
 
 Scene* Scene::scenes[SCENE_MAX] = { nullptr };
 int Scene::scene = SCENE_INTRO;
@@ -44,12 +41,12 @@ void Scene::setScene(int _scene) {
 		return;
 	}
 	if (_scene == SCENE_FIGHT) {
-		g_main::madotsuki.reset();
-		g_main::poniko.reset();
-		g_main::cameraPos.x = 0;
-		g_main::cameraPos.y = 0;
-		g_main::idealCameraPos.x = 0;
-		g_main::idealCameraPos.y = 0;
+		SceneFight::madotsuki.reset();
+		SceneFight::poniko.reset();
+		SceneFight::cameraPos.x = 0;
+		SceneFight::cameraPos.y = 0;
+		SceneFight::idealCameraPos.x = 0;
+		SceneFight::idealCameraPos.y = 0;
 	}
 	sceneNew = _scene;
 	fade = 1.0f;
@@ -57,7 +54,7 @@ void Scene::setScene(int _scene) {
 }
 
 bool Scene::input(uint16_t in) {
-	return (g_main::madotsuki.frameInput & in) || (g_main::poniko.frameInput & in);
+	return (SceneFight::madotsuki.frameInput & in) || (SceneFight::poniko.frameInput & in);
 }
 
 float Scene::fade = 1.0f;
@@ -167,7 +164,7 @@ void Scene::think() {
 		}
 
 		//Always disable controls during fades
-		g_main::madotsuki.frameInput = 0;
+		SceneFight::madotsuki.frameInput = 0;
 		//}
 	}
 }
@@ -371,7 +368,7 @@ void SceneImage::draw(bool _stage) {
 			graphics::setRender(render);
 			if (_stage) {
 				if (!round || round - 1 == FIGHT->round) {
-					image.draw(x - image.w / 2 + globals::WINDOW_WIDTH / 2 - g_main::cameraPos.x * parallax, (globals::WINDOW_HEIGHT - y) - image.h + g_main::cameraPos.y * parallax);
+					image.draw(x - image.w / 2 + globals::WINDOW_WIDTH / 2 - SceneFight::cameraPos.x * parallax, (globals::WINDOW_HEIGHT - y) - image.h + SceneFight::cameraPos.y * parallax);
 				}
 			}
 			else {

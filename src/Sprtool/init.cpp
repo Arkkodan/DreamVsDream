@@ -3,6 +3,8 @@
 #include "../DvD/error.h"
 #include "../DvD/fighter.h"
 
+#include "../DvD/os.h"
+
 namespace init {
 	void init();
 	void deinit();

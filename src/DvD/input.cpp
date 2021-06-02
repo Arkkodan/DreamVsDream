@@ -4,10 +4,9 @@
 #include "scene/scene.h"
 #include "network.h"
 
-namespace g_main {
-	extern game::Player madotsuki;
-	extern game::Player poniko;
-}
+#include "app.h"
+
+#include <SDL_keycode.h>
 
 namespace input {
 	enum {
@@ -56,7 +55,7 @@ namespace input {
 	void init() {
 		//Read controls from file
 		int nLines;
-		char** szLines = util::getLinesFromFile(&nLines, init::szConfigPath + KEY_CFG_FILE);
+		char** szLines = util::getLinesFromFile(&nLines, app::szConfigPath + KEY_CFG_FILE);
 
 		if(nLines == KEY_MAX) {
 			for(int i = 0; i < KEY_MAX; i++) {
@@ -72,11 +71,11 @@ namespace input {
 	}
 
 	void refresh() {
-		g_main::madotsuki.applyInput();
-		g_main::poniko.applyInput();
+		SceneFight::madotsuki.applyInput();
+		SceneFight::poniko.applyInput();
 		if(Scene::scene == 0) {
-			g_main::madotsuki.handleInput();
-			g_main::poniko.handleInput();
+			SceneFight::madotsuki.handleInput();
+			SceneFight::poniko.handleInput();
 		}
 	}
 
@@ -92,9 +91,9 @@ namespace input {
 						net::getMyPlayer()->frameInput |= (1<<i);
 					} else {
 						if(i < KEY_1_MAX) {
-							g_main::madotsuki.frameInput |= (1<<i);
+							SceneFight::madotsuki.frameInput |= (1<<i);
 						} else {
-							g_main::poniko.frameInput |= (1<<(i - KEY_1_MAX));
+							SceneFight::poniko.frameInput |= (1<<(i - KEY_1_MAX));
 						}
 					}
 					return;
@@ -125,9 +124,9 @@ namespace input {
 						net::getMyPlayer()->frameInput |= (1<<i<<game::INPUT_RELSHIFT);
 					} else {
 						if(i < KEY_1_MAX) {
-							g_main::madotsuki.frameInput |= (1<<i<< game::INPUT_RELSHIFT);
+							SceneFight::madotsuki.frameInput |= (1<<i<< game::INPUT_RELSHIFT);
 						} else {
-							g_main::poniko.frameInput |= (1<<(i - KEY_1_MAX)<< game::INPUT_RELSHIFT);
+							SceneFight::poniko.frameInput |= (1<<(i - KEY_1_MAX)<< game::INPUT_RELSHIFT);
 						}
 					}
 					return;

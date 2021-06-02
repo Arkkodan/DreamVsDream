@@ -17,17 +17,13 @@
 #include "scene/scene.h"
 #include "thread.h"
 
-enum {
-	NETSTATE_INIT, //Initialize everything
-	NETSTATE_LISTEN,
-};
-
-namespace g_main {
-	extern game::Player madotsuki;
-	extern game::Player poniko;
-}
 
 namespace net {
+	enum {
+		NETSTATE_INIT, //Initialize everything
+		NETSTATE_LISTEN,
+	};
+
 	constexpr auto PACKET_BUFF_SIZE = 256;
 
 	volatile bool enabled = false;
@@ -541,9 +537,9 @@ namespace net {
 	game::Player* getMyPlayer() {
 #ifndef NO_NETWORK
 		if(mode == MODE_SERVER) {
-			return &g_main::madotsuki;
+			return &SceneFight::madotsuki;
 		} else if(mode == MODE_CLIENT) {
-			return &g_main::poniko;
+			return &SceneFight::poniko;
 		}
 #endif
 		return nullptr;
@@ -552,9 +548,9 @@ namespace net {
 	game::Player* getYourPlayer() {
 #ifndef NO_NETWORK
 		if(mode == MODE_SERVER) {
-			return &g_main::poniko;
+			return &SceneFight::poniko;
 		} else if(mode == MODE_CLIENT) {
-			return &g_main::madotsuki;
+			return &SceneFight::madotsuki;
 		}
 #endif
 		return nullptr;

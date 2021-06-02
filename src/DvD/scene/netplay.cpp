@@ -4,6 +4,8 @@
 
 #include "../network.h"
 
+#include "../os.h"
+
 //NETPLAY
 #ifndef NO_NETWORK
 SceneNetplay::SceneNetplay() : Scene("netplay") {

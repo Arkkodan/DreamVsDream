@@ -5,6 +5,7 @@
 
 #include "../util.h"
 #include "../font.h"
+#include "../player.h"
 
 /// @brief Helper object for drawing meters, primarily for SceneFight
 class SceneMeter {
@@ -20,6 +21,19 @@ public:
 
 /// @brief Fighting game scene
 class SceneFight : public Scene {
+public:
+	static game::Player madotsuki;
+	static game::Player poniko;
+	static util::Vector cameraPos;
+	static util::Vector idealCameraPos;
+	static util::Vector cameraShake;
+
+	static int framePauseTimer;
+	static int frameShakeTimer;
+
+	static void pause(int frames);
+	static void shake(int frames);
+
 public:
 	enum {
 		GAMETYPE_VERSUS,

@@ -5,10 +5,7 @@
 #include "input.h"
 #include "graphics.h"
 
-namespace g_main {
-	extern game::Player madotsuki;
-	extern game::Player poniko;
-}
+#include "scene/fight.h"
 
 namespace os {
 	unsigned int frame = 0;
@@ -49,8 +46,8 @@ namespace os {
 
 	void refresh() {
 #ifdef GAME
-		g_main::madotsuki.frameInput = 0;
-		g_main::poniko.frameInput = 0;
+		SceneFight::madotsuki.frameInput = 0;
+		SceneFight::poniko.frameInput = 0;
 #endif
 
 		SDL_GL_SwapWindow(window);

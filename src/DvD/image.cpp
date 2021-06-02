@@ -13,10 +13,6 @@
 
 #include "error.h"
 
-namespace g_main {
-	extern util::Vector cameraPos;
-}
-
 Image::Image() : w(0), h(0),
 #ifdef COMPILER
 	data(nullptr), xpad(0), ypad(0)
@@ -592,7 +588,7 @@ void Image::drawSprite(int x, int y, bool mirror) {
 #ifdef SPRTOOL
 	draw(x + globals::WINDOW_WIDTH / 2, globals::FLIP(y) - graphics::srcH * graphics::yscale, mirror);
 #else
-	draw(x + globals::WINDOW_WIDTH / 2 - g_main::cameraPos.x, globals::FLIP(y) - graphics::srcH * graphics::yscale - STAGE.height + g_main::cameraPos.y, mirror);
+	draw(x + globals::WINDOW_WIDTH / 2 - SceneFight::cameraPos.x, globals::FLIP(y) - graphics::srcH * graphics::yscale - STAGE.height + SceneFight::cameraPos.y, mirror);
 #endif
 }
 #endif
