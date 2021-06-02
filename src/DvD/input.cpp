@@ -1,7 +1,7 @@
 #include "globals.h"
 #include "player.h"
 #include "input.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "network.h"
 
 enum {

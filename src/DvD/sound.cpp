@@ -15,7 +15,7 @@
 #include "sound.h"
 #include "error.h"
 #include "globals.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "stage.h"
 
 #define SAMPLE_RATE 44100

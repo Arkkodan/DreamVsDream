@@ -14,7 +14,7 @@
 
 #include "network.h"
 #include "error.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "thread.h"
 
 #define PACKET_BUFF_SIZE 256

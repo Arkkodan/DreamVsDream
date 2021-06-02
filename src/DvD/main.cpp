@@ -6,7 +6,7 @@
 #include "fighter.h"
 #include "graphics.h"
 #include "error.h"
-#include "scene.h"
+#include "scene/scene.h"
 #include "parser.h"
 #include "stage.h"
 #include "network.h"

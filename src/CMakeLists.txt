@@ -16,6 +16,29 @@ set(COMPILER_FILES
 )
 
 # DvD
+set(DVD_SCENE_FILES
+  DvD/scene/scene.cpp
+  DvD/scene/scene.h
+  DvD/scene/scene_base.cpp
+  DvD/scene/scene_base.h
+  DvD/scene/intro.cpp
+  DvD/scene/intro.h
+  DvD/scene/title.cpp
+  DvD/scene/title.h
+  DvD/scene/select.cpp
+  DvD/scene/select.h
+  DvD/scene/versus.cpp
+  DvD/scene/versus.h
+  DvD/scene/options.cpp
+  DvD/scene/options.h
+  DvD/scene/fight.cpp
+  DvD/scene/fight.h
+  DvD/scene/netplay.cpp
+  DvD/scene/netplay.h
+  DvD/scene/credits.cpp
+  DvD/scene/credits.h
+)
+
 set(DVD_FILES
   DvD/animation.cpp
   DvD/animation.h
@@ -48,8 +71,6 @@ set(DVD_FILES
   DvD/parser.h
   DvD/player.cpp
   DvD/player.h
-  DvD/scene.cpp
-  DvD/scene.h
   DvD/shader.cpp
   DvD/shader.h
   DvD/sound.cpp
@@ -62,6 +83,7 @@ set(DVD_FILES
   DvD/thread.h
   DvD/util.cpp
   DvD/util.h
+  ${DVD_SCENE_FILES}
 )
 
 # Fontbuild
@@ -230,5 +252,6 @@ endif()
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Atlas" PREFIX "Atlas" FILES ${ATLAS_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Compiler" PREFIX "Compiler" FILES ${COMPILER_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD" PREFIX "DvD" FILES ${DVD_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD/scene" PREFIX "DvD/scene" FILES ${DVD_SCENE_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Fontbuild" PREFIX "Fontbuild" FILES ${FONTBUILD_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Sprtool" PREFIX "Sprtool" FILES ${SPRTOOL_FILES})

@@ -3,7 +3,7 @@
 
 #include "globals.h"
 
-#include "scene.h"
+#include "scene/scene.h"
 #include "animation.h"
 
 extern int stage;
