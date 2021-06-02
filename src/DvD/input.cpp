@@ -1,7 +1,7 @@
 #include "globals.h"
 #include "player.h"
 #include "input.h"
-#include "menu.h"
+#include "scene.h"
 #include "network.h"
 
 enum {
@@ -72,7 +72,7 @@ namespace input {
 	void refresh() {
 		madotsuki.applyInput();
 		poniko.applyInput();
-		if(menu == 0) {
+		if(scene == 0) {
 			madotsuki.handleInput();
 			poniko.handleInput();
 		}
@@ -102,13 +102,13 @@ namespace input {
 			switch(key) {
 			case SDLK_F1:
 				if(!net::connected) {
-					Menu::setMenu(MENU_TITLE);
+					Scene::setScene(SCENE_TITLE);
 				}
 				break;
 
 			case SDLK_F2:
 				if(!net::connected) {
-					Menu::setMenu(MENU_CREDITS);
+					Scene::setScene(SCENE_CREDITS);
 				}
 				break;
 			}

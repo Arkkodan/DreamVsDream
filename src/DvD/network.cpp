@@ -14,7 +14,7 @@
 
 #include "network.h"
 #include "error.h"
-#include "menu.h"
+#include "scene.h"
 #include "thread.h"
 
 #define PACKET_BUFF_SIZE 256
@@ -358,7 +358,7 @@ namespace net {
 					if((now - timeout) >= 5 * 1000) {
                         neterror = "Lost connection to opponent.";
 						stop();
-						Menu::setMenu(MENU_TITLE);
+						Scene::setScene(SCENE_TITLE);
 						break;
 					}
 				}

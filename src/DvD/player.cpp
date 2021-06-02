@@ -398,7 +398,7 @@ namespace game {
 		input &= ~((frameInput & INPUT_RELMASK) >> INPUT_RELSHIFT);
 
 		//Adjust buffered input
-		if(dir == LEFT && menu == MENU_FIGHT) {
+		if(dir == LEFT && scene == SCENE_FIGHT) {
 			frameInput = flipInput(frameInput);
 		}
 
@@ -423,7 +423,7 @@ namespace game {
 			input = flipInput(this->input);
 		}
 
-		if(menu == MENU_FIGHT) {
+		if(scene == SCENE_FIGHT) {
 			if(FIGHT->timer_round_in || FIGHT->timer_round_out || FIGHT->timer_ko || FIGHT->ko_player) {
 				return;
 			}

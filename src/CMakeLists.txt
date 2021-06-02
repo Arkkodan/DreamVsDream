@@ -40,8 +40,6 @@ set(DVD_FILES
   DvD/input.cpp
   DvD/input.h
   DvD/main.cpp
-  DvD/menu.cpp
-  DvD/menu.h
   DvD/network.cpp
   DvD/network.h
   DvD/os.cpp
@@ -50,6 +48,8 @@ set(DVD_FILES
   DvD/parser.h
   DvD/player.cpp
   DvD/player.h
+  DvD/scene.cpp
+  DvD/scene.h
   DvD/shader.cpp
   DvD/shader.h
   DvD/sound.cpp

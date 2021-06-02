@@ -6,7 +6,7 @@
 #include "fighter.h"
 #include "graphics.h"
 #include "error.h"
-#include "menu.h"
+#include "scene.h"
 #include "parser.h"
 #include "stage.h"
 #include "network.h"
@@ -38,9 +38,9 @@ extern void parseArgs(int, char**);
 static inline void mainLoop() {
 	os::refresh();
 
-	MENU->think();
-	MENU->draw();
-	Menu::drawFade();
+	SCENE->think();
+	SCENE->draw();
+	Scene::drawFade();
 }
 
 #ifdef _WIN32

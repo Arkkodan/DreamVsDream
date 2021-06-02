@@ -1,6 +1,6 @@
 #include "globals.h"
 #include "util.h"
-#include "menu.h"
+#include "scene.h"
 #include "player.h"
 #include "stage.h"
 #include "fighter.h"
@@ -16,40 +16,40 @@
 extern game::Player madotsuki;
 extern game::Player poniko;
 
-Menu* menus[MENU_MAX] = {nullptr};
-int menu = MENU_INTRO;
-int menuNew = 0;
+Scene* scenes[SCENE_MAX] = {nullptr};
+int scene = SCENE_INTRO;
+int sceneNew = 0;
 
 Image imgLoading;
 
-void Menu::ginit() {
-	menus[MENU_INTRO] = new MenuIntro();
-	menus[MENU_TITLE] = new MenuTitle();
-	menus[MENU_SELECT] = new MenuSelect();
-	menus[MENU_VERSUS] = new MenuVersus();
-	menus[MENU_FIGHT] = new MenuFight();
-	menus[MENU_OPTIONS] = new MenuOptions();
+void Scene::ginit() {
+	scenes[SCENE_INTRO] = new SceneIntro();
+	scenes[SCENE_TITLE] = new SceneTitle();
+	scenes[SCENE_SELECT] = new SceneSelect();
+	scenes[SCENE_VERSUS] = new SceneVersus();
+	scenes[SCENE_FIGHT] = new SceneFight();
+	scenes[SCENE_OPTIONS] = new SceneOptions();
 #ifndef NO_NETWORK
-	menus[MENU_NETPLAY] = new MenuNetplay();
+	scenes[SCENE_NETPLAY] = new SceneNetplay();
 #endif
-	menus[MENU_CREDITS] = new MenuCredits();
+	scenes[SCENE_CREDITS] = new SceneCredits();
 
-	menus[MENU_FIGHT]->init();
-	menus[MENU_VERSUS]->init();
-	menus[MENU_INTRO]->init();
+	scenes[SCENE_FIGHT]->init();
+	scenes[SCENE_VERSUS]->init();
+	scenes[SCENE_INTRO]->init();
 }
 
-void Menu::deinit() {
-	for(int i = 0; i < MENU_MAX; i++) {
-		delete menus[i];
+void Scene::deinit() {
+	for(int i = 0; i < SCENE_MAX; i++) {
+		delete scenes[i];
 	}
 }
 
-void Menu::setMenu(int _menu) {
-	if(_menu == menu) {
+void Scene::setScene(int _scene) {
+	if(_scene == scene) {
 		return;
 	}
-	if(_menu == MENU_FIGHT) {
+	if(_scene == SCENE_FIGHT) {
 		madotsuki.reset();
 		poniko.reset();
 		extern util::Vector cameraPos;
@@ -59,19 +59,19 @@ void Menu::setMenu(int _menu) {
 		idealCameraPos.x = 0;
 		idealCameraPos.y = 0;
 	}
-	menuNew = _menu;
+	sceneNew = _scene;
 	fade = 1.0f;
 	fadeIn = false;
 }
 
-bool Menu::input(uint16_t in) {
+bool Scene::input(uint16_t in) {
 	return (madotsuki.frameInput & in) || (poniko.frameInput & in);
 }
 
-float Menu::fade = 1.0f;
-bool Menu::fadeIn = true;
+float Scene::fade = 1.0f;
+bool Scene::fadeIn = true;
 
-void Menu::drawFade() {
+void Scene::drawFade() {
 	//Draw fade!
 	glBindTexture(GL_TEXTURE_2D, 0);
 	if(fadeIn) {
@@ -88,8 +88,8 @@ void Menu::drawFade() {
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
-//MENUS
-Menu::Menu(std::string name_) {
+//SCENES
+Scene::Scene(std::string name_) {
 	//Copy the name.
 	name = name_;
 
@@ -99,27 +99,27 @@ Menu::Menu(std::string name_) {
 	//video = nullptr;
 }
 
-Menu::~Menu() {
+Scene::~Scene() {
 	delete images;
 	//delete video;
 }
 
-void Menu::init() {
+void Scene::init() {
 	initialized = true;
-	//Load the menu data from the file
-	parseFile("menus/" + name + ".ubu");
+	//Load the scene data from the file
+	parseFile("scenes/" + name + ".ubu");
 }
 
-void Menu::think() {
+void Scene::think() {
 	if(!initialized) {
 		init();
 	}
 
 	if(!bgmPlaying &&
 #ifndef NO_NETWORK
-	        menu != MENU_NETPLAY &&
+	        scene != SCENE_NETPLAY &&
 #endif
-	        menu != MENU_FIGHT) {
+	        scene != SCENE_FIGHT) {
 		if(bgm.exists()) {
 			bgm.play();
 		}
@@ -132,10 +132,10 @@ void Menu::think() {
 
 	//Fade timer
 	if(fade) {
-		//if(fadeIn && menu == MENU_VERSUS) {
+		//if(fadeIn && scene == SCENE_VERSUS) {
 		//	fade = 0.0f;
 		//} else {
-			if(menu == MENU_FIGHT) {
+			if(scene == SCENE_FIGHT) {
 				fade -= 0.02;
 			} else {
 				fade -= 0.1f;
@@ -148,26 +148,26 @@ void Menu::think() {
 					fadeIn = true;
 
 					//Are we quitting?
-					if(menuNew == MENU_QUIT) {
+					if(sceneNew == SCENE_QUIT) {
 						exit(0);
 					}
-					menu = menuNew;
+					scene = sceneNew;
 
 					audio::Music::stop();
 
-					if(!MENU->initialized) {
+					if(!SCENE->initialized) {
 						//Loading graphic
 						imgLoading.draw(0, 0);
 						os::refresh();
-						MENU->init();
+						SCENE->init();
 					}
-					if(menu == MENU_FIGHT && !STAGE.initialized) {
+					if(scene == SCENE_FIGHT && !STAGE.initialized) {
 						//Loading graphic
 						imgLoading.draw(0, 0);
 						os::refresh();
 						STAGE.init();
 					}
-					MENU->reset();
+					SCENE->reset();
 				}
 			}
 
@@ -177,7 +177,7 @@ void Menu::think() {
 	}
 }
 
-void Menu::reset() {
+void Scene::reset() {
 	if(images) {
 		images->reset();
 	}
@@ -185,7 +185,7 @@ void Menu::reset() {
 	bgmPlaying = false;
 }
 
-void Menu::draw() {
+void Scene::draw() {
 	//if(video) video->draw(0, 0);
 	if(images) {
 		images->draw(false);
@@ -194,7 +194,7 @@ void Menu::draw() {
 
 }
 
-void Menu::parseLine(Parser& parser) {
+void Scene::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if(parser.is("IMAGE", 3)) {
 		float x = parser.getArgFloat(2);
@@ -229,10 +229,10 @@ void Menu::parseLine(Parser& parser) {
 		if(!imgData.exists()) {
 			return;
 		}
-		MenuImage* newImg = new MenuImage(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+		SceneImage* newImg = new SceneImage(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
 
 		if(images) {
-			MenuImage* img = images;
+			SceneImage* img = images;
 			for(; img->next; img = img->next);
 			img->next = newImg;
 		} else {
@@ -256,7 +256,7 @@ void Menu::parseLine(Parser& parser) {
 	}
 }
 
-void Menu::parseFile(std::string szFileName) {
+void Scene::parseFile(std::string szFileName) {
 	Parser parser;
 	std::string path = util::getPath(szFileName);
 	if(!parser.open(path)) {
@@ -270,25 +270,25 @@ void Menu::parseFile(std::string szFileName) {
 	}
 }
 
-std::string Menu::getResource(std::string resource, std::string extension) {
+std::string Scene::getResource(std::string resource, std::string extension) {
 	if(*resource.c_str() == '*') {
-		return "menus/common/" + resource.substr(1, std::string::npos) + "." + extension;
+		return "scenes/common/" + resource.substr(1, std::string::npos) + "." + extension;
 	} else {
-		return "menus/" + name + "/" + resource + "." + extension;
+		return "scenes/" + name + "/" + resource + "." + extension;
 	}
 }
 
 //INTRO
-MenuIntro::MenuIntro() : Menu("intro") {
+SceneIntro::SceneIntro() : Scene("intro") {
 	timer = FPS / 2;
 	state = 0;
 }
 
-MenuIntro::~MenuIntro() {
+SceneIntro::~SceneIntro() {
 }
 
-void MenuIntro::think() {
-	Menu::think();
+void SceneIntro::think() {
+	Scene::think();
 
 	if(timer == FPS / 2) {
 		sfx.play();
@@ -306,17 +306,17 @@ void MenuIntro::think() {
 			state++;
 			if(state == 6 && graphics::shader_support) {
 				timer = 0;
-				setMenu(MENU_TITLE);
+				setScene(SCENE_TITLE);
 			}
 			if(state == 8) {
 				timer = 0;
-				setMenu(MENU_TITLE);
+				setScene(SCENE_TITLE);
 			}
 		}
 	}
 }
 
-void MenuIntro::draw() {
+void SceneIntro::draw() {
 	//Draw our own fade
 	float _alpha = timer / (float)(FPS / 2);
 	if(state % 2 == 0) {
@@ -338,7 +338,7 @@ void MenuIntro::draw() {
 	}
 }
 
-void MenuIntro::parseLine(Parser& parser) {
+void SceneIntro::parseLine(Parser& parser) {
 	if(parser.is("SFX", 1)) {
 		sfx.createFromFile(getResource(parser.getArg(1), EXT_SOUND));
 	} else if(parser.is("INSTRUCTIONS", 1)) {
@@ -349,7 +349,7 @@ void MenuIntro::parseLine(Parser& parser) {
 	} else if(parser.is("SHADER_ERROR", 1)) {
 		shader_error.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
 	} else {
-		Menu::parseLine(parser);
+		Scene::parseLine(parser);
 	}
 }
 
@@ -419,7 +419,7 @@ const int menuChoicesMax[TM_MAX] = {
 	CHOICE_VS_MAX,
 };
 
-MenuTitle::MenuTitle() : Menu("title") {
+SceneTitle::SceneTitle() : Scene("title") {
 	menuX = menuY = 0;
 	menuXOffset = 0;
 	iR = iG = iB = aR = aG = aB = 255;
@@ -432,12 +432,12 @@ MenuTitle::MenuTitle() : Menu("title") {
 	themes = nullptr;
 }
 
-MenuTitle::~MenuTitle() {
+SceneTitle::~SceneTitle() {
 	delete [] themes;
 }
 
-void MenuTitle::init() {
-	Menu::init();
+void SceneTitle::init() {
+	Scene::init();
 
 	//Parse a random theme
 	if(nThemes) {
@@ -452,8 +452,8 @@ void MenuTitle::init() {
 	}
 }
 
-void MenuTitle::think() {
-	Menu::think();
+void SceneTitle::think() {
+	Scene::think();
 
 	if(choiceTimer) {
 		if(choiceTimer == 1 || choiceTimer == -1) {
@@ -509,25 +509,25 @@ void MenuTitle::think() {
 			case CHOICE_TRAINING:
 				sndSelect.play();
 				FIGHT->gametype = GAMETYPE_TRAINING;
-				setMenu(MENU_SELECT);
+				setScene(SCENE_SELECT);
 				break;
 			default:
 				//if(sndSelect) sndSelect->play();
-				//setMenu(MENU_SELECT);
+				//setScene(SCENE_SELECT);
 				sndInvalid.play();
 				break;
 #ifndef NO_NETWORK
 			case CHOICE_NETPLAY:
 				sndSelect.play();
-				setMenu(MENU_NETPLAY);
+				setScene(SCENE_NETPLAY);
 				break;
 #endif
 			case CHOICE_OPTIONS:
 				sndSelect.play();
-				setMenu(MENU_OPTIONS);
+				setScene(SCENE_OPTIONS);
 				break;
 			case CHOICE_QUIT:
-				setMenu(MENU_QUIT);
+				setScene(SCENE_QUIT);
 				break;
 			}
 			break;
@@ -537,11 +537,11 @@ void MenuTitle::think() {
 			case CHOICE_VS_PLR:
 				sndSelect.play();
 				FIGHT->gametype = GAMETYPE_VERSUS;
-				setMenu(MENU_SELECT);
+				setScene(SCENE_SELECT);
 				break;
 			default:
 				//if(sndSelect) sndSelect->play();
-				//setMenu(MENU_SELECT);
+				//setScene(SCENE_SELECT);
 				sndInvalid.play();
 				break;
 			case CHOICE_VS_RETURN:
@@ -557,7 +557,7 @@ void MenuTitle::think() {
 	} else if(input(INPUT_B)) {
 		if(submenu == TM_MAIN) {
 			//Quit
-			setMenu(MENU_QUIT);
+			setScene(SCENE_QUIT);
 		} else if(submenu == TM_VERSUS) {
 			//Return
 			sndBack.play();
@@ -569,12 +569,12 @@ void MenuTitle::think() {
 	}
 }
 
-void MenuTitle::reset() {
-	Menu::reset();
+void SceneTitle::reset() {
+	Scene::reset();
 }
 
-void MenuTitle::draw() {
-	Menu::draw();
+void SceneTitle::draw() {
+	Scene::draw();
 
 	if(menuFont.exists()) {
 		for(int i = 0; i < menuChoicesMax[submenu]; i++) {
@@ -611,7 +611,7 @@ void MenuTitle::draw() {
 	}
 }
 
-void MenuTitle::parseLine(Parser& parser) {
+void SceneTitle::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if(parser.is("MENU", 3)) {
 		//Font
@@ -641,12 +641,12 @@ void MenuTitle::parseLine(Parser& parser) {
 	} else if(parser.is("THEME", 1)) {
 		themes[nThemes++] = parser.getArg(1);
 	} else {
-		Menu::parseLine(parser);
+		Scene::parseLine(parser);
 	}
 }
 
 //CHARACTER SELECT
-MenuSelect::MenuSelect() : Menu("select") {
+SceneSelect::SceneSelect() : Scene("select") {
 	width = height = 0;
 	gWidth = gHeight = 0;
 	gui = nullptr;
@@ -660,19 +660,19 @@ MenuSelect::MenuSelect() : Menu("select") {
 	cursor_stage_offset = 0;
 }
 
-MenuSelect::~MenuSelect() {
+SceneSelect::~SceneSelect() {
 	delete gui;
 	delete [] curData;
 	delete [] grid;
 	delete [] gridFighters;
 }
 
-void MenuSelect::init() {
-	Menu::init();
+void SceneSelect::init() {
+	Scene::init();
 }
 
-void MenuSelect::think() {
-	Menu::think();
+void SceneSelect::think() {
+	Scene::think();
 
 	//Visual effects animations
 
@@ -833,7 +833,7 @@ void MenuSelect::think() {
 				if(FIGHT->gametype == GAMETYPE_TRAINING) {
 					if(cursors[0].lockState == CURSOR_UNLOCKED) {
 						sndBack.play();
-						setMenu(MENU_TITLE);
+						setScene(SCENE_TITLE);
 					} else if(cursors[cur].lockState == CURSOR_UNLOCKED) {
 						sndBack.play();
 						cur--;
@@ -861,7 +861,7 @@ void MenuSelect::think() {
 					} else {
 						if(!net::connected) {
 							sndBack.play();
-							setMenu(MENU_TITLE);
+							setScene(SCENE_TITLE);
 						}
 					}
 				}
@@ -945,19 +945,19 @@ void MenuSelect::think() {
 			madotsuki.fighter = &game::fighters[gridFighters[cursors[0].pos]];
 			poniko.fighter = &game::fighters[gridFighters[cursors[1].pos]];
 
-            ((MenuVersus*)menus[MENU_VERSUS])->portraits[0] = &madotsuki.fighter->portrait;
+            ((SceneVersus*)scenes[SCENE_VERSUS])->portraits[0] = &madotsuki.fighter->portrait;
 
-            ((MenuVersus*)menus[MENU_VERSUS])->portraits[1] = &poniko.fighter->portrait;
+            ((SceneVersus*)scenes[SCENE_VERSUS])->portraits[1] = &poniko.fighter->portrait;
 
 			stage = cursor_stage;
-			setMenu(MENU_VERSUS);
+			setScene(SCENE_VERSUS);
 			sndSelect.play();
 		}
 	}
 }
 
-void MenuSelect::reset() {
-	Menu::reset();
+void SceneSelect::reset() {
+	Scene::reset();
 
 	for(int i = 0; i < 2; i++) {
 		cursors[i].lockState = CURSOR_UNLOCKED;
@@ -971,8 +971,8 @@ void MenuSelect::reset() {
 	cursor_stage = 0;
 }
 
-void MenuSelect::draw() {
-	Menu::draw();
+void SceneSelect::draw() {
+	Scene::draw();
 
 	//Draw portraits first
 	if(cursors[0].lockState == CURSOR_LOCKED || FIGHT->gametype == GAMETYPE_VERSUS) {
@@ -1083,7 +1083,7 @@ void MenuSelect::draw() {
 	}
 }
 
-void MenuSelect::newEffect(int player, int group) {
+void SceneSelect::newEffect(int player, int group) {
 	if(curData) {
 		curData[group].sndSelect.play();
 		curData[group].sndDeselect.stop();
@@ -1092,7 +1092,7 @@ void MenuSelect::newEffect(int player, int group) {
 	cursors[player].frame = 1;
 }
 
-void MenuSelect::drawEffect(int player, int group, int _x, int _y, bool spr) {
+void SceneSelect::drawEffect(int player, int group, int _x, int _y, bool spr) {
 	if(cursors[player].frame) {
 		float scale = 1.0f;
 		float alpha = 1.0f - (cursors[player].frame - 1) / (float)curData[group].frameC;;
@@ -1121,7 +1121,7 @@ void MenuSelect::drawEffect(int player, int group, int _x, int _y, bool spr) {
 	}
 }
 
-void MenuSelect::parseLine(Parser& parser) {
+void SceneSelect::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if(parser.is("GRID", 4)) {
 		//Make the grids!
@@ -1228,7 +1228,7 @@ void MenuSelect::parseLine(Parser& parser) {
 		if(!imgData.exists()) {
 			return;
 		}
-		gui = new MenuImage(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+		gui = new SceneImage(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
 	} else if(parser.is("STAGES", 1)) {
 		//Load the font
 		font_stage.createFromFile(getResource(parser.getArg(1), EXT_FONT));
@@ -1245,13 +1245,13 @@ void MenuSelect::parseLine(Parser& parser) {
 		cursors[p].g = parser.getArgInt(5);
 		cursors[p].b = parser.getArgInt(6);
 	} else {
-		Menu::parseLine(parser);
+		Scene::parseLine(parser);
 	}
 }
 
 
-//Menu Versus
-MenuVersus::MenuVersus() : Menu("versus") {
+//Scene Versus
+SceneVersus::SceneVersus() : Scene("versus") {
 	//video = nullptr;
 
 	timer1 = timer2 = timer3 = timer4 = timer5 = timer6 = 0;
@@ -1260,18 +1260,18 @@ MenuVersus::MenuVersus() : Menu("versus") {
 	portraits[0] = portraits[1] = nullptr;
 }
 
-MenuVersus::~MenuVersus() {
+SceneVersus::~SceneVersus() {
 }
 
-void MenuVersus::init() {
-	Menu::init();
+void SceneVersus::init() {
+	Scene::init();
 }
 
-void MenuVersus::think() {
-	Menu::think();
+void SceneVersus::think() {
+	Scene::think();
 
 	if(input(INPUT_A))
-        setMenu(MENU_FIGHT);
+        setScene(SCENE_FIGHT);
 
 	if(timer1 > 0) {
 		timer1--;
@@ -1286,7 +1286,7 @@ void MenuVersus::think() {
 	} else if(timer6 > 0) {
 		timer6--;
 		if(!timer6) {
-			setMenu(MENU_FIGHT);
+			setScene(SCENE_FIGHT);
 		}
 	}
 
@@ -1300,8 +1300,8 @@ void MenuVersus::think() {
 	}
 }
 
-void MenuVersus::reset() {
-	Menu::reset();
+void SceneVersus::reset() {
+	Scene::reset();
 
 	timer1 = FPS * 2;
 	timer2 = 1000;
@@ -1313,8 +1313,8 @@ void MenuVersus::reset() {
 	timerF = 0.0f;
 }
 
-void MenuVersus::draw() {
-	Menu::draw();
+void SceneVersus::draw() {
+	Scene::draw();
 
 	if(portraits[1]) {
 		graphics::setColor(255, 255, 255, 0.5f);// MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f));
@@ -1331,12 +1331,12 @@ void MenuVersus::draw() {
 	}
 }
 
-void MenuVersus::parseLine(Parser& parser) {
-	Menu::parseLine(parser);
+void SceneVersus::parseLine(Parser& parser) {
+	Scene::parseLine(parser);
 }
 
-//Menu Options
-MenuOptions::MenuOptions() : Menu("options") {
+//Scene Options
+SceneOptions::SceneOptions() : Scene("options") {
 	cursor = cursorLast = cursorTimer = 0;
 	madoPos = 0;
 	madoFrame = 1;
@@ -1346,7 +1346,7 @@ MenuOptions::MenuOptions() : Menu("options") {
 	nThemes = 0;
 }
 
-MenuOptions::~MenuOptions() {
+SceneOptions::~SceneOptions() {
 	delete [] themes;
 }
 
@@ -1371,8 +1371,8 @@ int optionMusVolume = 100;
 int optionVoiceVolume = 100;
 bool optionEpilepsy = false;
 
-void MenuOptions::think() {
-	Menu::think();
+void SceneOptions::think() {
+	Scene::think();
 
 	//Cursor stuff
 	if(cursorTimer) {
@@ -1387,7 +1387,7 @@ void MenuOptions::think() {
 	if(madoWakeTimer) {
 		if(madoWakeTimer == 1) {
 			madoWakeTimer = -1;
-			setMenu(MENU_TITLE);
+			setScene(SCENE_TITLE);
 		} else {
 			madoWakeTimer--;
 			if(madoWakeTimer == 36) {
@@ -1554,7 +1554,7 @@ void MenuOptions::think() {
 		if(input(INPUT_A)) {
 			if(cursor == OPTION_CREDITS) {
 				sndSelect.play();
-				setMenu(MENU_CREDITS);
+				setScene(SCENE_CREDITS);
 			}
 		}
 
@@ -1567,8 +1567,8 @@ void MenuOptions::think() {
 	}
 }
 
-void MenuOptions::reset() {
-	Menu::reset();
+void SceneOptions::reset() {
+	Scene::reset();
 
 	cursor = cursorLast = cursorTimer = 0;
 	madoPos = 0;
@@ -1577,8 +1577,8 @@ void MenuOptions::reset() {
 	madoWakeTimer = 0;
 }
 
-void MenuOptions::draw() {
-	Menu::draw();
+void SceneOptions::draw() {
+	Scene::draw();
 
 	//Draw the menu options
 	if(menuFont.exists()) {
@@ -1644,8 +1644,8 @@ void MenuOptions::draw() {
 	madoImg.draw(32, 64 + madoPos);
 }
 
-void MenuOptions::init() {
-	Menu::init();
+void SceneOptions::init() {
+	Scene::init();
 
 	//Parse a random theme
 	if(nThemes) {
@@ -1653,7 +1653,7 @@ void MenuOptions::init() {
 	}
 }
 
-void MenuOptions::parseLine(Parser& parser) {
+void SceneOptions::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if(parser.is("FONT", 1)) {
 		//The font
@@ -1684,19 +1684,19 @@ void MenuOptions::parseLine(Parser& parser) {
 		dame.createFromFile(getResource(parser.getArg(1), EXT_SOUND));
 		muri.createFromFile(getResource(parser.getArg(2), EXT_SOUND));
 	} else {
-		Menu::parseLine(parser);
+		Scene::parseLine(parser);
 	}
 }
 
 
 //FIGHT
-MenuMeter::MenuMeter() {
+SceneMeter::SceneMeter() {
 }
 
-MenuMeter::~MenuMeter() {
+SceneMeter::~SceneMeter() {
 }
 
-void MenuMeter::draw(float pct, bool mirror, bool flip) {
+void SceneMeter::draw(float pct, bool mirror, bool flip) {
 	if(pct > 0) {
 		if(flip) {
 			graphics::setRect(0, 0, img.w * pct, img.h);
@@ -1725,19 +1725,19 @@ void MenuMeter::draw(float pct, bool mirror, bool flip) {
 	}
 }
 
-MenuFight::MenuFight() : Menu("fight") {
+SceneFight::SceneFight() : Scene("fight") {
 	gametype = GAMETYPE_TRAINING;
 	reset();
 }
 
-MenuFight::~MenuFight() {
+SceneFight::~SceneFight() {
 }
 
-void MenuFight::init() {
-	Menu::init();
+void SceneFight::init() {
+	Scene::init();
 }
 
-void MenuFight::parseLine(Parser& parser) {
+void SceneFight::parseLine(Parser& parser) {
 	if(parser.is("HUD", 1)) {
 		hud.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
 	} else if(parser.is("HUD_TAG", 1)) {
@@ -1822,11 +1822,11 @@ void MenuFight::parseLine(Parser& parser) {
 		orb_pos.x = parser.getArgInt(4);
 		orb_pos.y = parser.getArgInt(5);
 	} else {
-		Menu::parseLine(parser);
+		Scene::parseLine(parser);
 	}
 }
 
-void MenuFight::think() {
+void SceneFight::think() {
 	// From main.cpp
 	extern util::Vector cameraShake;
 	extern util::Vector idealCameraPos;
@@ -1910,7 +1910,7 @@ void MenuFight::think() {
 		framePauseTimer--;
 	}
 
-	Menu::think();
+	Scene::think();
 
 	if(gametype == GAMETYPE_TRAINING) {
 		ko_player = 0;
@@ -1927,7 +1927,7 @@ void MenuFight::think() {
 
 	if(winner) {
 		if(input(INPUT_B)) {
-			setMenu(MENU_SELECT);
+			setScene(SCENE_SELECT);
 		} else if(input(INPUT_A)) {
 			reset();
 		}
@@ -2158,7 +2158,7 @@ void MenuFight::think() {
 	}
 }
 
-void MenuFight::draw() {
+void SceneFight::draw() {
 	// From main.cpp
 	STAGE.draw(false);
 
@@ -2194,7 +2194,7 @@ void MenuFight::draw() {
 
 	effect::draw();
 
-	Menu::draw();
+	Scene::draw();
 
 	if(winner) {
 		win.draw(0, 0);
@@ -2376,10 +2376,10 @@ void MenuFight::draw() {
 	}
 
 	// From main.cpp
-	((MenuSelect*)menus[MENU_SELECT])->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x, madotsuki.pos.y + madotsuki.fighter->height, true);
+	((SceneSelect*)scenes[SCENE_SELECT])->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x, madotsuki.pos.y + madotsuki.fighter->height, true);
 }
 
-void MenuFight::reset() {
+void SceneFight::reset() {
 	ko_player = 0;
 	ko_type = 0;
 
@@ -2405,7 +2405,7 @@ void MenuFight::reset() {
 	bgmPlaying = false;
 }
 
-void MenuFight::knockout(int player) {
+void SceneFight::knockout(int player) {
 	if(ko_player) {
 		return;
 	}
@@ -2438,7 +2438,7 @@ void MenuFight::knockout(int player) {
 #define NET_FADE_TIME (FPS)
 #define NET_SCALE (2)
 #define NET_BAR_SIZE 120
-MenuNetplay::MenuNetplay() : Menu("netplay") {
+SceneNetplay::SceneNetplay() : Scene("netplay") {
 	choice = 0;
 
 	flashTimer = 0;
@@ -2453,11 +2453,11 @@ MenuNetplay::MenuNetplay() : Menu("netplay") {
 	updatePort(false);
 }
 
-MenuNetplay::~MenuNetplay() {
+SceneNetplay::~SceneNetplay() {
 }
 
-void MenuNetplay::think() {
-	Menu::think();
+void SceneNetplay::think() {
+	Scene::think();
 
 	if(os::frame % 2) {
 		drawShake = !drawShake;
@@ -2492,7 +2492,7 @@ void MenuNetplay::think() {
 					if(net::connected) {
 						sndSelect.play();
 						FIGHT->gametype = GAMETYPE_VERSUS;
-						setMenu(MENU_SELECT);
+						setScene(SCENE_SELECT);
 					}
 				} else if(input(INPUT_B)) {
 					if(!net::connected) {
@@ -2563,7 +2563,7 @@ void MenuNetplay::think() {
 					if(net::connected) {
 						sndSelect.play();
 						FIGHT->gametype = GAMETYPE_VERSUS;
-						setMenu(MENU_SELECT);
+						setScene(SCENE_SELECT);
 					}
 				} else if(input(INPUT_B)) {
 					if(!net::connected) {
@@ -2750,7 +2750,7 @@ void MenuNetplay::think() {
 	if(flashTimer < 0) {
 		flashDir = 0;
 		flashTimer = 0;
-		setMenu(MENU_TITLE);
+		setScene(SCENE_TITLE);
 	} else if(flashTimer > NET_FLASH_TIME + NET_FLASH_HOLD_TIME + NET_FADE_TIME) {
 		flashDir = 0;
 		flashTimer = NET_FLASH_TIME + NET_FLASH_HOLD_TIME + NET_FADE_TIME;
@@ -2772,8 +2772,8 @@ void MenuNetplay::think() {
 	}
 }
 
-void MenuNetplay::draw() {
-	Menu::draw();
+void SceneNetplay::draw() {
+	Scene::draw();
 
 	int speed = (flashDir + 1) / 2 + 1;
 
@@ -2920,8 +2920,8 @@ void MenuNetplay::draw() {
 	}
 }
 
-void MenuNetplay::reset() {
-	Menu::reset();
+void SceneNetplay::reset() {
+	Scene::reset();
 	choice = 0;
 	mode = net::MODE_NONE;
 	digit = 0;
@@ -2931,7 +2931,7 @@ void MenuNetplay::reset() {
 	waiting = false;
 }
 
-void MenuNetplay::updateIp(bool toint) {
+void SceneNetplay::updateIp(bool toint) {
 	if(toint) {
 		ip = 0;
 		for(int i = 0; i < 4; i++) {
@@ -2962,7 +2962,7 @@ void MenuNetplay::updateIp(bool toint) {
 	}
 }
 
-void MenuNetplay::updatePort(bool toint) {
+void SceneNetplay::updatePort(bool toint) {
 	if(toint) {
 		int newport = 0;
 		for(int i = 0; i < 5; i++) {
@@ -2986,7 +2986,7 @@ void MenuNetplay::updatePort(bool toint) {
 	}
 }
 
-void MenuNetplay::parseLine(Parser& parser) {
+void SceneNetplay::parseLine(Parser& parser) {
 	if(parser.is("BGM", 2)) { //Override superclass
 		bgm.createFromFile("", getResource(parser.getArg(1), EXT_MUSIC));
 		bgmWait.createFromFile("", getResource(parser.getArg(2), EXT_MUSIC));
@@ -3006,7 +3006,7 @@ void MenuNetplay::parseLine(Parser& parser) {
 		sndOn.createFromFile(getResource(parser.getArg(1), EXT_SOUND));
 		sndOff.createFromFile(getResource(parser.getArg(2), EXT_SOUND));
 	} else {
-		Menu::parseLine(parser);
+		Scene::parseLine(parser);
 	}
 }
 #endif
@@ -3014,7 +3014,7 @@ void MenuNetplay::parseLine(Parser& parser) {
 #define CREDITS_OFFSET 20
 
 //CREDITS
-MenuCredits::MenuCredits() : Menu("credits") {
+SceneCredits::SceneCredits() : Scene("credits") {
 	oy = 0;
 	timer_start = FPS * 6.35;
 	timer_scroll = FPS;
@@ -3027,12 +3027,12 @@ MenuCredits::MenuCredits() : Menu("credits") {
 	sz_lines = nullptr;
 }
 
-MenuCredits::~MenuCredits() {
+SceneCredits::~SceneCredits() {
 	util::freeLines(sz_lines);
 }
 
-void MenuCredits::think() {
-	Menu::think();
+void SceneCredits::think() {
+	Scene::think();
 
 	if(timer_start) {
 		timer_start--;
@@ -3048,12 +3048,12 @@ void MenuCredits::think() {
 	}
 
 	if(input(INPUT_A)) {
-		setMenu(MENU_TITLE);
+		setScene(SCENE_TITLE);
 	}
 }
 
-void MenuCredits::draw() {
-	Menu::draw();
+void SceneCredits::draw() {
+	Scene::draw();
 
 	if(!timer_start) {
 		if(done) {
@@ -3094,8 +3094,8 @@ void MenuCredits::draw() {
 	}
 }
 
-void MenuCredits::reset() {
-	Menu::reset();
+void SceneCredits::reset() {
+	Scene::reset();
 
 	done = false;
 	oy = 0;
@@ -3104,7 +3104,7 @@ void MenuCredits::reset() {
 	secret_alpha = 0.0f;
 }
 
-void MenuCredits::parseLine(Parser& parser) {
+void SceneCredits::parseLine(Parser& parser) {
 	if(parser.is("LOGO", 1)) {
 		logo.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
 	} else if(parser.is("CREDITS", 2)) {
@@ -3118,7 +3118,7 @@ void MenuCredits::parseLine(Parser& parser) {
 		name_g = parser.getArgInt(5);
 		name_b = parser.getArgInt(6);
 	} else {
-		Menu::parseLine(parser);
+		Scene::parseLine(parser);
 	}
 }
 
@@ -3146,9 +3146,9 @@ int Cursor::getGroup(int w, int gW, int gH) {
 	return (pos % w) / gW + ((pos / w) / gH) * (w / gW);
 }
 
-//MENU IMAGE
+//SCENE IMAGE
 
-MenuImage::MenuImage(Image& image_, float x_, float y_, float parallax_, char render_, float xvel_, float yvel_, bool wrap_, int round_) {
+SceneImage::SceneImage(Image& image_, float x_, float y_, float parallax_, char render_, float xvel_, float yvel_, bool wrap_, int round_) {
 	image = std::move(image_);
 	x = x_;
 	y = y_;
@@ -3179,11 +3179,11 @@ MenuImage::MenuImage(Image& image_, float x_, float y_, float parallax_, char re
 	next = nullptr;
 }
 
-MenuImage::~MenuImage() {
+SceneImage::~SceneImage() {
 	delete next;
 }
 
-void MenuImage::think() {
+void SceneImage::think() {
 	x += xvel;
 	y += yvel;
 
@@ -3208,7 +3208,7 @@ void MenuImage::think() {
 	}
 }
 
-void MenuImage::reset() {
+void SceneImage::reset() {
 	x = xOrig;
 	y = yOrig;
 
@@ -3217,7 +3217,7 @@ void MenuImage::reset() {
 	}
 }
 
-void MenuImage::draw(bool _stage) {
+void SceneImage::draw(bool _stage) {
 	if(image.exists()) {
 		//Draw the image differently if wrapping
 		if(wrap) {

@@ -3,7 +3,7 @@
 
 #include "globals.h"
 
-#include "menu.h"
+#include "scene.h"
 #include "animation.h"
 
 extern int stage;
@@ -13,8 +13,8 @@ extern int stage;
 class Stage {
 public:
 	std::string name;
-	MenuImage* imagesAbove;
-	MenuImage* imagesBelow;
+	SceneImage* imagesAbove;
+	SceneImage* imagesBelow;
 	audio::Music bgm;
 	audio::Music bgm2;
 

@@ -1,5 +1,5 @@
-#ifndef MENU_H_INCLUDED
-#define MENU_H_INCLUDED
+#ifndef SCENE_H_INCLUDED
+#define SCENE_H_INCLUDED
 
 #include "globals.h"
 
@@ -8,38 +8,38 @@
 #include "font.h"
 #include "util.h"
 
-#define MENU menus[menu]
-#define FIGHT ((MenuFight*)menus[MENU_FIGHT])
+#define SCENE scenes[scene]
+#define FIGHT ((SceneFight*)scenes[SCENE_FIGHT])
 
 extern Image imgLoading;
 
 enum {
-	MENU_FIGHT,
+	SCENE_FIGHT,
 
-	MENU_INTRO,
+	SCENE_INTRO,
 
-	MENU_TITLE,
-	MENU_SELECT,
-	MENU_VERSUS,
+	SCENE_TITLE,
+	SCENE_SELECT,
+	SCENE_VERSUS,
 
-	MENU_OPTIONS,
+	SCENE_OPTIONS,
 
 #ifndef NO_NETWORK
-	MENU_NETPLAY,
+	SCENE_NETPLAY,
 #endif
 
-	MENU_CREDITS,
+	SCENE_CREDITS,
 
-	MENU_MAX,
+	SCENE_MAX,
 
-	MENU_QUIT, //Dummy menu for quitting
+	SCENE_QUIT, // Dummy scene for quitting
 };
 
-/// @brief Image for displaying, intended for menus
-class MenuImage {
+/// @brief Image for displaying, intended for scenes
+class SceneImage {
 public:
-	MenuImage(Image& _image, float _x, float _y, float _parallax, char _render, float _xvel, float _yvel, bool wrap, int round);
-	~MenuImage();
+	SceneImage(Image& _image, float _x, float _y, float _parallax, char _render, float _xvel, float _yvel, bool wrap, int round);
+	~SceneImage();
 
 	Image image;
 	float x, y;
@@ -50,22 +50,22 @@ public:
 	bool wrap;
 	int round;
 
-	MenuImage* next;
+	SceneImage* next;
 
 	void think();
 	void reset();
 	void draw(bool _stage);
 };
 
-/// @brief Menu base class
-class Menu {
+/// @brief Scene base class
+class Scene {
 public:
-	Menu(std::string name_);
-	virtual ~Menu();
+	Scene(std::string name_);
+	virtual ~Scene();
 
 	//Members
 	std::string name;
-	MenuImage* images;
+	SceneImage* images;
 
 	bool initialized;
 
@@ -98,7 +98,7 @@ public:
 	static bool fadeIn;
 	static void drawFade();
 
-	static void setMenu(int _menu);
+	static void setScene(int _scene);
 
 	static bool input(uint16_t in);
 
@@ -107,11 +107,11 @@ public:
 	static void deinit();
 };
 
-/// @brief Menu for the introductory sceen
-class MenuIntro : public Menu {
+/// @brief Scene for the introductory sceen
+class SceneIntro : public Scene {
 public:
-	MenuIntro();
-	~MenuIntro();
+	SceneIntro();
+	~SceneIntro();
 
 	audio::Sound sfx;
 	Image instructions;
@@ -128,11 +128,11 @@ public:
 	void parseLine(Parser& parser);
 };
 
-/// @brief Menu for the title menu
-class MenuTitle : public Menu {
+/// @brief Scene for the title menu
+class SceneTitle : public Scene {
 public:
-	MenuTitle();
-	~MenuTitle();
+	SceneTitle();
+	~SceneTitle();
 
 	void init();
 
@@ -160,7 +160,7 @@ public:
 	void parseLine(Parser& parser);
 };
 
-/// @brief Helper data structure for MenuSelect
+/// @brief Helper data structure for SceneSelect
 class CursorData {
 public:
 	util::Vector off;
@@ -183,7 +183,7 @@ enum {
 	CURSOR_LOCKED,
 };
 
-/// @brief Helper object for MenuSelect
+/// @brief Helper object for SceneSelect
 class Cursor {
 public:
 	int pos;
@@ -210,10 +210,10 @@ public:
 };
 
 /// @brief Character and stage selection
-class MenuSelect : public Menu {
+class SceneSelect : public Scene {
 public:
-	MenuSelect();
-	~MenuSelect();
+	SceneSelect();
+	~SceneSelect();
 
 	void init();
 
@@ -221,7 +221,7 @@ public:
 	int width, height;
 	int gWidth, gHeight;
 	//Image* sprites;
-	MenuImage* gui;
+	SceneImage* gui;
 	util::Vector* grid;
 	int* gridFighters;
 	int gridC;
@@ -246,10 +246,10 @@ public:
 };
 
 /// @brief Versus splash cutscene
-class MenuVersus : public Menu {
+class SceneVersus : public Scene {
 public:
-	MenuVersus();
-	~MenuVersus();
+	SceneVersus();
+	~SceneVersus();
 
 	void init();
 
@@ -272,11 +272,11 @@ public:
 	void parseLine(Parser& parser);
 };
 
-/// @brief Menu for modifying options
-class MenuOptions : public Menu {
+/// @brief Scene for modifying options
+class SceneOptions : public Scene {
 public:
-	MenuOptions();
-	~MenuOptions();
+	SceneOptions();
+	~SceneOptions();
 
 	void init();
 
@@ -314,11 +314,11 @@ public:
 	void parseLine(Parser& parser);
 };
 
-/// @brief Helper object for drawing meters, primarily for MenuFight
-class MenuMeter {
+/// @brief Helper object for drawing meters, primarily for SceneFight
+class SceneMeter {
 public:
-	MenuMeter();
-	~MenuMeter();
+	SceneMeter();
+	~SceneMeter();
 
 	void draw(float pct, bool mirror, bool flip);
 
@@ -332,10 +332,10 @@ enum {
 };
 
 /// @brief Fighting game scene
-class MenuFight : public Menu {
+class SceneFight : public Scene {
 public:
-	MenuFight();
-	~MenuFight();
+	SceneFight();
+	~SceneFight();
 
 	void init();
 
@@ -349,12 +349,12 @@ public:
 	Image shine_tag;
 
 	//Bars and stuff
-	MenuMeter meterHp;
-	MenuMeter meterSuper;
-	MenuMeter meterTag;
-	MenuMeter meterStun;
-	MenuMeter meterGuard;
-	MenuMeter meterDpm;
+	SceneMeter meterHp;
+	SceneMeter meterSuper;
+	SceneMeter meterTag;
+	SceneMeter meterStun;
+	SceneMeter meterGuard;
+	SceneMeter meterDpm;
 
 	Image staticImg;
 	audio::Sound staticSnd;
@@ -418,11 +418,11 @@ public:
 	void parseLine(Parser& parser);
 };
 
-/// @brief Menu for navigating netplay and connections
-class MenuNetplay : public Menu {
+/// @brief Scene for navigating netplay and connections
+class SceneNetplay : public Scene {
 public:
-	MenuNetplay();
-	~MenuNetplay();
+	SceneNetplay();
+	~SceneNetplay();
 
 	int choice;
 	int mode;
@@ -466,11 +466,11 @@ public:
 };
 
 /// @brief In-game credits
-class MenuCredits : public Menu {
+class SceneCredits : public Scene {
 public:
 
-	MenuCredits();
-	~MenuCredits();
+	SceneCredits();
+	~SceneCredits();
 
 	//Logic
 	bool done;
@@ -499,7 +499,7 @@ public:
 	void parseLine(Parser& parser);
 };
 
-extern Menu* menus[MENU_MAX];
-extern int menu;
+extern Scene* scenes[SCENE_MAX];
+extern int scene;
 
-#endif // MENU_H_INCLUDED
+#endif // SCENE_H_INCLUDED

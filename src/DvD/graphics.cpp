@@ -3,7 +3,7 @@
 #include "input.h"
 #include "error.h"
 #include "player.h"
-#include "menu.h"
+#include "scene.h"
 #include "network.h"
 #include "shader.h"
 #include "stage.h"

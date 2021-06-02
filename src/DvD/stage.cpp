@@ -139,11 +139,11 @@ void Stage::parseFile(const std::string& szFileName) {
 			if(!imgData.exists()) {
 				continue;
 			}
-			MenuImage* newImg = new MenuImage(imgData, 0, 0, parallax, RENDER_NORMAL, xvel, yvel, wrap, round);
+			SceneImage* newImg = new SceneImage(imgData, 0, 0, parallax, RENDER_NORMAL, xvel, yvel, wrap, round);
 
 			if(above) {
 				if(imagesAbove) {
-					MenuImage* img = imagesAbove;
+					SceneImage* img = imagesAbove;
 					for(; img->next; img = img->next);
 					img->next = newImg;
 				} else {
@@ -151,7 +151,7 @@ void Stage::parseFile(const std::string& szFileName) {
 				}
 			} else {
 				if(imagesBelow) {
-					MenuImage* img = imagesBelow;
+					SceneImage* img = imagesBelow;
 					for(; img->next; img = img->next);
 					img->next = newImg;
 				} else {

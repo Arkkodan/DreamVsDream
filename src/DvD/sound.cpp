@@ -15,7 +15,7 @@
 #include "sound.h"
 #include "error.h"
 #include "globals.h"
-#include "menu.h"
+#include "scene.h"
 #include "stage.h"
 
 #define SAMPLE_RATE 44100
@@ -117,7 +117,7 @@ namespace audio {
 
 				i_music_sample += (sound->sample_rate / (float)SAMPLE_RATE) * music_frequency;
 				if(i_music_sample >= sound->c_samples) {
-					if(menu == MENU_VERSUS) {
+					if(scene == SCENE_VERSUS) {
 						music = nullptr;
 					} else {
 						music_is_loop = true;
@@ -129,7 +129,7 @@ namespace audio {
 			for(int j = 0; j < SOUND_SOURCE_MAX; j++) {
 				Sound* sound = sound_sources[j].sound;
 				if(sound) {
-					if(menu == MENU_FIGHT && stage == 3) {
+					if(scene == SCENE_FIGHT && stage == 3) {
 						if(sound->channels == 1) {
 							out[0] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] * sound_volume;
 							out[1] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] * sound_volume;
@@ -158,7 +158,7 @@ namespace audio {
 			for(int j = 0; j < SPEAKER_SOURCE_MAX; j++) {
 				Sound* sound = speaker_sources[j].sound;
 				if(sound) {
-					if(menu == MENU_FIGHT && stage == 3) {
+					if(scene == SCENE_FIGHT && stage == 3) {
 						if(sound->channels == 1) {
 							out[0] += sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] * voice_volume;
 							out[1] += sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] * voice_volume;
@@ -220,7 +220,7 @@ namespace audio {
 
 	void refresh() {
 #ifndef NO_SOUND
-		if(menu == MENU_FIGHT && stage == 3) {
+		if(scene == SCENE_FIGHT && stage == 3) {
 			float amplitude = FIGHT->round * 0.1;
 			music_frequency = 1.0f + util::rollf() * amplitude - amplitude / 2;
 		} else {

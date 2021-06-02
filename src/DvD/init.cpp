@@ -8,7 +8,7 @@
 #include "fighter.h"
 #include "graphics.h"
 #include "error.h"
-#include "menu.h"
+#include "scene.h"
 #include "sound.h"
 #include "stage.h"
 #include "network.h"
@@ -42,9 +42,9 @@ void parseArgs(int argc, char** argv) {
 		} else if(!strcasecmp(argv[i], "--disable-sound")) {
 			disable_sound = true;
 		} else if(!strcasecmp(argv[i], "--training")) {
-			menu = MENU_FIGHT;
+			scene = SCENE_FIGHT;
 		} else if(!strcasecmp(argv[i], "--versus")) {
-			menu = MENU_FIGHT;
+			scene = SCENE_FIGHT;
 			versus = true;
 		} else if(!strcasecmp(argv[i], "--fullscreen")) {
 			fullscreen = true;
@@ -168,7 +168,7 @@ void init() {
 	os::init();
 	graphics::init(disable_shaders, max_texture_size);
 	extern Image imgLoading;
-	imgLoading.createFromFile("menus/loading.png");
+	imgLoading.createFromFile("scenes/loading.png");
 	imgLoading.draw(0, 0);
 	os::refresh();
 
@@ -178,7 +178,7 @@ void init() {
 	}
 	net::init(input_delay);
 	game::init();
-	Menu::ginit(); //TODO fix this
+	Scene::ginit(); //TODO fix this
 	Stage::ginit();
 	effect::init();
 
@@ -188,7 +188,7 @@ void init() {
 	//if(fullscreen)
 	//OS::toggleFullscreen();
 
-	if(menu == MENU_FIGHT && stage == -1) {
+	if(scene == SCENE_FIGHT && stage == -1) {
 		stage = 0;
 	}
 }
@@ -198,7 +198,7 @@ void deinit() {
 
 	effect::deinit();
 	Stage::deinit();
-	Menu::deinit();
+	Scene::deinit();
 	game::deinit();
 	net::deinit();
 
