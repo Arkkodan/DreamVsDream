@@ -3,6 +3,8 @@
 
 #include "globals.h"
 
+#include "sprite.h"
+
 namespace input {
 	/// @brief Initialize inputs based on a config file or defaults
 	void init();
@@ -18,6 +20,12 @@ namespace input {
 	/// @details Some inputs are hardcoded to do certain things while some
 	/// others get propagated to player inputs.
 	void keyPress(int key, bool press);
+
+#ifdef SPRTOOL
+	extern bool selectBoxAttack;
+	extern bool selectAll;
+	extern sprite::HitBox* selectBox;
+#endif // SPRTOOL
 }
 
 #endif // INPUT_H_INCLUDED

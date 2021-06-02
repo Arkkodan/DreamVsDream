@@ -37,6 +37,8 @@ namespace os {
 	unsigned long getTime();
 
 	extern unsigned int frame;
+
+	extern SDL_Window* window;
 }
 
 #endif

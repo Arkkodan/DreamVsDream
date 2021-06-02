@@ -5,14 +5,6 @@
 #include "parser.h"
 #include "input.h"
 
-#ifdef SPRTOOL
-namespace input {
-	extern bool selectBoxAttack;
-	extern bool selectAll;
-	extern sprite::HitBox* selectBox;
-}
-#endif // SPRTOOL
-
 namespace sprite {
 
 	HitBox::HitBox() {}

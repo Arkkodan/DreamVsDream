@@ -46,8 +46,4 @@ namespace globals {
 #endif
 }
 
-namespace init {
-	extern std::string szConfigPath;
-}
-
 #endif // GLOBALS_H_INCLUDED

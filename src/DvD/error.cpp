@@ -7,20 +7,14 @@
 #include "os.h"
 #include "util.h"
 
-#if !defined COMPILER && (defined _WIN32 || defined __APPLE__)
-namespace os {
-    extern SDL_Window* window;
-}
-#endif
-
 #if defined _WIN32 && !defined COMPILER
 #include <SDL_syswm.h>
 
 namespace error {
-	void w32_messageBox(const char* title, const char* text, int flags);
+	static void w32_messageBox(const char* title, const char* text, int flags);
 }
 
-void error::w32_messageBox(const char* title, const char* text, int flags) {
+static void error::w32_messageBox(const char* title, const char* text, int flags) {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if(SDL_GetWindowWMInfo(os::window, &info)) {
