@@ -6,7 +6,7 @@ If a library is missing, please contact the project manager.
 
 | Repo | Checked out | License | Usage |
 | ---- | ----------- | ------- | ----- |
-| [SDL](https://github.com/libsdl-org/SDL.git) | release-2.0.14 | zlib License | SDL2 handles multimedia operations for DvD and Sprtool. SDL2main is linked with them as well. |
+| [SDL](https://github.com/libsdl-org/SDL.git) | release-2.0.14 | zlib License | SDL2 handles multimedia operations for DvD and Sprtool. |
 | [zlib](https://github.com/madler/zlib.git) | v1.2.11 | zlib License | zlib/zlibstatic is a dependency of libpng. DvD also references it. |
 | [libpng](https://github.com/glennrp/libpng.git) | v1.6.37 | libpng License (~zlib License) | png/png_static is used for low level png operations in Atlas, DvD, and Sprtool. |
 | [stb_image](https://github.com/nothings/stb.git) | v2.26 | MIT License/Public Domain (Unlicense) | stb_image.h opens gif animations in a GL-ready format. |

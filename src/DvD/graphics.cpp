@@ -3,12 +3,12 @@
 #include "input.h"
 #include "error.h"
 #include "player.h"
-#include "menu.h"
+#include "scene/scene.h"
 #include "network.h"
 #include "shader.h"
 #include "stage.h"
 
-#define FPS_BUFFER 2
+#include "sys.h"
 
 #ifndef __APPLE__
 #define LOAD_GL_PROC(name, type) name = (PFN##type##PROC)SDL_GL_GetProcAddress(#name)
@@ -46,9 +46,11 @@ PFNGLUSEPROGRAMPROC		 		glUseProgram;
 
 //double oldTime = 0.0f;
 
-extern ubyte_t* blankTex;
+// extern uint8_t* blankTex;
 
 namespace graphics {
+	constexpr auto FPS_BUFFER = 2;
+
 	//State options
 	int render = 0;
 
@@ -85,13 +87,13 @@ namespace graphics {
         glGetIntegerv(GL_MAJOR_VERSION, &versionMajor);
         glGetIntegerv(GL_MINOR_VERSION, &versionMinor);
         if(versionMajor == 1 && versionMinor < 3) {
-            die("Unsupported version of OpenGL: " + util::toString(versionMajor) + "." + util::toString(versionMinor));
+            error::die("Unsupported version of OpenGL: " + util::toString(versionMajor) + "." + util::toString(versionMinor));
         }
 
 		//OPENGL
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 1);
+		glOrtho(0, sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0, 0, 1);
 		glMatrixMode(GL_MODELVIEW);
 
 		glEnable(GL_TEXTURE_2D);
@@ -116,7 +118,7 @@ namespace graphics {
 		if(!glBlendEquation)
             LOAD_GL_ARB_PROC(glBlendEquation, GLBLENDEQUATION, "glBlendEquationARB");
         if(!glActiveTexture || !glBlendEquation) {
-            die("Your OpenGL implementation isn't capable of running Dream vs. Dream.");
+            error::die("Your OpenGL implementation isn't capable of running Dream vs. Dream.");
         }
 #endif
 
@@ -213,7 +215,7 @@ namespace graphics {
 
 	void refresh() {
 #ifdef GAME
-		if(stage == 3) {
+		if(Stage::stage == 3) {
 			//Update pixel value
 			if(pixel > 2) {
 				pixel--;
@@ -226,7 +228,7 @@ namespace graphics {
 			}
 			shift = 0;
 
-			if(!optionEpilepsy) {
+			if(!SceneOptions::optionEpilepsy) {
 				if(FIGHT->round >= 2) {
 					if(!util::roll(64)) {
 						shift = util::roll(1, 2);
@@ -237,20 +239,20 @@ namespace graphics {
 #endif
 
 		//Calculate fps, wait
-		unsigned long delta = os::getTime() - time;
-		if(delta < MSPF) {
+		unsigned long delta = sys::getTime() - time;
+		if(delta < sys::MSPF) {
 			if(delta > FPS_BUFFER) {
-				os::sleep(MSPF - delta);
+				sys::sleep(sys::MSPF - delta);
 			}
 			for(;;) {
-				if(os::getTime() - time >= MSPF) {
+				if(sys::getTime() - time >= sys::MSPF) {
 					break;
 				}
 			}
 		}
 
 #ifdef SHOW_FPS
-		delta = os::getTime() - time;
+		delta = sys::getTime() - time;
 		tickSum -= tickValues[tickIndex];
 		tickSum += delta;
 		tickValues[tickIndex] = delta;
@@ -259,20 +261,20 @@ namespace graphics {
 		}
 		char buff[256];
 		sprintf8(buff, "[%f] " WINDOW_TITLE, 1000 / ((float)tickSum / FPS_COUNTER_SIZE));
-		OS::setTitle(buff);
+		sys::setTitle(buff);
 #endif // SHOW_FPS
 
-		time = os::getTime();
+		time = sys::getTime();
 
 		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
 	//State stuff
-	void setClearColor(ubyte_t r, ubyte_t g, ubyte_t b) {
+	void setClearColor(uint8_t r, uint8_t g, uint8_t b) {
 		glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
 	}
 
-	void setColor(ubyte_t r, ubyte_t g, ubyte_t b, float a) {
+	void setColor(uint8_t r, uint8_t g, uint8_t b, float a) {
 		glColor4f(r / 255.0f, g / 255.0f, b / 255.0f, a);
 	}
 
@@ -307,7 +309,7 @@ namespace graphics {
 		shader_palette.setInt("texture", 0);
 		shader_palette.setInt("palette", 1);
 
-		if(stage == 3 && FIGHT->round >= 2) {
+		if(Stage::stage == 3 && FIGHT->round >= 2) {
 			shader_palette.setFloat("shift", shift / 256.0f);
 		} else {
 			shader_palette.setFloat("shift", 0.0f);
@@ -318,7 +320,7 @@ namespace graphics {
 
 		shader_palette.setFloat("alpha", alpha);
 
-		if(stage == 3) {
+		if(Stage::stage == 3) {
 			shader_palette.setInt("pixel", pixel);
 		} else {
 			shader_palette.setInt("pixel", 1);

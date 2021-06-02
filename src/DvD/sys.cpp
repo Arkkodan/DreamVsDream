@@ -1,14 +1,15 @@
-#include "os.h"
+#include "sys.h"
+
 #include "error.h"
-#include "globals.h"
 #include "network.h"
 #include "input.h"
 #include "graphics.h"
 
-extern game::Player madotsuki;
-extern game::Player poniko;
+#include "scene/fight.h"
 
-namespace os {
+#include <SDL.h>
+
+namespace sys {
 	unsigned int frame = 0;
 
 	SDL_Window* window = nullptr;
@@ -17,12 +18,12 @@ namespace os {
 	void init() {
 		//Initialize SDL
 		if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
-			die("Failed to initialize SDL.");
+			error::die("Failed to initialize SDL.");
 		}
 
 		//Create Window
 		if(!(window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL))) {
-			die("Failed to initialize SDL.");
+			error::die("Failed to initialize SDL.");
 		}
 
         //Create the opengl context
@@ -47,8 +48,8 @@ namespace os {
 
 	void refresh() {
 #ifdef GAME
-		madotsuki.frameInput = 0;
-		poniko.frameInput = 0;
+		SceneFight::madotsuki.frameInput = 0;
+		SceneFight::poniko.frameInput = 0;
 #endif
 
 		SDL_GL_SwapWindow(window);

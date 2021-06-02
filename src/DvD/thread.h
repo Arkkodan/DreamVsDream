@@ -1,9 +1,9 @@
 #ifndef THREAD_H_INCLUDED
 #define THREAD_H_INCLUDED
 
-#include "globals.h"
+#include "sys.h"
 
-#include "os.h"
+#include <SDL_thread.h>
 
 /// @brief Simple thread class
 /// @details Uses SDL_Thread

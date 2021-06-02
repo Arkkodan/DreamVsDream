@@ -10,24 +10,22 @@
 #include <unistd.h>
 #endif
 
-#include "globals.h"
-
 #include "network.h"
 #include "error.h"
-#include "menu.h"
+#include "scene/scene.h"
 #include "thread.h"
 
-#define PACKET_BUFF_SIZE 256
+#include "sys.h"
 
-enum {
-	NETSTATE_INIT, //Initialize everything
-	NETSTATE_LISTEN,
-};
-
-extern game::Player madotsuki;
-extern game::Player poniko;
 
 namespace net {
+	enum {
+		NETSTATE_INIT, //Initialize everything
+		NETSTATE_LISTEN,
+	};
+
+	constexpr auto PACKET_BUFF_SIZE = 256;
+
 	volatile bool enabled = false;
 	volatile bool running = false;
 	volatile bool connected = false;
@@ -107,20 +105,20 @@ namespace net {
 						}
 
 						//If it's a SYN, send a SYN/ACK
-						if(buff.flags & NETF_SYN && !(buff.flags & NETF_ACK)) {
-							buff.flags = NETF_SYN | NETF_ACK;
+						if(buff.flags & NetHeader::NETF_SYN && !(buff.flags & NetHeader::NETF_ACK)) {
+							buff.flags = NetHeader::NETF_SYN | NetHeader::NETF_ACK;
 
-							buff.option1 = optionWins;
-							buff.option2 = optionTime;
+							buff.option1 = SceneOptions::optionWins;
+							buff.option2 = SceneOptions::optionTime;
 							if(send(&buff, sizeof(buff))) {
-								unsigned long _timer = os::getTime(); //Latency calculation
+								unsigned long _timer = sys::getTime(); //Latency calculation
 								if(recv(&buff, sizeof(buff))) {
 									//Check if its an ACK; if so, connection established; send calculated
 									//input delay
-									if(buff.flags & NETF_ACK && !(buff.flags & NETF_SYN)) {
+									if(buff.flags & NetHeader::NETF_ACK && !(buff.flags & NetHeader::NETF_SYN)) {
 										//Calculate the input delay
-										float time = (os::getTime() - _timer) / 1000.0f;
-										inputDelay = ceil((time + 0.01) / (2 * SPF));
+										float time = (sys::getTime() - _timer) / 1000.0f;
+										inputDelay = ceil((time + 0.01) / (2 * sys::SPF));
 										if(force_input_delay) {
 											inputDelay = force_input_delay;
 										}
@@ -154,7 +152,7 @@ namespace net {
 
 					//Send a SYN
 					NetHeader buff;
-					buff.flags = NETF_SYN;
+					buff.flags = NetHeader::NETF_SYN;
 					buff.version = NET_VERSION;
 					if(send(&buff, sizeof(buff))) {
 						//Wait for a reply; check for SYN/ACK
@@ -164,13 +162,13 @@ namespace net {
 								th_return;
 							}
 
-							if(buff.flags & (NETF_SYN | NETF_ACK)) {
+							if(buff.flags & (NetHeader::NETF_SYN | NetHeader::NETF_ACK)) {
 								//Save options
-								optionWins = buff.option1;
-								optionTime = buff.option2;
+								SceneOptions::optionWins = buff.option1;
+								SceneOptions::optionTime = buff.option2;
 
 								//Send an ACK. We've got a connection!
-								buff.flags = NETF_ACK;
+								buff.flags = NetHeader::NETF_ACK;
 								if(send(&buff, sizeof(buff))) {
 									connected = true;
 
@@ -193,9 +191,9 @@ namespace net {
 			break;
 
 			case NETSTATE_LISTEN: {
-				ubyte_t buffer[256];
+				uint8_t buffer[256];
 				int size = recv(buffer, 256) - 1;
-				ubyte_t* buff = buffer + 1;
+				uint8_t* buff = buffer + 1;
 
 				if(size + 1) {
 					game::Player* p = getYourPlayer();
@@ -216,7 +214,7 @@ namespace net {
 							}
 							p->netBuff[p->netBuffCounter].frame = netframe - i;
 							p->netBuff[p->netBuffCounter].input = *(uint16_t*)(buff + 32 + i * 16);
-							if(++p->netBuffCounter >= NETBUFF_SIZE) {
+							if(++p->netBuffCounter >= game::NETBUFF_SIZE) {
 								p->netBuffCounter = 0;
 							}
 						}
@@ -235,12 +233,12 @@ namespace net {
 						game::Player* p = getMyPlayer();
 
                         netMutex.lock();
-						for(int i = 0; i < NETBUFF_SIZE; i++) {
+						for(int i = 0; i < game::NETBUFF_SIZE; i++) {
 							if(p->netBuff[i].frame == netframe) {
 								//Send this guy back
-								ubyte_t buffer2[256];
+								uint8_t buffer2[256];
 								*buffer2 = PACKET_UPDATE;
-								ubyte_t* buff2 = buffer2 + 1;
+								uint8_t* buff2 = buffer2 + 1;
 
 								*(uint32_t*)buff2 = netframe;
 								*(uint16_t*)(buff2 + 32) = p->netBuff[i].input;
@@ -294,9 +292,9 @@ namespace net {
 			nb->frame = frame + inputDelay;
 
 			//Construct and send a packet with the last inputDelay inputs
-			ubyte_t buffer[256];
+			uint8_t buffer[256];
 			buffer[0] = PACKET_UPDATE;
-			ubyte_t* buff = buffer + 1;
+			uint8_t* buff = buffer + 1;
 			*(uint32_t*)buff = frame + inputDelay;
 
 			int i = 0;
@@ -307,12 +305,12 @@ namespace net {
 				}
 				*(uint16_t*)(buff + 32 + i * 16) = p->netBuff[j].input;
 				if(--j < 0) {
-					j = NETBUFF_SIZE - 1;
+					j = game::NETBUFF_SIZE - 1;
 				}
 			}
 			send(buffer, 32 + 16 * i + 1);
 
-			if(++p->netBuffCounter >= NETBUFF_SIZE) {
+			if(++p->netBuffCounter >= game::NETBUFF_SIZE) {
 				p->netBuffCounter = 0;
 			}
 
@@ -321,7 +319,7 @@ namespace net {
 			py->frameInput = 0;
 
 			//Get inputs for current frame
-			for(i = 0; i < NETBUFF_SIZE; i++) {
+			for(i = 0; i < game::NETBUFF_SIZE; i++) {
 				if(p->netBuff[i].frame == frame) {
 					p->frameInput = p->netBuff[i].input;
 				}
@@ -332,9 +330,9 @@ namespace net {
 			bool sentRequest = false;
 			unsigned int timer;
 			unsigned int timeout;
-			timer = timeout = os::getTime();
+			timer = timeout = sys::getTime();
 			while(!haveInput && frame > 20) {
-				for(i = 0; i < NETBUFF_SIZE; i++) {
+				for(i = 0; i < game::NETBUFF_SIZE; i++) {
 					if(py->netBuff[i].frame == frame) {
 						haveInput = true;
 						py->frameInput = py->netBuff[i].input;
@@ -342,7 +340,7 @@ namespace net {
 				}
 				//If we don't have input, send a request for it every half second.
 				if(!haveInput) {
-					unsigned int now = os::getTime();
+					unsigned int now = sys::getTime();
 					if((now - timer) > 500 || !sentRequest) {
 						//Pack a simple message and send it
 						*buffer = PACKET_REQUEST;
@@ -358,7 +356,7 @@ namespace net {
 					if((now - timeout) >= 5 * 1000) {
                         neterror = "Lost connection to opponent.";
 						stop();
-						Menu::setMenu(MENU_TITLE);
+						Scene::setScene(Scene::SCENE_TITLE);
 						break;
 					}
 				}
@@ -368,7 +366,7 @@ namespace net {
 			frame++;
 		} else {
 		    if(!neterror.empty()) {
-                error(neterror);
+                error::error(neterror);
                 neterror = "";
 		    }
 		}
@@ -539,9 +537,9 @@ namespace net {
 	game::Player* getMyPlayer() {
 #ifndef NO_NETWORK
 		if(mode == MODE_SERVER) {
-			return &madotsuki;
+			return &SceneFight::madotsuki;
 		} else if(mode == MODE_CLIENT) {
-			return &poniko;
+			return &SceneFight::poniko;
 		}
 #endif
 		return nullptr;
@@ -550,9 +548,9 @@ namespace net {
 	game::Player* getYourPlayer() {
 #ifndef NO_NETWORK
 		if(mode == MODE_SERVER) {
-			return &poniko;
+			return &SceneFight::poniko;
 		} else if(mode == MODE_CLIENT) {
-			return &madotsuki;
+			return &SceneFight::madotsuki;
 		}
 #endif
 		return nullptr;

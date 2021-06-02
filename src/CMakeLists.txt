@@ -16,9 +16,33 @@ set(COMPILER_FILES
 )
 
 # DvD
+set(DVD_SCENE_FILES
+  DvD/scene/scene.h
+  DvD/scene/scene_base.cpp
+  DvD/scene/scene_base.h
+  DvD/scene/intro.cpp
+  DvD/scene/intro.h
+  DvD/scene/title.cpp
+  DvD/scene/title.h
+  DvD/scene/select.cpp
+  DvD/scene/select.h
+  DvD/scene/versus.cpp
+  DvD/scene/versus.h
+  DvD/scene/options.cpp
+  DvD/scene/options.h
+  DvD/scene/fight.cpp
+  DvD/scene/fight.h
+  DvD/scene/netplay.cpp
+  DvD/scene/netplay.h
+  DvD/scene/credits.cpp
+  DvD/scene/credits.h
+)
+
 set(DVD_FILES
   DvD/animation.cpp
   DvD/animation.h
+  DvD/app.cpp
+  DvD/app.h
   DvD/atlas.cpp
   DvD/atlas.h
   DvD/effect.cpp
@@ -31,21 +55,15 @@ set(DVD_FILES
   DvD/file.h
   DvD/font.cpp
   DvD/font.h
-  DvD/globals.h
   DvD/graphics.cpp
   DvD/graphics.h
   DvD/image.cpp
   DvD/image.h
-  DvD/init.cpp
   DvD/input.cpp
   DvD/input.h
   DvD/main.cpp
-  DvD/menu.cpp
-  DvD/menu.h
   DvD/network.cpp
   DvD/network.h
-  DvD/os.cpp
-  DvD/os.h
   DvD/parser.cpp
   DvD/parser.h
   DvD/player.cpp
@@ -58,10 +76,13 @@ set(DVD_FILES
   DvD/sprite.h
   DvD/stage.cpp
   DvD/stage.h
+  DvD/sys.cpp
+  DvD/sys.h
   DvD/thread.cpp
   DvD/thread.h
   DvD/util.cpp
   DvD/util.h
+  ${DVD_SCENE_FILES}
 )
 
 # Fontbuild
@@ -128,9 +149,9 @@ add_executable(Sprtool
   DvD/fighter.cpp
   DvD/graphics.cpp
   DvD/image.cpp
-  DvD/os.cpp
   DvD/parser.cpp
   DvD/sprite.cpp
+  DvD/sys.cpp
   DvD/util.cpp
 )
 target_compile_definitions(Sprtool
@@ -173,7 +194,6 @@ target_link_libraries(Atlas
 
 target_include_directories(DvD
   PRIVATE SDL2
-  PRIVATE SDL2main
   PRIVATE ${zlib_LIBRARY}
   PRIVATE ${libpng_INCLUDE_DIRS}
   PRIVATE stb_image
@@ -181,7 +201,6 @@ target_include_directories(DvD
 )
 target_link_libraries(DvD
   PRIVATE SDL2
-  PRIVATE SDL2main
   PRIVATE ${zlib_LIBRARY}
   PRIVATE ${libpng_LIBRARY}
   PRIVATE stb_image
@@ -197,12 +216,10 @@ target_link_libraries(DvD
 
 target_include_directories(Sprtool
   PRIVATE SDL2
-  PRIVATE SDL2main
   PRIVATE ${libpng_INCLUDE_DIRS}
 )
 target_link_libraries(Sprtool
   PRIVATE SDL2
-  PRIVATE SDL2main
   PRIVATE ${libpng_LIBRARY}
 )
 
@@ -230,5 +247,6 @@ endif()
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Atlas" PREFIX "Atlas" FILES ${ATLAS_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Compiler" PREFIX "Compiler" FILES ${COMPILER_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD" PREFIX "DvD" FILES ${DVD_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD/scene" PREFIX "DvD/scene" FILES ${DVD_SCENE_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Fontbuild" PREFIX "Fontbuild" FILES ${FONTBUILD_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Sprtool" PREFIX "Sprtool" FILES ${SPRTOOL_FILES})

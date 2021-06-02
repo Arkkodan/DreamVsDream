@@ -1,8 +1,6 @@
 #ifndef ANIMATION_H_INCLUDED
 #define ANIMATION_H_INCLUDED
 
-#include "globals.h"
-
 #include "image.h"
 
 /// @brief Animation class represented by a sequence of images

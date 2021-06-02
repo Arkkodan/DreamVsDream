@@ -1,8 +1,6 @@
 #ifndef FIGHTER_H_INCLUDED
 #define FIGHTER_H_INCLUDED
 
-#include "globals.h"
-
 #include "sound.h"
 #include "image.h"
 #include "sprite.h"
@@ -27,7 +25,7 @@ namespace game {
 		SBOOL_TRUE,
 	};
 
-	#define CND_NOT (1<<7)
+	constexpr auto CND_NOT = 1 << 7;
 
 	enum {
 		CND_NONE,
@@ -44,7 +42,7 @@ namespace game {
 
 		int state;
 		int conditionC;
-		ubyte_t conditions[16];
+		uint8_t conditions[16];
 	};
 
 	/// @brief Data structure containing a command
@@ -110,13 +108,13 @@ namespace game {
 	};
 
 	//State steps! Crazy stuff.
-	#define SVT_CONST 0
-	#define SVT_VAR 1
-	#define SVT_GLOBAL 2
+	constexpr auto SVT_CONST = 0;
+	constexpr auto SVT_VAR = 1;
+	constexpr auto SVT_GLOBAL = 2;
 	/// @brief Unused
 	class StepVar {
 	public:
-		byte_t type;
+		int8_t type;
 		float value;
 
 		float getValue();
@@ -154,9 +152,9 @@ namespace game {
 		STEP_Stun,
 	};
 
-	#define HT_LOW 0
-	#define HT_MID 1
-	#define HT_HIGH 2
+	constexpr auto HT_LOW = 0;
+	constexpr auto HT_MID = 1;
+	constexpr auto HT_HIGH = 2;
 
 	/// @brief Data structure containing information about an attack
 	struct StepAttack {
@@ -238,7 +236,7 @@ namespace game {
 
 	extern const char* stateNames[STATE_MAX];
 
-	#define STATE_NONE (UINT_MAX)
+	constexpr auto STATE_NONE = UINT_MAX;
 
 	/// @brief Fighter class containing data of different fighters and helper
 	/// methods
@@ -258,7 +256,7 @@ namespace game {
 		//Sprites & palettes
 		int nPalettes;
 #ifdef COMPILER
-		ubyte_t* palettes;
+		uint8_t* palettes;
 #else
 		GLuint* palettes;
 #endif
@@ -315,7 +313,7 @@ namespace game {
 	protected:
 	};
 
-	#define FIGHTERS_MAX 3
+	constexpr auto FIGHTERS_MAX = 3;
 	extern Fighter fighters[FIGHTERS_MAX];
 
 	/// @brief Set a boolean output parameter based on an enum input parameter

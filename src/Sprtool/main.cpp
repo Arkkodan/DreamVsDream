@@ -1,19 +1,23 @@
-// We have a main function
-#define SDL_MAIN_HANDLED
-
 #include <stdio.h>
 #include <iostream>
 
 #ifndef _WIN32
 #include <unistd.h>
+#else
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
 #endif
 
 #include "../DvD/parser.h"
 #include "../DvD/fighter.h"
 #include "../DvD/graphics.h"
 #include "../DvD/error.h"
-#include "../DvD/globals.h"
 #include "../DvD/error.h"
+
+#include "../DvD/sys.h"
 
 game::Fighter fighter;
 int frame = 0;
@@ -21,6 +25,10 @@ int anim = 0;
 
 namespace input {
 extern bool blackBG;
+}
+
+namespace init {
+	extern void init();
 }
 
 void moveFile(std::string old, std::string nw) {
@@ -39,7 +47,7 @@ void moveFile(std::string old, std::string nw) {
 	bool err = rename(old.c_str(), nw.c_str()) == -1;
 #endif
 	if(err) {
-		error("Could not move file \"" + old + "\" to \"" + nw + "\"");
+		error::error("Could not move file \"" + old + "\" to \"" + nw + "\"");
 	}
 }
 
@@ -120,7 +128,7 @@ void Fighter::saveSpr() {
 	moveFile("chars/" + name + "/sprites.ubu", "chars/" + name + "/sprites.ubu.bak");
 	FILE* out = util::ufopen("chars/" + name + "/sprites.ubu", "wb");
 	if(!out) {
-		error("Could not write to file \"chars/" + name + "/sprites.ubu\"");
+		error::error("Could not write to file \"chars/" + name + "/sprites.ubu\"");
 		return;
 	}
 	
@@ -171,13 +179,12 @@ int main(int argc, char** argv)
 	std::string name = argv[1];
 #endif
 
-	void init();
-	init();
+	init::init();
 
 	fighter.create(name);
 
 	for(;;) {
-		os::refresh();
+		sys::refresh();
 
 		//Draw a crosshair
 		glBindTexture(GL_TEXTURE_2D, 0);
@@ -187,20 +194,20 @@ int main(int argc, char** argv)
 			glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		}
 		glBegin(GL_QUADS);
-		glVertex3f(WINDOW_WIDTH / 2 - 100, FLIP(EDIT_OFFSET), 0);
-		glVertex3f(WINDOW_WIDTH / 2 - 100, FLIP(EDIT_OFFSET)+1, 0);
-		glVertex3f(WINDOW_WIDTH / 2 + 99, FLIP(EDIT_OFFSET)+1, 0);
-		glVertex3f(WINDOW_WIDTH / 2 + 99, FLIP(EDIT_OFFSET), 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2 - 100, sys::FLIP(sys::EDIT_OFFSET), 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2 - 100, sys::FLIP(sys::EDIT_OFFSET)+1, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2 + 99, sys::FLIP(sys::EDIT_OFFSET)+1, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2 + 99, sys::FLIP(sys::EDIT_OFFSET), 0);
 		glEnd();
 		glBegin(GL_QUADS);
-		glVertex3f(WINDOW_WIDTH / 2+1, FLIP(EDIT_OFFSET) - 4, 0);
-		glVertex3f(WINDOW_WIDTH / 2-1, FLIP(EDIT_OFFSET) - 4, 0);
-		glVertex3f(WINDOW_WIDTH / 2-1, FLIP(EDIT_OFFSET) + 5, 0);
-		glVertex3f(WINDOW_WIDTH / 2+1, FLIP(EDIT_OFFSET) + 5, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2+1, sys::FLIP(sys::EDIT_OFFSET) - 4, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2-1, sys::FLIP(sys::EDIT_OFFSET) - 4, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2-1, sys::FLIP(sys::EDIT_OFFSET) + 5, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2+1, sys::FLIP(sys::EDIT_OFFSET) + 5, 0);
 		glEnd();
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-		fighter.sprites[frame].draw(0, EDIT_OFFSET, false, 1.0f);
+		fighter.sprites[frame].draw(0, sys::EDIT_OFFSET, false, 1.0f);
 	}
 
 	return 0;

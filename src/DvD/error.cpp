@@ -4,21 +4,20 @@
 #include <iostream>
 #include <string>
 
-#include "os.h"
+#include "sys.h"
 #include "util.h"
-
-#if !defined COMPILER && (defined _WIN32 || defined __APPLE__)
-namespace os {
-    extern SDL_Window* window;
-}
-#endif
 
 #if defined _WIN32 && !defined COMPILER
 #include <SDL_syswm.h>
-void w32_messageBox(const char* title, const char* text, int flags) {
+
+namespace error {
+	static void w32_messageBox(const char* title, const char* text, int flags);
+}
+
+static void error::w32_messageBox(const char* title, const char* text, int flags) {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
-	if(SDL_GetWindowWMInfo(os::window, &info)) {
+	if(SDL_GetWindowWMInfo(sys::window, &info)) {
 		wchar_t* title16 = util::utf8to16(title);
 		wchar_t* text16 = util::utf8to16(text);
 		MessageBoxW(info.info.win.window, text16, title16, flags);
@@ -28,28 +27,28 @@ void w32_messageBox(const char* title, const char* text, int flags) {
 }
 #endif
 
-void error(const std::string& sz) {
+void error::error(const std::string& sz) {
 #if defined __linux__ || defined COMPILER
 	std::cerr << "error: " << sz << std::endl;
 #else
 #if defined _WIN32
 	w32_messageBox("Warning", sz.c_str(), MB_ICONWARNING);
 #elif defined __APPLE__
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", sz.c_str(), os::window);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, "Warning", sz.c_str(), sys::window);
 #else
 #error "don't know what error to use!"
 #endif
 #endif
 }
 
-void die(const std::string& sz) {
+void error::die(const std::string& sz) {
 #if defined __linux__ || defined COMPILER
 	std::cerr << "fatal error: " << sz << std::endl;
 #else
 #if defined _WIN32
 	w32_messageBox("Error", sz.c_str(), MB_ICONERROR);
 #elif defined __APPLE__
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", sz.c_str(), os::window);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", sz.c_str(), sys::window);
 #else
 #error "don't know what error to use!"
 #endif
@@ -58,7 +57,7 @@ void die(const std::string& sz) {
 }
 
 #ifdef DEBUG
-void debug(const std::string& sz) {
+void error::debug(const std::string& sz) {
 	std::cerr << "DEBUG: " << sz << std::endl;
 }
 #endif

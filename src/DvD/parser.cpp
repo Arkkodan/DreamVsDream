@@ -33,7 +33,7 @@ bool Parser::open(std::string szFileName) {
 				lines[i].group = true;
 
 				//Parse the words
-				for(int start = 1, end = 0; szLines[i][start] && lines[i].argc < ARGV_SIZE; start = end + 1) {
+				for(int start = 1, end = 0; szLines[i][start] && lines[i].argc < ParserLine::ARGV_SIZE; start = end + 1) {
 					util::nextWord(szLines[i], start, size, &start, &end);
 					szLines[i][end] = 0;
 
@@ -42,7 +42,7 @@ bool Parser::open(std::string szFileName) {
 				}
 			} else {
 				//Parse the args
-				for(int start = 0, end = 0; szLines[i][start] && lines[i].argc < ARGV_SIZE; start = end + 1) {
+				for(int start = 0, end = 0; szLines[i][start] && lines[i].argc < ParserLine::ARGV_SIZE; start = end + 1) {
 					//Parse the words
 					util::nextWord(szLines[i], start, size, &start, &end);
 
@@ -107,7 +107,7 @@ bool Parser::parseLine() {
 bool Parser::is(std::string szTest, int argc) {
 	if(!szTest.compare(lines[iLine].argv[0])) {
 		if(lines[iLine].argc - 1 < argc) {
-			error("Not enough arguments for field \"" + szTest + "\".");
+			error::error("Not enough arguments for field \"" + szTest + "\".");
 			return false;
 		}
 		return true;

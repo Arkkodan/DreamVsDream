@@ -8,6 +8,14 @@
 #include "../DvD/util.h"
 #include "image.h"
 
+#ifdef _WIN32
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
+#endif
+
 #define TEXTURE_SIZE 2048
 #define TEXTURE_SIZE_SQ (TEXTURE_SIZE*TEXTURE_SIZE)
 
@@ -331,7 +339,7 @@ int main(int argc, char** argv)
     {
         File file;
 		std::string path = util::getPath(sz_output + "/atlas.list");
-        if(!file.open(FILE_WRITE_NORMAL, path)) {
+        if(!file.open(File::FILE_WRITE_NORMAL, path)) {
             std::cerr << "error: could not open file " << path << " for writing." << std::endl;
             code = 1;
             goto end;
