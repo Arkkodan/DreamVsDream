@@ -8,33 +8,35 @@
 #include "graphics.h"
 #include "effect.h"
 
-extern void pause(int);
-extern void shake(int);
-extern int framePauseTimer;
+namespace g_main {
+	extern void pause(int);
+	extern void shake(int);
+	extern int framePauseTimer;
+}
 
 namespace game {
-	#define HITSTUN 14
-	#define JHITSTUN 26
-	#define BLOCKSTUN 14
-	#define TECHSTUN 14
+	constexpr auto HITSTUN = 14;
+	constexpr auto JHITSTUN = 26;
+	constexpr auto BLOCKSTUN = 14;
+	constexpr auto TECHSTUN = 14;
 
-	#define CHIP_DAMAGE_SCALAR 0.1f
-	#define JUGGLE 10
-	#define JUGGLE_MIN 0.1f
-	#define JUGGLE_DEC 0.05f
-	#define GRAVITY 1.0f
+	constexpr auto CHIP_DAMAGE_SCALAR = 0.1f;
+	constexpr auto JUGGLE = 10;
+	constexpr auto JUGGLE_MIN = 0.1f;
+	constexpr auto JUGGLE_DEC = 0.05f;
+	constexpr auto GRAVITY = 1.0f;
 
-	#define FRICTION 1.0f
-	#define PAUSE_AMPLITUDE 2
-	#define BOUNCE_VELOCITY 5
-	#define FORCE_GROUND_CAP 10
+	constexpr auto FRICTION = 1.0f;
+	constexpr auto PAUSE_AMPLITUDE = 2;
+	constexpr auto BOUNCE_VELOCITY = 5;
+	constexpr auto FORCE_GROUND_CAP = 10;
 
-	#define TECH_FORCE_X 2
-	#define TECH_FORCE_Y 5
-	#define TECH_GROUND_FORCE_X 5
-	#define TECH_GROUND_FORCE_Y 10
+	constexpr auto TECH_FORCE_X = 2;
+	constexpr auto TECH_FORCE_Y = 5;
+	constexpr auto TECH_GROUND_FORCE_X = 5;
+	constexpr auto TECH_GROUND_FORCE_Y = 10;
 
-	#define STAGE_BUFFER 10
+	constexpr auto STAGE_BUFFER = 10;
 
 	Projectile::Projectile() :
 		palette(0),
@@ -380,10 +382,10 @@ namespace game {
 		vel.y = 0;
 		pos.y = 0;
 		if(playerNum == 0) {
-			pos.x = WINDOW_WIDTH / -4;
+			pos.x = globals::WINDOW_WIDTH / -4;
 			dir = RIGHT;
 		} else {
-			pos.x = WINDOW_WIDTH / 4;
+			pos.x = globals::WINDOW_WIDTH / 4;
 			dir = LEFT;
 		}
 	}
@@ -398,7 +400,7 @@ namespace game {
 		input &= ~((frameInput & INPUT_RELMASK) >> INPUT_RELSHIFT);
 
 		//Adjust buffered input
-		if(dir == LEFT && scene == SCENE_FIGHT) {
+		if(dir == LEFT && Scene::scene == Scene::SCENE_FIGHT) {
 			frameInput = flipInput(frameInput);
 		}
 
@@ -423,7 +425,7 @@ namespace game {
 			input = flipInput(this->input);
 		}
 
-		if(scene == SCENE_FIGHT) {
+		if(Scene::scene == Scene::SCENE_FIGHT) {
 			if(FIGHT->timer_round_in || FIGHT->timer_round_out || FIGHT->timer_ko || FIGHT->ko_player) {
 				return;
 			}
@@ -556,7 +558,7 @@ namespace game {
 			}
 		}
 
-		if(!(flags & (F_DEAD | F_ON_GROUND)) && isBeingHit() && (press || (playerNum == 1 && FIGHT->gametype == GAMETYPE_TRAINING))) {
+		if(!(flags & (F_DEAD | F_ON_GROUND)) && isBeingHit() && (press || (playerNum == 1 && FIGHT->gametype == SceneFight::GAMETYPE_TRAINING))) {
 			if(pos.y + vel.y <= 0.0 && bounce.force.x == 0 && bounce.force.y == 0 && !(flags & F_KNOCKDOWN)) {
 				//We're about to hit the ground, so do a ground tech
 				pos.y = 0;
@@ -594,7 +596,7 @@ namespace game {
 	}
 
 	void Player::think() {
-		if(!framePauseTimer) {
+		if(!g_main::framePauseTimer) {
 			if(pausestun) {
 				pausestun--;
 			} else {
@@ -728,7 +730,7 @@ namespace game {
 				}
 			}
 
-			if(FIGHT->gametype == GAMETYPE_TRAINING && !isBeingHit() && !isKnocked()) {
+			if(FIGHT->gametype == SceneFight::GAMETYPE_TRAINING && !isBeingHit() && !isKnocked()) {
 				hp = getMaxHp();
 			}
 
@@ -835,9 +837,9 @@ namespace game {
 		case STEP_Super:
 			break;
 		case STEP_Special:
-			special = 2500 * SPF;
-			pause(2500 * SPF);
-			effect::newEffect("Actionlines", WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
+			special = 2500 * globals::SPF;
+			g_main::pause(2500 * globals::SPF);
+			effect::newEffect("Actionlines", globals::WINDOW_WIDTH / 2, globals::WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
 			switch(fighter->group) {
 			case 0:
 				sndTransformYn.play();
@@ -936,8 +938,8 @@ namespace game {
 						pself->flags |= F_CTRL;
 					}
 
-					pause(6);
-					shake(6);
+					g_main::pause(6);
+					g_main::shake(6);
 					int mirror = 1;
 					if(dir == LEFT) {
 						mirror = -1;
@@ -1086,8 +1088,8 @@ namespace game {
 				} else if(hit == sprite::HIT_ATTACK) {
 					frameHit = true;
 					pother->frameHit = true;
-					pause(12);
-					shake(12);
+					g_main::pause(12);
+					g_main::shake(12);
 					effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1, nullptr);
 					playSound(0);
 				}
@@ -1144,16 +1146,16 @@ namespace game {
 			}
 
 			//Confine to screen
-			if(fabs(pos.x - pother->pos.x) >= WINDOW_WIDTH) {
+			if(fabs(pos.x - pother->pos.x) >= globals::WINDOW_WIDTH) {
 				//Find the center, assign positions outwards from there
 				float _center = (pos.x + pother->pos.x) / 2.0f;
 
 				if(pos.x < pother->pos.x) {
-					pos.x = _center - WINDOW_WIDTH / 2;
-					pother->pos.x = _center + WINDOW_WIDTH / 2;
+					pos.x = _center - globals::WINDOW_WIDTH / 2;
+					pother->pos.x = _center + globals::WINDOW_WIDTH / 2;
 				} else {
-					pos.x = _center + WINDOW_WIDTH / 2;
-					pother->pos.x = _center - WINDOW_WIDTH / 2;
+					pos.x = _center + globals::WINDOW_WIDTH / 2;
+					pother->pos.x = _center - globals::WINDOW_WIDTH / 2;
 				}
 			}
 
@@ -1174,7 +1176,7 @@ namespace game {
 			r = 1.0f;
 			g = 1.0f;
 			b = 1.0f;
-			if(optionEpilepsy) {
+			if(SceneOptions::optionEpilepsy) {
 				pct = 0.5f;
 			} else {
 				if(os::frame % 3 == 0) {
@@ -1198,67 +1200,67 @@ namespace game {
 		}
 
 		float alpha = 0.5f;
-		if(special > 2200 * SPF) {
-			alpha = 1.0 - (special - 2200 * SPF) / (300 * SPF) * 0.5 - 0.5;
-		} else if(special <= 1000 * SPF) {
-			alpha = 1.0 - ((1000 * SPF - special) / (500 * SPF)) * 0.5 - 0.5;
+		if(special > 2200 * globals::SPF) {
+			alpha = 1.0 - (special - 2200 * globals::SPF) / (300 * globals::SPF) * 0.5 - 0.5;
+		} else if(special <= 1000 * globals::SPF) {
+			alpha = 1.0 - ((1000 * globals::SPF - special) / (500 * globals::SPF)) * 0.5 - 0.5;
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glColor4f(0.0f, 0.0f, 0.0f, alpha);
 		glBegin(GL_QUADS);
 		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(0.0f, WINDOW_HEIGHT, 0.0f);
-		glVertex3f(WINDOW_WIDTH, WINDOW_HEIGHT, 0.0f);
-		glVertex3f(WINDOW_WIDTH, 0.0f, 0.0f);
+		glVertex3f(0.0f, globals::WINDOW_HEIGHT, 0.0f);
+		glVertex3f(globals::WINDOW_WIDTH, globals::WINDOW_HEIGHT, 0.0f);
+		glVertex3f(globals::WINDOW_WIDTH, 0.0f, 0.0f);
 		glEnd();
 		glColor4f(1, 1, 1, 1);
 
-		if(special > 2200 * SPF) {
-			float scalar = (special - 2200 * SPF) / (300 * SPF);
+		if(special > 2200 * globals::SPF) {
+			float scalar = (special - 2200 * globals::SPF) / (300 * globals::SPF);
 			graphics::setColor(255, 255, 255, 1.0 - scalar);
 			graphics::setScale(1.0 + scalar * 0.5);
 			if(ender) {
 				if(dir == RIGHT) {
-					fighter->ender.draw(40 - (fighter->ender.w * scalar) / 4, FLIP(46) - fighter->ender.h - (fighter->ender.h * scalar) / 4);
+					fighter->ender.draw(40 - (fighter->ender.w * scalar) / 4, globals::FLIP(46) - fighter->ender.h - (fighter->ender.h * scalar) / 4);
 				} else {
-					fighter->ender.draw(WINDOW_WIDTH - fighter->ender.w - (40 - (fighter->ender.w * scalar) / 4), FLIP(46) - fighter->ender.h - (fighter->ender.h * scalar) / 4, true);
+					fighter->ender.draw(globals::WINDOW_WIDTH - fighter->ender.w - (40 - (fighter->ender.w * scalar) / 4), globals::FLIP(46) - fighter->ender.h - (fighter->ender.h * scalar) / 4, true);
 				}
 			} else {
 				if(dir == RIGHT) {
-					fighter->special.draw(40 - (fighter->special.w * scalar) / 4, FLIP(46) - fighter->special.h - (fighter->special.h * scalar) / 4);
+					fighter->special.draw(40 - (fighter->special.w * scalar) / 4, globals::FLIP(46) - fighter->special.h - (fighter->special.h * scalar) / 4);
 				} else {
-					fighter->special.draw(WINDOW_WIDTH - fighter->special.w - (40 - (fighter->special.w * scalar) / 4), FLIP(46) - fighter->special.h - (fighter->special.h * scalar) / 4, true);
+					fighter->special.draw(globals::WINDOW_WIDTH - fighter->special.w - (40 - (fighter->special.w * scalar) / 4), globals::FLIP(46) - fighter->special.h - (fighter->special.h * scalar) / 4, true);
 				}
 			}
-		} else if(special > 1000 * SPF) {
+		} else if(special > 1000 * globals::SPF) {
 			if(ender) {
 				if(dir == RIGHT) {
-					fighter->ender.draw(40, FLIP(46) - fighter->ender.h);
+					fighter->ender.draw(40, globals::FLIP(46) - fighter->ender.h);
 				} else {
-					fighter->ender.draw(WINDOW_WIDTH - fighter->ender.w - 40, FLIP(46) - fighter->ender.h, true);
+					fighter->ender.draw(globals::WINDOW_WIDTH - fighter->ender.w - 40, globals::FLIP(46) - fighter->ender.h, true);
 				}
 			} else {
 				if(dir == RIGHT) {
-					fighter->special.draw(40, FLIP(46) - fighter->special.h);
+					fighter->special.draw(40, globals::FLIP(46) - fighter->special.h);
 				} else {
-					fighter->special.draw(WINDOW_WIDTH - fighter->special.w - 40, FLIP(46) - fighter->special.h, true);
+					fighter->special.draw(globals::WINDOW_WIDTH - fighter->special.w - 40, globals::FLIP(46) - fighter->special.h, true);
 				}
 			}
 		} else {
-			float scalar = 1.0 - ((1000 * SPF - special) / (500 * SPF));
+			float scalar = 1.0 - ((1000 * globals::SPF - special) / (500 * globals::SPF));
 			graphics::setColor(255, 255, 255, scalar);
 			if(ender) {
 				if(dir == RIGHT) {
-					fighter->ender.draw(40 + (1000 * SPF - special) * 30, FLIP(46) - fighter->ender.h);
+					fighter->ender.draw(40 + (1000 * globals::SPF - special) * 30, globals::FLIP(46) - fighter->ender.h);
 				} else {
-					fighter->ender.draw(WINDOW_WIDTH - fighter->ender.w - (40 + (1000 * SPF - special) * 30), FLIP(46) - fighter->ender.h, true);
+					fighter->ender.draw(globals::WINDOW_WIDTH - fighter->ender.w - (40 + (1000 * globals::SPF - special) * 30), globals::FLIP(46) - fighter->ender.h, true);
 				}
 			} else {
 				if(dir == RIGHT) {
-					fighter->special.draw(40 + (1000 * SPF - special) * 30, FLIP(46) - fighter->special.h);
+					fighter->special.draw(40 + (1000 * globals::SPF - special) * 30, globals::FLIP(46) - fighter->special.h);
 				} else {
-					fighter->special.draw(WINDOW_WIDTH - fighter->special.w - (40 + (1000 * SPF - special) * 30), FLIP(46) - fighter->special.h, true);
+					fighter->special.draw(globals::WINDOW_WIDTH - fighter->special.w - (40 + (1000 * globals::SPF - special) * 30), globals::FLIP(46) - fighter->special.h, true);
 				}
 			}
 		}
@@ -1490,7 +1492,7 @@ namespace game {
 	float Projectile::readFloat() {
 		int32_t value = *((int32_t*)((char*)fighter->states[state].steps + step));
 		step += 4;
-		return value / (float)FLOAT_ACCURACY;
+		return value / (float)globals::FLOAT_ACCURACY;
 	}
 
     std::string Projectile::readString() {

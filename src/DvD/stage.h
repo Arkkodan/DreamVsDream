@@ -6,11 +6,14 @@
 #include "scene/scene.h"
 #include "animation.h"
 
-extern int stage;
-#define STAGE stages[stage]
+#define STAGE Stage::stages[Stage::stage]
 
 /// @brief Stage class including creation, logic, and drawing
 class Stage {
+public:
+	static int stage;
+	static Stage stages[];
+
 public:
 	std::string name;
 	SceneImage* imagesAbove;
@@ -47,7 +50,5 @@ public:
 	static void ginit();
 	static void deinit();
 };
-
-extern Stage stages[];
 
 #endif // STAGE_H_INCLUDED

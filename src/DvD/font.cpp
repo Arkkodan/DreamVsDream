@@ -21,8 +21,8 @@ Font::~Font() {
 void Font::createFromFile(std::string filename) {
 	File file;
 	std::string path = util::getPath(filename);
-	if(!file.open(FILE_READ_NORMAL, path)) {
-		error("Unable to load font \"" + path + "\".");
+	if(!file.open(File::FILE_READ_NORMAL, path)) {
+		error::error("Unable to load font \"" + path + "\".");
 		return;
 	}
 

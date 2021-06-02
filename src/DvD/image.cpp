@@ -13,6 +13,10 @@
 
 #include "error.h"
 
+namespace g_main {
+	extern util::Vector cameraPos;
+}
+
 Image::Image() : w(0), h(0),
 #ifdef COMPILER
 	data(nullptr), xpad(0), ypad(0)
@@ -225,7 +229,7 @@ end:
 	}
 
 	if(!err.empty()) {
-        die(err);
+        error::die(err);
 	}
 }
 
@@ -330,7 +334,7 @@ end:
 	file.seek(stream.origin + stream.size);
 
 	if(!err.empty()) {
-        die(err);
+        error::die(err);
 	}
 }
 #endif
@@ -586,10 +590,9 @@ void Image::drawSprite(int x, int y, bool mirror) {
 		graphics::srcH = h;
 	}
 #ifdef SPRTOOL
-	draw(x + WINDOW_WIDTH / 2, FLIP(y) - graphics::srcH * graphics::yscale, mirror);
+	draw(x + globals::WINDOW_WIDTH / 2, globals::FLIP(y) - graphics::srcH * graphics::yscale, mirror);
 #else
-	extern util::Vector cameraPos;
-	draw(x + WINDOW_WIDTH / 2 - cameraPos.x, FLIP(y) - graphics::srcH * graphics::yscale - STAGE.height + cameraPos.y, mirror);
+	draw(x + globals::WINDOW_WIDTH / 2 - g_main::cameraPos.x, globals::FLIP(y) - graphics::srcH * graphics::yscale - STAGE.height + g_main::cameraPos.y, mirror);
 #endif
 }
 #endif

@@ -30,6 +30,35 @@ public:
 /// @brief Scene base class
 class Scene {
 public:
+	enum {
+		SCENE_FIGHT,
+
+		SCENE_INTRO,
+
+		SCENE_TITLE,
+		SCENE_SELECT,
+		SCENE_VERSUS,
+
+		SCENE_OPTIONS,
+
+#ifndef NO_NETWORK
+		SCENE_NETPLAY,
+#endif
+
+		SCENE_CREDITS,
+
+		SCENE_MAX,
+
+		SCENE_QUIT, // Dummy scene for quitting
+	};
+
+	static Scene* scenes[SCENE_MAX];
+	static int scene;
+	static int sceneNew;
+
+	static Image imgLoading;
+
+public:
 	Scene(std::string name_);
 	virtual ~Scene();
 

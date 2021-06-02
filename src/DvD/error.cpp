@@ -15,7 +15,12 @@ namespace os {
 
 #if defined _WIN32 && !defined COMPILER
 #include <SDL_syswm.h>
-void w32_messageBox(const char* title, const char* text, int flags) {
+
+namespace error {
+	void w32_messageBox(const char* title, const char* text, int flags);
+}
+
+void error::w32_messageBox(const char* title, const char* text, int flags) {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if(SDL_GetWindowWMInfo(os::window, &info)) {
@@ -28,7 +33,7 @@ void w32_messageBox(const char* title, const char* text, int flags) {
 }
 #endif
 
-void error(const std::string& sz) {
+void error::error(const std::string& sz) {
 #if defined __linux__ || defined COMPILER
 	std::cerr << "error: " << sz << std::endl;
 #else
@@ -42,7 +47,7 @@ void error(const std::string& sz) {
 #endif
 }
 
-void die(const std::string& sz) {
+void error::die(const std::string& sz) {
 #if defined __linux__ || defined COMPILER
 	std::cerr << "fatal error: " << sz << std::endl;
 #else
@@ -58,7 +63,7 @@ void die(const std::string& sz) {
 }
 
 #ifdef DEBUG
-void debug(const std::string& sz) {
+void error::debug(const std::string& sz) {
 	std::cerr << "DEBUG: " << sz << std::endl;
 }
 #endif

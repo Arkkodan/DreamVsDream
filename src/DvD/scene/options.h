@@ -7,6 +7,29 @@
 
 /// @brief Scene for modifying options
 class SceneOptions : public Scene {
+private:
+	enum {
+		OPTION_DIFFICULTY,
+		OPTION_WINS,
+		OPTION_TIME,
+		OPTION_SFX_VOLUME,
+		OPTION_MUS_VOLUME,
+		OPTION_VOICE_VOLUME,
+		OPTION_EPILEPSY,
+		OPTION_CREDITS,
+
+		OPTION_MAX,
+	};
+
+public:
+	static int optionDifficulty;
+	static int optionWins;
+	static int optionTime;
+	static int optionSfxVolume;
+	static int optionMusVolume;
+	static int optionVoiceVolume;
+	static bool optionEpilepsy;
+
 public:
 	SceneOptions();
 	~SceneOptions();

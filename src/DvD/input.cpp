@@ -4,57 +4,59 @@
 #include "scene/scene.h"
 #include "network.h"
 
-enum {
-	KEY_1_LEFT,
-	KEY_1_RIGHT,
-	KEY_1_UP,
-	KEY_1_DOWN,
-	KEY_1_A,
-	KEY_1_B,
-	KEY_1_C,
-
-	KEY_2_LEFT,
-	KEY_2_RIGHT,
-	KEY_2_UP,
-	KEY_2_DOWN,
-	KEY_2_A,
-	KEY_2_B,
-	KEY_2_C,
-
-	KEY_MAX
-};
-
-#define KEY_1_MAX KEY_2_LEFT
-#define KEY_2_MAX KEY_MAX
-
-int key_config[KEY_MAX] = {
-	SDLK_LEFT,
-	SDLK_RIGHT,
-	SDLK_UP,
-	SDLK_DOWN,
-	SDLK_n,
-	SDLK_m,
-	SDLK_COMMA,
-
-	SDLK_f,
-	SDLK_h,
-	SDLK_t,
-	SDLK_g,
-	SDLK_a,
-	SDLK_s,
-	SDLK_d,
-};
-
-#define KEY_CFG_FILE "keys.cfg"
-
-extern game::Player madotsuki;
-extern game::Player poniko;
+namespace g_main {
+	extern game::Player madotsuki;
+	extern game::Player poniko;
+}
 
 namespace input {
+	enum {
+		KEY_1_LEFT,
+		KEY_1_RIGHT,
+		KEY_1_UP,
+		KEY_1_DOWN,
+		KEY_1_A,
+		KEY_1_B,
+		KEY_1_C,
+
+		KEY_2_LEFT,
+		KEY_2_RIGHT,
+		KEY_2_UP,
+		KEY_2_DOWN,
+		KEY_2_A,
+		KEY_2_B,
+		KEY_2_C,
+
+		KEY_MAX
+	};
+
+	constexpr auto KEY_1_MAX = KEY_2_LEFT;
+	constexpr auto KEY_2_MAX = KEY_MAX;
+
+	int key_config[KEY_MAX] = {
+		SDLK_LEFT,
+		SDLK_RIGHT,
+		SDLK_UP,
+		SDLK_DOWN,
+		SDLK_n,
+		SDLK_m,
+		SDLK_COMMA,
+
+		SDLK_f,
+		SDLK_h,
+		SDLK_t,
+		SDLK_g,
+		SDLK_a,
+		SDLK_s,
+		SDLK_d,
+	};
+
+	constexpr auto KEY_CFG_FILE = "keys.cfg";
+
 	void init() {
 		//Read controls from file
 		int nLines;
-		char** szLines = util::getLinesFromFile(&nLines, szConfigPath + KEY_CFG_FILE);
+		char** szLines = util::getLinesFromFile(&nLines, init::szConfigPath + KEY_CFG_FILE);
 
 		if(nLines == KEY_MAX) {
 			for(int i = 0; i < KEY_MAX; i++) {
@@ -70,11 +72,11 @@ namespace input {
 	}
 
 	void refresh() {
-		madotsuki.applyInput();
-		poniko.applyInput();
-		if(scene == 0) {
-			madotsuki.handleInput();
-			poniko.handleInput();
+		g_main::madotsuki.applyInput();
+		g_main::poniko.applyInput();
+		if(Scene::scene == 0) {
+			g_main::madotsuki.handleInput();
+			g_main::poniko.handleInput();
 		}
 	}
 
@@ -90,9 +92,9 @@ namespace input {
 						net::getMyPlayer()->frameInput |= (1<<i);
 					} else {
 						if(i < KEY_1_MAX) {
-							madotsuki.frameInput |= (1<<i);
+							g_main::madotsuki.frameInput |= (1<<i);
 						} else {
-							poniko.frameInput |= (1<<(i - KEY_1_MAX));
+							g_main::poniko.frameInput |= (1<<(i - KEY_1_MAX));
 						}
 					}
 					return;
@@ -102,13 +104,13 @@ namespace input {
 			switch(key) {
 			case SDLK_F1:
 				if(!net::connected) {
-					Scene::setScene(SCENE_TITLE);
+					Scene::setScene(Scene::SCENE_TITLE);
 				}
 				break;
 
 			case SDLK_F2:
 				if(!net::connected) {
-					Scene::setScene(SCENE_CREDITS);
+					Scene::setScene(Scene::SCENE_CREDITS);
 				}
 				break;
 			}
@@ -120,12 +122,12 @@ namespace input {
 
 				if(key_config[i] == key) {
 					if(net::connected) {
-						net::getMyPlayer()->frameInput |= (1<<i<<INPUT_RELSHIFT);
+						net::getMyPlayer()->frameInput |= (1<<i<<game::INPUT_RELSHIFT);
 					} else {
 						if(i < KEY_1_MAX) {
-							madotsuki.frameInput |= (1<<i<<INPUT_RELSHIFT);
+							g_main::madotsuki.frameInput |= (1<<i<< game::INPUT_RELSHIFT);
 						} else {
-							poniko.frameInput |= (1<<(i - KEY_1_MAX)<<INPUT_RELSHIFT);
+							g_main::poniko.frameInput |= (1<<(i - KEY_1_MAX)<< game::INPUT_RELSHIFT);
 						}
 					}
 					return;

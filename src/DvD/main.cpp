@@ -14,28 +14,36 @@
 #include "effect.h"
 #include "animation.h"
 
-game::Player madotsuki;
-game::Player poniko;
-util::Vector cameraPos(0,0);
-util::Vector idealCameraPos(0,0);
-util::Vector cameraShake(0,0);
+namespace g_main {
+	game::Player madotsuki;
+	game::Player poniko;
+	util::Vector cameraPos(0,0);
+	util::Vector idealCameraPos(0,0);
+	util::Vector cameraShake(0,0);
 
-extern game::Fighter fighters[];
-extern Stage stages[];
+	int framePauseTimer = 0;
+	int frameShakeTimer = 0;
 
-int framePauseTimer = 0;
-void pause(int frames) {
+	void pause(int frames);
+	void shake(int frames);
+
+	static inline void mainLoop();
+}
+
+void g_main::pause(int frames) {
 	framePauseTimer += frames;
 }
 
-int frameShakeTimer = 0;
-void shake(int frames) {
+void g_main::shake(int frames) {
 	frameShakeTimer += frames;
 }
 
-extern void parseArgs(int, char**);
+namespace init {
+	extern void parseArgs(int, char**);
+	extern void init();
+}
 
-static inline void mainLoop() {
+static inline void g_main::mainLoop() {
 	os::refresh();
 
 	SCENE->think();
@@ -59,7 +67,7 @@ int main(int argc, char** argv)
 	LocalFree(argv16);
 #endif
 
-	parseArgs(argc, (char**)argv);
+	init::parseArgs(argc, (char**)argv);
 
 #ifdef _WIN32
 	for(int i = 0; i < argc; i++) {
@@ -67,17 +75,16 @@ int main(int argc, char** argv)
 	}
 	free(argv);
 #endif
-	extern void init();
-	init();
+	init::init();
 
-	madotsuki.playerNum = 0;
-	madotsuki.speaker.init();
+	g_main::madotsuki.playerNum = 0;
+	g_main::madotsuki.speaker.init();
 
-	poniko.playerNum = 1;
-	poniko.speaker.init();
+	g_main::poniko.playerNum = 1;
+	g_main::poniko.speaker.init();
 
 	for(;;) {
-		mainLoop();
+		g_main::mainLoop();
 	}
 
 	return 0;

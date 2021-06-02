@@ -14,38 +14,12 @@
 #include "../player.h"
 #include "../image.h"
 
-enum {
-	SCENE_FIGHT,
+namespace g_main {
+	extern game::Player madotsuki;
+	extern game::Player poniko;
+}
 
-	SCENE_INTRO,
-
-	SCENE_TITLE,
-	SCENE_SELECT,
-	SCENE_VERSUS,
-
-	SCENE_OPTIONS,
-
-#ifndef NO_NETWORK
-	SCENE_NETPLAY,
-#endif
-
-	SCENE_CREDITS,
-
-	SCENE_MAX,
-
-	SCENE_QUIT, // Dummy scene for quitting
-};
-
-extern Scene* scenes[SCENE_MAX];
-extern int scene;
-extern int sceneNew;
-
-extern game::Player madotsuki;
-extern game::Player poniko;
-
-#define SCENE scenes[scene]
-#define FIGHT ((SceneFight*)scenes[SCENE_FIGHT])
-
-extern Image imgLoading;
+#define SCENE Scene::scenes[Scene::scene]
+#define FIGHT ((SceneFight*)Scene::scenes[Scene::SCENE_FIGHT])
 
 #endif // DVD_SCENE_SCENE_H

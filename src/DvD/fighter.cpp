@@ -34,8 +34,8 @@ namespace game {
 		//Get that file opened
 		File file;
 		std::string path = util::getPath("chars/" + name + ".char");
-		if(!file.open(FILE_READ_NORMAL, path)) {
-			die("Could not load fighter \"" + path + "\"");
+		if(!file.open(File::FILE_READ_NORMAL, path)) {
+			error::die("Could not load fighter \"" + path + "\"");
 		}
 
 		//Read header

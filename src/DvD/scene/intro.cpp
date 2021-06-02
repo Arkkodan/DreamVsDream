@@ -3,7 +3,7 @@
 #include "scene.h"
 
 SceneIntro::SceneIntro() : Scene("intro") {
-	timer = FPS / 2;
+	timer = globals::FPS / 2;
 	state = 0;
 }
 
@@ -13,19 +13,19 @@ SceneIntro::~SceneIntro() {
 void SceneIntro::think() {
 	Scene::think();
 
-	if (timer == FPS / 2) {
+	if (timer == globals::FPS / 2) {
 		sfx.play();
 	}
 
-	if (input(INPUT_A) && !timer) {
-		timer = FPS / 2;
+	if (input(game::INPUT_A) && !timer) {
+		timer = globals::FPS / 2;
 		state++;
 	}
 
 	if (timer) {
 		timer--;
 		if (!timer && state % 2 == 1) {
-			timer = FPS / 2;
+			timer = globals::FPS / 2;
 			state++;
 			if (state == 6 && graphics::shader_support) {
 				timer = 0;
@@ -41,7 +41,7 @@ void SceneIntro::think() {
 
 void SceneIntro::draw() {
 	//Draw our own fade
-	float _alpha = timer / (float)(FPS / 2);
+	float _alpha = timer / (float)(globals::FPS / 2);
 	if (state % 2 == 0) {
 		_alpha = 1.0 - _alpha;
 	}
@@ -66,17 +66,17 @@ void SceneIntro::draw() {
 
 void SceneIntro::parseLine(Parser& parser) {
 	if (parser.is("SFX", 1)) {
-		sfx.createFromFile(getResource(parser.getArg(1), EXT_SOUND));
+		sfx.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
 	}
 	else if (parser.is("INSTRUCTIONS", 1)) {
-		instructions.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
+		instructions.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
 	}
 	else if (parser.is("DISCLAIMER", 2)) {
-		disclaimer_en.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
-		disclaimer_ja.createFromFile(getResource(parser.getArg(2), EXT_IMAGE));
+		disclaimer_en.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
+		disclaimer_ja.createFromFile(getResource(parser.getArg(2), Parser::EXT_IMAGE));
 	}
 	else if (parser.is("SHADER_ERROR", 1)) {
-		shader_error.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
+		shader_error.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
 	}
 	else {
 		Scene::parseLine(parser);

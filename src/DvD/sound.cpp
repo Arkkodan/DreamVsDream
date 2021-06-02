@@ -18,12 +18,13 @@
 #include "scene/scene.h"
 #include "stage.h"
 
-#define SAMPLE_RATE 44100
-
-#define SOUND_SOURCE_MAX 64
-#define SPEAKER_SOURCE_MAX 8
 
 namespace audio {
+	constexpr auto SAMPLE_RATE = 44100;
+
+	constexpr auto SOUND_SOURCE_MAX = 64;
+	constexpr auto SPEAKER_SOURCE_MAX = 8;
+
     SDL_AudioSpec audioSpec;
 	bool enabled = false;
 
@@ -88,9 +89,9 @@ namespace audio {
 	static void audioCallback(void* udata, unsigned char* stream, int _size) {
 	    (void)udata;
 
-		float music_volume = optionMusVolume / (float)200;
-		float sound_volume = optionSfxVolume / (float)100;
-		float voice_volume = optionVoiceVolume / (float)100;
+		float music_volume = SceneOptions::optionMusVolume / (float)200;
+		float sound_volume = SceneOptions::optionSfxVolume / (float)100;
+		float voice_volume = SceneOptions::optionVoiceVolume / (float)100;
 
 		float* out = (float*)stream;
 		unsigned int size = _size / 4 / audioSpec.channels;
@@ -117,7 +118,7 @@ namespace audio {
 
 				i_music_sample += (sound->sample_rate / (float)SAMPLE_RATE) * music_frequency;
 				if(i_music_sample >= sound->c_samples) {
-					if(scene == SCENE_VERSUS) {
+					if(Scene::scene == Scene::SCENE_VERSUS) {
 						music = nullptr;
 					} else {
 						music_is_loop = true;
@@ -129,7 +130,7 @@ namespace audio {
 			for(int j = 0; j < SOUND_SOURCE_MAX; j++) {
 				Sound* sound = sound_sources[j].sound;
 				if(sound) {
-					if(scene == SCENE_FIGHT && stage == 3) {
+					if(Scene::scene == Scene::SCENE_FIGHT && Stage::stage == 3) {
 						if(sound->channels == 1) {
 							out[0] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] * sound_volume;
 							out[1] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] * sound_volume;
@@ -158,7 +159,7 @@ namespace audio {
 			for(int j = 0; j < SPEAKER_SOURCE_MAX; j++) {
 				Sound* sound = speaker_sources[j].sound;
 				if(sound) {
-					if(scene == SCENE_FIGHT && stage == 3) {
+					if(Scene::scene == Scene::SCENE_FIGHT && Stage::stage == 3) {
 						if(sound->channels == 1) {
 							out[0] += sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] * voice_volume;
 							out[1] += sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] * voice_volume;
@@ -200,7 +201,7 @@ namespace audio {
         want.callback = audioCallback;
 
         if(SDL_OpenAudio(&want, &audioSpec) < 0) {
-            error("SDL could not open audio: " + std::string(SDL_GetError()));
+			error::error("SDL could not open audio: " + std::string(SDL_GetError()));
             return;
         }
 
@@ -220,7 +221,7 @@ namespace audio {
 
 	void refresh() {
 #ifndef NO_SOUND
-		if(scene == SCENE_FIGHT && stage == 3) {
+		if(Scene::scene == Scene::SCENE_FIGHT && Stage::stage == 3) {
 			float amplitude = FIGHT->round * 0.1;
 			music_frequency = 1.0f + util::rollf() * amplitude - amplitude / 2;
 		} else {
@@ -331,7 +332,7 @@ namespace audio {
 			}
 			
 			if(err) {
-				die("Unable to load audio file \"" + path + "\".");
+				error::die("Unable to load audio file \"" + path + "\".");
 			}
 		}
 #endif

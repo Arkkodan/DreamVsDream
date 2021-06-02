@@ -3,15 +3,19 @@
 #include "../DvD/error.h"
 #include "../DvD/fighter.h"
 
-void init() {
+namespace init {
+	void init();
 	void deinit();
+}
+
+void init::init() {
 	atexit(deinit);
 
 	os::init();
 	graphics::init(false, 0);
 }
 
-void deinit() {
+void init::deinit() {
 	graphics::deinit();
 	os::deinit();
 }

@@ -2,55 +2,20 @@
 
 #include "scene.h"
 
-//TITLE
-
-enum {
-	TM_MAIN,
-	TM_VERSUS,
-
-	TM_MAX
+const char* SceneTitle::menuChoicesMain[CHOICE_MAX] = {
+		"Arcade",
+		"Story",
+		"Versus",
+		"Survival",
+		"Training",
+	#ifndef NO_NETWORK
+		"Netplay",
+	#endif
+		"Options",
+		"Quit",
 };
 
-enum {
-	CHOICE_ARCADE,
-	CHOICE_STORY,
-	CHOICE_VERSUS,
-	CHOICE_SURVIVAL,
-	CHOICE_TRAINING,
-#ifndef NO_NETWORK
-	CHOICE_NETPLAY,
-#endif
-	CHOICE_OPTIONS,
-	CHOICE_QUIT,
-
-	CHOICE_MAX
-};
-
-enum {
-	CHOICE_VS_PLR,
-	CHOICE_VS_CPU,
-	CHOICE_VS_TAG,
-	CHOICE_VS_TEAM,
-
-	CHOICE_VS_RETURN,
-
-	CHOICE_VS_MAX
-};
-
-const char* menuChoicesMain[CHOICE_MAX] = {
-	"Arcade",
-	"Story",
-	"Versus",
-	"Survival",
-	"Training",
-#ifndef NO_NETWORK
-	"Netplay",
-#endif
-	"Options",
-	"Quit",
-};
-
-const char* menuChoicesVersus[CHOICE_VS_MAX] = {
+const char* SceneTitle::menuChoicesVersus[CHOICE_VS_MAX] = {
 	"Versus Player",
 	"Versus CPU",
 	"Tag Team",
@@ -58,12 +23,12 @@ const char* menuChoicesVersus[CHOICE_VS_MAX] = {
 	"Return",
 };
 
-const char** menuChoices[TM_MAX] = {
+const char** SceneTitle::menuChoices[TM_MAX] = {
 	menuChoicesMain,
 	menuChoicesVersus,
 };
 
-const int menuChoicesMax[TM_MAX] = {
+const int SceneTitle::menuChoicesMax[TM_MAX] = {
 	CHOICE_MAX,
 	CHOICE_VS_MAX,
 };
@@ -97,7 +62,7 @@ void SceneTitle::init() {
 			i = 0;
 		}
 
-		parseFile(getResource(themes[i], EXT_SCRIPT));
+		parseFile(getResource(themes[i], Parser::EXT_SCRIPT));
 	}
 }
 
@@ -113,16 +78,16 @@ void SceneTitle::think() {
 		}
 	}
 
-	uint16_t up = INPUT_UP;
-	uint16_t down = INPUT_DOWN;
+	uint16_t up = game::INPUT_UP;
+	uint16_t down = game::INPUT_DOWN;
 
 	if (menuXOffset < 0) {
-		up |= INPUT_RIGHT;
-		down |= INPUT_LEFT;
+		up |= game::INPUT_RIGHT;
+		down |= game::INPUT_LEFT;
 	}
 	else {
-		up |= INPUT_LEFT;
-		down |= INPUT_RIGHT;
+		up |= game::INPUT_LEFT;
+		down |= game::INPUT_RIGHT;
 	}
 
 	if (input(up)) {
@@ -149,7 +114,7 @@ void SceneTitle::think() {
 			choice++;
 		}
 	}
-	else if (input(INPUT_A)) {
+	else if (input(game::INPUT_A)) {
 		//Enter the new menu
 		switch (submenu) {
 		case TM_MAIN:
@@ -163,7 +128,7 @@ void SceneTitle::think() {
 				break;
 			case CHOICE_TRAINING:
 				sndSelect.play();
-				FIGHT->gametype = GAMETYPE_TRAINING;
+				FIGHT->gametype = SceneFight::GAMETYPE_TRAINING;
 				setScene(SCENE_SELECT);
 				break;
 			default:
@@ -191,7 +156,7 @@ void SceneTitle::think() {
 			switch (choice) {
 			case CHOICE_VS_PLR:
 				sndSelect.play();
-				FIGHT->gametype = GAMETYPE_VERSUS;
+				FIGHT->gametype = SceneFight::GAMETYPE_VERSUS;
 				setScene(SCENE_SELECT);
 				break;
 			default:
@@ -210,7 +175,7 @@ void SceneTitle::think() {
 			break;
 		}
 	}
-	else if (input(INPUT_B)) {
+	else if (input(game::INPUT_B)) {
 		if (submenu == TM_MAIN) {
 			//Quit
 			setScene(SCENE_QUIT);
@@ -275,7 +240,7 @@ void SceneTitle::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("MENU", 3)) {
 		//Font
-		menuFont.createFromFile(getResource(parser.getArg(1), EXT_FONT));
+		menuFont.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
 
 		menuX = parser.getArgInt(2);
 		menuY = parser.getArgInt(3);

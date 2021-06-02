@@ -7,8 +7,8 @@
 #include "stage.h"
 #include "graphics.h"
 
-#define TEXTURE_SIZE 2048
-#define TEXTURE_SIZE_SQ (TEXTURE_SIZE*TEXTURE_SIZE)
+// #define TEXTURE_SIZE 2048
+// #define TEXTURE_SIZE_SQ (TEXTURE_SIZE*TEXTURE_SIZE)
 
 Atlas::Atlas() {
 	nImages = nSprites = 0;

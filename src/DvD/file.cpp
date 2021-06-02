@@ -77,7 +77,7 @@ int32_t File::readDword() {
 float File::readFloat() {
 	int32_t _value_int = 0;
 	read(&_value_int, 4);
-	return _value_int / (float)FLOAT_ACCURACY;
+	return _value_int / (float)globals::FLOAT_ACCURACY;
 }
 
 std::string File::readStr() {
@@ -116,7 +116,7 @@ bool File::writeDword(int32_t value) {
 }
 
 bool File::writeFloat(float value) {
-	int32_t valueInt = value * FLOAT_ACCURACY;
+	int32_t valueInt = value * globals::FLOAT_ACCURACY;
 	return write(&valueInt, 4);
 }
 

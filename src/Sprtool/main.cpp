@@ -23,6 +23,10 @@ namespace input {
 extern bool blackBG;
 }
 
+namespace init {
+	extern void init();
+}
+
 void moveFile(std::string old, std::string nw) {
 #ifdef _WIN32
 	WCHAR* old16 = util::getPathUtf16(old);
@@ -39,7 +43,7 @@ void moveFile(std::string old, std::string nw) {
 	bool err = rename(old.c_str(), nw.c_str()) == -1;
 #endif
 	if(err) {
-		error("Could not move file \"" + old + "\" to \"" + nw + "\"");
+		error::error("Could not move file \"" + old + "\" to \"" + nw + "\"");
 	}
 }
 
@@ -120,7 +124,7 @@ void Fighter::saveSpr() {
 	moveFile("chars/" + name + "/sprites.ubu", "chars/" + name + "/sprites.ubu.bak");
 	FILE* out = util::ufopen("chars/" + name + "/sprites.ubu", "wb");
 	if(!out) {
-		error("Could not write to file \"chars/" + name + "/sprites.ubu\"");
+		error::error("Could not write to file \"chars/" + name + "/sprites.ubu\"");
 		return;
 	}
 	
@@ -171,8 +175,7 @@ int main(int argc, char** argv)
 	std::string name = argv[1];
 #endif
 
-	void init();
-	init();
+	init::init();
 
 	fighter.create(name);
 
@@ -187,20 +190,20 @@ int main(int argc, char** argv)
 			glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		}
 		glBegin(GL_QUADS);
-		glVertex3f(WINDOW_WIDTH / 2 - 100, FLIP(EDIT_OFFSET), 0);
-		glVertex3f(WINDOW_WIDTH / 2 - 100, FLIP(EDIT_OFFSET)+1, 0);
-		glVertex3f(WINDOW_WIDTH / 2 + 99, FLIP(EDIT_OFFSET)+1, 0);
-		glVertex3f(WINDOW_WIDTH / 2 + 99, FLIP(EDIT_OFFSET), 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2 - 100, globals::FLIP(globals::EDIT_OFFSET), 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2 - 100, globals::FLIP(globals::EDIT_OFFSET)+1, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2 + 99, globals::FLIP(globals::EDIT_OFFSET)+1, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2 + 99, globals::FLIP(globals::EDIT_OFFSET), 0);
 		glEnd();
 		glBegin(GL_QUADS);
-		glVertex3f(WINDOW_WIDTH / 2+1, FLIP(EDIT_OFFSET) - 4, 0);
-		glVertex3f(WINDOW_WIDTH / 2-1, FLIP(EDIT_OFFSET) - 4, 0);
-		glVertex3f(WINDOW_WIDTH / 2-1, FLIP(EDIT_OFFSET) + 5, 0);
-		glVertex3f(WINDOW_WIDTH / 2+1, FLIP(EDIT_OFFSET) + 5, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2+1, globals::FLIP(globals::EDIT_OFFSET) - 4, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2-1, globals::FLIP(globals::EDIT_OFFSET) - 4, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2-1, globals::FLIP(globals::EDIT_OFFSET) + 5, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2+1, globals::FLIP(globals::EDIT_OFFSET) + 5, 0);
 		glEnd();
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-		fighter.sprites[frame].draw(0, EDIT_OFFSET, false, 1.0f);
+		fighter.sprites[frame].draw(0, globals::EDIT_OFFSET, false, 1.0f);
 	}
 
 	return 0;

@@ -18,13 +18,14 @@ public:
 	util::Vector pos;
 };
 
-enum {
-	GAMETYPE_VERSUS,
-	GAMETYPE_TRAINING,
-};
-
 /// @brief Fighting game scene
 class SceneFight : public Scene {
+public:
+	enum {
+		GAMETYPE_VERSUS,
+		GAMETYPE_TRAINING,
+	};
+
 public:
 	SceneFight();
 	~SceneFight();

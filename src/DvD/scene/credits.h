@@ -7,6 +7,9 @@
 
 /// @brief In-game credits
 class SceneCredits : public Scene {
+private:
+	static constexpr auto CREDITS_OFFSET = 20;
+
 public:
 
 	SceneCredits();

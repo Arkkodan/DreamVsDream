@@ -20,7 +20,7 @@ void resize(int w, int h) {
 	int y = h;
 
 	float ratio1 = 1.0 * w / h;
-	const float ratio2 = 1.0 * WINDOW_WIDTH / WINDOW_HEIGHT;
+	const float ratio2 = 1.0 * globals::WINDOW_WIDTH / globals::WINDOW_HEIGHT;
 	if(ratio1 > ratio2) {
 		x = h * ratio2;
 	} else if(ratio1 < ratio2) {
@@ -35,7 +35,7 @@ void resize(int w, int h) {
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glViewport(screenOffset.x, screenOffset.y, x, y);
-	glOrtho(0, WINDOW_WIDTH, WINDOW_HEIGHT, 0, 0, 1);
+	glOrtho(0, globals::WINDOW_WIDTH, globals::WINDOW_HEIGHT, 0, 0, 1);
 	glMatrixMode(GL_MODELVIEW);
 }
 
@@ -455,29 +455,29 @@ void mouseMove(int x, int y) {
 	//Calculates mouse pos based on size of screen
 	float ratio = 1.0f;
 	if(screenOffset.x) {
-		ratio = (float)WINDOW_HEIGHT / screenSize.y;
+		ratio = (float)globals::WINDOW_HEIGHT / screenSize.y;
 	} else if(screenOffset.y) {
-		ratio = (float)WINDOW_WIDTH / screenSize.x;
+		ratio = (float)globals::WINDOW_WIDTH / screenSize.x;
 	}
 	mousePos.x = (x - screenOffset.x) * ratio;
 	mousePos.y = (y - screenOffset.y) * ratio;
 	if(mousePos.x < 0) {
 		mousePos.x = 0;
 	}
-	if(mousePos.x >= WINDOW_WIDTH) {
-		mousePos.x = WINDOW_WIDTH - 1;
+	if(mousePos.x >= globals::WINDOW_WIDTH) {
+		mousePos.x = globals::WINDOW_WIDTH - 1;
 	}
 	if(mousePos.y < 0) {
 		mousePos.y = 0;
 	}
-	if(mousePos.y >= WINDOW_HEIGHT) {
-		mousePos.y = WINDOW_HEIGHT - 1;
+	if(mousePos.y >= globals::WINDOW_HEIGHT) {
+		mousePos.y = globals::WINDOW_HEIGHT - 1;
 	}
 
 	//Do stuff if a hitbox is selected
 	if(mouse1Down && selectBox) {
 		selectBox->pos.x = (mousePos.x + selectBoxOffset.x) / 2;
-		selectBox->pos.y = (FLIP(mousePos.y) + selectBoxOffset.y) / 2;
+		selectBox->pos.y = (globals::FLIP(mousePos.y) + selectBoxOffset.y) / 2;
 	}
 }
 
@@ -488,12 +488,12 @@ void mousePress(int key, bool press) {
 			mouse1Down = true;
 			int i = 0;
 			for(; i < fighter.sprites[frame].hitBoxes.size; i++)
-				if(fighter.sprites[frame].hitBoxes.boxes[i].collidePoint(mousePos.x - WINDOW_WIDTH / 2, mousePos.y + EDIT_OFFSET)) {
+				if(fighter.sprites[frame].hitBoxes.boxes[i].collidePoint(mousePos.x - globals::WINDOW_WIDTH / 2, mousePos.y + globals::EDIT_OFFSET)) {
 					selectAll = false; //TODO fix this
 					selectBox = fighter.sprites[frame].hitBoxes.boxes + i;
 					selectBoxAttack = false;
 					selectBoxOffset.x = selectBox->pos.x - mousePos.x;
-					selectBoxOffset.y = selectBox->pos.y - FLIP(mousePos.y);
+					selectBoxOffset.y = selectBox->pos.y - globals::FLIP(mousePos.y);
 					break;
 				}
 			if(i == fighter.sprites[frame].hitBoxes.size) {
@@ -501,12 +501,12 @@ void mousePress(int key, bool press) {
 			}
 			if(!selectBox) {
 				for(i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++)
-					if(fighter.sprites[frame].aHitBoxes.boxes[i].collidePoint(mousePos.x - WINDOW_WIDTH / 2, mousePos.y + EDIT_OFFSET)) {
+					if(fighter.sprites[frame].aHitBoxes.boxes[i].collidePoint(mousePos.x - globals::WINDOW_WIDTH / 2, mousePos.y + globals::EDIT_OFFSET)) {
 						selectAll = false; //TODO fix this
 						selectBox = fighter.sprites[frame].aHitBoxes.boxes + i;
 						selectBoxAttack = true;
 						selectBoxOffset.x = selectBox->pos.x - mousePos.x;
-						selectBoxOffset.y = selectBox->pos.y - FLIP(mousePos.y);
+						selectBoxOffset.y = selectBox->pos.y - globals::FLIP(mousePos.y);
 						break;
 					}
 				if(i == fighter.sprites[frame].aHitBoxes.size) {

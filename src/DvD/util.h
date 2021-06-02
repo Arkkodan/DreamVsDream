@@ -138,7 +138,9 @@ namespace util {
 	std::vector<std::string> listDirectory(const std::string& directory, bool listFiles);
 }
 
-//Position of the camera
-extern util::Vector cameraPos;
+namespace g_main {
+	//Position of the camera
+	extern util::Vector cameraPos;
+}
 
 #endif // UTIL_H_INCLUDED

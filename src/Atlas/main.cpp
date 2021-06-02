@@ -331,7 +331,7 @@ int main(int argc, char** argv)
     {
         File file;
 		std::string path = util::getPath(sz_output + "/atlas.list");
-        if(!file.open(FILE_WRITE_NORMAL, path)) {
+        if(!file.open(File::FILE_WRITE_NORMAL, path)) {
             std::cerr << "error: could not open file " << path << " for writing." << std::endl;
             code = 1;
             goto end;

@@ -5,26 +5,27 @@
 
 #include "file.h"
 
-enum {
-	COLORTYPE_NONE,
-	COLORTYPE_GRAYSCALE,
-	COLORTYPE_GRAYSCALE_ALPHA,
-	COLORTYPE_INDEXED,
-	COLORTYPE_RGB,
-	COLORTYPE_RGBA
-};
-
-enum {
-	RENDER_NORMAL,
-	RENDER_ADDITIVE,
-	RENDER_SUBTRACTIVE,
-	RENDER_MULTIPLY
-};
-
 /// @brief Image class ready for rendering
 /// @details createFromFile assumes png but createFromMemory takes an
 /// OpenGL-ready format
 class Image {
+public:
+	enum {
+		COLORTYPE_NONE,
+		COLORTYPE_GRAYSCALE,
+		COLORTYPE_GRAYSCALE_ALPHA,
+		COLORTYPE_INDEXED,
+		COLORTYPE_RGB,
+		COLORTYPE_RGBA
+	};
+
+	enum {
+		RENDER_NORMAL,
+		RENDER_ADDITIVE,
+		RENDER_SUBTRACTIVE,
+		RENDER_MULTIPLY
+	};
+
 public:
 	Image();
 	Image(Image&& other);

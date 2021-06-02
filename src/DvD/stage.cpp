@@ -7,8 +7,8 @@
 #include "graphics.h"
 #include "error.h"
 
-int stage = -1;
-Stage stages[20];
+int Stage::stage = -1;
+Stage Stage::stages[20];
 
 void Stage::ginit() {
 	stages[0].create("yn_balcony");
@@ -105,7 +105,7 @@ void Stage::parseFile(const std::string& szFileName) {
 	Parser parser;
 	std::string path = util::getPath(szFileName);
 	if(!parser.open(path)) {
-		die("Cannot parse file \"" + path + "\"");
+		error::die("Cannot parse file \"" + path + "\"");
 	}
 
 	//Get all the data
@@ -139,7 +139,7 @@ void Stage::parseFile(const std::string& szFileName) {
 			if(!imgData.exists()) {
 				continue;
 			}
-			SceneImage* newImg = new SceneImage(imgData, 0, 0, parallax, RENDER_NORMAL, xvel, yvel, wrap, round);
+			SceneImage* newImg = new SceneImage(imgData, 0, 0, parallax, Image::RENDER_NORMAL, xvel, yvel, wrap, round);
 
 			if(above) {
 				if(imagesAbove) {
@@ -168,15 +168,15 @@ void Stage::parseFile(const std::string& szFileName) {
 			heightAbs = parser.getArgInt(1);
 		} else if(parser.is("BGM", 1)) {
 			if(argc > 2) {
-				bgm.createFromFile(getResource(parser.getArg(1), EXT_MUSIC), getResource(parser.getArg(2), EXT_MUSIC));
+				bgm.createFromFile(getResource(parser.getArg(1), Parser::EXT_MUSIC), getResource(parser.getArg(2), Parser::EXT_MUSIC));
 			} else {
-				bgm.createFromFile("", getResource(parser.getArg(1), EXT_MUSIC));
+				bgm.createFromFile("", getResource(parser.getArg(1), Parser::EXT_MUSIC));
 			}
 		} else if(parser.is("BGM2", 1)) {
 			if(argc > 2) {
-				bgm2.createFromFile(getResource(parser.getArg(1), EXT_MUSIC), getResource(parser.getArg(2), EXT_MUSIC));
+				bgm2.createFromFile(getResource(parser.getArg(1), Parser::EXT_MUSIC), getResource(parser.getArg(2), Parser::EXT_MUSIC));
 			} else {
-				bgm2.createFromFile("", getResource(parser.getArg(1), EXT_MUSIC));
+				bgm2.createFromFile("", getResource(parser.getArg(1), Parser::EXT_MUSIC));
 			}
 		}
 	}

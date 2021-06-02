@@ -37,7 +37,7 @@ namespace audio {
 		int channels;
 	};
 
-#define AUDIO_STREAM_BUFFER_MAX 3
+// #define AUDIO_STREAM_BUFFER_MAX 3
 
 	/// @brief Music wrapper class around Sound
 	class Music {

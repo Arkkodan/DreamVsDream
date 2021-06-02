@@ -6,11 +6,6 @@
 
 //NETPLAY
 #ifndef NO_NETWORK
-#define NET_FLASH_TIME (FPS / 2)
-#define NET_FLASH_HOLD_TIME (FPS / 2)
-#define NET_FADE_TIME (FPS)
-#define NET_SCALE (2)
-#define NET_BAR_SIZE 120
 SceneNetplay::SceneNetplay() : Scene("netplay") {
 	choice = 0;
 
@@ -20,8 +15,8 @@ SceneNetplay::SceneNetplay() : Scene("netplay") {
 	barPos = 0;
 	waiting = false;
 
-	port = DEFAULT_PORT;
-	ip = DEFAULT_IP;
+	port = net::DEFAULT_PORT;
+	ip = net::DEFAULT_IP;
 	updateIp(false);
 	updatePort(false);
 }
@@ -39,7 +34,7 @@ void SceneNetplay::think() {
 	if (!flashDir) {
 		switch (mode) {
 		case net::MODE_NONE: {
-			if (input(INPUT_A)) {
+			if (input(game::INPUT_A)) {
 				sndSelect.play();
 				if (choice) {
 					mode = net::MODE_CLIENT;
@@ -49,12 +44,12 @@ void SceneNetplay::think() {
 				}
 				choice = 0;
 			}
-			else if (input(INPUT_B)) {
+			else if (input(game::INPUT_B)) {
 				sndOff.play();
 				flashDir = -1;
 				flashTimer = NET_FLASH_TIME + NET_FLASH_HOLD_TIME + NET_FADE_TIME / 2;
 			}
-			if (input(INPUT_UP | INPUT_DOWN)) {
+			if (input(game::INPUT_UP | game::INPUT_DOWN)) {
 				sndMenu.play();
 				choice = !choice;
 			}
@@ -63,14 +58,14 @@ void SceneNetplay::think() {
 
 		case net::MODE_SERVER: {
 			if (waiting) {
-				if (input(INPUT_A)) {
+				if (input(game::INPUT_A)) {
 					if (net::connected) {
 						sndSelect.play();
-						FIGHT->gametype = GAMETYPE_VERSUS;
+						FIGHT->gametype = SceneFight::GAMETYPE_VERSUS;
 						setScene(SCENE_SELECT);
 					}
 				}
-				else if (input(INPUT_B)) {
+				else if (input(game::INPUT_B)) {
 					if (!net::connected) {
 						sndBack.play();
 						bgm.play();
@@ -80,7 +75,7 @@ void SceneNetplay::think() {
 				}
 			}
 			else if (!digit) {
-				if (input(INPUT_A)) {
+				if (input(game::INPUT_A)) {
 					sndSelect.play();
 					if (choice > 0) {
 						digit = 1;
@@ -91,48 +86,48 @@ void SceneNetplay::think() {
 						bgmWait.play();
 					}
 				}
-				else if (input(INPUT_B)) {
+				else if (input(game::INPUT_B)) {
 					sndBack.play();
 					mode = net::MODE_NONE;
 					choice = 0;
 				}
-				if (input(INPUT_UP | INPUT_DOWN)) {
+				if (input(game::INPUT_UP | game::INPUT_DOWN)) {
 					sndMenu.play();
 					choice = !choice;
 				}
 			}
 			else {
-				if (input(INPUT_A)) {
+				if (input(game::INPUT_A)) {
 					//Save changes
 					sndSelect.play();
 					updatePort(true);
 					digit = 0;
 				}
-				else if (input(INPUT_B)) {
+				else if (input(game::INPUT_B)) {
 					//Discard changes
 					sndBack.play();
 					updatePort(false);
 					digit = 0;
 				}
-				if (input(INPUT_DIRMASK)) {
+				if (input(game::INPUT_DIRMASK)) {
 					sndMenu.play();
 				}
-				if (input(INPUT_UP)) {
+				if (input(game::INPUT_UP)) {
 					if (++portStr[digit - 1] > 9) {
 						portStr[digit - 1] = 0;
 					}
 				}
-				else if (input(INPUT_DOWN)) {
+				else if (input(game::INPUT_DOWN)) {
 					if (--portStr[digit - 1] < 0) {
 						portStr[digit - 1] = 9;
 					}
 				}
-				else if (input(INPUT_LEFT)) {
+				else if (input(game::INPUT_LEFT)) {
 					if (--digit < 1) {
 						digit = 5;
 					}
 				}
-				else if (input(INPUT_RIGHT)) {
+				else if (input(game::INPUT_RIGHT)) {
 					if (++digit > 5) {
 						digit = 1;
 					}
@@ -143,14 +138,14 @@ void SceneNetplay::think() {
 
 		case net::MODE_CLIENT: {
 			if (waiting) {
-				if (input(INPUT_A)) {
+				if (input(game::INPUT_A)) {
 					if (net::connected) {
 						sndSelect.play();
-						FIGHT->gametype = GAMETYPE_VERSUS;
+						FIGHT->gametype = SceneFight::GAMETYPE_VERSUS;
 						setScene(SCENE_SELECT);
 					}
 				}
-				else if (input(INPUT_B)) {
+				else if (input(game::INPUT_B)) {
 					if (!net::connected) {
 						sndBack.play();
 						bgm.play();
@@ -160,7 +155,7 @@ void SceneNetplay::think() {
 				}
 			}
 			else if (!digit) {
-				if (input(INPUT_A)) {
+				if (input(game::INPUT_A)) {
 					if (choice == 0) {
 						waiting = true;
 						audio::Music::stop();
@@ -217,7 +212,7 @@ void SceneNetplay::think() {
 							//Update port
 							port = atoi(_sz_port);
 							if (port == 0) {
-								port = DEFAULT_PORT;
+								port = net::DEFAULT_PORT;
 							}
 							updatePort(false);
 
@@ -253,18 +248,18 @@ void SceneNetplay::think() {
 						digit = 1;
 					}
 				}
-				else if (input(INPUT_B)) {
+				else if (input(game::INPUT_B)) {
 					sndBack.play();
 					mode = net::MODE_NONE;
 					choice = 1;
 				}
-				if (input(INPUT_UP)) {
+				if (input(game::INPUT_UP)) {
 					sndMenu.play();
 					if (--choice < 0) {
 						choice = 3;
 					}
 				}
-				else if (input(INPUT_DOWN)) {
+				else if (input(game::INPUT_DOWN)) {
 					sndMenu.play();
 					if (++choice > 3) {
 						choice = 0;
@@ -272,7 +267,7 @@ void SceneNetplay::think() {
 				}
 			}
 			else {
-				if (input(INPUT_A)) {
+				if (input(game::INPUT_A)) {
 					//Save changes
 					sndSelect.play();
 					if (choice == 1) {
@@ -283,7 +278,7 @@ void SceneNetplay::think() {
 					}
 					digit = 0;
 				}
-				else if (input(INPUT_B)) {
+				else if (input(game::INPUT_B)) {
 					//Discard changes
 					sndBack.play();
 					if (choice == 1) {
@@ -294,48 +289,48 @@ void SceneNetplay::think() {
 					}
 					digit = 0;
 				}
-				if (input(INPUT_DIRMASK)) {
+				if (input(game::INPUT_DIRMASK)) {
 					sndMenu.play();
 				}
 				if (choice == 1) {
-					if (input(INPUT_UP)) {
+					if (input(game::INPUT_UP)) {
 						if (++ipStr[digit - 1] > 9) {
 							ipStr[digit - 1] = 0;
 						}
 					}
-					else if (input(INPUT_DOWN)) {
+					else if (input(game::INPUT_DOWN)) {
 						if (--ipStr[digit - 1] < 0) {
 							ipStr[digit - 1] = 9;
 						}
 					}
-					else if (input(INPUT_LEFT)) {
+					else if (input(game::INPUT_LEFT)) {
 						if (--digit < 1) {
 							digit = 12;
 						}
 					}
-					else if (input(INPUT_RIGHT)) {
+					else if (input(game::INPUT_RIGHT)) {
 						if (++digit > 12) {
 							digit = 1;
 						}
 					}
 				}
 				else if (choice == 2) {
-					if (input(INPUT_UP)) {
+					if (input(game::INPUT_UP)) {
 						if (++portStr[digit - 1] > 9) {
 							portStr[digit - 1] = 0;
 						}
 					}
-					else if (input(INPUT_DOWN)) {
+					else if (input(game::INPUT_DOWN)) {
 						if (--portStr[digit - 1] < 0) {
 							portStr[digit - 1] = 9;
 						}
 					}
-					else if (input(INPUT_LEFT)) {
+					else if (input(game::INPUT_LEFT)) {
 						if (--digit < 1) {
 							digit = 5;
 						}
 					}
-					else if (input(INPUT_RIGHT)) {
+					else if (input(game::INPUT_RIGHT)) {
 						if (++digit > 5) {
 							digit = 1;
 						}
@@ -375,7 +370,7 @@ void SceneNetplay::think() {
 
 	barPos--;
 	if (barPos < -NET_BAR_SIZE) {
-		barPos = WINDOW_HEIGHT + NET_BAR_SIZE;
+		barPos = globals::WINDOW_HEIGHT + NET_BAR_SIZE;
 	}
 }
 
@@ -393,19 +388,19 @@ void SceneNetplay::draw() {
 		}
 
 		graphics::setScale(NET_SCALE * xscale, NET_SCALE);
-		imgLogo.draw(WINDOW_WIDTH / 2 - imgLogo.w * NET_SCALE * xscale / 2, WINDOW_HEIGHT / 4 - imgLogo.h * NET_SCALE / 2 + drawShake);
+		imgLogo.draw(globals::WINDOW_WIDTH / 2 - imgLogo.w * NET_SCALE * xscale / 2, globals::WINDOW_HEIGHT / 4 - imgLogo.h * NET_SCALE / 2 + drawShake);
 
 		//Main menu
 		switch (mode) {
 		case net::MODE_NONE: {
 			if (menuFont.exists()) {
 				Font::setScale(NET_SCALE * xscale, NET_SCALE);
-				menuFont.drawText(WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE * xscale / 2), WINDOW_HEIGHT / 3 * 2 + drawShake, "Server");
+				menuFont.drawText(globals::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE * xscale / 2), globals::WINDOW_HEIGHT / 3 * 2 + drawShake, "Server");
 				Font::setScale(NET_SCALE * xscale, NET_SCALE);
-				menuFont.drawText(WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE * xscale / 2), WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, "Client");
+				menuFont.drawText(globals::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE * xscale / 2), globals::WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, "Client");
 			}
 			graphics::setScale(xscale, NET_SCALE);
-			imgCursor.draw(WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE * xscale / 2), WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
+			imgCursor.draw(globals::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE * xscale / 2), globals::WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
 		}
 						   break;
 
@@ -414,29 +409,29 @@ void SceneNetplay::draw() {
 				if (menuFont.exists()) {
 					Font::setScale(NET_SCALE);
 					if (net::connected) {
-						menuFont.drawText(WINDOW_WIDTH / 2 - (23 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "Connection established!");
+						menuFont.drawText(globals::WINDOW_WIDTH / 2 - (23 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "Connection established!");
 					}
 					else if (net::running) {
-						menuFont.drawText(WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "Waiting...");
+						menuFont.drawText(globals::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "Waiting...");
 					}
 					else {
-						menuFont.drawText(WINDOW_WIDTH / 2 - (18 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "An error occurred.");
+						menuFont.drawText(globals::WINDOW_WIDTH / 2 - (18 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "An error occurred.");
 					}
 				}
 			}
 			else {
 				if (menuFont.exists()) {
 					Font::setScale(NET_SCALE);
-					menuFont.drawText(WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 + drawShake, "Start");
+					menuFont.drawText(globals::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 + drawShake, "Start");
 					Font::setScale(NET_SCALE);
-					menuFont.drawText(WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, "Port:");
+					menuFont.drawText(globals::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, "Port:");
 					for (int i = 0; i < 5; i++) {
 						Font::setScale(NET_SCALE);
-						menuFont.drawChar(WINDOW_WIDTH / 2 + (8 * 2 * NET_SCALE / 2) + i * 8 * NET_SCALE, WINDOW_HEIGHT / 3 * 2 - ((i + 1 == digit) ? 4 : 0) + 32 + drawShake, portStr[i] + '0');
+						menuFont.drawChar(globals::WINDOW_WIDTH / 2 + (8 * 2 * NET_SCALE / 2) + i * 8 * NET_SCALE, globals::WINDOW_HEIGHT / 3 * 2 - ((i + 1 == digit) ? 4 : 0) + 32 + drawShake, portStr[i] + '0');
 					}
 					if (!digit) {
 						graphics::setScale(xscale, NET_SCALE);
-						imgCursor.draw(WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
+						imgCursor.draw(globals::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
 					}
 				}
 			}
@@ -448,44 +443,44 @@ void SceneNetplay::draw() {
 				if (menuFont.exists()) {
 					Font::setScale(NET_SCALE);
 					if (net::connected) {
-						menuFont.drawText(WINDOW_WIDTH / 2 - (23 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "Connection established!");
+						menuFont.drawText(globals::WINDOW_WIDTH / 2 - (23 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "Connection established!");
 					}
 					else if (net::running) {
-						menuFont.drawText(WINDOW_WIDTH / 2 - (13 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "Connecting...");
+						menuFont.drawText(globals::WINDOW_WIDTH / 2 - (13 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "Connecting...");
 					}
 					else {
-						menuFont.drawText(WINDOW_WIDTH / 2 - (18 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "An error occurred.");
+						menuFont.drawText(globals::WINDOW_WIDTH / 2 - (18 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 + drawShake, "An error occurred.");
 					}
 				}
 			}
 			else {
 				if (menuFont.exists()) {
 					Font::setScale(NET_SCALE);
-					menuFont.drawText(WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 + drawShake, "Start");
+					menuFont.drawText(globals::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 + drawShake, "Start");
 					Font::setScale(NET_SCALE);
-					menuFont.drawText(WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, "IP:");
+					menuFont.drawText(globals::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, "IP:");
 					for (int i = 0; i < 4; i++) {
 						for (int j = 0; j < 3; j++) {
 							Font::setScale(NET_SCALE);
-							menuFont.drawChar(WINDOW_WIDTH / 2 + (8 * 2 * NET_SCALE / 2) + (i * 4 + j) * 8 * NET_SCALE, WINDOW_HEIGHT / 3 * 2 - ((choice == 1 && (i * 3 + j) + 1 == digit) ? 4 : 0) + 32 + drawShake, ipStr[i * 3 + j] + '0');
+							menuFont.drawChar(globals::WINDOW_WIDTH / 2 + (8 * 2 * NET_SCALE / 2) + (i * 4 + j) * 8 * NET_SCALE, globals::WINDOW_HEIGHT / 3 * 2 - ((choice == 1 && (i * 3 + j) + 1 == digit) ? 4 : 0) + 32 + drawShake, ipStr[i * 3 + j] + '0');
 						}
 						if (i < 3) {
 							Font::setScale(NET_SCALE);
-							menuFont.drawChar(WINDOW_WIDTH / 2 + (8 * 2 * NET_SCALE / 2) + (i * 4 + 3) * 8 * NET_SCALE, WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, '.');
+							menuFont.drawChar(globals::WINDOW_WIDTH / 2 + (8 * 2 * NET_SCALE / 2) + (i * 4 + 3) * 8 * NET_SCALE, globals::WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, '.');
 						}
 					}
 					Font::setScale(NET_SCALE);
-					menuFont.drawText(WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 + 32 * 2 + drawShake, "Port:");
+					menuFont.drawText(globals::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 + 32 * 2 + drawShake, "Port:");
 					for (int i = 0; i < 5; i++) {
 						Font::setScale(NET_SCALE);
-						menuFont.drawChar(WINDOW_WIDTH / 2 + (8 * 2 * NET_SCALE / 2) + i * 8 * NET_SCALE, WINDOW_HEIGHT / 3 * 2 - ((choice == 2 && i + 1 == digit) ? 4 : 0) + 32 * 2 + drawShake, portStr[i] + '0');
+						menuFont.drawChar(globals::WINDOW_WIDTH / 2 + (8 * 2 * NET_SCALE / 2) + i * 8 * NET_SCALE, globals::WINDOW_HEIGHT / 3 * 2 - ((choice == 2 && i + 1 == digit) ? 4 : 0) + 32 * 2 + drawShake, portStr[i] + '0');
 					}
 					if (!digit) {
 						graphics::setScale(xscale, NET_SCALE);
-						imgCursor.draw(WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
+						imgCursor.draw(globals::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
 					}
 					Font::setScale(NET_SCALE);
-					menuFont.drawText(WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), WINDOW_HEIGHT / 3 * 2 + 32 * 3 + drawShake, "Copy from clipboard");
+					menuFont.drawText(globals::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2), globals::WINDOW_HEIGHT / 3 * 2 + 32 * 3 + drawShake, "Copy from clipboard");
 				}
 			}
 		}
@@ -495,16 +490,16 @@ void SceneNetplay::draw() {
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glBegin(GL_QUADS);
 		glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
-		glVertex3f(WINDOW_WIDTH, barPos, 0);
+		glVertex3f(globals::WINDOW_WIDTH, barPos, 0);
 		glVertex3f(0, barPos, 0);
 		glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
 		glVertex3f(0, barPos + NET_BAR_SIZE, 0);
-		glVertex3f(WINDOW_WIDTH, barPos + NET_BAR_SIZE, 0);
+		glVertex3f(globals::WINDOW_WIDTH, barPos + NET_BAR_SIZE, 0);
 		glEnd();
 
-		graphics::setRender(RENDER_ADDITIVE);
-		imgStatic.draw(-util::roll(WINDOW_WIDTH), -util::roll(WINDOW_HEIGHT));
-		graphics::setRender(RENDER_MULTIPLY);
+		graphics::setRender(Image::RENDER_ADDITIVE);
+		imgStatic.draw(-util::roll(globals::WINDOW_WIDTH), -util::roll(globals::WINDOW_HEIGHT));
+		graphics::setRender(Image::RENDER_MULTIPLY);
 		imgScanlines.draw(0, 0);
 	}
 
@@ -517,18 +512,18 @@ void SceneNetplay::draw() {
 		}
 		float alpha = 1.0f;
 		if (flashTimer > NET_FLASH_TIME + NET_FLASH_HOLD_TIME) {
-			xoff = WINDOW_WIDTH;
-			yoff = WINDOW_WIDTH;
+			xoff = globals::WINDOW_WIDTH;
+			yoff = globals::WINDOW_WIDTH;
 			alpha = 1.0f - (flashTimer - NET_FLASH_TIME - NET_FLASH_HOLD_TIME) / (float)(NET_FADE_TIME / speed);
 		}
 		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glColor4f(1, 1, 1, alpha);
 		glBegin(GL_QUADS);
-		glVertex3f(WINDOW_WIDTH / 2 - xoff, WINDOW_HEIGHT / 2 - yoff, 0);
-		glVertex3f(WINDOW_WIDTH / 2 - xoff, WINDOW_HEIGHT / 2 + yoff, 0);
-		glVertex3f(WINDOW_WIDTH / 2 + xoff, WINDOW_HEIGHT / 2 + yoff, 0);
-		glVertex3f(WINDOW_WIDTH / 2 + xoff, WINDOW_HEIGHT / 2 - yoff, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2 - xoff, globals::WINDOW_HEIGHT / 2 - yoff, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2 - xoff, globals::WINDOW_HEIGHT / 2 + yoff, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2 + xoff, globals::WINDOW_HEIGHT / 2 + yoff, 0);
+		glVertex3f(globals::WINDOW_WIDTH / 2 + xoff, globals::WINDOW_HEIGHT / 2 - yoff, 0);
 		glEnd();
 	}
 }
@@ -540,7 +535,7 @@ void SceneNetplay::reset() {
 	digit = 0;
 	flashDir = 1;
 	flashTimer = 0;
-	barPos = WINDOW_HEIGHT / 3 * 2;
+	barPos = globals::WINDOW_HEIGHT / 3 * 2;
 	waiting = false;
 }
 
@@ -559,7 +554,7 @@ void SceneNetplay::updateIp(bool toint) {
 			ip |= (ubyte_t)n << (8 * i);
 		}
 		if (!ip) {
-			ip = DEFAULT_IP;
+			ip = net::DEFAULT_IP;
 		}
 		updateIp(false);
 	}
@@ -587,7 +582,7 @@ void SceneNetplay::updatePort(bool toint) {
 			newport = 65535;
 		}
 		if (newport == 0) {
-			newport = DEFAULT_PORT;
+			newport = net::DEFAULT_PORT;
 		}
 		port = newport;
 		updatePort(false);
@@ -603,28 +598,28 @@ void SceneNetplay::updatePort(bool toint) {
 
 void SceneNetplay::parseLine(Parser& parser) {
 	if (parser.is("BGM", 2)) { //Override superclass
-		bgm.createFromFile("", getResource(parser.getArg(1), EXT_MUSIC));
-		bgmWait.createFromFile("", getResource(parser.getArg(2), EXT_MUSIC));
+		bgm.createFromFile("", getResource(parser.getArg(1), Parser::EXT_MUSIC));
+		bgmWait.createFromFile("", getResource(parser.getArg(2), Parser::EXT_MUSIC));
 	}
 	else if (parser.is("SFX_CONNECT", 2)) {
-		sndConStart.createFromFile(getResource(parser.getArg(1), EXT_SOUND));
-		sndConSuccess.createFromFile(getResource(parser.getArg(2), EXT_SOUND));
+		sndConStart.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
+		sndConSuccess.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
 	}
 	else if (parser.is("LOGO", 1)) {
-		imgLogo.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
+		imgLogo.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
 	}
 	else if (parser.is("SCANLINES", 2)) {
-		imgScanlines.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
-		imgStatic.createFromFile(getResource(parser.getArg(2), EXT_IMAGE));
+		imgScanlines.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
+		imgStatic.createFromFile(getResource(parser.getArg(2), Parser::EXT_IMAGE));
 	}
 	else if (parser.is("MENU", 2)) {
-		menuFont.createFromFile(getResource(parser.getArg(1), EXT_FONT));
-		imgCursor.createFromFile(getResource(parser.getArg(2), EXT_IMAGE));
+		menuFont.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
+		imgCursor.createFromFile(getResource(parser.getArg(2), Parser::EXT_IMAGE));
 	}
 	else if (parser.is("SFX_TV", 2)) {
 		//Sounds
-		sndOn.createFromFile(getResource(parser.getArg(1), EXT_SOUND));
-		sndOff.createFromFile(getResource(parser.getArg(2), EXT_SOUND));
+		sndOn.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
+		sndOff.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
 	}
 	else {
 		Scene::parseLine(parser);

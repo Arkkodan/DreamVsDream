@@ -2,6 +2,14 @@
 
 #include "scene.h"
 
+int SceneOptions::optionDifficulty = 3;
+int SceneOptions::optionWins = 2;
+int SceneOptions::optionTime = 99;
+int SceneOptions::optionSfxVolume = 100;
+int SceneOptions::optionMusVolume = 100;
+int SceneOptions::optionVoiceVolume = 100;
+bool SceneOptions::optionEpilepsy = false;
+
 SceneOptions::SceneOptions() : Scene("options") {
 	cursor = cursorLast = cursorTimer = 0;
 	madoPos = 0;
@@ -15,27 +23,6 @@ SceneOptions::SceneOptions() : Scene("options") {
 SceneOptions::~SceneOptions() {
 	delete[] themes;
 }
-
-enum {
-	OPTION_DIFFICULTY,
-	OPTION_WINS,
-	OPTION_TIME,
-	OPTION_SFX_VOLUME,
-	OPTION_MUS_VOLUME,
-	OPTION_VOICE_VOLUME,
-	OPTION_EPILEPSY,
-	OPTION_CREDITS,
-
-	OPTION_MAX,
-};
-
-int optionDifficulty = 3;
-int optionWins = 2;
-int optionTime = 99;
-int optionSfxVolume = 100;
-int optionMusVolume = 100;
-int optionVoiceVolume = 100;
-bool optionEpilepsy = false;
 
 void SceneOptions::think() {
 	Scene::think();
@@ -102,12 +89,12 @@ void SceneOptions::think() {
 			stopped = true;
 		}
 
-		if (input(INPUT_UP | INPUT_DOWN)) {
+		if (input(game::INPUT_UP | game::INPUT_DOWN)) {
 			cursorTimer = aXOffset;
 			cursorLast = cursor;
 		}
 
-		if (input(INPUT_UP)) {
+		if (input(game::INPUT_UP)) {
 			sndMenu.play();
 			if (cursor) {
 				cursor--;
@@ -116,7 +103,7 @@ void SceneOptions::think() {
 				cursor = OPTION_MAX - 1;
 			}
 		}
-		else if (input(INPUT_DOWN)) {
+		else if (input(game::INPUT_DOWN)) {
 			sndMenu.play();
 			if (cursor < OPTION_MAX - 1) {
 				cursor++;
@@ -126,23 +113,23 @@ void SceneOptions::think() {
 			}
 		}
 		if (stopped) {
-			if (input(INPUT_LEFT)) {
+			if (input(game::INPUT_LEFT)) {
 				madoDir = 3;
 			}
-			else if (input(INPUT_RIGHT)) {
+			else if (input(game::INPUT_RIGHT)) {
 				madoDir = 1;
 			}
 		}
 
 		//Change option
-		if (input(INPUT_LEFT) || input(INPUT_RIGHT)) {
+		if (input(game::INPUT_LEFT) || input(game::INPUT_RIGHT)) {
 			if (cursor != OPTION_VOICE_VOLUME) {
 				sndMenu.play();
 			}
 
 			switch (cursor) {
 			case OPTION_DIFFICULTY:
-				if (input(INPUT_LEFT)) {
+				if (input(game::INPUT_LEFT)) {
 					if (optionDifficulty > 1) {
 						optionDifficulty--;
 					}
@@ -155,7 +142,7 @@ void SceneOptions::think() {
 				break;
 
 			case OPTION_WINS:
-				if (input(INPUT_LEFT)) {
+				if (input(game::INPUT_LEFT)) {
 					if (optionWins > 1) {
 						optionWins--;
 					}
@@ -168,7 +155,7 @@ void SceneOptions::think() {
 				break;
 
 			case OPTION_TIME:
-				if (input(INPUT_LEFT)) {
+				if (input(game::INPUT_LEFT)) {
 					if (optionTime == 0) {
 						optionTime = 99;
 					}
@@ -187,7 +174,7 @@ void SceneOptions::think() {
 				break;
 
 			case OPTION_SFX_VOLUME:
-				if (input(INPUT_LEFT)) {
+				if (input(game::INPUT_LEFT)) {
 					if (optionSfxVolume > 0) {
 						optionSfxVolume -= 10;
 					}
@@ -200,7 +187,7 @@ void SceneOptions::think() {
 				break;
 
 			case OPTION_MUS_VOLUME:
-				if (input(INPUT_LEFT)) {
+				if (input(game::INPUT_LEFT)) {
 					if (optionMusVolume > 0) {
 						optionMusVolume -= 10;
 					}
@@ -213,29 +200,29 @@ void SceneOptions::think() {
 				break;
 
 			case OPTION_VOICE_VOLUME:
-				if (input(INPUT_LEFT)) {
+				if (input(game::INPUT_LEFT)) {
 					if (optionVoiceVolume > 0) {
 						optionVoiceVolume -= 10;
 					}
-					madotsuki.speaker.play(&dame);
+					g_main::madotsuki.speaker.play(&dame);
 				}
 				else {
 					if (optionVoiceVolume < 100) {
 						optionVoiceVolume += 10;
 					}
-					madotsuki.speaker.play(&muri);
+					g_main::madotsuki.speaker.play(&muri);
 				}
 				break;
 
 			case OPTION_EPILEPSY:
-				if (input(INPUT_LEFT | INPUT_RIGHT)) {
+				if (input(game::INPUT_LEFT | game::INPUT_RIGHT)) {
 					optionEpilepsy = !optionEpilepsy;
 				}
 				break;
 			}
 		}
 
-		if (input(INPUT_A)) {
+		if (input(game::INPUT_A)) {
 			if (cursor == OPTION_CREDITS) {
 				sndSelect.play();
 				setScene(SCENE_CREDITS);
@@ -243,7 +230,7 @@ void SceneOptions::think() {
 		}
 
 		//Pinch thyself awake, Madotsuki
-		if (input(INPUT_B)) {
+		if (input(game::INPUT_B)) {
 			madoDir = 4;
 			madoFrame = 0;
 			madoWakeTimer = 40;
@@ -337,7 +324,7 @@ void SceneOptions::init() {
 
 	//Parse a random theme
 	if (nThemes) {
-		parseFile(getResource(themes[util::roll(nThemes)], EXT_SCRIPT));
+		parseFile(getResource(themes[util::roll(nThemes)], Parser::EXT_SCRIPT));
 	}
 }
 
@@ -345,13 +332,13 @@ void SceneOptions::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("FONT", 1)) {
 		//The font
-		menuFont.createFromFile(getResource(parser.getArg(1), EXT_FONT));
+		menuFont.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
 	}
 	else if (parser.is("MADOTSUKI", 3)) {
 		//Madotsuki sprites/sounds
-		madoImg.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
-		madoSfxStep.createFromFile(getResource(parser.getArg(2), EXT_SOUND));
-		madoSfxPinch.createFromFile(getResource(parser.getArg(3), EXT_SOUND));
+		madoImg.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
+		madoSfxStep.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
+		madoSfxPinch.createFromFile(getResource(parser.getArg(3), Parser::EXT_SOUND));
 	}
 	else if (parser.is("INACTIVE", 3)) {
 		iR = parser.getArgInt(1);
@@ -375,8 +362,8 @@ void SceneOptions::parseLine(Parser& parser) {
 		themes[nThemes++] = parser.getArg(1);
 	}
 	else if (parser.is("VOICES", 2)) {
-		dame.createFromFile(getResource(parser.getArg(1), EXT_SOUND));
-		muri.createFromFile(getResource(parser.getArg(2), EXT_SOUND));
+		dame.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
+		muri.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
 	}
 	else {
 		Scene::parseLine(parser);

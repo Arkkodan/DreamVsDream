@@ -23,14 +23,15 @@ public:
 	~CursorData();
 };
 
-enum {
-	CURSOR_UNLOCKED,
-	CURSOR_COLORSWAP,
-	CURSOR_LOCKED,
-};
-
 /// @brief Helper object for SceneSelect
 class Cursor {
+public:
+	enum {
+		CURSOR_UNLOCKED,
+		CURSOR_COLORSWAP,
+		CURSOR_LOCKED,
+	};
+
 public:
 	int pos;
 	int posOld;
@@ -57,6 +58,9 @@ public:
 
 /// @brief Character and stage selection
 class SceneSelect : public Scene {
+private:
+	static constexpr auto PORTRAIT_FADE = 50;
+
 public:
 	SceneSelect();
 	~SceneSelect();

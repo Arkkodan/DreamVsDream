@@ -23,36 +23,33 @@
 typedef char byte_t;
 typedef unsigned char ubyte_t;
 
+namespace globals {
 #ifdef SPRTOOL
-#define WINDOW_TITLE "Dream vs. Dream Sprite Tool v" VERSION
+	constexpr auto WINDOW_TITLE = "Dream vs. Dream Sprite Tool v" VERSION;
 #else
-#define WINDOW_TITLE "Dream vs. Dream v" VERSION
+	constexpr auto WINDOW_TITLE = "Dream vs. Dream v" VERSION;
 #endif
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
+	constexpr auto WINDOW_WIDTH = 640;
+	constexpr auto WINDOW_HEIGHT = 480;
 
-#define FLIP(x) ((WINDOW_HEIGHT - 1) - (x))
+	constexpr auto FLIP(int x) {
+		return WINDOW_HEIGHT - 1 - x;
+	}
 
-#define FPS (60)
-#define SPF (1.0/FPS)
-#define MSPF (1000/FPS)
+	constexpr auto FPS = 60;
+	constexpr auto SPF = 1.0 / FPS;
+	constexpr auto MSPF = 1000 / FPS;
 
-#define FLOAT_ACCURACY 65536
+	constexpr auto FLOAT_ACCURACY = 65536;
 
-extern std::string szConfigPath;
-
-extern int optionDifficulty;
-extern int optionWins;
-extern int optionTime;
-extern int optionSfxVolume;
-extern int optionMusVolume;
-extern int optionVoiceVolume;
-extern bool optionEpilepsy;
-extern bool optionSecretCharacter;
-
-//SPRITE TOOL STUFF
+	//SPRITE TOOL STUFF
 #ifdef SPRTOOL
-#define EDIT_OFFSET 100
+	constexpr auto EDIT_OFFSET = 100;
 #endif
+}
+
+namespace init {
+	extern std::string szConfigPath;
+}
 
 #endif // GLOBALS_H_INCLUDED

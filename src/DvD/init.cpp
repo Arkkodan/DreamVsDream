@@ -20,21 +20,33 @@
 #define strcasecmp(str1, str2) _stricmp(str1, str2)
 #endif
 
-std::string szConfigPath;
+namespace init {
+	std::string szConfigPath;
 
-static bool disable_shaders = false;
-static bool disable_sound = false;
-static int max_texture_size = 0;
-static bool versus = false;
-static bool fullscreen = false;
-static int input_delay = 0;
+	static bool disable_shaders = false;
+	static bool disable_sound = false;
+	static int max_texture_size = 0;
+	static bool versus = false;
+	static bool fullscreen = false;
+	static int input_delay = 0;
 
-void parseArgs(int argc, char** argv) {
+	constexpr auto OPTIONS_VERSION = 0;
+
+	void parseArgs(int argc, char** argv);
+	void optionsLoad();
+	void optionsSave();
+	void init();
+	void deinit();
+}
+
+namespace g_main {
 	extern game::Player madotsuki;
 	extern game::Player poniko;
+}
 
-	madotsuki.fighter = &game::fighters[0];
-	poniko.fighter = &game::fighters[0];
+void init::parseArgs(int argc, char** argv) {
+	g_main::madotsuki.fighter = &game::fighters[0];
+	g_main::poniko.fighter = &game::fighters[0];
 
 	for(int i = 1; i < argc; i++) {
 		if(!strcasecmp(argv[i], "--disable-shaders")) {
@@ -42,31 +54,31 @@ void parseArgs(int argc, char** argv) {
 		} else if(!strcasecmp(argv[i], "--disable-sound")) {
 			disable_sound = true;
 		} else if(!strcasecmp(argv[i], "--training")) {
-			scene = SCENE_FIGHT;
+			Scene::scene = Scene::SCENE_FIGHT;
 		} else if(!strcasecmp(argv[i], "--versus")) {
-			scene = SCENE_FIGHT;
+			Scene::scene = Scene::SCENE_FIGHT;
 			versus = true;
 		} else if(!strcasecmp(argv[i], "--fullscreen")) {
 			fullscreen = true;
 		} else if(!strcasecmp(argv[i], "-char1")) {
 			if(++i < argc) {
-				madotsuki.fighter = &game::fighters[atoi(argv[i])];
+				g_main::madotsuki.fighter = &game::fighters[atoi(argv[i])];
 			}
 		} else if(!strcasecmp(argv[i], "-char2")) {
 			if(++i < argc) {
-				poniko.fighter = &game::fighters[atoi(argv[i])];
+				g_main::poniko.fighter = &game::fighters[atoi(argv[i])];
 			}
 		} else if(!strcasecmp(argv[i], "-pal1")) {
 			if(++i < argc) {
-				madotsuki.palette = atoi(argv[i]);
+				g_main::madotsuki.palette = atoi(argv[i]);
 			}
 		} else if(!strcasecmp(argv[i], "-pal2")) {
 			if(++i < argc) {
-				poniko.palette = atoi(argv[i]);
+				g_main::poniko.palette = atoi(argv[i]);
 			}
 		} else if(!strcasecmp(argv[i], "-stage")) {
 			if(++i < argc) {
-				stage = atoi(argv[i]);
+				Stage::stage = atoi(argv[i]);
 			}
 		} else if(!strcasecmp(argv[i], "-input-delay")) {
 			if(++i < argc) {
@@ -80,11 +92,9 @@ void parseArgs(int argc, char** argv) {
 	}
 }
 
-#define OPTIONS_VERSION 0
-
-void optionsLoad() {
+void init::optionsLoad() {
 	File file;
-	if(!file.open(FILE_READ_NORMAL, szConfigPath + "options.dat")) {
+	if(!file.open(File::FILE_READ_NORMAL, szConfigPath + "options.dat")) {
 		return;
 	}
 
@@ -93,33 +103,32 @@ void optionsLoad() {
         return;
     }
 
-	optionDifficulty = file.readByte();
-	optionWins = file.readByte();
-	optionTime = file.readByte();
-	optionSfxVolume = file.readByte();
-	optionMusVolume = file.readByte();
-	optionVoiceVolume = file.readByte();
-	optionEpilepsy = file.readByte();
+	SceneOptions::optionDifficulty = file.readByte();
+	SceneOptions::optionWins = file.readByte();
+	SceneOptions::optionTime = file.readByte();
+	SceneOptions::optionSfxVolume = file.readByte();
+	SceneOptions::optionMusVolume = file.readByte();
+	SceneOptions::optionVoiceVolume = file.readByte();
+	SceneOptions::optionEpilepsy = file.readByte();
 }
 
-void optionsSave() {
+void init::optionsSave() {
 	File file;
-	if(!file.open(FILE_WRITE_NORMAL, szConfigPath + "options.dat")) {
+	if(!file.open(File::FILE_WRITE_NORMAL, szConfigPath + "options.dat")) {
 		return;
 	}
 
     file.writeByte(OPTIONS_VERSION);
-	file.writeByte(optionDifficulty);
-	file.writeByte(optionWins);
-	file.writeByte(optionTime);
-	file.writeByte(optionSfxVolume);
-	file.writeByte(optionMusVolume);
-	file.writeByte(optionVoiceVolume);
-	file.writeByte(optionEpilepsy);
+	file.writeByte(SceneOptions::optionDifficulty);
+	file.writeByte(SceneOptions::optionWins);
+	file.writeByte(SceneOptions::optionTime);
+	file.writeByte(SceneOptions::optionSfxVolume);
+	file.writeByte(SceneOptions::optionMusVolume);
+	file.writeByte(SceneOptions::optionVoiceVolume);
+	file.writeByte(SceneOptions::optionEpilepsy);
 }
 
-void init() {
-	void deinit();
+void init::init() {
 	atexit(deinit);
 
 	srand(time(nullptr));
@@ -127,25 +136,25 @@ void init() {
 	//Create settings path first
 	//Find correct directory
 #if defined _WIN32
-#define CONFIG_PATH "\\dreamvsdream\\"
+	constexpr auto CONFIG_PATH = "\\dreamvsdream\\";
 	wchar_t* env16 = _wgetenv(L"AppData");
 	if(!env16) {
-		die("Cannot find settings directory.");
+		error::die("Cannot find settings directory.");
 	}
 	char* env = util::utf16to8(env16);
 #elif defined __APPLE__
-#define CONFIG_PATH "/Library/Application Support/dreamvsdream/"
+	constexpr auto CONFIG_PATH = "/Library/Application Support/dreamvsdream/";
 	char* env = getenv("HOME");
 	if(!env) {
-		die("Cannot find settings directory.");
+		error::die("Cannot find settings directory.");
 	}
 #else
-#define CONFIG_PATH "/dreamvsdream/"
+	constexpr auto CONFIG_PATH = "/dreamvsdream/";
 	char* env = getenv("XDG_CONFIG_HOME");
 	if(!env) {
 		env = getenv("HOME");
 		if(!env) {
-			die("Cannot find settings directory.");
+			error::die("Cannot find settings directory.");
 		}
 	}
 #endif
@@ -167,9 +176,8 @@ void init() {
 
 	os::init();
 	graphics::init(disable_shaders, max_texture_size);
-	extern Image imgLoading;
-	imgLoading.createFromFile("scenes/loading.png");
-	imgLoading.draw(0, 0);
+	Scene::imgLoading.createFromFile("scenes/loading.png");
+	Scene::imgLoading.draw(0, 0);
 	os::refresh();
 
 	input::init();
@@ -183,17 +191,17 @@ void init() {
 	effect::init();
 
 	if(versus) {
-		FIGHT->gametype = GAMETYPE_VERSUS;
+		FIGHT->gametype = SceneFight::GAMETYPE_VERSUS;
 	}
 	//if(fullscreen)
 	//OS::toggleFullscreen();
 
-	if(scene == SCENE_FIGHT && stage == -1) {
-		stage = 0;
+	if(Scene::scene == Scene::SCENE_FIGHT && Stage::stage == -1) {
+		Stage::stage = 0;
 	}
 }
 
-void deinit() {
+void init::deinit() {
     audio::deinit();
 
 	effect::deinit();

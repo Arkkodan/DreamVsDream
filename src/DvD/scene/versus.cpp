@@ -22,7 +22,7 @@ void SceneVersus::init() {
 void SceneVersus::think() {
 	Scene::think();
 
-	if (input(INPUT_A))
+	if (input(game::INPUT_A))
 		setScene(SCENE_FIGHT);
 
 	if (timer1 > 0) {
@@ -60,12 +60,12 @@ void SceneVersus::think() {
 void SceneVersus::reset() {
 	Scene::reset();
 
-	timer1 = FPS * 2;
+	timer1 = globals::FPS * 2;
 	timer2 = 1000;
-	timer3 = FPS * 1;
+	timer3 = globals::FPS * 1;
 	timer4 = 1000;
-	timer5 = FPS * 2;
-	timer6 = FPS * 1.5;
+	timer5 = globals::FPS * 2;
+	timer6 = globals::FPS * 1.5;
 
 	timerF = 0.0f;
 }
@@ -76,8 +76,8 @@ void SceneVersus::draw() {
 	if (portraits[1]) {
 		graphics::setColor(255, 255, 255, 0.5f);// MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f));
 		graphics::setScale(2.0f);
-		portraits[1]->draw(WINDOW_WIDTH - portraits[1]->w * 1.5 - timer2 + timerF, -120, true);
-		portraits[1]->draw(WINDOW_WIDTH - portraits[1]->w + timer4 - timerF, 0, true);
+		portraits[1]->draw(globals::WINDOW_WIDTH - portraits[1]->w * 1.5 - timer2 + timerF, -120, true);
+		portraits[1]->draw(globals::WINDOW_WIDTH - portraits[1]->w + timer4 - timerF, 0, true);
 	}
 
 	if (portraits[0]) {

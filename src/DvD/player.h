@@ -6,54 +6,54 @@
 #include "fighter.h"
 
 namespace game {
-	#define INPUT_DIRMASK 0xF
-	#define INPUT_KEYMASK 0x70
-	#define INPUT_PRESSMASK 0x00FF
-	#define INPUT_RELMASK 0xFF00
-	#define INPUT_RELSHIFT 8
+	constexpr auto INPUT_DIRMASK = 0xF;
+	constexpr auto INPUT_KEYMASK = 0x70;
+	constexpr auto INPUT_PRESSMASK = 0x00FF;
+	constexpr auto INPUT_RELMASK = 0xFF00;
+	constexpr auto INPUT_RELSHIFT = 8;
 
-	#define INPUT_LEFT (1<<0)
-	#define INPUT_RIGHT (1<<1)
-	#define INPUT_UP (1<<2)
-	#define INPUT_DOWN (1<<3)
-	#define INPUT_A (1<<4)
-	#define INPUT_B (1<<5)
-	#define INPUT_C (1<<6)
-	#define INPUT_LEFT_R (INPUT_LEFT<<INPUT_RELSHIFT)
-	#define INPUT_RIGHT_R (INPUT_RIGHT<<INPUT_RELSHIFT)
-	#define INPUT_UP_R (INPUT_UP<<INPUT_RELSHIFT)
-	#define INPUT_DOWN_R (INPUT_DOWN<<INPUT_RELSHIFT)
-	#define INPUT_A_R (INPUT_A<<INPUT_RELSHIFT)
-	#define INPUT_B_R (INPUT_B<<INPUT_RELSHIFT)
-	#define INPUT_C_R (INPUT_C<<INPUT_RELSHIFT)
+	constexpr auto INPUT_LEFT = 1 << 0;
+	constexpr auto INPUT_RIGHT = 1 << 1;
+	constexpr auto INPUT_UP = 1 << 2;
+	constexpr auto INPUT_DOWN = 1 << 3;
+	constexpr auto INPUT_A = 1 << 4;
+	constexpr auto INPUT_B = 1 << 5;
+	constexpr auto INPUT_C = 1 << 6;
+	constexpr auto INPUT_LEFT_R = INPUT_LEFT << INPUT_RELSHIFT;
+	constexpr auto INPUT_RIGHT_R = INPUT_RIGHT << INPUT_RELSHIFT;
+	constexpr auto INPUT_UP_R = INPUT_UP << INPUT_RELSHIFT;
+	constexpr auto INPUT_DOWN_R = INPUT_DOWN << INPUT_RELSHIFT;
+	constexpr auto INPUT_A_R = INPUT_A << INPUT_RELSHIFT;
+	constexpr auto INPUT_B_R = INPUT_B << INPUT_RELSHIFT;
+	constexpr auto INPUT_C_R = INPUT_C << INPUT_RELSHIFT;
 
 	//Settable flags
-	#define F_CTRL  (1<<0)
-	#define F_VISIBLE (1<<1)
-	#define F_GRAVITY (1<<2)
-	#define F_INVINCIBLE (1<<3)
-	#define F_AIRDASH (1<<4)
-	#define F_DOUBLEJUMP (1<<5)
-	#define F_MIRROR (1<<6)
+	constexpr auto F_CTRL = 1 << 0;
+	constexpr auto F_VISIBLE = 1 << 1;
+	constexpr auto F_GRAVITY = 1 << 2;
+	constexpr auto F_INVINCIBLE = 1 << 3;
+	constexpr auto F_AIRDASH = 1 << 4;
+	constexpr auto F_DOUBLEJUMP = 1 << 5;
+	constexpr auto F_MIRROR = 1 << 6;
 
 	//Un-settable flags
-	#define F_ON_GROUND (1<<7)
-	#define F_KNOCKDOWN (1<<8)
-	#define F_BOUNCE (1<<9)
-	#define F_OTG (1<<10)
-	#define F_DEAD (1<<11)
+	constexpr auto F_ON_GROUND = 1 << 7;
+	constexpr auto F_KNOCKDOWN = 1 << 8;
+	constexpr auto F_BOUNCE = 1 << 9;
+	constexpr auto F_OTG = 1 << 10;
+	constexpr auto F_DEAD = 1 << 11;
 
-	#define LEFT 0
-	#define RIGHT 1
+	constexpr auto LEFT = 0;
+	constexpr auto RIGHT = 1;
 
-	#define INBUFF_SIZE 32
-	#define NETBUFF_SIZE 256
+	constexpr auto INBUFF_SIZE = 32;
+	constexpr auto NETBUFF_SIZE = 256;
 
-	#define CANCEL_MAX 32
+	constexpr auto CANCEL_MAX = 32;
 
-	#define DEFAULT_HP_MAX 1000
-	#define SUPER_MAX 1000
-	#define SUPER_DEFAULT (SUPER_MAX * 0.20)
+	constexpr auto DEFAULT_HP_MAX = 1000;
+	constexpr auto SUPER_MAX = 1000;
+	constexpr auto SUPER_DEFAULT = SUPER_MAX * 0.20;
 
 	/// @brief Data structure containing information about an input
 	class InputBuff {
@@ -138,7 +138,7 @@ namespace game {
 		virtual bool isPlayer();
 	};
 
-	#define MAX_PROJECTILES 128
+	constexpr auto MAX_PROJECTILES = 128;
 
 	/// @brief Active instance of in-game player
 	/// @details Do not confuse with Fighter

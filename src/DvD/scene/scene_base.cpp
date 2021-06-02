@@ -5,6 +5,17 @@
 #include "../stage.h"
 #include "../error.h"
 
+namespace g_main {
+	extern util::Vector cameraPos;
+	extern util::Vector idealCameraPos;
+}
+
+Scene* Scene::scenes[SCENE_MAX] = { nullptr };
+int Scene::scene = SCENE_INTRO;
+int Scene::sceneNew = 0;
+
+Image Scene::imgLoading;
+
 void Scene::ginit() {
 	scenes[SCENE_INTRO] = new SceneIntro();
 	scenes[SCENE_TITLE] = new SceneTitle();
@@ -33,14 +44,12 @@ void Scene::setScene(int _scene) {
 		return;
 	}
 	if (_scene == SCENE_FIGHT) {
-		madotsuki.reset();
-		poniko.reset();
-		extern util::Vector cameraPos;
-		extern util::Vector idealCameraPos;
-		cameraPos.x = 0;
-		cameraPos.y = 0;
-		idealCameraPos.x = 0;
-		idealCameraPos.y = 0;
+		g_main::madotsuki.reset();
+		g_main::poniko.reset();
+		g_main::cameraPos.x = 0;
+		g_main::cameraPos.y = 0;
+		g_main::idealCameraPos.x = 0;
+		g_main::idealCameraPos.y = 0;
 	}
 	sceneNew = _scene;
 	fade = 1.0f;
@@ -48,7 +57,7 @@ void Scene::setScene(int _scene) {
 }
 
 bool Scene::input(uint16_t in) {
-	return (madotsuki.frameInput & in) || (poniko.frameInput & in);
+	return (g_main::madotsuki.frameInput & in) || (g_main::poniko.frameInput & in);
 }
 
 float Scene::fade = 1.0f;
@@ -65,9 +74,9 @@ void Scene::drawFade() {
 	}
 	glBegin(GL_QUADS);
 	glVertex3f(0.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, WINDOW_HEIGHT, 0.0f);
-	glVertex3f(WINDOW_WIDTH, WINDOW_HEIGHT, 0.0f);
-	glVertex3f(WINDOW_WIDTH, 0.0f, 0.0f);
+	glVertex3f(0.0f, globals::WINDOW_HEIGHT, 0.0f);
+	glVertex3f(globals::WINDOW_WIDTH, globals::WINDOW_HEIGHT, 0.0f);
+	glVertex3f(globals::WINDOW_WIDTH, 0.0f, 0.0f);
 	glEnd();
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
@@ -158,7 +167,7 @@ void Scene::think() {
 		}
 
 		//Always disable controls during fades
-		madotsuki.frameInput = 0;
+		g_main::madotsuki.frameInput = 0;
 		//}
 	}
 }
@@ -185,20 +194,20 @@ void Scene::parseLine(Parser& parser) {
 	if (parser.is("IMAGE", 3)) {
 		float x = parser.getArgFloat(2);
 		float y = parser.getArgFloat(3);
-		char render = RENDER_NORMAL;
+		char render = Image::RENDER_NORMAL;
 		float xvel = 0.0f;
 		float yvel = 0.0f;
 		bool wrap = false;
 		if (argc > 4) {
 			const char* szRender = parser.getArg(4);
 			if (!strcmp(szRender, "additive")) {
-				render = RENDER_ADDITIVE;
+				render = Image::RENDER_ADDITIVE;
 			}
 			else if (!strcmp(szRender, "subtractive")) {
-				render = RENDER_SUBTRACTIVE;
+				render = Image::RENDER_SUBTRACTIVE;
 			}
 			else if (!strcmp(szRender, "multiply")) {
-				render = RENDER_MULTIPLY;
+				render = Image::RENDER_MULTIPLY;
 			}
 			if (argc > 5) {
 				xvel = parser.getArgFloat(5);
@@ -213,7 +222,7 @@ void Scene::parseLine(Parser& parser) {
 
 		//Add a new image
 		Image imgData;
-		imgData.createFromFile(getResource(parser.getArg(1), EXT_IMAGE));
+		imgData.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
 		if (!imgData.exists()) {
 			return;
 		}
@@ -230,19 +239,19 @@ void Scene::parseLine(Parser& parser) {
 	}
 	else if (parser.is("BGM", 1)) {
 		if (argc > 2) {
-			std::string intro = getResource(parser.getArg(1), EXT_MUSIC);
-			std::string loop = getResource(parser.getArg(2), EXT_MUSIC);
+			std::string intro = getResource(parser.getArg(1), Parser::EXT_MUSIC);
+			std::string loop = getResource(parser.getArg(2), Parser::EXT_MUSIC);
 			bgm.createFromFile(intro, loop);
 		}
 		else {
-			bgm.createFromFile("", getResource(parser.getArg(1), EXT_MUSIC));
+			bgm.createFromFile("", getResource(parser.getArg(1), Parser::EXT_MUSIC));
 		}
 	}
 	else if (parser.is("SOUND", 4)) {
-		sndMenu.createFromFile(getResource(parser.getArg(1), EXT_SOUND));
-		sndSelect.createFromFile(getResource(parser.getArg(2), EXT_SOUND));
-		sndBack.createFromFile(getResource(parser.getArg(3), EXT_SOUND));
-		sndInvalid.createFromFile(getResource(parser.getArg(4), EXT_SOUND));
+		sndMenu.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
+		sndSelect.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
+		sndBack.createFromFile(getResource(parser.getArg(3), Parser::EXT_SOUND));
+		sndInvalid.createFromFile(getResource(parser.getArg(4), Parser::EXT_SOUND));
 	}
 	else if (parser.is("VIDEO", 1)) {
 		//getResource(parser.getArg(1), EXT_VIDEO);
@@ -253,7 +262,7 @@ void Scene::parseFile(std::string szFileName) {
 	Parser parser;
 	std::string path = util::getPath(szFileName);
 	if (!parser.open(path)) {
-		die("Cannot parse file \"" + path + "\"");
+		error::die("Cannot parse file \"" + path + "\"");
 	}
 
 	//Get all the data
@@ -348,8 +357,8 @@ void SceneImage::draw(bool _stage) {
 		//Draw the image differently if wrapping
 		if (wrap) {
 			//How many of these are needed to fill the screen?
-			int xCount = WINDOW_WIDTH / image.w + 2;
-			int yCount = WINDOW_HEIGHT / image.h + 2;
+			int xCount = globals::WINDOW_WIDTH / image.w + 2;
+			int yCount = globals::WINDOW_HEIGHT / image.h + 2;
 
 			for (int i = 0; i < xCount; i++) {
 				for (int j = 0; j < yCount; j++) {
@@ -362,7 +371,7 @@ void SceneImage::draw(bool _stage) {
 			graphics::setRender(render);
 			if (_stage) {
 				if (!round || round - 1 == FIGHT->round) {
-					image.draw(x - image.w / 2 + WINDOW_WIDTH / 2 - cameraPos.x * parallax, (WINDOW_HEIGHT - y) - image.h + cameraPos.y * parallax);
+					image.draw(x - image.w / 2 + globals::WINDOW_WIDTH / 2 - g_main::cameraPos.x * parallax, (globals::WINDOW_HEIGHT - y) - image.h + g_main::cameraPos.y * parallax);
 				}
 			}
 			else {
