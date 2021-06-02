@@ -1,8 +1,6 @@
 #ifndef NETWORK_H_INCLUDED
 #define NETWORK_H_INCLUDED
 
-#include "globals.h"
-
 #include "player.h"
 
 namespace net {

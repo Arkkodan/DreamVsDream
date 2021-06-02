@@ -10,8 +10,6 @@
 #include <unistd.h>
 #endif
 
-#include "globals.h"
-
 #include "network.h"
 #include "error.h"
 #include "scene/scene.h"
@@ -120,7 +118,7 @@ namespace net {
 									if(buff.flags & NetHeader::NETF_ACK && !(buff.flags & NetHeader::NETF_SYN)) {
 										//Calculate the input delay
 										float time = (sys::getTime() - _timer) / 1000.0f;
-										inputDelay = ceil((time + 0.01) / (2 * globals::SPF));
+										inputDelay = ceil((time + 0.01) / (2 * sys::SPF));
 										if(force_input_delay) {
 											inputDelay = force_input_delay;
 										}
@@ -193,9 +191,9 @@ namespace net {
 			break;
 
 			case NETSTATE_LISTEN: {
-				ubyte_t buffer[256];
+				uint8_t buffer[256];
 				int size = recv(buffer, 256) - 1;
-				ubyte_t* buff = buffer + 1;
+				uint8_t* buff = buffer + 1;
 
 				if(size + 1) {
 					game::Player* p = getYourPlayer();
@@ -238,9 +236,9 @@ namespace net {
 						for(int i = 0; i < game::NETBUFF_SIZE; i++) {
 							if(p->netBuff[i].frame == netframe) {
 								//Send this guy back
-								ubyte_t buffer2[256];
+								uint8_t buffer2[256];
 								*buffer2 = PACKET_UPDATE;
-								ubyte_t* buff2 = buffer2 + 1;
+								uint8_t* buff2 = buffer2 + 1;
 
 								*(uint32_t*)buff2 = netframe;
 								*(uint16_t*)(buff2 + 32) = p->netBuff[i].input;
@@ -294,9 +292,9 @@ namespace net {
 			nb->frame = frame + inputDelay;
 
 			//Construct and send a packet with the last inputDelay inputs
-			ubyte_t buffer[256];
+			uint8_t buffer[256];
 			buffer[0] = PACKET_UPDATE;
-			ubyte_t* buff = buffer + 1;
+			uint8_t* buff = buffer + 1;
 			*(uint32_t*)buff = frame + inputDelay;
 
 			int i = 0;

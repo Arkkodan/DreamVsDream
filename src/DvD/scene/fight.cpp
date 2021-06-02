@@ -4,6 +4,7 @@
 
 #include "../stage.h"
 #include "../effect.h"
+#include "../sys.h"
 
 game::Player SceneFight::madotsuki;
 game::Player SceneFight::poniko;
@@ -39,15 +40,15 @@ void SceneMeter::draw(float pct, bool mirror, bool flip) {
 
 		if (mirror) {
 			if (flip) {
-				img.draw(globals::WINDOW_WIDTH - img.w - pos.x + img.w * (1 - pct), pos.y, true);
+				img.draw(sys::WINDOW_WIDTH - img.w - pos.x + img.w * (1 - pct), pos.y, true);
 			}
 			else {
 				//Hack
 				if (pct == 1.0f) {
-					img.draw(globals::WINDOW_WIDTH - img.w - pos.x, pos.y, true);
+					img.draw(sys::WINDOW_WIDTH - img.w - pos.x, pos.y, true);
 				}
 				else {
-					img.draw(globals::WINDOW_WIDTH - img.w - pos.x + 1, pos.y, true);
+					img.draw(sys::WINDOW_WIDTH - img.w - pos.x + 1, pos.y, true);
 				}
 			}
 		}
@@ -201,15 +202,15 @@ void SceneFight::think() {
 	if (idealCameraPos.y < 0) {
 		idealCameraPos.y = 0;
 	}
-	if (idealCameraPos.y > STAGE.heightAbs - globals::WINDOW_HEIGHT) {
-		idealCameraPos.y = STAGE.heightAbs - globals::WINDOW_HEIGHT;
+	if (idealCameraPos.y > STAGE.heightAbs - sys::WINDOW_HEIGHT) {
+		idealCameraPos.y = STAGE.heightAbs - sys::WINDOW_HEIGHT;
 	}
 
-	if (idealCameraPos.x < STAGE.widthAbs / -2 + globals::WINDOW_WIDTH / 2) {
-		idealCameraPos.x = STAGE.widthAbs / -2 + globals::WINDOW_WIDTH / 2;
+	if (idealCameraPos.x < STAGE.widthAbs / -2 + sys::WINDOW_WIDTH / 2) {
+		idealCameraPos.x = STAGE.widthAbs / -2 + sys::WINDOW_WIDTH / 2;
 	}
-	else if (idealCameraPos.x > STAGE.widthAbs / 2 - globals::WINDOW_WIDTH / 2) {
-		idealCameraPos.x = STAGE.widthAbs / 2 - globals::WINDOW_WIDTH / 2;
+	else if (idealCameraPos.x > STAGE.widthAbs / 2 - sys::WINDOW_WIDTH / 2) {
+		idealCameraPos.x = STAGE.widthAbs / 2 - sys::WINDOW_WIDTH / 2;
 	}
 
 	cameraPos.x = (cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
@@ -289,7 +290,7 @@ void SceneFight::think() {
 		//Decrement timer
 		if (game_timer && !timer_ko && !timer_round_in && !timer_round_out) {
 			if (!--game_timer) {
-				timer_ko = 1 * globals::FPS;
+				timer_ko = 1 * sys::FPS;
 				ko_type = 1;
 				if (madotsuki.hp == poniko.hp) {
 					ko_player = 3;
@@ -330,11 +331,11 @@ void SceneFight::think() {
 				}
 				else if (madotsuki.comboCounter >= 2) {
 					if (comboLeftLast < madotsuki.comboCounter) {
-						comboLeftTimer = globals::FPS;
+						comboLeftTimer = sys::FPS;
 					}
 					else if (comboLeftLast > madotsuki.comboCounter) {
 						comboLeftOff = 0;
-						comboLeftTimer = globals::FPS;
+						comboLeftTimer = sys::FPS;
 					}
 				}
 				comboLeftLast = madotsuki.comboCounter;
@@ -363,11 +364,11 @@ void SceneFight::think() {
 		//RIGHT
 		if (poniko.comboCounter > 1 && !ko_player) {
 			if (comboRightLast < poniko.comboCounter) {
-				comboRightTimer = globals::FPS;
+				comboRightTimer = sys::FPS;
 			}
 			else if (comboRightLast > poniko.comboCounter) {
 				comboRightOff = 0;
-				comboRightTimer = globals::FPS;
+				comboRightTimer = sys::FPS;
 			}
 			comboRightLast = poniko.comboCounter;
 		}
@@ -400,7 +401,7 @@ void SceneFight::think() {
 				staticImg.draw(0, 0);
 			}
 		}
-		if (timer_round_in == (int)(4.0 * globals::FPS)) {
+		if (timer_round_in == (int)(4.0 * sys::FPS)) {
 			madotsuki.reset();
 			poniko.reset();
 			cameraPos.x = 0;
@@ -409,11 +410,11 @@ void SceneFight::think() {
 			idealCameraPos.y = 0;
 			fadeinSnd.play();
 		}
-		if (timer_round_out == (int)(1.5 * globals::FPS)) {
+		if (timer_round_out == (int)(1.5 * sys::FPS)) {
 			fadeoutSnd.play();
 		}
 
-		if (timer_round_in == (int)(1.4 * globals::FPS) && !bgmPlaying) {
+		if (timer_round_in == (int)(1.4 * sys::FPS) && !bgmPlaying) {
 			STAGE.bgmPlay();
 			bgmPlaying = true;
 		}
@@ -423,7 +424,7 @@ void SceneFight::think() {
 		}
 		if (timer_round_out) {
 			timer_round_out--;
-			if (timer_round_out == (int)(3.8 * globals::FPS)) {
+			if (timer_round_out == (int)(3.8 * sys::FPS)) {
 				if (ko_player == 2) {
 					if (!(poniko.flags & game::F_DEAD)) {
 						poniko.setStandardState(game::STATE_DEFEAT);
@@ -441,7 +442,7 @@ void SceneFight::think() {
 				else if (ko_player == 3) {
 					if (ko_type != 2) {
 						timer_round_out = 0;
-						timer_ko = 1 * globals::FPS;
+						timer_ko = 1 * sys::FPS;
 						ko_type = 2;
 					}
 					else {
@@ -486,9 +487,9 @@ void SceneFight::think() {
 				if (winner) {
 					win_bgm.play();
 				}
-				timer_round_in = 4.0 * globals::FPS;
+				timer_round_in = 4.0 * sys::FPS;
 				ko_player = 0;
-				game_timer = SceneOptions::optionTime * globals::FPS - 1;
+				game_timer = SceneOptions::optionTime * sys::FPS - 1;
 				if (game_timer < 0) {
 					game_timer = 0;
 				}
@@ -519,7 +520,7 @@ void SceneFight::think() {
 				_condition = true;
 			}
 			if (_condition) {
-				timer_round_out = 4 * globals::FPS;
+				timer_round_out = 4 * sys::FPS;
 			}
 		}
 	}
@@ -573,11 +574,11 @@ void SceneFight::draw() {
 		else {
 			sprintf(_b_sz, "Player %d wins!", winner);
 		}
-		win_font.drawText(32, globals::FLIP(32), _b_sz);
+		win_font.drawText(32, sys::FLIP(32), _b_sz);
 	}
 	else {
 		hud.draw(0, 0);
-		hud.draw(globals::WINDOW_WIDTH - hud.w, 0, true);
+		hud.draw(sys::WINDOW_WIDTH - hud.w, 0, true);
 
 		//DRAW METERS
 
@@ -600,7 +601,7 @@ void SceneFight::draw() {
 		meterDpm.draw(1, true, false);
 
 		portraits.draw(0, 0);
-		portraits.draw(globals::WINDOW_WIDTH - shine.w, 0, true);
+		portraits.draw(sys::WINDOW_WIDTH - shine.w, 0, true);
 
 		timer.draw(0, 0);
 
@@ -622,31 +623,31 @@ void SceneFight::draw() {
 
 				if (i < wins[1]) {
 					if (win_types[0][i]) {
-						orb_draw.draw(globals::WINDOW_WIDTH - x - 18, orb_pos.y);
+						orb_draw.draw(sys::WINDOW_WIDTH - x - 18, orb_pos.y);
 					}
 					else {
-						orb_win.draw(globals::WINDOW_WIDTH - x - 18, orb_pos.y);
+						orb_win.draw(sys::WINDOW_WIDTH - x - 18, orb_pos.y);
 					}
 				}
 				else {
-					orb_null.draw(globals::WINDOW_WIDTH - x - 18, orb_pos.y);
+					orb_null.draw(sys::WINDOW_WIDTH - x - 18, orb_pos.y);
 				}
 			}
 
 			//Draw timer
 			char b_timer_text[8];
 			if (game_timer) {
-				sprintf(b_timer_text, "%02d", (game_timer / globals::FPS) + 1);
+				sprintf(b_timer_text, "%02d", (game_timer / sys::FPS) + 1);
 			}
 			else {
 				strcpy(b_timer_text, "00");
 			}
 			int w_timer_text = timer_font.getTextWidth(b_timer_text);
-			timer_font.drawText((globals::WINDOW_WIDTH - w_timer_text) / 2, 30, b_timer_text);
+			timer_font.drawText((sys::WINDOW_WIDTH - w_timer_text) / 2, 30, b_timer_text);
 		}
 
 		shine.draw(0, 0);
-		shine.draw(globals::WINDOW_WIDTH - shine.w, 0, true);
+		shine.draw(sys::WINDOW_WIDTH - shine.w, 0, true);
 
 		round_hud[round].draw(x_round_hud, y_round_hud);
 
@@ -662,11 +663,11 @@ void SceneFight::draw() {
 
 		//RIGHT
 		if (comboRightOff) {
-			comboRight.draw(globals::WINDOW_WIDTH - comboRightOff, 131);
+			comboRight.draw(sys::WINDOW_WIDTH - comboRightOff, 131);
 			char buff[8];
 			sprintf(buff, "%d", comboRightLast);
 			int w = combo.getTextWidth(buff);
-			combo.drawText(globals::WINDOW_WIDTH - comboRightOff - w / 2 + 100, 131 + 35, buff);
+			combo.drawText(sys::WINDOW_WIDTH - comboRightOff - w / 2 + 100, 131 + 35, buff);
 		}
 
 		//Draw character portraits
@@ -680,7 +681,7 @@ void SceneFight::draw() {
 		else {
 			graphics::setColor(150, 150, 150, 1.0);
 		}
-		poniko.fighter->portrait_ui.draw(globals::WINDOW_WIDTH - portraitPos.x - poniko.fighter->portrait_ui.w, portraitPos.y, true);
+		poniko.fighter->portrait_ui.draw(sys::WINDOW_WIDTH - portraitPos.x - poniko.fighter->portrait_ui.w, portraitPos.y, true);
 		if (graphics::shader_support) {
 			glUseProgram(0);
 		}
@@ -689,68 +690,68 @@ void SceneFight::draw() {
 		//Draw round transitions
 		if (timer_flash) {
 			graphics::setColor(180, 120, 190, timer_flash / 5.0f);
-			staticImg.draw(-util::roll(globals::WINDOW_WIDTH), -util::roll(globals::WINDOW_HEIGHT));
+			staticImg.draw(-util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
 			timer_flash--;
 		}
 
 		if (timer_round_out) {
 			float alpha = 0.0f;
-			if (timer_round_out < 0.5 * globals::FPS) {
+			if (timer_round_out < 0.5 * sys::FPS) {
 				alpha = 1.0f;
 			}
-			else if (timer_round_out < 1.5 * globals::FPS) {
-				alpha = 1.0 - ((timer_round_out - 0.5 * globals::FPS) / (1.0 * globals::FPS));
+			else if (timer_round_out < 1.5 * sys::FPS) {
+				alpha = 1.0 - ((timer_round_out - 0.5 * sys::FPS) / (1.0 * sys::FPS));
 			}
 			graphics::setColor(180, 120, 190, alpha);
-			staticImg.draw(-util::roll(globals::WINDOW_WIDTH), -util::roll(globals::WINDOW_HEIGHT));
+			staticImg.draw(-util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
 		}
 
 		if (timer_round_in) {
-			if (timer_round_in > 1.0 * globals::FPS) {
-				graphics::setColor(180, 120, 190, ((timer_round_in - 1.0 * globals::FPS) / (3.0 * globals::FPS)));
-				staticImg.draw(-util::roll(globals::WINDOW_WIDTH), -util::roll(globals::WINDOW_HEIGHT));
+			if (timer_round_in > 1.0 * sys::FPS) {
+				graphics::setColor(180, 120, 190, ((timer_round_in - 1.0 * sys::FPS) / (3.0 * sys::FPS)));
+				staticImg.draw(-util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
 			}
 
-			if (timer_round_in <= 1.4 * globals::FPS) {
-				if (timer_round_in > 1.3 * globals::FPS) {
-					float scalar = (timer_round_in - 1.3 * globals::FPS) / (0.1 * globals::FPS) + 1.0;
+			if (timer_round_in <= 1.4 * sys::FPS) {
+				if (timer_round_in > 1.3 * sys::FPS) {
+					float scalar = (timer_round_in - 1.3 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
 					graphics::setScale(scalar);
-					round_splash[round].draw(globals::WINDOW_WIDTH / 2 - round_splash[round].w * scalar / 2 - util::roll(10, 30), globals::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 - util::roll(10, 30));
+					round_splash[round].draw(sys::WINDOW_WIDTH / 2 - round_splash[round].w * scalar / 2 - util::roll(10, 30), sys::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 - util::roll(10, 30));
 				}
-				else if (timer_round_in < 0.1 * globals::FPS) {
-					float scalar = timer_round_in / (0.1 * globals::FPS);
+				else if (timer_round_in < 0.1 * sys::FPS) {
+					float scalar = timer_round_in / (0.1 * sys::FPS);
 					graphics::setColor(255, 255, 255, scalar);
-					round_splash[round].draw(globals::WINDOW_WIDTH / 2 - round_splash[round].w / 2, globals::WINDOW_HEIGHT / 2 - round_splash[round].h / 2);
+					round_splash[round].draw(sys::WINDOW_WIDTH / 2 - round_splash[round].w / 2, sys::WINDOW_HEIGHT / 2 - round_splash[round].h / 2);
 					graphics::setColor(255, 255, 255, scalar);
 					scalar = 1.0f - scalar + 1.0f;
 					float xscalar = 1 / scalar;
 					graphics::setScale(xscalar, scalar);
-					round_splash[round].draw(globals::WINDOW_WIDTH / 2 - round_splash[round].w * xscalar / 2 - util::roll(10, 30), globals::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 - util::roll(10, 30));
+					round_splash[round].draw(sys::WINDOW_WIDTH / 2 - round_splash[round].w * xscalar / 2 - util::roll(10, 30), sys::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 - util::roll(10, 30));
 				}
 				else {
-					round_splash[round].draw(globals::WINDOW_WIDTH / 2 - round_splash[round].w / 2 - util::roll(5, 15), globals::WINDOW_HEIGHT / 2 - round_splash[round].h / 2 - util::roll(5, 15));
+					round_splash[round].draw(sys::WINDOW_WIDTH / 2 - round_splash[round].w / 2 - util::roll(5, 15), sys::WINDOW_HEIGHT / 2 - round_splash[round].h / 2 - util::roll(5, 15));
 				}
 			}
 		}
 
 		if (timer_ko) {
-			if (timer_ko > 0.8 * globals::FPS) {
-				float scalar = (timer_ko - 0.8 * globals::FPS) / (0.1 * globals::FPS) + 1.0;
+			if (timer_ko > 0.8 * sys::FPS) {
+				float scalar = (timer_ko - 0.8 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
 				graphics::setScale(scalar);
-				ko[ko_type].draw(globals::WINDOW_WIDTH / 2 - ko[ko_type].w * scalar / 2 - util::roll(10, 30), globals::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 - util::roll(10, 30));
+				ko[ko_type].draw(sys::WINDOW_WIDTH / 2 - ko[ko_type].w * scalar / 2 - util::roll(10, 30), sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 - util::roll(10, 30));
 			}
-			else if (timer_ko < 0.1 * globals::FPS) {
-				float scalar = timer_ko / (0.1 * globals::FPS);
+			else if (timer_ko < 0.1 * sys::FPS) {
+				float scalar = timer_ko / (0.1 * sys::FPS);
 				graphics::setColor(255, 255, 255, scalar);
-				ko[ko_type].draw(globals::WINDOW_WIDTH / 2 - ko[ko_type].w / 2, globals::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2);
+				ko[ko_type].draw(sys::WINDOW_WIDTH / 2 - ko[ko_type].w / 2, sys::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2);
 				graphics::setColor(255, 255, 255, scalar);
 				scalar = 1.0f - scalar + 1.0f;
 				float xscalar = 1 / scalar;
 				graphics::setScale(xscalar, scalar);
-				ko[ko_type].draw(globals::WINDOW_WIDTH / 2 - ko[ko_type].w * xscalar / 2 - util::roll(10, 30), globals::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 - util::roll(10, 30));
+				ko[ko_type].draw(sys::WINDOW_WIDTH / 2 - ko[ko_type].w * xscalar / 2 - util::roll(10, 30), sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 - util::roll(10, 30));
 			}
 			else {
-				ko[ko_type].draw(globals::WINDOW_WIDTH / 2 - ko[ko_type].w / 2 - util::roll(5, 15), globals::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2 - util::roll(5, 15));
+				ko[ko_type].draw(sys::WINDOW_WIDTH / 2 - ko[ko_type].w / 2 - util::roll(5, 15), sys::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2 - util::roll(5, 15));
 			}
 		}
 	}
@@ -764,7 +765,7 @@ void SceneFight::reset() {
 	ko_type = 0;
 
 	timer_flash = 0;
-	timer_round_in = 4.0 * globals::FPS;
+	timer_round_in = 4.0 * sys::FPS;
 	timer_round_out = 0;
 	timer_ko = 0;
 
@@ -777,7 +778,7 @@ void SceneFight::reset() {
 	comboLeftLast = comboRightLast = 0;
 	comboLeftTimer = comboRightTimer = 0;
 
-	game_timer = SceneOptions::optionTime * globals::FPS - 1;
+	game_timer = SceneOptions::optionTime * sys::FPS - 1;
 	if (game_timer < 0) {
 		game_timer = 0;
 	}
@@ -790,7 +791,7 @@ void SceneFight::knockout(int player) {
 		return;
 	}
 	ko_player = player + 1;
-	timer_ko = 1 * globals::FPS;
+	timer_ko = 1 * sys::FPS;
 	ko_type = 0;
 
 	if (madotsuki.flags & game::F_ON_GROUND && madotsuki.isDashing()) {

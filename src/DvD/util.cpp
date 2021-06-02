@@ -10,6 +10,12 @@
 #ifndef _WIN32
 #include <dirent.h>
 #include <sys/stat.h>
+#else
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
 #endif
 
 #if(_MSC_VER) // MSVC uses _stricmp instead of strcasecmp

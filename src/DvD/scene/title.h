@@ -60,13 +60,13 @@ public:
 	Font menuFont;
 	int menuXOffset;
 
-	ubyte_t iR, iG, iB, aR, aG, aB;
+	uint8_t iR, iG, iB, aR, aG, aB;
 	int aXOffset;
 
 	int choiceTimer;
-	ubyte_t choiceLast;
-	ubyte_t choice;
-	ubyte_t submenu;
+	uint8_t choiceLast;
+	uint8_t choice;
+	uint8_t submenu;
 
 	//Functions
 	void think();

@@ -1,7 +1,14 @@
 // We have a main function
 #define SDL_MAIN_HANDLED
 
-#include "globals.h"
+#ifdef _WIN32
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
+#endif
+
 #include "player.h"
 #include "fighter.h"
 #include "graphics.h"

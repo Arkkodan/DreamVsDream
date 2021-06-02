@@ -1,7 +1,7 @@
 #ifndef FILE_H_INCLUDED
 #define FILE_H_INCLUDED
 
-#include "globals.h"
+#include <string>
 
 /// @brief High-level file read/write
 /// @details Designed for binary files, has its own RW protocol

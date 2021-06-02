@@ -6,13 +6,18 @@
 
 #ifndef _WIN32
 #include <unistd.h>
+#else
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
 #endif
 
 #include "../DvD/parser.h"
 #include "../DvD/fighter.h"
 #include "../DvD/graphics.h"
 #include "../DvD/error.h"
-#include "../DvD/globals.h"
 #include "../DvD/error.h"
 
 #include "../DvD/sys.h"
@@ -192,20 +197,20 @@ int main(int argc, char** argv)
 			glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		}
 		glBegin(GL_QUADS);
-		glVertex3f(globals::WINDOW_WIDTH / 2 - 100, globals::FLIP(globals::EDIT_OFFSET), 0);
-		glVertex3f(globals::WINDOW_WIDTH / 2 - 100, globals::FLIP(globals::EDIT_OFFSET)+1, 0);
-		glVertex3f(globals::WINDOW_WIDTH / 2 + 99, globals::FLIP(globals::EDIT_OFFSET)+1, 0);
-		glVertex3f(globals::WINDOW_WIDTH / 2 + 99, globals::FLIP(globals::EDIT_OFFSET), 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2 - 100, sys::FLIP(sys::EDIT_OFFSET), 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2 - 100, sys::FLIP(sys::EDIT_OFFSET)+1, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2 + 99, sys::FLIP(sys::EDIT_OFFSET)+1, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2 + 99, sys::FLIP(sys::EDIT_OFFSET), 0);
 		glEnd();
 		glBegin(GL_QUADS);
-		glVertex3f(globals::WINDOW_WIDTH / 2+1, globals::FLIP(globals::EDIT_OFFSET) - 4, 0);
-		glVertex3f(globals::WINDOW_WIDTH / 2-1, globals::FLIP(globals::EDIT_OFFSET) - 4, 0);
-		glVertex3f(globals::WINDOW_WIDTH / 2-1, globals::FLIP(globals::EDIT_OFFSET) + 5, 0);
-		glVertex3f(globals::WINDOW_WIDTH / 2+1, globals::FLIP(globals::EDIT_OFFSET) + 5, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2+1, sys::FLIP(sys::EDIT_OFFSET) - 4, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2-1, sys::FLIP(sys::EDIT_OFFSET) - 4, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2-1, sys::FLIP(sys::EDIT_OFFSET) + 5, 0);
+		glVertex3f(sys::WINDOW_WIDTH / 2+1, sys::FLIP(sys::EDIT_OFFSET) + 5, 0);
 		glEnd();
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-		fighter.sprites[frame].draw(0, globals::EDIT_OFFSET, false, 1.0f);
+		fighter.sprites[frame].draw(0, sys::EDIT_OFFSET, false, 1.0f);
 	}
 
 	return 0;

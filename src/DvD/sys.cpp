@@ -1,7 +1,6 @@
 #include "sys.h"
 
 #include "error.h"
-#include "globals.h"
 #include "network.h"
 #include "input.h"
 #include "graphics.h"
@@ -23,7 +22,7 @@ namespace sys {
 		}
 
 		//Create Window
-		if(!(window = SDL_CreateWindow(globals::WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, globals::WINDOW_WIDTH, globals::WINDOW_HEIGHT, SDL_WINDOW_OPENGL))) {
+		if(!(window = SDL_CreateWindow(WINDOW_TITLE, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, SDL_WINDOW_OPENGL))) {
 			error::die("Failed to initialize SDL.");
 		}
 

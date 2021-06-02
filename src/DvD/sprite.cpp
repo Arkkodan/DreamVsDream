@@ -1,5 +1,5 @@
-#include "globals.h"
 #include "sprite.h"
+#include "sys.h"
 #include "stage.h"
 #include "graphics.h"
 #include "parser.h"
@@ -18,7 +18,7 @@ namespace sprite {
 #ifndef COMPILER
 
 	bool HitBox::collidePoint(int pX, int pY) {
-		pY = globals::FLIP(pY);
+		pY = sys::FLIP(pY);
 
 		if(pos.x <= pX && pX <= pos.x + size.x &&
 			pos.y <= pY && pY <= pos.y + size.y) {
@@ -37,8 +37,8 @@ namespace sprite {
 	}
 
 	void HitBox::draw(int _x, int _y, bool attack, bool selected) {
-		_x += globals::WINDOW_WIDTH / 2;
-		_y = globals::FLIP(_y);
+		_x += sys::WINDOW_WIDTH / 2;
+		_y = sys::FLIP(_y);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		if(attack) {

@@ -1,8 +1,6 @@
 #ifndef EFFECT_H_INCLUDED
 #define EFFECT_H_INCLUDED
 
-#include "globals.h"
-
 #include "image.h"
 #include "player.h"
 

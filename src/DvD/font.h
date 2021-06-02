@@ -1,8 +1,6 @@
 #ifndef FONT_H_INCLUDED
 #define FONT_H_INCLUDED
 
-#include "globals.h"
-
 #include "image.h"
 
 /// @brief Font class for rendering
@@ -14,9 +12,9 @@ public:
 	~Font();
 
 	void drawChar(int x, int y, char c);
-	void drawChar(int x, int y, char c, ubyte_t r, ubyte_t g, ubyte_t b, float a = 1.0f);
+	void drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b, float a = 1.0f);
 	void drawText(int x, int y, std::string text);
-	void drawText(int x, int y, std::string text, ubyte_t r, ubyte_t g, ubyte_t b, float a = 1.0f);
+	void drawText(int x, int y, std::string text, uint8_t r, uint8_t g, uint8_t b, float a = 1.0f);
 	int getTextWidth(std::string text);
 	int getCharWidth(char c);
 

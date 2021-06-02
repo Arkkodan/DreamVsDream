@@ -28,13 +28,13 @@ public:
 	int c_lines;
 	char** sz_lines;
 
-	ubyte_t title_r;
-	ubyte_t title_g;
-	ubyte_t title_b;
+	uint8_t title_r;
+	uint8_t title_g;
+	uint8_t title_b;
 
-	ubyte_t name_r;
-	ubyte_t name_g;
-	ubyte_t name_b;
+	uint8_t name_r;
+	uint8_t name_g;
+	uint8_t name_b;
 
 	void think();
 	void draw();

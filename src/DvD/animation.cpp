@@ -98,7 +98,7 @@ Animation::Animation(const std::string& filename) {
         //Create the Image
         frames[i].createFromMemory(&gif[i * stride], width, height, Image::COLORTYPE_RGBA, nullptr);
         // stb_image stores delays in units of 1/1000ths of a second
-        frameTimes[i] = static_cast<int>(delays[i] * globals::FPS / 1000.0f);
+        frameTimes[i] = static_cast<int>(delays[i] * sys::FPS / 1000.0f);
     }
 
 end:

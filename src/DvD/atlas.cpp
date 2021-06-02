@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 
-#include "globals.h"
 #include "file.h"
 #include "stage.h"
 #include "graphics.h"
@@ -44,7 +43,7 @@ Atlas::~Atlas() {
 	delete [] images;
 }
 
-bool Atlas::create(File& file, const ubyte_t* palette) {
+bool Atlas::create(File& file, const uint8_t* palette) {
 	(void)palette;
 	
 	//Setup sprite buffers

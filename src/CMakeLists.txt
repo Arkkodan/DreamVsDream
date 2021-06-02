@@ -55,7 +55,6 @@ set(DVD_FILES
   DvD/file.h
   DvD/font.cpp
   DvD/font.h
-  DvD/globals.h
   DvD/graphics.cpp
   DvD/graphics.h
   DvD/image.cpp

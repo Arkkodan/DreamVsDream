@@ -2,10 +2,12 @@
 
 #include "scene.h"
 
+#include "../sys.h"
+
 SceneCredits::SceneCredits() : Scene("credits") {
 	oy = 0;
-	timer_start = globals::FPS * 6.35;
-	timer_scroll = globals::FPS;
+	timer_start = sys::FPS * 6.35;
+	timer_scroll = sys::FPS;
 	secret_alpha = 0.0f;
 	done = false;
 
@@ -49,12 +51,12 @@ void SceneCredits::draw() {
 	if (!timer_start) {
 		if (done) {
 			const static char* _sz = "Secret character unlocked!";
-			font.drawText(globals::WINDOW_WIDTH - font.getTextWidth(_sz) - CREDITS_OFFSET, globals::FLIP(font.img.h * 2), _sz, 255, 255, 255, secret_alpha);
+			font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(_sz) - CREDITS_OFFSET, sys::FLIP(font.img.h * 2), _sz, 255, 255, 255, secret_alpha);
 		}
 		else {
-			int y = (globals::WINDOW_HEIGHT - logo.h) / 4 - oy;
+			int y = (sys::WINDOW_HEIGHT - logo.h) / 4 - oy;
 			if (y + (int)logo.h >= 0) {
-				logo.draw(globals::WINDOW_WIDTH - logo.w, y);
+				logo.draw(sys::WINDOW_WIDTH - logo.w, y);
 			}
 
 			int oy_title = 0;
@@ -64,7 +66,7 @@ void SceneCredits::draw() {
 					oy_title++;
 				}
 
-				y = globals::WINDOW_HEIGHT + (font.img.h * (i + oy_title)) - oy;
+				y = sys::WINDOW_HEIGHT + (font.img.h * (i + oy_title)) - oy;
 
 				if (y + 32 < 0) {
 					if (i == c_lines - 1) {
@@ -72,15 +74,15 @@ void SceneCredits::draw() {
 					}
 					continue;
 				}
-				if (y > globals::WINDOW_HEIGHT) {
+				if (y > sys::WINDOW_HEIGHT) {
 					break;
 				}
 
 				if (*sz_lines[i] == ':') {
-					font.drawText(globals::WINDOW_WIDTH - font.getTextWidth(sz_lines[i] + 1) - CREDITS_OFFSET, y, sz_lines[i] + 1, title_r, title_g, title_b);
+					font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(sz_lines[i] + 1) - CREDITS_OFFSET, y, sz_lines[i] + 1, title_r, title_g, title_b);
 				}
 				else {
-					font.drawText(globals::WINDOW_WIDTH - font.getTextWidth(sz_lines[i]) - CREDITS_OFFSET, y, sz_lines[i], name_r, name_g, name_b);
+					font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(sz_lines[i]) - CREDITS_OFFSET, y, sz_lines[i], name_r, name_g, name_b);
 				}
 			}
 		}
@@ -92,8 +94,8 @@ void SceneCredits::reset() {
 
 	done = false;
 	oy = 0;
-	timer_start = globals::FPS * 6.35;
-	timer_scroll = globals::FPS;
+	timer_start = sys::FPS * 6.35;
+	timer_scroll = sys::FPS;
 	secret_alpha = 0.0f;
 }
 

@@ -1,9 +1,8 @@
 #ifndef ERROR_H_INCLUDED
 #define ERROR_H_INCLUDED
 
-#include "globals.h"
-
 #include <errno.h>
+#include <string>
 
 namespace error {
 	/// @brief Report a non-fatal warning

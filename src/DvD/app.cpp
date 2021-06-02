@@ -55,7 +55,7 @@ static void app::optionsLoad() {
 	}
 
 	//If the options are newer, don't read them
-	if ((ubyte_t)file.readByte() > OPTIONS_VERSION) {
+	if ((uint8_t)file.readByte() > OPTIONS_VERSION) {
 		return;
 	}
 

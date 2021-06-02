@@ -71,9 +71,9 @@ void Scene::drawFade() {
 	}
 	glBegin(GL_QUADS);
 	glVertex3f(0.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, globals::WINDOW_HEIGHT, 0.0f);
-	glVertex3f(globals::WINDOW_WIDTH, globals::WINDOW_HEIGHT, 0.0f);
-	glVertex3f(globals::WINDOW_WIDTH, 0.0f, 0.0f);
+	glVertex3f(0.0f, sys::WINDOW_HEIGHT, 0.0f);
+	glVertex3f(sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0.0f);
+	glVertex3f(sys::WINDOW_WIDTH, 0.0f, 0.0f);
 	glEnd();
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 }
@@ -354,8 +354,8 @@ void SceneImage::draw(bool _stage) {
 		//Draw the image differently if wrapping
 		if (wrap) {
 			//How many of these are needed to fill the screen?
-			int xCount = globals::WINDOW_WIDTH / image.w + 2;
-			int yCount = globals::WINDOW_HEIGHT / image.h + 2;
+			int xCount = sys::WINDOW_WIDTH / image.w + 2;
+			int yCount = sys::WINDOW_HEIGHT / image.h + 2;
 
 			for (int i = 0; i < xCount; i++) {
 				for (int j = 0; j < yCount; j++) {
@@ -368,7 +368,7 @@ void SceneImage::draw(bool _stage) {
 			graphics::setRender(render);
 			if (_stage) {
 				if (!round || round - 1 == FIGHT->round) {
-					image.draw(x - image.w / 2 + globals::WINDOW_WIDTH / 2 - SceneFight::cameraPos.x * parallax, (globals::WINDOW_HEIGHT - y) - image.h + SceneFight::cameraPos.y * parallax);
+					image.draw(x - image.w / 2 + sys::WINDOW_WIDTH / 2 - SceneFight::cameraPos.x * parallax, (sys::WINDOW_HEIGHT - y) - image.h + SceneFight::cameraPos.y * parallax);
 				}
 			}
 			else {

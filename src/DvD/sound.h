@@ -1,8 +1,6 @@
 #ifndef SOUND_H_INCLUDED
 #define SOUND_H_INCLUDED
 
-#include "globals.h"
-
 #include "file.h"
 
 namespace audio {

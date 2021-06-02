@@ -5,7 +5,7 @@
 
 #include "image.h"
 #include "sprite.h"
-#include "globals.h"
+#include "sys.h"
 #include "stage.h"
 #include "graphics.h"
 
@@ -98,7 +98,7 @@ void Image::createFromFile(std::string filename) {
 	int channels;
 	int png_format;
 
-	ubyte_t* data = nullptr;
+	uint8_t* data = nullptr;
 	int width;
 	int height;
 	int format;
@@ -181,7 +181,7 @@ void Image::createFromFile(std::string filename) {
 	}
 
 	//Allocate the image buffer
-	data = (ubyte_t*)malloc(width * height * channels);
+	data = (uint8_t*)malloc(width * height * channels);
 	row_pointers = png_get_rows(png_ptr, info_ptr);
 	for(int j = 0; j < height; j++)
 		for(int i = 0; i < width; i++) {
@@ -203,7 +203,7 @@ void Image::createFromFile(std::string filename) {
 #ifdef GAME
 		nullptr
 #else
-		(const ubyte_t*)palette
+		(const uint8_t*)palette
 #endif
 		);
 
@@ -230,7 +230,7 @@ end:
 }
 
 #ifdef GAME
-void Image::createFromEmbed(File& file, const ubyte_t* palette) {
+void Image::createFromEmbed(File& file, const uint8_t* palette) {
     std::string err;
 
 	png_structp png_ptr = nullptr;
@@ -243,7 +243,7 @@ void Image::createFromEmbed(File& file, const ubyte_t* palette) {
 	png_size_t size = file.readDword();
 	png_Stream stream = {(png_size_t)file.tell(), size, &file};
 
-	ubyte_t* data = nullptr;
+	uint8_t* data = nullptr;
 	int width;
 	int height;
 	int format;
@@ -302,7 +302,7 @@ void Image::createFromEmbed(File& file, const ubyte_t* palette) {
 	}
 
 	//Allocate the image buffer and copy data into it
-	data = (ubyte_t*)malloc(width * height * channels);
+	data = (uint8_t*)malloc(width * height * channels);
 	row_pointers = png_get_rows(png_ptr, info_ptr);
 	for(int j = 0; j < height; j++)
 		for(int i = 0; i < width * channels; i++) {
@@ -338,10 +338,10 @@ end:
 #ifndef COMPILER
 
 //Take data and convert it into textures
-void Image::createFromMemory(const ubyte_t* data_, unsigned int width_, unsigned int height_, int format_, const ubyte_t* palette) {
+void Image::createFromMemory(const uint8_t* data_, unsigned int width_, unsigned int height_, int format_, const uint8_t* palette) {
     //If we have an indexed image, transparently convert it to RGBA
     if(format_ == COLORTYPE_GRAYSCALE && palette) {
-        ubyte_t* _data_new = new ubyte_t[4 * width_ * height_];
+        uint8_t* _data_new = new uint8_t[4 * width_ * height_];
         for(unsigned int j = 0; j < height_; j++) {
             for(unsigned int i = 0; i < width_; i++) {
                 int offset = j * width_ + i;
@@ -427,7 +427,7 @@ void Image::createFromMemory(const ubyte_t* data_, unsigned int width_, unsigned
 	glGenTextures(w_textures * h_textures, textures);
 
 	//Loop through each element and create a new texture
-	ubyte_t* _b_texture = (ubyte_t*)malloc(w_subtexture * h_subtexture * _channels);
+	uint8_t* _b_texture = (uint8_t*)malloc(w_subtexture * h_subtexture * _channels);
 	for(unsigned int v = 0; v < h_textures; v++) {
 		for(unsigned int u = 0; u < w_textures; u++) {
 			//Copy the texture
@@ -586,9 +586,9 @@ void Image::drawSprite(int x, int y, bool mirror) {
 		graphics::srcH = h;
 	}
 #ifdef SPRTOOL
-	draw(x + globals::WINDOW_WIDTH / 2, globals::FLIP(y) - graphics::srcH * graphics::yscale, mirror);
+	draw(x + sys::WINDOW_WIDTH / 2, sys::FLIP(y) - graphics::srcH * graphics::yscale, mirror);
 #else
-	draw(x + globals::WINDOW_WIDTH / 2 - SceneFight::cameraPos.x, globals::FLIP(y) - graphics::srcH * graphics::yscale - STAGE.height + SceneFight::cameraPos.y, mirror);
+	draw(x + sys::WINDOW_WIDTH / 2 - SceneFight::cameraPos.x, sys::FLIP(y) - graphics::srcH * graphics::yscale - STAGE.height + SceneFight::cameraPos.y, mirror);
 #endif
 }
 #endif

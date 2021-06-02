@@ -4,13 +4,14 @@
 #include "scene_base.h"
 
 #include "../font.h"
+#include "../sys.h"
 
 /// @brief Scene for navigating netplay and connections
 class SceneNetplay : public Scene {
 private:
-	static constexpr auto NET_FLASH_TIME = globals::FPS / 2;
-	static constexpr auto NET_FLASH_HOLD_TIME = globals::FPS / 2;
-	static constexpr auto NET_FADE_TIME = globals::FPS;
+	static constexpr auto NET_FLASH_TIME = sys::FPS / 2;
+	static constexpr auto NET_FLASH_HOLD_TIME = sys::FPS / 2;
+	static constexpr auto NET_FADE_TIME = sys::FPS;
 	static constexpr auto NET_SCALE = 2;
 	static constexpr auto NET_BAR_SIZE = 120;
 

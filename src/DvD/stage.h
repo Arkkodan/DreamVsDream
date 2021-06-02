@@ -1,8 +1,6 @@
 #ifndef STAGE_H_INCLUDED
 #define STAGE_H_INCLUDED
 
-#include "globals.h"
-
 #include "scene/scene.h"
 #include "animation.h"
 

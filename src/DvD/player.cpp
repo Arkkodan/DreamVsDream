@@ -2,7 +2,6 @@
 #include <stdio.h>
 
 #include "player.h"
-#include "globals.h"
 #include "input.h"
 #include "stage.h"
 #include "graphics.h"
@@ -107,7 +106,7 @@ namespace game {
 		}
 	}
 
-	void Projectile::handleFrame(ubyte_t command_) {
+	void Projectile::handleFrame(uint8_t command_) {
 		int mirror = 1;
 		if(dir == LEFT) {
 			mirror = -1;
@@ -378,10 +377,10 @@ namespace game {
 		vel.y = 0;
 		pos.y = 0;
 		if(playerNum == 0) {
-			pos.x = globals::WINDOW_WIDTH / -4;
+			pos.x = sys::WINDOW_WIDTH / -4;
 			dir = RIGHT;
 		} else {
-			pos.x = globals::WINDOW_WIDTH / 4;
+			pos.x = sys::WINDOW_WIDTH / 4;
 			dir = LEFT;
 		}
 	}
@@ -814,7 +813,7 @@ namespace game {
 		}
 	}
 
-	void Player::handleFrame(ubyte_t command_) {
+	void Player::handleFrame(uint8_t command_) {
 		if(command_ == STEP_None) {
 			command_ = readByte();
 		}
@@ -833,9 +832,9 @@ namespace game {
 		case STEP_Super:
 			break;
 		case STEP_Special:
-			special = 2500 * globals::SPF;
-			SceneFight::pause(2500 * globals::SPF);
-			effect::newEffect("Actionlines", globals::WINDOW_WIDTH / 2, globals::WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
+			special = 2500 * sys::SPF;
+			SceneFight::pause(2500 * sys::SPF);
+			effect::newEffect("Actionlines", sys::WINDOW_WIDTH / 2, sys::WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
 			switch(fighter->group) {
 			case 0:
 				sndTransformYn.play();
@@ -1142,16 +1141,16 @@ namespace game {
 			}
 
 			//Confine to screen
-			if(fabs(pos.x - pother->pos.x) >= globals::WINDOW_WIDTH) {
+			if(fabs(pos.x - pother->pos.x) >= sys::WINDOW_WIDTH) {
 				//Find the center, assign positions outwards from there
 				float _center = (pos.x + pother->pos.x) / 2.0f;
 
 				if(pos.x < pother->pos.x) {
-					pos.x = _center - globals::WINDOW_WIDTH / 2;
-					pother->pos.x = _center + globals::WINDOW_WIDTH / 2;
+					pos.x = _center - sys::WINDOW_WIDTH / 2;
+					pother->pos.x = _center + sys::WINDOW_WIDTH / 2;
 				} else {
-					pos.x = _center + globals::WINDOW_WIDTH / 2;
-					pother->pos.x = _center - globals::WINDOW_WIDTH / 2;
+					pos.x = _center + sys::WINDOW_WIDTH / 2;
+					pother->pos.x = _center - sys::WINDOW_WIDTH / 2;
 				}
 			}
 
@@ -1196,67 +1195,67 @@ namespace game {
 		}
 
 		float alpha = 0.5f;
-		if(special > 2200 * globals::SPF) {
-			alpha = 1.0 - (special - 2200 * globals::SPF) / (300 * globals::SPF) * 0.5 - 0.5;
-		} else if(special <= 1000 * globals::SPF) {
-			alpha = 1.0 - ((1000 * globals::SPF - special) / (500 * globals::SPF)) * 0.5 - 0.5;
+		if(special > 2200 * sys::SPF) {
+			alpha = 1.0 - (special - 2200 * sys::SPF) / (300 * sys::SPF) * 0.5 - 0.5;
+		} else if(special <= 1000 * sys::SPF) {
+			alpha = 1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF)) * 0.5 - 0.5;
 		}
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glColor4f(0.0f, 0.0f, 0.0f, alpha);
 		glBegin(GL_QUADS);
 		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(0.0f, globals::WINDOW_HEIGHT, 0.0f);
-		glVertex3f(globals::WINDOW_WIDTH, globals::WINDOW_HEIGHT, 0.0f);
-		glVertex3f(globals::WINDOW_WIDTH, 0.0f, 0.0f);
+		glVertex3f(0.0f, sys::WINDOW_HEIGHT, 0.0f);
+		glVertex3f(sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0.0f);
+		glVertex3f(sys::WINDOW_WIDTH, 0.0f, 0.0f);
 		glEnd();
 		glColor4f(1, 1, 1, 1);
 
-		if(special > 2200 * globals::SPF) {
-			float scalar = (special - 2200 * globals::SPF) / (300 * globals::SPF);
+		if(special > 2200 * sys::SPF) {
+			float scalar = (special - 2200 * sys::SPF) / (300 * sys::SPF);
 			graphics::setColor(255, 255, 255, 1.0 - scalar);
 			graphics::setScale(1.0 + scalar * 0.5);
 			if(ender) {
 				if(dir == RIGHT) {
-					fighter->ender.draw(40 - (fighter->ender.w * scalar) / 4, globals::FLIP(46) - fighter->ender.h - (fighter->ender.h * scalar) / 4);
+					fighter->ender.draw(40 - (fighter->ender.w * scalar) / 4, sys::FLIP(46) - fighter->ender.h - (fighter->ender.h * scalar) / 4);
 				} else {
-					fighter->ender.draw(globals::WINDOW_WIDTH - fighter->ender.w - (40 - (fighter->ender.w * scalar) / 4), globals::FLIP(46) - fighter->ender.h - (fighter->ender.h * scalar) / 4, true);
+					fighter->ender.draw(sys::WINDOW_WIDTH - fighter->ender.w - (40 - (fighter->ender.w * scalar) / 4), sys::FLIP(46) - fighter->ender.h - (fighter->ender.h * scalar) / 4, true);
 				}
 			} else {
 				if(dir == RIGHT) {
-					fighter->special.draw(40 - (fighter->special.w * scalar) / 4, globals::FLIP(46) - fighter->special.h - (fighter->special.h * scalar) / 4);
+					fighter->special.draw(40 - (fighter->special.w * scalar) / 4, sys::FLIP(46) - fighter->special.h - (fighter->special.h * scalar) / 4);
 				} else {
-					fighter->special.draw(globals::WINDOW_WIDTH - fighter->special.w - (40 - (fighter->special.w * scalar) / 4), globals::FLIP(46) - fighter->special.h - (fighter->special.h * scalar) / 4, true);
+					fighter->special.draw(sys::WINDOW_WIDTH - fighter->special.w - (40 - (fighter->special.w * scalar) / 4), sys::FLIP(46) - fighter->special.h - (fighter->special.h * scalar) / 4, true);
 				}
 			}
-		} else if(special > 1000 * globals::SPF) {
+		} else if(special > 1000 * sys::SPF) {
 			if(ender) {
 				if(dir == RIGHT) {
-					fighter->ender.draw(40, globals::FLIP(46) - fighter->ender.h);
+					fighter->ender.draw(40, sys::FLIP(46) - fighter->ender.h);
 				} else {
-					fighter->ender.draw(globals::WINDOW_WIDTH - fighter->ender.w - 40, globals::FLIP(46) - fighter->ender.h, true);
+					fighter->ender.draw(sys::WINDOW_WIDTH - fighter->ender.w - 40, sys::FLIP(46) - fighter->ender.h, true);
 				}
 			} else {
 				if(dir == RIGHT) {
-					fighter->special.draw(40, globals::FLIP(46) - fighter->special.h);
+					fighter->special.draw(40, sys::FLIP(46) - fighter->special.h);
 				} else {
-					fighter->special.draw(globals::WINDOW_WIDTH - fighter->special.w - 40, globals::FLIP(46) - fighter->special.h, true);
+					fighter->special.draw(sys::WINDOW_WIDTH - fighter->special.w - 40, sys::FLIP(46) - fighter->special.h, true);
 				}
 			}
 		} else {
-			float scalar = 1.0 - ((1000 * globals::SPF - special) / (500 * globals::SPF));
+			float scalar = 1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF));
 			graphics::setColor(255, 255, 255, scalar);
 			if(ender) {
 				if(dir == RIGHT) {
-					fighter->ender.draw(40 + (1000 * globals::SPF - special) * 30, globals::FLIP(46) - fighter->ender.h);
+					fighter->ender.draw(40 + (1000 * sys::SPF - special) * 30, sys::FLIP(46) - fighter->ender.h);
 				} else {
-					fighter->ender.draw(globals::WINDOW_WIDTH - fighter->ender.w - (40 + (1000 * globals::SPF - special) * 30), globals::FLIP(46) - fighter->ender.h, true);
+					fighter->ender.draw(sys::WINDOW_WIDTH - fighter->ender.w - (40 + (1000 * sys::SPF - special) * 30), sys::FLIP(46) - fighter->ender.h, true);
 				}
 			} else {
 				if(dir == RIGHT) {
-					fighter->special.draw(40 + (1000 * globals::SPF - special) * 30, globals::FLIP(46) - fighter->special.h);
+					fighter->special.draw(40 + (1000 * sys::SPF - special) * 30, sys::FLIP(46) - fighter->special.h);
 				} else {
-					fighter->special.draw(globals::WINDOW_WIDTH - fighter->special.w - (40 + (1000 * globals::SPF - special) * 30), globals::FLIP(46) - fighter->special.h, true);
+					fighter->special.draw(sys::WINDOW_WIDTH - fighter->special.w - (40 + (1000 * sys::SPF - special) * 30), sys::FLIP(46) - fighter->special.h, true);
 				}
 			}
 		}
@@ -1293,7 +1292,7 @@ namespace game {
 		for(int i = 0; i < fighter->commands[cmd].targetC; i++) {
 			bool cndTrue = false;
 			for(int j = 0; j < fighter->commands[cmd].targets[i].conditionC; j++) {
-				ubyte_t cnd = fighter->commands[cmd].targets[i].conditions[j];
+				uint8_t cnd = fighter->commands[cmd].targets[i].conditions[j];
 
 				//Check the conditions
 				bool cndNot = false;
@@ -1488,11 +1487,11 @@ namespace game {
 	float Projectile::readFloat() {
 		int32_t value = *((int32_t*)((char*)fighter->states[state].steps + step));
 		step += 4;
-		return value / (float)globals::FLOAT_ACCURACY;
+		return value / (float)sys::FLOAT_ACCURACY;
 	}
 
     std::string Projectile::readString() {
-		ubyte_t size = readByte();
+		uint8_t size = readByte();
 		char* ptr = (char*)fighter->states[state].steps + step;
 		std::string str = std::string(ptr, ptr + size);
 		step += size;

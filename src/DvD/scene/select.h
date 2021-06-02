@@ -44,9 +44,9 @@ public:
 
 	int lockState;
 
-	ubyte_t r;
-	ubyte_t g;
-	ubyte_t b;
+	uint8_t r;
+	uint8_t g;
+	uint8_t b;
 
 	//int sprFrame;
 	//int sprTimer;

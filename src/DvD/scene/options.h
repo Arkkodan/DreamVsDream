@@ -39,8 +39,8 @@ public:
 	//Members
 	Font menuFont;
 
-	ubyte_t cursor;
-	ubyte_t cursorLast;
+	uint8_t cursor;
+	uint8_t cursorLast;
 	int cursorTimer;
 
 	int madoPos;
@@ -56,7 +56,7 @@ public:
 
 	int madoWakeTimer;
 
-	ubyte_t iR, iG, iB, aR, aG, aB;
+	uint8_t iR, iG, iB, aR, aG, aB;
 	int aXOffset;
 
 	std::string* themes;

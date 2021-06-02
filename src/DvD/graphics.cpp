@@ -46,7 +46,7 @@ PFNGLUSEPROGRAMPROC		 		glUseProgram;
 
 //double oldTime = 0.0f;
 
-// extern ubyte_t* blankTex;
+// extern uint8_t* blankTex;
 
 namespace graphics {
 	constexpr auto FPS_BUFFER = 2;
@@ -93,7 +93,7 @@ namespace graphics {
 		//OPENGL
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, globals::WINDOW_WIDTH, globals::WINDOW_HEIGHT, 0, 0, 1);
+		glOrtho(0, sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0, 0, 1);
 		glMatrixMode(GL_MODELVIEW);
 
 		glEnable(GL_TEXTURE_2D);
@@ -240,12 +240,12 @@ namespace graphics {
 
 		//Calculate fps, wait
 		unsigned long delta = sys::getTime() - time;
-		if(delta < globals::MSPF) {
+		if(delta < sys::MSPF) {
 			if(delta > FPS_BUFFER) {
-				sys::sleep(globals::MSPF - delta);
+				sys::sleep(sys::MSPF - delta);
 			}
 			for(;;) {
-				if(sys::getTime() - time >= globals::MSPF) {
+				if(sys::getTime() - time >= sys::MSPF) {
 					break;
 				}
 			}
@@ -270,11 +270,11 @@ namespace graphics {
 	}
 
 	//State stuff
-	void setClearColor(ubyte_t r, ubyte_t g, ubyte_t b) {
+	void setClearColor(uint8_t r, uint8_t g, uint8_t b) {
 		glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
 	}
 
-	void setColor(ubyte_t r, ubyte_t g, ubyte_t b, float a) {
+	void setColor(uint8_t r, uint8_t g, uint8_t b, float a) {
 		glColor4f(r / 255.0f, g / 255.0f, b / 255.0f, a);
 	}
 

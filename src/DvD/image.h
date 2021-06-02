@@ -1,8 +1,6 @@
 #ifndef IMAGE_H_INCLUDED
 #define IMAGE_H_INCLUDED
 
-#include "globals.h"
-
 #include "file.h"
 
 /// @brief Image class ready for rendering
@@ -38,7 +36,7 @@ public:
 
 	unsigned int w, h;
 #ifdef COMPILER
-	ubyte_t* data;
+	uint8_t* data;
 	int xpad;
 	int ypad;
 #else
@@ -56,10 +54,10 @@ public:
 	//SPRTOOL/compiler: Loads a 256-color PNG from a file
 	void createFromFile(std::string filename);
 #ifdef GAME
-	void createFromEmbed(File& file, const ubyte_t* palette);
+	void createFromEmbed(File& file, const uint8_t* palette);
 #endif
 #ifndef COMPILER
-	void createFromMemory(const ubyte_t* data, unsigned int width, unsigned int height, int format, const ubyte_t* palette);
+	void createFromMemory(const uint8_t* data, unsigned int width, unsigned int height, int format, const uint8_t* palette);
 #endif
 
 	bool exists();

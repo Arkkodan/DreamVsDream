@@ -2,8 +2,10 @@
 
 #include "scene.h"
 
+#include "../sys.h"
+
 SceneIntro::SceneIntro() : Scene("intro") {
-	timer = globals::FPS / 2;
+	timer = sys::FPS / 2;
 	state = 0;
 }
 
@@ -13,19 +15,19 @@ SceneIntro::~SceneIntro() {
 void SceneIntro::think() {
 	Scene::think();
 
-	if (timer == globals::FPS / 2) {
+	if (timer == sys::FPS / 2) {
 		sfx.play();
 	}
 
 	if (input(game::INPUT_A) && !timer) {
-		timer = globals::FPS / 2;
+		timer = sys::FPS / 2;
 		state++;
 	}
 
 	if (timer) {
 		timer--;
 		if (!timer && state % 2 == 1) {
-			timer = globals::FPS / 2;
+			timer = sys::FPS / 2;
 			state++;
 			if (state == 6 && graphics::shader_support) {
 				timer = 0;
@@ -41,7 +43,7 @@ void SceneIntro::think() {
 
 void SceneIntro::draw() {
 	//Draw our own fade
-	float _alpha = timer / (float)(globals::FPS / 2);
+	float _alpha = timer / (float)(sys::FPS / 2);
 	if (state % 2 == 0) {
 		_alpha = 1.0 - _alpha;
 	}

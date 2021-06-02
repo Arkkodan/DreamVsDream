@@ -1,7 +1,7 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
-#include "globals.h"
+#include <string>
 
 /// @brief Data structure to hold information about a parsed line from Parser
 class ParserLine {

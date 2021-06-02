@@ -4,6 +4,7 @@
 
 #include "../network.h"
 #include "../stage.h"
+#include "../sys.h"
 
 SceneSelect::SceneSelect() : Scene("select") {
 	width = height = 0;
@@ -369,12 +370,12 @@ void SceneSelect::draw() {
 		if (cursors[1].timerPortrait) {
 			if (gridFighters[cursors[1].posOld] >= 0) {
 				graphics::setColor(255, 255, 255, (float)(cursors[1].timerPortrait) / PORTRAIT_FADE);
-				game::fighters[gridFighters[cursors[1].posOld]].portrait.draw(globals::WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].posOld]].portrait.w + (PORTRAIT_FADE - cursors[1].timerPortrait), 0, true);
+				game::fighters[gridFighters[cursors[1].posOld]].portrait.draw(sys::WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].posOld]].portrait.w + (PORTRAIT_FADE - cursors[1].timerPortrait), 0, true);
 			}
 		}
 		if (gridFighters[cursors[1].pos] >= 0) {
 			graphics::setColor(255, 255, 255, (float)(PORTRAIT_FADE - cursors[1].timerPortrait) / PORTRAIT_FADE);
-			game::fighters[gridFighters[cursors[1].pos]].portrait.draw(globals::WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].pos]].portrait.w + cursors[1].timerPortrait, 0, true);
+			game::fighters[gridFighters[cursors[1].pos]].portrait.draw(sys::WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].pos]].portrait.w + cursors[1].timerPortrait, 0, true);
 		}
 	}
 	if (cursors[0].timerPortrait) {
@@ -400,7 +401,7 @@ void SceneSelect::draw() {
 			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
 
 			graphics::setPalette(fighter.palettes[SceneFight::poniko.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-			fighter.sprites[0].atlas->draw(spr.atlas_sprite, globals::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w, globals::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
+			fighter.sprites[0].atlas->draw(spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
 			glUseProgram(0);
 		}
 	}
@@ -411,7 +412,7 @@ void SceneSelect::draw() {
 			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
 
 			graphics::setPalette(fighter.palettes[SceneFight::madotsuki.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-			fighter.sprites[0].atlas->draw(spr.atlas_sprite, 50 - spr.x, globals::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
+			fighter.sprites[0].atlas->draw(spr.atlas_sprite, 50 - spr.x, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
 			glUseProgram(0);
 		}
 	}
@@ -450,9 +451,9 @@ void SceneSelect::draw() {
 		glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
 		glBegin(GL_QUADS);
 		glVertex3f(0.0f, 0.0f, 0.0f);
-		glVertex3f(0.0f, globals::WINDOW_HEIGHT, 0.0f);
-		glVertex3f(globals::WINDOW_WIDTH, globals::WINDOW_HEIGHT, 0.0f);
-		glVertex3f(globals::WINDOW_WIDTH, 0.0f, 0.0f);
+		glVertex3f(0.0f, sys::WINDOW_HEIGHT, 0.0f);
+		glVertex3f(sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0.0f);
+		glVertex3f(sys::WINDOW_WIDTH, 0.0f, 0.0f);
 		glEnd();
 
 		//Draw the stage list

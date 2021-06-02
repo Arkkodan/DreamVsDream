@@ -14,7 +14,6 @@
 
 #include "sound.h"
 #include "error.h"
-#include "globals.h"
 #include "scene/scene.h"
 #include "stage.h"
 

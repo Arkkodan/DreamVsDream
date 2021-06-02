@@ -11,6 +11,16 @@
 #include "../DvD/player.h"
 #include "../DvD/error.h"
 
+#include "../DvD/sys.h"
+
+#ifdef _WIN32
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
+#endif
+
 #if(_MSC_VER) // MSVC uses _stricmp instead of strcasecmp
 #define strcasecmp(str1, str2) _stricmp(str1, str2)
 #endif
@@ -82,7 +92,7 @@ void embedFile(File& out, const std::string& file) {
 		out.writeDword(0);
 		return;
 	}
-	ubyte_t* data = (ubyte_t*)malloc(size);
+	uint8_t* data = (uint8_t*)malloc(size);
 	fread(data, size, 1, f);
 	fclose(f);
 	
@@ -117,7 +127,7 @@ void stepWriteDword(int* index, void* buffer, int32_t value) {
 }
 
 void stepWriteFloat(int* index, void* buffer, float value) {
-	*((int32_t*)((char*)buffer + *index)) = value * globals::FLOAT_ACCURACY;
+	*((int32_t*)((char*)buffer + *index)) = value * sys::FLOAT_ACCURACY;
 	*index += 4;
 }
 

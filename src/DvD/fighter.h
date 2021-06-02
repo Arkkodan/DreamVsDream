@@ -1,8 +1,6 @@
 #ifndef FIGHTER_H_INCLUDED
 #define FIGHTER_H_INCLUDED
 
-#include "globals.h"
-
 #include "sound.h"
 #include "image.h"
 #include "sprite.h"
@@ -44,7 +42,7 @@ namespace game {
 
 		int state;
 		int conditionC;
-		ubyte_t conditions[16];
+		uint8_t conditions[16];
 	};
 
 	/// @brief Data structure containing a command
@@ -116,7 +114,7 @@ namespace game {
 	/// @brief Unused
 	class StepVar {
 	public:
-		byte_t type;
+		int8_t type;
 		float value;
 
 		float getValue();
@@ -258,7 +256,7 @@ namespace game {
 		//Sprites & palettes
 		int nPalettes;
 #ifdef COMPILER
-		ubyte_t* palettes;
+		uint8_t* palettes;
 #else
 		GLuint* palettes;
 #endif

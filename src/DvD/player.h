@@ -1,8 +1,6 @@
 #ifndef PLAYER_H_INCLUDED
 #define PLAYER_H_INCLUDED
 
-#include "globals.h"
-
 #include "fighter.h"
 
 namespace game {
@@ -115,7 +113,7 @@ namespace game {
 		virtual void think();
 		virtual void interact(Projectile* other);
 		virtual void advanceFrame();
-		virtual void handleFrame(ubyte_t command = 0);
+		virtual void handleFrame(uint8_t command = 0);
 		virtual void shootProjectile();
 		virtual void draw();
 
@@ -190,7 +188,7 @@ namespace game {
 
 		void think();
 		void advanceFrame();
-		void handleFrame(ubyte_t command = 0);
+		void handleFrame(uint8_t command = 0);
 		void shootProjectile();
 		void applyInput();
 		void handleInput();

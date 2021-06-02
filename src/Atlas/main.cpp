@@ -8,6 +8,14 @@
 #include "../DvD/util.h"
 #include "image.h"
 
+#ifdef _WIN32
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
+#endif
+
 #define TEXTURE_SIZE 2048
 #define TEXTURE_SIZE_SQ (TEXTURE_SIZE*TEXTURE_SIZE)
 

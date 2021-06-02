@@ -1,4 +1,3 @@
-#include "../DvD/globals.h"
 #include "../DvD/graphics.h"
 #include "../DvD/error.h"
 #include "../DvD/fighter.h"
