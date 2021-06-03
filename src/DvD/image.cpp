@@ -78,6 +78,7 @@ struct png_Stream {
 	File* file;
 };
 
+#ifdef GAME
 static void vio_read(png_structp ptr, png_bytep data, png_size_t size) {
 	png_Stream* stream = (png_Stream*)png_get_io_ptr(ptr);
 
@@ -87,6 +88,7 @@ static void vio_read(png_structp ptr, png_bytep data, png_size_t size) {
 
 	stream->file->read(data, size);
 }
+#endif
 
 void Image::createFromFile(std::string filename) {
     std::string err;
@@ -158,7 +160,7 @@ void Image::createFromFile(std::string filename) {
 		format = COLORTYPE_GRAYSCALE;
 		break;
 #endif
-	
+
     case PNG_COLOR_TYPE_GRAY:
         format = COLORTYPE_GRAYSCALE;
         break;
@@ -325,7 +327,7 @@ end:
 	if(data) {
 		free(data);
 	}
-	
+
 	//Move cursor back in place
 	file.seek(stream.origin + stream.size);
 
