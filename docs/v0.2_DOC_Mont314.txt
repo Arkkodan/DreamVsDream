@@ -1,0 +1,2190 @@
+Documentation on the internal workings of Dream vs. Dream version 0.2
+
+Notice:
+  * The date of last revision of this document is 24 November, 2020.
+  * This document concerns Dream vs. Dream version 0.2.
+  * Feel free to use any information from this document for any sort of work
+    without needing to credit this.
+  * However, I do suggest crediting by citing the link to this document so that
+    other people can also use this documentation as reference.
+  * In short:
+    * Anyone can use information from this document for any purpose, freely.
+    * Crediting is not required but is suggested so that others can easily
+      access this document.
+
+Table of Contents
+  * 1. Briefing
+    * 1.1 About This Document
+    * 1.2 Disclaimers
+    * 1.3 Some Important Links
+    * 1.4 From the Source Code
+  * 2. About the Executables
+    * 2.1 atlas Executable
+    * 2.2 compiler Executable
+    * 2.3 DvD Executable
+    * 2.4 fontbuild Executable
+    * 2.5 sprtool Executable
+  * 3. Creating Content
+    * 3.1 Characters
+    * 3.2 Menus
+    * 3.3 Stages
+    * 3.4 Fonts
+  * 4. Programming
+    * 4.1 Libraries
+    * 4.2 Source Code Fixes
+      * 4.2.1 Fixing Compile and Linking Errors
+      * 4.2.2 Logical Fixes
+    * 4.3 Example Modifications
+    * 4.4 Continuing the Legacy
+_______________________________________________________________________________
+
+1. Briefing
+
+    Information about this documentation. Information provided in this document
+    corresponds to an unmodified copy of Dream vs. Dream v0.2.
+
+  1.1 About This Document
+
+    About 6 months ago, I got the source code at Dream vs. Dream's GitHub page
+    to work on my computer with my relatively low amount of C++ knowledge. I
+    want to document what I did to make this work. I want to document what I
+    have learned.
+
+    Some of the stuff I document will be about programming. Some of the stuff
+    document will be about how DvD works internally.
+
+    If you are not interested about the programming part and want to create
+    content for Dream vs. Dream, please see the guides on Section 3 on creating
+    content for Dream vs. Dream. Please read through relevant parts in order to
+    save yourself unnecessary headaches on wasting your time on things that
+    might not work, especially if you are creating sprites for characters.
+
+    Alternatively, if you are interested about the programming part or you want
+    to see what I had to do to get Dream vs. Dream to run on my computer, see
+    Section 4.
+
+  1.2 Disclaimers
+
+    First off, I want to preface this by disclaiming that I did not work on
+    DvD, and I was not in any way part of the development team, so my
+    knowledge of the project is not 100% accurate. I found this project about
+    5 years after the last known update. I have endless admiration for the
+    people who worked on this project, but Dream vs. Dream was a very ambitious
+    project. As for reviving the project, it seems unlikely that a group of
+    passionate people with tons of spare time will ever release another
+    official or community release of DvD.
+
+    Second off, I am by no means a game developer. If anything I write in this
+    document "seems" like advice, take it with a grain of salt. I am only an
+    individual. Dream vs. Dream was not made by professionals, I believe.
+
+    Third of all, there are many ways to do one thing in C++, such as choosing
+    your C++ compiler and development environment. The way I did things (with
+    MS Visual Studio 2019 and the MSVC compiler for Windows) is different from
+    how DvD's programmer may have done things (the Clang/Clang++ compilers for
+    Linux and macOS and MinGW-GCC/MinGW-G++ for Windows). As such, this
+    document will tell you how some things work, NOT how to do things. In
+    addition, I really did not have that much experience with C++ at that time,
+    and I continue to learn new things about C++ as I continue to mess around.
+    For example, I did not experiment with cross platform development, so I
+    would not know how to set up DvD for all environments. I apologize if the
+    information in this document is not helpful.
+
+    Lastly, I will not document absolutely everything about Dream vs. Dream and
+    all of its code. I will document things that I think would be useful for
+    someone who wants to understand how Dream vs. Dream works for purposes of
+    content creation or modification. If you wish to learn more about the code
+    of Dream vs. Dream beyond what is covered in this documentation, you can do
+    so by looking at Dream vs. Dream's GitHub page.
+
+    In short, do not take this document as a definitive guide especially if new
+    information surfaces. I will not guarantee that everything here will work
+    for you; I am only documenting my experience.
+
+    See Section 4.4 on my thoughts on continuing the legacy.
+
+  1.3 Some Important Links
+
+    Dream vs. Dream GitHub Page:
+      * https://github.com/elizagamedev/dreamvsdream-old
+
+    Defunct Old Websites that require usage of a web archiver (Non-Exhaustive):
+      * http://dreamvsdream.org/
+      * http://forum.dreamvsdream.org/
+
+    You can also look at Tumblr pages of the project and people involved to
+    look at some content that may be old, planned, or simply done for whatever
+    reason.
+
+    To get the distributions for DvD, the Yume Nikki Fangame Wiki has a link to
+    the Windows distribution for DvD version 0.2.
+
+  1.4 From the Source Code
+
+    There are 5 projects from the GitHub page:
+      * atlas:
+        * Makes atlas graphics using a character's sprites. A character
+          creation tool. See Section 2.1 on the atlas executable.
+      * compiler:
+        * Makes a character file (.char) using the character's data. A
+          character creation tool. See Section 2.2 on the compiler executable.
+      * DvD:
+        * Runs the game known as Dream vs. Dream. See Section 2.3 on the DvD
+          executable.
+      * fontbuild:
+        * Builds a font file (.rf) for Dream vs. Dream using font data. See
+          Section 2.4 on the fontbuild executable.
+      * sprtool:
+        * Edits a character's sprites data using a visual editor. A character
+          creation tool. See Section 2.5 on the sprtool executable.
+
+    From what I have observed, DvD's source code from the GitHub page is
+    nearly identical to version 0.2, the latest public release that I know of.
+_______________________________________________________________________________
+
+2. About the Executables
+
+    Information on the executables and how to use them. Information provided
+    here is for an unmodified copy of Dream vs. Dream v0.2.
+
+  2.1 atlas Executable
+
+    What is the atlas executable?
+      * The atlas executable is part of the character creation tools used to
+        make a character. In particular, this executable is concerned with
+        making atlas graphics.
+
+    What does the atlas executable require as input and what does it output?
+      * As input, specify all of a single character's sprites. These sprites
+        must be indexed PNGs, not regular RGB PNGs.
+        * It greatly helps if the input images share the same palette (color
+          and order).
+      * The atlas executable outputs grayscaled atlas graphics and a list file.
+      * You can additionally input palettes to output colored atlas graphics
+        instead of default grayscale atlas graphics. This can be useful for
+        testing the generated result of applying different color palettes on
+        the same atlas graphics.
+
+    What must the character's sprites be?
+      * A character's sprites are separate images that must be indexed PNGs
+        with a color palette. It greatly helps if all sprites share the same
+        color palette. They cannot be any other image format, and they must
+        specifically be indexed PNGs.
+      * If you run the Unix command, "file *.png" in the directory of the
+        sprites, all sprites should say that they are PNG image data, 8-bit
+        colormap, and non-interlaced.
+
+    What are indexed PNGs and palettes?
+      * PNGs can be stored in multiple ways. The three most common ways are:
+        * RGB/truecolor
+        * RGBA
+        * indexed or palette <- the one you must use for character creation
+      * For an indexed PNG, instead of painting a pixel a certain color, you
+        "paint" a pixel a color index. The color palette maps an index to a
+        color. All colors you use are assigned to an index.
+      * The reason for this is so that you can change the easily change the
+        colors of indexes, allowing you to make alternate character palettes.
+      * The actual data for the palettes are saved as ".act" (Adobe Color
+        Table) binary files with 256 * 3 bytes: 256 indexes of 3 bytes each
+        (one byte for each color channel, R, G, and B).
+        * In DvD, the first three bytes (index 0) are ignored when drawing
+          sprites because they are designated as the background color for
+          sprites.
+
+    What is an atlas graphic?
+      * An atlas graphic is a 2048x2048 indexed PNG that packs a character's
+        sprites. Depending on how you use the atlas executable, the output will
+        either be grayscaled or colored using a specified color palette. If
+        there are too many sprites for one atlas graphic, multiple atlas
+        graphics are created.
+
+    What is the list file "atlas.list"?
+      * "atlas.list" is an accompanying file alongside with atlas graphics that
+        tells the compiler executable where a sprite is located (which atlas
+        graphic, what position, what shifts/offsets).
+
+    Why do you need the atlas executable?
+      * In order to make characters, the compiler (see Section 2.2) executable
+        needs atlas graphics and an atlas list. The atlas executable generates
+        these things.
+
+    How do you use the atlas executable?
+      * For simple character creation:
+        1. Move the atlas and compile executables and their dependencies to the
+           "COMPILE" directory. This puts the atlas executable in the correct
+           place.
+        2. Run "compile-all.sh". This will automatically generate the atlas
+           graphics and character files for the characters specified. You may
+           need to rename the filename of atlas executable or rename it in the
+           script files.
+
+      * For testing out palettes (using command line):
+        * Run "./atlas -o <output> [-p palette1] [-q palette2] <images>"
+          -o  Output filename prefix
+          -p  Path to palette for indexed PNGs
+          -q  Path to palette to concatonate for indexed PNGs
+        * Specify the options before you specify the images.
+        * -o, the output filename, is required.
+        * -p and -q, the palettes to use, are optional. You can only pass in a
+          ".act" (Adobe Color Table) file or an indexed PNG file.
+        * You can specify all images in a directory by using "*.png".
+        * If you do not specify any palettes, the created atlas graphics will
+          be grayscale PNGs. If you do specify a palette, the created atlas
+          graphics will be indexed PNGs with the same color palette.
+
+  2.2 compiler Executable
+
+    What is the compiler executable?
+      * The compiler executable is part of the character creation tools used to
+        make a character. In particular, this executable is concerned with
+        making character files (.char).
+
+    What does the compiler executable require as input and what does it output?
+      * As input, specify the character's internal (directory) name. The
+        compiler executable will find the character's directory in the chars/
+        directory.
+        * The needed data are:
+          * atlas/
+            * atlas.list
+            * atlas graphics (.png)
+          * palette/
+            * regular numbered .act palettes (1.act, 2.act, etc.)
+            * nes numbered .act palettes (1_nes.act, 2_nes.act, etc.)
+          * portraits/
+            * select.png
+            * portrait.png
+            * special.png
+            * super.png
+            * ui.png
+          * sounds/
+            * sound files (.wav)
+          * voices/
+            * voice files (.wav)
+          * character.ubu
+          * commands.ubu
+          * sounds.ubu
+          * sprites.ubu
+          * states.ubu
+          * voices.ubu
+      * The compiler executable outputs a character file (.char).
+
+    What are the .ubu script files?
+      * .ubu files are DvD's script files. They are plain text files that store
+        information to be parsed. Characters, stages, and scenes (menus) use
+        .ubu files.
+      * For characters, these files are parsed:
+        * character.ubu:
+          * simple character information like name and number of palettes
+        * sprites.ubu:
+          * list of sprites and their hitBoxes (hurtboxes) and aHitBoxes
+            (attacking hitboxes)
+        * sounds.ubu:
+          * list of soundlists and their sound files
+        * voices.ubu:
+          * list of voicelines and their sound files
+        * states.ubu:
+          * list of character states and steps to evaluate
+        * commands.ubu:
+          * list of inputs and their conditions and states
+
+    What are palettes (.act)?
+      * First, an overview of the concepts of palettes.
+        * Indexed PNGs are limited to a maximum of 256 colors indexed from 0 to
+          255. Each color is expressed with a byte for red, a byte for green,
+          and a byte for blue. Therefore, each color is expressed with three
+          bytes.
+      * Adobe Color Tables or .act files are binary data files used to store a
+        color palette. The color at index 0 is represented by the first three
+        bytes in the .act file, the color at index 1 is represented by the next
+        three bytes, and so on.
+      * In DvD, when drawing a sprite, the grayscaled atlas graphic where the
+        sprite is located is found. All grayscale values in the atlas graphic
+        correspond to an index. The actual color drawn uses the color
+        coresponding to the index using the palette. The exception is with
+        index 0, the background color, which is not drawn in game.
+
+    What are character files (.char)?
+      * .char files are DvD's character files. They are binary data files that
+        store all of the data of a character. This data includes many things
+        such as strings, numbers, images, and sounds.
+
+    Why do you need the compiler executable?
+      * In order to use characters in DvD, you need to make character files.
+        The complier executable generates this.
+
+    How do you use the compiler executable?
+      * For automated character creation:
+        1. Move the atlas and compiler executables and their dependencies to
+           the "COMPILE" directory. This puts the compiler executable in the
+           correct directory.
+        2. Run "compile-all.sh". This will automatically generate the character
+           files for the specified characters. You may need to rename some
+           files or edit some script files.
+
+      * For manually creating characters (using command line):
+        * Run "./compiler <fighter name>".
+          * Specify the fighter's internal name as a string input.
+
+  2.3 DvD Executable
+
+    What does the DvD executable do?
+      * The DvD executable is the actual Dream vs. Dream game.
+
+    What does the DvD executable require as input and what does it output?
+      * DvD requires all of the game data (characters, menus, and stages).
+      * Run DvD to play.
+
+    What are characters?
+      * Characters, also known as fighters, are the people (or things) players
+        play as. They are drawn on screen and controlled by players. In order
+        to create characters, they must be created using the character creation
+        tools. See Section 3.1 on creating characters.
+
+    What are menus?
+      * Menus, or as I prefer to call them, scenes, are the units of
+        presentation of DvD. In order to create menus, an extensive knowledge
+        of how menus work in DvD and potentially some source modification is
+        required. See Section 3.2 on creating menus.
+
+    What are stages?
+      * Stages are the different settings where two characters will fight. In
+        order to create stages, basic knowledge of how stages work is needed.
+        See Section 3.3 on creating stages.
+
+    What are the .ubu script files?
+      * .ubu files are DvD's script files. They are plain text files that store
+        information to be parsed. Characters, stages, and menus (scenes) use
+        .ubu files.
+      * Each character has corresponding script files that are used to generate
+        character files. See Section 3.1 on how to create characters.
+      * Each menu has a corresponding script file. They are:
+        * fight.ubu
+        * intro.ubu
+        * title.ubu
+          * There are also title theme scripts in the title directory that are
+            dynamically read from.
+        * select.ubu
+        * versus.ubu
+        * options.ubu
+          * There are also options theme scripts in the options directory that
+            are dynamically read from.
+        * netplay.ubu
+        * credits.ubu
+      * Each stage has a corresponding stage.ubu script file.
+
+    Where do you use the DvD executable?
+      * Anywhere, as long any dependencies and the data directory are in the
+        same directory as the executable.
+
+    Where do you get the dependencies for the DvD executable?
+      * If you have the executable for DvD, chances are that it came with the
+        necessary dependencies. Otherwise, if you are missing dependencies,
+        notify the distributor that the executable is some of its dependencies.
+        I would advise against manually getting the dependencies unless you are
+        building your own executable.
+      * If you built the executable for DvD, then you probably have the
+        dependencies. Use a dependency walker and check all paths that the
+        executable looks in.
+
+    Why do you need the DvD executable?
+      * So that you can play Dream vs. Dream!
+
+    How do you use the DvD executable?
+      * Either run the DvD executable or use the command line.
+
+    How do you run DvD using command line?
+      * Run "./DvD [options]" with any number of these optional options:
+        * "--disable-sound": Prevents audio from being initialized so that no
+          audio will play.
+        * There are other options, but they either do not work or will crash
+          the game.
+
+    Why does DvD take so long to load?
+      * I have investigated this by using my implementation of benchmark tests
+        which, to be honest, I am not sure how accurate it is. Anyway, here are
+        some results that you may find interesting:
+        * Initializing namespace os took (ms): ~155
+        * Initializing namespace graphics took (ms): ~20
+        * Initializing namespace input took (ms): ~1
+        * Initializing namespace audio took (ms): ~31
+        * Initializing namespace net took (ms): ~1
+        * Initializing namespace game took (ms): ~314
+        * Global initializing class Menu took (ms): ~402
+        * Global initializing class Stage took (ms): ~173
+        * Initializing namespace effect took (ms): ~6412
+        * There are a couple of notes I have:
+          * These values are determined by taking a mean of 5 arbitrary
+            consecutive loads. At the time of these trials, I have quite a few
+            programs open and my three-year old laptop was very warm and making
+            a lot of noise before I started. This was also tested on a debug
+            build with no optimization. Your mileage may vary.
+          * These values were obtained on my modified copy of DvD, which is
+            somewhat significantly different from version 0.2. See Section 4.3
+            on a list of some changes I made from version 0.2. Here are some
+            notes, including changes I made, that are relevant to load times:
+            * There are other things that are loaded, such as options and the
+              loading image, that I did not benchmark. Their contribution to
+              total load time should be minimal, though that is just something
+              that I assumed.
+            * Initializing namespace input concerns reading a config file for
+              player inputs. Although I did change some things with namespace
+              input, the load time from reading the file should not be changed.
+              I tested this with a config file that had no contents.
+            * Initializing namespace audio concerns initializing SDL's audio. I
+              tested this without disabling sound.
+            * Initializing namespace net concerns forcing an input delay and
+              initializing winsock if the player is using a Windows system.
+              Since I am using Windows, this does apply to my tests.
+            * Initializing namespace game concerns loading sound files and
+              reading character data from .char files. Other than changing some
+              commands inside the .ubu scripts, I still have the original three
+              fighters and only those three.
+            * Global initializing class Menu concerns constructing all of DvD's
+              "menus" or "scenes". I have added two scenes (win and controls)
+              that did not exist in version 0.2, and initialized a "common"
+              namespace that does not exist in version 0.2. In terms of this
+              class itself, this may have added significant runtime, but
+              overall, this is pretty negligible.
+            * Global initializing class Stage concerns constructing an array
+              with all stages. In version 0.2, it only loaded the 20 stages and
+              read their .gif animations. However, I have added 20 stages, most
+              of which are placeholders and are not even loaded. The stages
+              that were fully loaded as playable stages were also parsed for
+              non-media information, like stage width and music count. This
+              adds significant load time for this class itself, but overall,
+              this is pretty negligible.
+            * Initializing namespace effects concerns recursively loading
+              directories in the effects/ directory, placing them in a vector,
+              then placing the images of each effect in an array, forming an
+              array of effects. In version 0.2, the vectors created did not
+              reserve a size. I changed it so that it did, but that did not
+              change much in terms of load time. As it turns out, loading
+              images takes a very long time when you have to load a lot of
+              them. Taking around 85% of the total load time, if you were to
+              not load effects, the load time would only be around 1 second.
+              * I am not a game developer, but multithreading seems like it may
+                solve this although it may be difficult to properly implement.
+
+  2.4 fontbuild Executable
+
+    What does the fontbuild executable do?
+      * The fontbuild executable makes fonts (.rf) out of an image and a
+        descriptor file. This font format was likely made specifically for
+        Dream vs. Dream.
+
+    What does the fontbuild executable require as input and what does it
+    output?
+      * As input, specify an image file (PNG file format) and a plain text
+        descriptor file.
+        * The image file must have its characters appended horizontally into
+          one long image with all characters in one line.
+        * The descriptor file (commonly a .txt file) has the format:
+          * A line that contains:
+            * If the font is monospaced: A number that is the width of a
+              character.
+            * If the font is not monospaced: The string "var".
+          * A line that contains:
+            * If the font is not case sensitive: The string "insensitive".
+            * If the font is case sensitive: The string "sensitive".
+          * Each character on a separate line with additional information if
+            required.
+            * If the font is monospaced: There is no extra information.
+            * If the font is not monospaced: Each character must also have the
+              location (x-coordinate) of that character in the image file.
+      * The fontbuild executable will output a font file (commonly a .rf file).
+
+    What characters are allowed for fonts?
+      * I have not tested this much, but from a quick analysis of the source
+        code, the characters allowed are the 128 ASCII characters with the
+        exceptions being:
+        * '\0'
+        * '\n'
+        * '\f'
+        * '\r'
+        * '\t'
+        * The extended ASCII characters (> 127) are untested. They may or may
+          not work depending if C/C++ can or cannot deal with negative char
+          values or unsigned char values. Additionally, there might not be a
+          standard implementation for extended ASCII characters.
+        * The control codes are untested. I have no idea if they will work. I
+          do not recommend using them unless you have a very good reason for
+          doing so and understand what you are doing.
+
+    Where do you use the fontbuild executable?
+      * You can use the fontbuild executable anywhere you can access the input
+        and output files. Usually, that will be within one directory.
+
+    Why do you need the fontbuild executable?
+      * You only need the fontbuild executable if you are making fonts for DvD.
+      * Chances are that you are not making fonts for DvD, so you will not need
+        the fontbuild executable.
+
+    How do you use the fontbuild executable?
+      * Run "./fontbuild <font.png> <font.txt> <out.rf>".
+        * Specify the paths to the image file, the descriptor file, and the
+          output file as string inputs.
+
+  2.5 sprtool Executable
+
+    What is the sprtool executable?
+      * The sprtool executable is part of the character creation tools used to
+        make a character. In particular, this executable is concerned with
+        modifying a character's sprites.ubu, mainly, the number of and
+        locations of each sprite's hitboxes as well as the location of each
+        sprite.
+
+    What does the sprtool executable require as input and what does it output?
+      * As input, each indexed PNG sprite of a character needs to have an entry
+        in that character's sprites.ubu. Put the filename (without the ".png")
+        inside square brackets for each sprite, like "[wc00]" if the filename
+        of that sprite was "wc00.png".
+      * Upon using the sprtool application and saving the positions and
+        hitboxes of sprites, it will modify the character's sprites.ubu.
+
+    Why do you need the sprtool executable?
+      * The sprtool executable is an application that makes modifying a
+        character's hitboxes and position for each sprite easier.
+
+    How do you run the sprtool executable?
+      * For simple hitbox modification:
+        1. Move the sprtool executable and its dependencies to the "COMPILE"
+           directory. This puts the sprtool executable in the correct
+           directory.
+        2. Run "./sprtool <character>".
+           * Specify the character's internal name as a string input.
+
+    How do you use the sprtool executable?
+      * The sprtool application operates by using your keyboard inputs. The
+        inputs are as follows:
+        * SAVE
+          * CTRL-s: Save all sprites
+        * VIEW
+          * q: Invert background color (black, white)
+        * SPRITES
+          * o: Next sprite
+            * With CTRL: 10 sprites after instead of 1
+          * i: Previous sprite
+            * With CTRL: 10 sprites before instead of 1
+        * HITBOXES
+          * ADD
+            * s: Add and select new defense hitbox
+            * a: Add and select new attacking hitbox
+          * SELECT
+            * p: Select previous hitbox
+            * n: Select next hitbox
+            * d: Unselect hitbox
+            * CTRL-a: Select all hitboxes
+          * DELETE
+            * x: Delete selected hitbox
+              * Can only delete if selecting one hitbox
+          * COPY/PASTE
+            * CTRL-c:
+              * If all hitboxes are selected: Copy all hitboxes of sprite
+              * If not: Copy current position of sprite
+            * CTRL-v:
+              * If all hitboxes of a sprite are copied: Delete all old hitboxes
+                and paste copied hitboxes
+              * If the position of a sprite is copied: Paste position onto
+                current sprite
+        * MOVEMENT
+          * The movement keys are hjkl (Vi-style) and arrow keys
+          * No modifiers:
+            * If hitboxes are selected: Move selected hitboxes 1 pixel in
+              specified direction
+            * If no hitboxes are selected: Move position of sprite 1 pixel in
+              specified direction
+          * With CTRL: Use units of 10 pixels instead of 1 pixel
+          * With SHIFT: Shrink (left/down) or grow (up/right) selected hitbox
+            in specified direction
+            * UNSAFE when multiple hitboxes are selected: causes a segmentation
+              fault, so make sure to save often!
+      * The first step when operating on a new sprite is to center the sprite.
+        There is a crosshair that represents the bottom center of the sprite.
+        Reposition the sprite's bottom center to the center of the crosshair.
+
+    Can something be done about that segmentation fault?
+      * As always, you can modify the executables to do as you wish. Just be
+        sure that if you change something, make sure that you fix it elsewhere
+        as needed.
+_______________________________________________________________________________
+
+3. Creating Content
+
+    Information on how to create content for Dream vs. Dream. Information
+    provided here is for an unmodified copy of Dream vs. Dream v0.2.
+
+  3.1 Characters
+
+    My notes on characters:
+      * Making characters is a precise and involved process. Be prepared to
+        make time-costly mistakes!
+      * All persons involved in making characters need to be very careful about
+        making every aspect of the character work. It is highly recommended
+        that you completely understand the character creation process for your
+        relevant parts (i.e. by reading through this section and Section 2 on
+        the character creation tools).
+
+    Executables needed:
+      * atlas executable
+      * sprtool executable
+      * compiler executable
+
+    Limitations without programming:
+      * The character files allowed must be named:
+        * maddysucky.char
+        * madotsuki.char
+        * sabitsuki.char
+      * Read carefully on what values will be expected for each command.
+      * Character commands must be specified accordingly. Anything more or less
+        may prevent the character from behaving properly.
+
+    Making sprites:
+      * All sprites must be indexed PNGs using an 8-bit colormap. Please read
+        up on what indexed PNGs are. If you cannot find an option to use
+        indexed colors on your graphics editor, you may be using a graphics
+        editor that is incompatible with indexed PNGs.
+        * The color for index 0 is the background color. For example, if the
+          sprites use a green background, then index 0 should be that color.
+        * If you run the Unix command, "file *.png" in the directory of the
+          sprites, all sprites should say that they are PNG image data, 8-bit
+          colormap, and non-interlaced.
+      * Furthermore, it is highly recommended that all sprites for a character
+        share the same indexes for each color; in other words, have the same
+        color palette. As such, you are limited to 256 different colors, where
+        index 0 must be the background color of each sprite.
+      * Each sprite will have an "index map." It is possible for multiple
+        indexes to have the same color or similar colors, but you cannot have
+        the same index represent multiple colors. Keep this in mind when
+        designing customized character palettes, such as drawing a special
+        design on a character's shirt for some palettes and not for others.
+      * Draw these sprites facing right. When the game draws sprites facing
+        left, they will be horizontally mirrored. Be wary of this fact when
+        deciding whether a character's sprite will have asymmetry.
+      * Save each sprite as an indexed PNG. All sprites should have the same
+        color palette.
+      * Additionally, export your color palette as an Adobe Color Table (.act)
+        file, or create a .act file with the same data. See Section 2.1 on the
+        atlas executable on more information on .act files.
+
+    Making palettes:
+      * This guide will explain the easiest way to make palettes, although not
+        necessarily the only way.
+      * Acquire sprites that have the same color palette and their
+        corresponding .act file.
+      * Additionally, obtain an atlas executable. See Section 2.1 on the atlas
+        executable.
+      * Generate atlas graphics using the atlas executable, all sprites, and
+        the .act file.
+      * Open the atlas graphics and change the colors of the indexes to change
+        what the palette will look like on the character.
+      * Save the color palette as an .act file. Remember, you are not modifying
+        the sprites themselves; you are only changing what colors are used to
+        draw the sprites.
+
+    Adding other assets:
+      * In addition to the below script files, your character directory must
+        contain the following:
+        * palettes/
+          * For how many palettes this character has, you must have a numbered
+            .act file and an nes version of that .act file.
+            * For example: "1.act", "1_nes.act", "2.act", "2_nes.act", etc...
+        * portraits/
+          * select.png: A 26x28 PNG that shows up on the character select
+            scene.
+          * portrait.png: A (typically 480px high) right-facing PNG that shows
+            up on the versus scene.
+          * special.png: A 150x300 PNG that cuts-in whenever the character uses
+            a cut-in special move.
+          * super.png: A 150x300 PNG that cuts-in whenever the character uses a
+            cut-in ender (super) move. Currently unused, I think. As a
+            placeholder, this is often the same image as special.png.
+          * ui.png: A 63x90 indexed PNG that uses the same color palette as the
+            one the player selected that shows up on the UI of the in-game
+            fight scene. Use other characters' as a model.
+        * sprites/
+          * .png: Sprites that are saved as indexed PNGs and share the same
+            color palette.
+        * sounds/
+          * .wav: Sound files that the character uses as sound effects.
+        * voices/
+          * .wav: Sound files that the character uses as voice lines.
+
+    Making .ubu script files:
+      * From now on, I will list what each .ubu script files need.
+      * Each command, along with its parameters, need to be on their own line.
+        See other .ubu files as examples.
+
+    Making character.ubu:
+      * NAME (str) dname:
+        * dname: most likely the display name of the character. Appears
+          unused, oddly enough.
+      * GROUP (int) group:
+        * group: which Yume Nikki fangame group it belongs to:
+          * 1 = Yume Nikki
+          * 2 = Yume 2kki
+          * 3 = .flow
+          * Anything else = other
+      * DEFENSE (float) defense:
+        * defense: defense * 10 is essentially the character's hp. Due to
+          floating point behavior, this may not be exact.
+      * HEIGHT (int) height:
+        * height: height of the character's collision box in pixels, I
+          think. As of now, all characters have a height value of 100.
+      * WIDTH (int) widthLeft, (int) widthRight:
+        * widthLeft and widthRight: width to the left and right, respectively,
+          of the origin of the character's collision box in pixels, I think.
+          As of now, all characters have widthLeft and widthRight values of 15.
+      * GRAVITY (float) gravity:
+        * gravity: downward acceleration of the character. I think this value
+          is given in pixels per frame squared. As of now, all characters have
+          a gravity value of 1.0.
+      * PALETTES (int) nPalettes:
+        * nPalettes: number of palettes that a character has. Keep in mind that
+          there are actually two times this number of palettes, one regular and
+          one NES.
+
+    Making sprites.ubu:
+      * The only text edits you have to do are to list the sprites in this
+        file. Use the sprtool executable to modify this file. See Section 2.5
+        on the sprtool executable to learn how to use the sprtool application.
+
+    Making sounds.ubu:
+      * In sounds.ubu, define each sound group by surrounding the name of each
+        sound group with square brackets.
+      * For each sound group, list the sound files (without ".wav") that could
+        be played whenever the game wants a sound from the sound group to play.
+
+    Making voices.ubu:
+      * Similar to making sounds.ubu, in voices.ubu, define each voice group by
+        surrounding the name of each voice group with square brackets.
+      * However, for each voice group, there should also be a number that is
+        the probability out of 100 that a sound from this voice group will
+        actually play.
+      * For each voice group, list the sound files (without ".wav") that could
+        be played whenever the game wants a sound from the voice group to play.
+
+    Making states.ubu:
+      * First, the states themselves. The name of the state should be
+        surrounded by square brackets.
+        * The standard states are as follows, along with some notes:
+          * Stand: Standing animation. Ctrl should be true.
+          * Crouch: Crouching animation. Same behavior as Stand.
+          * BeginStand: Going from crouching to standing. Same behavior as
+            Stand.
+          * BeginCrouch: Going from standing to crouching. Same behavior as
+            Stand.
+          * WalkF: Forward walk cycle. Ctrl should be true. There should be a
+            move command between every sprite command.
+            Average speed can be given by total displacement over total time.
+          * WalkB: Backward walk cycle. Same behavior as WalkF.
+          * CWalkF: Crouch forward walk cycle. Same behavior as WalkF. If not
+            implemented, the character cannot crouch walk.
+          * CWalkB: Crouch backward walk cycle. Same behavior as CWalkF.
+          * BDashF: Begin dash forward. Apply force and set gravity false.
+            You can add startup.
+          * DashF: Dash forward. Gravity should be false. Apply force if not
+            yet applied.
+          * EDashF: End dash forward. Gravity should be true.
+          * BDashB: Begin dash backward. Same behavior as BDashF.
+            A different system can be used instead for double-input lateral
+            direction if specified in commands.ubu. See Madotuki's 44.
+          * DashB: Dash backward. Same behavior as DashF.
+          * EDashB: End dash backward. Same behavior as EDashB.
+          * Jumping: Ascending aerial state caused by jumping.
+            Both characters implement their own BeginJump[B|F] states where
+            Ctrl is false until a force is applied.
+          * BeginFall: Begin falling from ascending jump. Ctrl should be true.
+          * Falling: Descending aerial state caused by falling. Identical to
+            BeginFall, except Ctrl is not specified.
+          * Land: Landing from Falling. Ctrl should be true.
+          * JTech: Aerial teching? Commonly shares a sprite with any of the
+            previous aerial states. Sprite lasts 1 frame?
+          * HitHigh: Hit by high attack. Ctrl should be false. Hurt animation
+            should be 4 frames?
+          * HitMid: Hit by mid attack. Same behavior as HitHigh.
+          * HitLow: Hit by low attack. Same behavior as HitHigh.
+          * Block: Standing block. Ctrl should be false?
+          * CBlock: Crouching block. Same behavior as Block.
+          * JBlock: Jumping block. Same behavior as Block.
+          * KB: Instance of being knocked back. Ctrl should be false.
+          * KBFall: Falling after KB. Same behavior as KB.
+          * KBFalling: Falling after KBFall. Same behavior as KB.
+          * KBBounce: Knock back at instance of bouncing from ground. Ctrl
+            should be false. Commonly shares a sprite with KBLand.
+          * KBBouncing: Knock back after bouncing from KBBounce. Ctrl should be
+            false.
+          * KBLand: Landing from being knocked back. Ctrl should be false.
+          * OnBack: Knocked down on back after KBLand. Ctrl should be false.
+          * RecoverBack: Recover from being knocked down on back. Ctrl should
+            be false until the end when Ctrl should be true.
+          * KP: Instance of being knocked prone. Same behavior as KB.
+          * KPFall: Falling after KP. Same behavior as KBFall.
+          * KPFalling: Falling after KPFall. Same behavior as KBFalling.
+          * KPLand: Landing from being knocked prone. Ctrl should be false.
+          * Prone: Knocked down prone after KPLand. Same behavior as OnBack.
+          * RecoverProne: Recover from being knocked down prone. Same behavior
+            as RecoverBack.
+          * Victory: Victory animation. There should be a say command and the
+            animation should last as long as possible.
+          * Defeat: Defeat by timeout animation. Same behavior as Victory.
+        * In addition to the standard states, you can write your own states.
+          * All non-standard states need to be manually bounded in
+            commands.ubu.
+          * All character attacks.
+          * BeginJump, BeginJumpF, and BeginJumpB are likely candidates. Their
+            rough structure is Ctrl false, then some frames later, Ctrl true
+            and a force is applied.
+          * Character unique states such as Madotuki's HopB.
+          * Projectiles exists as states. Use Destroy when the projectile
+            should disappear. It is possible for your character to turn into a
+            projectile, but it would be weird.
+
+      * Finally, the state commands and their parameters. Each state command
+        and its parameters should be on the same line different from other
+        state commands.
+        * None: Unused. Probably used as a delimiter.
+        * Sprite (str) sprite, (int) frames: Display a sprite for a number of
+          frames while in the state.
+          * sprite: name of the sprite to show
+          * frames: number of frames to show this sprite
+        * Move (float) dx, (float) dy: Displace the character.
+          * dx: number of pixels to displace horizontally, positive is forward
+          * dy: same but vertically, positive is up
+        * Scale (float) size: Adjust the size of the character.
+          * scale: scaling factor, 1.0 is normal (regular size)
+        * Type (char) type, (char) movetype: Description of the character in
+          this state.
+          * type: 'N'=idle, 'H'urt, 'T'eching, 'D'ashing, 'B'locking,
+            'A'ttacking
+          * movetype: 'S'tanding, 'C'rouching, 'J'umping
+        * Ctrl (bool) control: Give or take away player controls.
+          * control: whether the player should control
+        * Attack (float) damage, (str) hitType, (float) kbx, (float) kby,
+          (str) sfx, (bool) cancelable: Properties to apply to attacking
+          hitboxes.
+          * damage: essentially 1/10 of actual damage if using the same
+            property as character.ubu's DEFENSE * 10
+          * hitType: "low", "mid", "high"
+          * kbx: knockback in the x-direction
+          * kby: knockback in the y-direction
+          * sfx: name of local sfx to play if the attack hits
+          * cancelable: whether this attack can be canceled into another action
+            specified by the Cancel command
+        * Sound (str) soundline: Play a sound from a sound line.
+          * soundline: name of sound line to select a sfx to play
+        * Say (str) voiceline: Play a voice clip from a voice line with a
+          probability given in voices.ubu.
+          * voiceline: name of voice line to select a vo to play
+        * Heal (float): Unused. Probably would have been used for healing.
+        * Special (bool): Causes a special cut-in.
+          * bool: unknown, maybe decides between the type of special
+            (normal vs. "ender")
+        * Super (float): Unused. Probably would have been used for super meter
+          cost.
+        * Force (float) dxdt, (float) dydt: Set character's velocity.
+          * dxdt: horizontal velocity in pixels per frame
+          * dydt: same but for vertical
+        * Shoot (str) proj, (float) dxdt, (float) dydt: Spawn a projectile from
+          an attacking hitbox.
+          * proj: name of the state of the projectile to spawn
+          * dxdt: initial horizontal velocity of the projectile
+          * dydt: initial vertical velocity of the projectile
+        * OnHit (str) state: Go to a state upon hitting something with an
+          attacking hitbox. Used by projectiles.
+          * state: name of the state for the projectile to change to
+        * Destroy: Destroy this object. Used by projectiles. Unknown behavior
+          if used in character states.
+        * Visible (bool) visible: Turn this character visible or invisible (for
+          this state only?).
+          * visible: whether this character should be visible
+        * Invincible (bool) invincible: Make this character intangible or
+          tangible to attacks.
+          * invincible: whether this character should be intangible to attacks
+        * Gravity (bool) apply: Turn on or off gravity for this character.
+          * apply: whether this character should experience gravity
+        * Airdash (bool) airdashing: Set the airdash flag.
+          * airdashing: what the airdash flag should be set to
+        * DoubleJump (bool) doublejumped: Set the doublejump flag.
+          * doublejumped: what the doublejump flag should be set to
+        * Mirror (bool) mirror: Draw sprites horizontally mirrored or regularly
+          (for this state only?)
+          * mirror: whether the sprites should be drawn horizontally mirrored
+        * Bounce (float) kbx, (float) kby, (int) frames: Apply bounce
+          properties to attack hitboxes on a successful (non-blocked) hit.
+          * kbx: horizontal knockback after opponent bounces off the floor
+          * kby: vertical knockback after opponent bounces off the floor
+          * frames: number of frames for opponent to be stunned on the floor
+            before bouncing
+        * HitSpark (str) vfx: Play a common vfx on a successful (non-blocked)
+          hit.
+          * vfx: name of the common vfx (in the effects directory)
+        * Effect (str) vfx, (int) dx, (int) dy, (str) type, (bool) mirror,
+          (int) speed, (int) loops: Play a common vfx with parameters.
+          * vfx: name of the common vfx
+          * dx: horizontal displacement from caller
+          * dy: vertical displacement from caller
+          * type: "screen"=unused?, "stay"=stay in the spawned position,
+            "follow"=follow the caller
+          * mirror: whether the vfx should be drawn horizontally mirrored
+          * speed: how slow the vfx should play (higher number = slower)
+          * loops: number of times to loop
+        * Cancel (str) state: Enable the character to cancel if they hit with
+          an attacking hitbox.
+          * state: name of the state to enable the character to cancel into
+        * Knockdown: Apply knockdown property to attacking hitboxes on a
+          successful (non-blocked) hit.
+        * Alpha (float) opacity: Adjust the opacity of a character.
+          * opacity: alpha (opacity) factor, 1.0 is normal (fully opaque)
+        * Stun (int) frames: Apply stun property to attacking hitboxes on a
+          successful (non-blocked) hit. After stun, opponent will behave as if
+          hit.
+
+    Making commands.ubu:
+      * Preface: commands.ubu is read from top to bottom to see what state the
+        character should be in given its input and its current state. As soon
+        as a match is successful, the character will go to that state and will
+        stop looking. If none of the states in commands.ubu are successful,
+        then default behavior takes place.
+      * Input sequences are a commands.ubu statement. They are in the form of
+        an input string inside brackets.
+        * First, an enumeration of symbols:
+          * Numbers (1 to 8) are "directions".
+          * 'A', 'B', and 'C' are "buttons".
+          * Directional letters ('b', 'd', 'f', 'u') and diagonal numbers (1,
+            3, 7, 9) are "normal modifiers".
+          * '~' is a "release".
+        * An input can be any non-release symbol or any of the following below:
+          * release + direction (i.e. ~6) is a "direction".
+          * normal modifier + button is a "normal input",
+        * The string of inputs can be any of the following:
+          * direction
+          * button
+          * normal input
+          * any sequence of directions
+          * any sequence of directions followed by a button
+        * Other combinations have not been tested and may or may not work.
+      * Conditions are a commands.ubu statement. They are in the form of text
+        either prepended with the '!' symbol or not. The condition flags will
+        be checked to determine if the condition passes. Conditions apply to
+        the state destination above it.
+        * "onground": whether the character is on the ground
+        * "crouching": whether the character is crouching
+        * "airdash": whether the character has airdashed without landing
+        * "doublejump": whether the character has doublejumped without landing
+        * '!' prepended to an above condition flag: check for the opposite
+          condition instead
+        * If any of the conditions for a state destination did not pass, the
+          character cannot go into this state this way.
+        * Remember, these condition statements only check the flags.
+      * State destinations are a commands.ubu statement. They are in the form
+        of the '@' symbol followed by the name of a state.
+        * In order for a state destination to be taken:
+          * The character must be in a state where input can be taken. (i.e.
+            Ctrl true or Cancel into this state)
+          * Other state destinations above it must not be taken.
+          * The character's input sequence matches this state destination's
+            input sequence.
+          * All conditions that apply to this state destination (i.e. all
+            conditions below the state destination without passing through an
+            input sequence or another state destination) must pass.
+
+    Making the character file:
+      * Once you have all your character data finished, acquire the atlas and
+        compiler executables. There are three main ways to make your .char
+        file:
+        * The simplest way is to run the compile-all.sh script. This will
+          automatically call compile.sh with multiple characters, generate
+          their .char files and place them in the correct directory.
+        * The intermediate way is to manually call compile.sh with the
+          character's directory name. This will generate their .char file and
+          move it to the correct directory.
+        * The most direct way is to manually run the atlas and compiler
+          executables yourself.
+        * See Sections 2.1 and 2.2 on the atlas and compiler executables,
+          respectively, on more information on how to use them.
+
+    Using the character file:
+      * If you used the shell script files, then the .char file should
+        automatically be placed in the data/chars directory.
+      * Otherwise, you will manually have to move it there.
+
+    What modifying the source code allows:
+      * As implied above, modifying the source code lets you change the
+        behaviors of .ubu character commands. This means you could modify their
+        behaviors, add more commands, remove commands, and maybe even change
+        the entire structure of how characters are generated.
+      * Be careful. Any change you make to the compiler executable should be
+        reflected in the DvD executable and vice versa or else character data
+        will not have identical behavior.
+
+  3.2 Menus
+
+    My notes on menus:
+      * In the internals of DvD, any sort of scene is called a menu. Thus, I
+        prefer to call them "scenes" rather than "menus" because the term
+        "menus" implies to me that the user is being prompt to do something,
+        which, in the case of DvD, is not always the case.
+      * As for the actual menu elements themselves, they are hardcoded into the
+        game. It may be more controllable to defer some functionality to
+        scripts.
+
+    What is needed:
+      * A text editor to modify the .ubu script files.
+      * Additional resources if desired.
+
+    Limitations without programming:
+      * You are limited to only these menus. Additional menus require source
+        code modification.
+      * All menu commands behave exactly as implemented. If you wish for
+        different behavior or additional commands, you have to modify the
+        source code.
+
+    Referring to resources inside .ubu script files:
+      * For each menu, there is a corresponding directory with the same name.
+        If a command requires a resource, it will look for that in this
+        directory.
+      * If you prepend an "*" character before the name of the resource, it
+        will look for that resource under the "common" directory instead of
+        that menu's directory.
+
+    Modifying any menu .ubu script file:
+      * These are included in any of the below menu .ubu script files.
+      * IMAGE (str) img, (float) x, (float) y, [(str) blend, (float) xvel,
+        (float) yvel, (bool) wraps]: Draw an image. Optional properties are
+        allowed but must be specified in order.
+        * img: name of the image file
+        * x: x position
+        * y: y position
+        * blend: "additive", "subtractive", or "multiply"
+        * xvel: horizontal velocity
+        * yvel: vertical velocity
+        * wraps: whether the image should wrap around after leaving offscreen
+      * BGM (str) bgm, [(str) bgmLoop]: Construct a bgm object and play it.
+        * bgm: name of the "intro" music file. Will be played first. Will loop
+          this if bgmLoop is not specified
+        * bgmLoop: name of the "loop" music file. Will play after "intro". Will
+          loop this instead of "intro"
+      * SOUND (str) menu, (str) select, (str) back, (str) invalid: Set menu
+        sound effects.
+        * menu: name of the navigation sound file. Played when moving cursor
+        * select: name of the select sound file. Played when selecting menu
+          items
+        * back: name of the "backing out" sound file. Played when backing out
+          of a menu item
+        * invalid: name of the "invalid select" sound file. Played when
+          attempting to select invalid menu items
+      * VIDEO: Unused.
+
+    Modifying fight.ubu:
+      * HUD (str) img: The empty HUD. Includes hp, super meter, stun, guard,
+        and dpm.
+        * img: name of the image that represents the left half of the HUD
+      * HUD_TAG (str) img: Unused. The hp of the tag partner.
+        * img: name of the image that represents the empty hp of a tag partner
+      * PORTRAITS (str) img: Background of the portrait HUD that a character's
+        ui.png is drawn over.
+        * img: name of the image that is drawn behind a character's ui.png
+      * PORTRAITS_TAG (str) img: Unused. Background of the portrait HUD that a
+        tag partner's ui icon (does not exist) is drawn over.
+        * img: name of the image that is drawn behind a tag partner's ui icon
+      * TIMER (str) img, (str) font: Draw the timer.
+        * img: name of the image drawn behind the timer
+        * font: name of the font used to draw the timer text
+      * SHINE (str) img: Unknown if used. Maybe HUD foreground.
+        * img: name of the image that is drawn above HUD elements
+      * SHINE_TAG (str) img: Unused. Possibly HUD foreground of the tag
+        partner's hp.
+        * img: name of the image that is drawn above the hp of a tag partner
+      * HP (str) img, (int) x, (int) y: Draw the hp bar.
+        * img: name of the image that represents a full bar of hp
+        * x: x position (left player)
+        * y: y position
+      * SUPER (str) img, (int) x, (int) y: Draw the super meter bar. Drawn but
+        non functional.
+        * img: name of the image that represents a full super meter bar
+        * x: x position
+        * y: y position
+      * TAG (str) img, (int) x, (int) y: Unused. Draw the hp bar of the tag
+        partner.
+        * img: name of the image that represents a full bar of hp
+        * x: x position
+        * y: y position
+      * STUN (str) img, (int) x, (int) y: Draw a stun break indicator, I think.
+        Drawn but non functional.
+        * img: name of the image that represents that the player has an option
+          to break out of a stun
+        * x: x position
+        * y: y position
+      * GUARD (str) img, (int) x, (int) y: Draw a guard indicator, I think.
+        Drawn but non functional.
+        * img: name of the image that represents that the player has an option
+          to perform a guard
+        * x: x position
+        * y: y position
+      * DPM (str) img, (int) x, (int) y: Another meter for an unknown purpose.
+        Drawn but non functional.
+        * img: name of the image that represents this meter
+        * x: x position
+        * y: y position
+      * STATIC (str) img, (str) snd: Show static vfx and sfx. If
+        photosensitivity mode is off, has random chances of performing a
+        "burst."
+        * img: name of the image to draw as static that fades in and out. If a
+          "burst" event happens, suddenly increase the opacity temporarily
+        * snd: name of the sfx to play if a "burst" event happens
+      * FADE (str) fadeinSnd, (str) fadeoutSnd: Play sound effects when fading
+        in or out of the fight scene.
+        * fadeinSnd: name of the sfx to play when fading in
+        * fadeoutSnd: name of the sfx to play when fading out
+      * ROUND_SPLASH (str) r1, (str) r2, (str) r3, (str) r4, (str) r5: Show a
+        splash image before each round starts.
+        * r1: name of the image that is drawn before round 1 starts
+        * r2: name of the image that is drawn before round 2 starts
+        * r3: name of the image that is drawn before round 3 starts
+        * r4: name of the image that is drawn before round 4 starts
+        * r5: name of the image that is drawn before round 5 starts
+      * ROUND_HUD (str) r1, (str) r2, (str) r3, (str) r4, (str) r5, (int) x,
+        (int) y: Show a HUD element that says what the current round is.
+        * r1: name of the image that is drawn during round 1
+        * r2: name of the image that is drawn during round 2
+        * r3: name of the image that is drawn during round 3
+        * r4: name of the image that is drawn during round 4
+        * r5: name of the image that is drawn during round 5
+        * x: x position
+        * y: y position
+      * KO (str) ko, (str) timeout, (str) draw: Show a splash image when each
+        round ends.
+        * ko: name of the image that is drawn when someone gets ko'ed
+        * timeout: name of the image that is drawn when someone wins from a
+          timeout
+        * draw: name of the image that is drawn when a draw results from a
+          timeout
+      * PORTRAIT_POS (int) x, (int) y: Position where to draw the portrait HUD.
+        * x: x position
+        * y: y position
+      * COMBO (str) font, (str) comboLeftImg, (str) comboRightImg: Draw a combo
+        counter.
+        * font: name of the font used to draw the number of hits in a combo
+        * comboLeftImg: name of the image drawn behind the combo text when the
+          left player performs a combo
+        * comboRightImg: name of the image drawn behind the combo text when the
+          right player performs a combo
+      * WIN (str) img, (str) font, (str) bgm: The resources for the "win
+        scene" that is shown after the fight scene, even though the win scene
+        is contained in the fight scene.
+        * img: name of the image drawn
+        * font: name of the font used to draw who won
+        * bgm: name of the music played
+      * WIN_ORBS (str) null, (str) win, (str) draw, (int) x, (int) y: Draw orbs
+        that indicate rounds that a player has earned a point for
+        * null: name of the image that represents that the player has not
+          earned the point for this round yet
+        * win: name of the image that represents that the player has earned
+          this point for the round due to winning the round
+        * draw: name of the image that represents that the player has earned
+          this point for the round due to a draw
+        * x: x position
+        * y: y position
+
+    Modifying intro.ubu:
+      * SFX (str) sfx: Play a sound effect when player changes intro screens.
+        * sfx: name of the sound effect
+      * INSTRUCTIONS (str) img: Draw the first intro screen, which is a
+        instructions.
+        * img: name of the instructions image
+      * DISCLAIMER (str) en, (str) ja: Draw the second intro screens, which are
+        disclaimers in English and Japanese.
+        * en: name of the "English disclaimer" image
+        * ja: name of the "Japanese disclaimer" image
+      * SHADER_ERROR (str) img: Draw the third intro screen, which is a shader
+        error warning, if shaders do not work on this computer.
+        * img: name of the "shader error warning" image
+
+    Modifying title.ubu:
+      * MENU (str) font, (int) x, (int) y, [(int) xOffset]: Initialize the menu
+        text context.
+        * font: name of the font used to draw the menu text
+        * x: x position of the first menu element. Subsequent menu elements are
+          offset by xOffset
+        * y: y position of the first menu element. Subsequent menu elements are
+          on different lines
+        * xOffset: x offset for each subsequent menu element from the previous.
+          Defaults to 0
+      * INACTIVE (int) r, (int) g, (int) b: Apply a color mask (multiply?) to
+        inactive (not cursored over) menu elements.
+        * r: red mask
+        * g: green mask
+        * b: blue mask
+      * ACTIVE (int) r, (int) g, (int) b, [(int) xOffset]: Apply a color mask
+        and an optional offset to the active (cursor) menu element.
+        * r: red mask
+        * g: green mask
+        * b: blue mask
+        * xOffset: x offset from original position. Defaults to 0.
+      * THEMES (int) number: Specify the number of themes.
+        * number: number of themes. If this is 0, fallback to the default
+          title.ubu theme, which has nothing. Otherwise, randomly select a
+          theme from the list where all themes have a weight of 1 except for
+          the first, which has a weight of 6
+      * THEME (str) ubu: Specify a possible theme.
+        * ubu: name of a title theme .ubu script file
+
+    Modifying title themes:
+      * Same commands as title.ubu.
+
+    Modifying select.ubu:
+      * GRID (int) width, (int) height, (int) gWidth, (int) gHeight): Define an
+        abstract grid of which groups (i.e. fangame series) are determined and
+        characters are placed into to be selected. The number of groups are
+        given by the number of gWidth elements fit within width times the
+        number of gHeight elements fit within height.
+        * width: number of elements horizontally of the full grid
+        * height: number of elements vertically of the full grid
+        * gWidth: number of elements horizontally of a group
+        * gHeight: number of elements vertically of a group
+      * CURSOR (int) group, (str) curImg, (int) offX, (int) offY,
+        (str) selectImg, (int) frames, (int) speed, (bool) grows,
+        (str) selectSnd, (str) deselectSnd: Define cursor behavior for a group.
+        * group: what group this command concerns. Groups are numbered in
+          reading order. First group (top left) is 1
+        * curImg: name of the cursor image for this group
+        * offX: x offset of where to draw the cursor image
+        * offY: y offset of where to draw the cursor image
+        * selectImg: name of the selection animation "spritesheet" as a
+          (96x96n) image to draw when a player selects a character from this
+          group
+        * frames: number of frames to draw selectImg
+        * speed: number of frames to draw each "sprite" of selectImg
+        * grows: whether selectImg should grow during the animation
+        * selectSnd: name of the sound effect to play when a character of this
+          group gets selected
+        * deselectSnd: name of the sound effect to play when a character of
+          this group gets deselected
+      * CHAR (str) name, (int) gridX, (int) gridY: Populate the grid with
+        characters, placeholders, or nullspace in reading order.
+        * name: internal name of the character. If the name is "null", this
+          element is treated as nullspace (cursors cannot move here). If the
+          name is a valid character, this element will be bound to this
+          character (cursors can move here and select this character). If the
+          name is not a valid character, this element acts as a placeholder
+          (cursors can move here but not select a character).
+        * gridX: visual x position of this grid element
+        * gridY: visual y position of this grid element
+      * SELECT (str) img, (float) x, (float) y, [(str) blend, (float) xvel,
+        (float) yvel, (bool) wraps]: Behaves the same as IMAGE except that this
+        is always drawn above everything else. Used to draw the HUD display.
+        * img: name of the image file
+        * x: x position
+        * y: y position
+        * blend: "additive", "subtractive", or "multiply"
+        * xvel: horizontal velocity
+        * yvel: vertical velocity
+        * wraps: whether the image should wrap around after leaving offscreen
+      * STAGES (str) font: Unused, I think.
+      * PLAYER (int) playerNum, (int) defaultX, (int) defaultY, (int) r,
+        (int) g, (int) b: Properties specific to player cursors.
+        * playerNum: player these properties apply to. First player is player 1
+        * defaultX: x position of default grid element to place cursor. Left
+          most grid element is 0
+        * defaultY: y position of default grid element to place cursor. Top
+          most grid element is 0
+        * r: red color mask to apply on the group's curImg
+        * g: green color mask to apply on the group's curImg
+        * b: blue color mask to apply on the group's curImg
+
+    Modifying versus.ubu:
+      * No additional menu commands!
+
+    Modifying options.ubu:
+      * FONT (str) font: Font used to draw text.
+        * font: name of the font used to draw text
+      * MADOTSUKI (str) spritesheet, (str) stepSnd, (str) pinchSnd: A character
+        that follows your cursor.
+        * spritesheet: name of a spritesheet used
+        * stepSnd: name of the sound played when this character moves
+        * pinchSnd: name of the sound played when backing out of options
+      * INACTIVE (int) r, (int) g, (int) b: Apply a color mask to inactive
+        menu elements.
+        * r: red mask
+        * g: green mask
+        * b: blue mask
+      * ACTIVE (int) r, (int) g, (int) b, [(int) xOffset]: Apply a color mask
+        and an optional offset to the active menu element.
+        * r: red mask
+        * g: green mask
+        * b: blue mask
+        * xOffset: x offset from original position. Defaults to 0.
+      * THEMES (int) number: Specify the number of themes.
+        * number: number of themes. If this is 0, fallback to the default
+          options.ubu theme, which has nothing. Otherwise, randomly select a
+          theme from the list where all themes have a weight of 1.
+      * THEME (str) ubu: Specify a possible theme.
+        * ubu: name of a title theme .ubu script file
+      * VOICES (str) dame, (str) muri: Voice lines used to test voice volume.
+        * dame: name of the sound played when decreasing voice volume
+        * muri: name of the sound played when increasing voice volume
+
+    Modifying options themes:
+      * Same commands as options.ubu.
+
+    Modifying netplay.ubu:
+      * BGM (str) idle, (str) waiting: Play music while on the netplay menu.
+        * idle: name of the bgm to play when on the menu doing nothing
+        * waiting: name of the bgm to play when waiting for a connection
+      * SFX_CONNECT (str) start, (str) success: Play a sound effect when a
+        connection has been established.
+        * start: name of the sfx to play when a connection has been established
+        * success: unused, I think
+      * LOGO (str) img: Draw the logo.
+        * img: name of the image to draw as the logo
+      * SCANLINES (str) scanlinesImg, (str) staticImg: Draw scanlines and
+        static to emulate an old TV effect.
+        * scanlinesImg: name of the image overlayed to emulate scanlines
+        * staticImg: name of the image overlayed to emulate static
+      * MENU (str) font, (str) cursorImg: Draw menu elements.
+        * font: name of the font used to draw text
+        * cursorImg: name of the image used to draw a cursor
+      * SFX_TV (str) on, (str) off: Play sound effects when entering or exiting
+        the netplay menu.
+        * on: name of the sfx played when entering the netplay menu
+        * off: name of the sfx played when exiting the netplay menu
+
+    Modifying credits.ubu:
+      * LOGO (str) img: Draw the logo.
+        * img: name of the image to draw as the logo
+      * CREDITS (str) font, (str) creditsTxt: Draw the credits text.
+        * font: name of the font to draw text
+        * creditsTxt: name of the text file that has the credits information
+          with formatting:
+          * If a line of text has ':' in the front, it is a "title".
+          * Otherwise, it is a "name".
+      * COLOR (int) titleR, (int) titleG, (int) titleB, (int) nameR,
+        (int) nameG, (int) nameB: Specify the colors used to draw the credits
+        text given formatting:
+        * titleR: red mask for "title" text
+        * titleG: green mask for "title" text
+        * titleB: blue mask for "title" text
+        * nameR: red mask for "name" text
+        * nameG: green mask for "name" text
+        * nameB: blue mask for "name" text
+
+    Adding other menus:
+      * The only real way to add menus is to modify the source code.
+      * If you do add menus, they should inherit from the Menu class.
+        * Many of the functions that the Menu class provides should be
+          overwritten.
+        * What you call this menu dictates what .ubu file and directory assets
+          will be looked in.
+        * An entry should be added to the menu enums.
+        * Menu::ginit() should construct this menu object. Additionally, it can
+          also call .init() if you want the menu to load when the executable
+          loads rather than when the menu first needs to be loaded.
+
+    What modifying the source code allows:
+      * If the current system of menus is unfavorable, you can change how they
+        work. For example, you could add scripts that describe the behavior
+        rather than hard coding it in the executable.
+      * You can add/remove/modify menus as stated above.
+      * You can change the behavior of menu commands if command syntax seems
+        odd. You could even overhaul the entire system.
+
+  3.3 Stages
+
+    My notes on stages:
+      * The last video on Dream vs. Dream's YouTube channel is about stage
+        animations. This was not implemented in version 0.2. The mockups made
+        for the video were made in Flash. You can find some of those Flash
+        files on some Tumblr pages. Some of the differences between these
+        mockups and version 0.2 are as follows:
+        * The mockups have animated stage elements. Version 0.2 only has static
+          images.
+        * The mockups allow different ways for stage elements to blend with one
+          another, such as multiply and screen. Version 0.2 only allows normal
+          blending (overlaying).
+        * Although not explicitly shown, it is implied by the mockups that some
+          stages have stage elements that can be spawned (such as air bubbles
+          that spawn on underwater characters). There is nothing in version 0.2
+          that allows for this.
+      * Stage index 3, yn_dungeon, specifically has special hard-coded visual
+        and audio properties within the source code. To generalize the concept
+        and allow for expandability, each stage could load its own shaders. If
+        that is not possible, then stage options could be added to allow stages
+        to have an effect.
+
+    What is needed:
+      * A text editor to modify the stage.ubu script file.
+      * An animated thumbnail for the stage "thumbnail.gif".
+      * Additional resources for the stage.
+
+    Limitations without programming:
+      * There is a hard-coded limit of 20 stages. They must be named:
+        * yn_balcony
+        * yn_block
+        * yn_desert
+        * yn_dungeon
+        * yn_garden
+        * yn_masada
+        * yn_numbers
+        * yn_poniko
+        * yn_sewers
+        * yn_wilderness
+        * flow_child
+        * flow_helltech
+        * flow_hotel
+        * flow_plant
+        * flow_rainbow
+        * flow_rot
+        * flow_school
+        * flow_sugar
+        * flow_underwater
+        * flow_white
+      * As always, you are restricted to whatever was implemented in the source
+        code.
+      * You are only allowed static images, no animated images. The only sort
+        of movement allowed are velocity-based moving images.
+
+    Making images for stages:
+      * Dream vs. Dream runs in 640x480 windowed. This is a 4:3 aspect ratio.
+        Most stages follow this aspect ratio, so most images that stage artists
+        draw should also be in this aspect ratio. You can deviate from this if
+        you know the stage dimensions.
+      * In stage.ubu, there is a parallax factor that determines how fast the
+        image should scroll when the camera moves. Assuming that you design an
+        image to scroll from end to end, there is a simple formula for this:
+        * parallax = (image width - 640) / (stage width - 640)
+        * The number 640 is from the width of the screen. You could also apply
+          a similar formula for the height.
+      * The most common parallax values are multiples of 0.2. Rearranging the
+        above formula, you can determine what image size you should use:
+        * image width = (stage width - 640) * parallax + 640
+        * The number 640 is from the width of the screen. You could also apply
+          a similar formula for the height.
+
+    Adding other assets:
+      * A playable stage should have:
+        * stage.ubu script
+        * thumbnail.gif
+          * The thumbnail is searched for directly in the executable. There is
+            no THUMBNAIL command that is actually read in stage.ubu.
+        * stage images
+        * music in .ogg format (see below)
+
+    Making stage.ubu:
+      * IMAGE_A (str) img, (float) parallax, [(int) round, (float) xvel,
+        (float) yvel, (bool) wraps]: Draw a stage image above characters with
+        some transparency.
+        * img: name of the stage image
+        * parallax: parallax factor, how fast the stage image scrolls with the
+          camera. See the above info for making images for stages. Usually
+          greater than 1
+        * round: what round to draw this image in. If 0, draw this for all
+          rounds. Defaults to 0
+        * xvel: horizontal velocity of the stage image
+        * yvel: vertical velocity of the stage image
+        * wraps: whether this stage image wraps after scrolling offscreen
+      * IMAGE_B (str) img, (float) parallax, [(int) round, (float) xvel,
+        (float) yvel, (bool) wraps]: Same thing as IMAGE_A except that this
+        stage image is drawn behind characters with full opacity.
+        * img: name of the stage image
+        * parallax: parallax factor, how fast the stage image scrolls with the
+          camera. See the above info for making images for stages. Usually
+          less than or equal to 1
+        * round: what round to draw this image in. If 0, draw this for all
+          rounds. Defaults to 0
+        * xvel: horizontal velocity of the stage image
+        * yvel: vertical velocity of the stage image
+        * wraps: whether this stage image wraps after scrolling offscreen
+      * WIDTH (int) width: Half of the player moveable width of the stage.
+        Usually half of WIDTH_ABS. This concerns characters.
+        * width: distance from the center of the stage for player bounds
+      * HEIGHT (int) height: Height of the bottom of the screen that characters
+        stand on.
+        * height: number of pixels from the bottom of the screen that ground is
+          located
+      * WIDTH_ABS (int) widthAbs: Full width of the camera pannable stage.
+        Usually double of WIDTH. This concerns the camera.
+        * widthAbs: full width that the camera can pan
+      * HEIGHT_ABS (int) heightAbs: Full height of the camera pannable stage.
+        * heightAbs: full height that the camera can pan
+      * BGM (str) bgm, [(str) bgmLoop]: Stage music with an optional "intro"
+        part.
+        * bgm: name of the "intro" music file. Will be played first. Will loop
+          this if bgmLoop is not specified
+        * bgmLoop: name of the "loop" music file. Will play after "intro". Will
+          loop this instead of "intro"
+      * BGM2 (str) bgm, [(str) bgmLoop]: Stage music with an optional "intro"
+        part.
+        * bgm: name of the "intro" music file. Will be played first. Will loop
+          this if bgmLoop is not specified
+        * bgmLoop: name of the "loop" music file. Will play after "intro". Will
+          loop this instead of "intro"
+
+    Adding other stages:
+      * Unless you replace the existing stages, you cannot add new stages
+        without modifying the source code. As mentioned above, the stages are
+        hardcoded to be specifically the 20 stages.
+      * If you do modify the array of stages, you will still need to change the
+        stage selection screen to accommodate for these new stages.
+
+    What modifying the source code allows:
+      * In addition to adding new stages, you can also modify stage commands.
+        For example, if you wanted to modify the IMAGE commands to allow for
+        different types of blending, that is possible. If you wanted to add a
+        command that can play a sequence of images one after another
+        (animation), it is possible; I have done that.
+
+  3.4 Fonts
+
+    My notes on fonts:
+      * Dream vs. Dream uses its own unique font format that requires a PNG
+        file and a descriptor text file. See Section 2.4 on the fontbuild
+        executable for more information on how "fonts" are created.
+      * Dream vs. Dream's specific font file is somewhat limited:
+        * There are already font file standards that many fonts use, such as
+          TrueType font (.ttf) files. In addition, these fonts can address a
+          lot the limitations below, such as allowing for Unicode characters,
+          if that may be needed.
+
+    What is needed:
+      * In order to create .rf fonts for Dream vs. Dream, you need the
+        fontbuild executable.
+
+    Limitations without programming:
+      * You are limited to a certain subset of the 128 ASCII characters. See
+        Section 2.4 on the fontbuild executable.
+      * Something that came to me recently is internationalization and
+        localization. What if you wanted to make Dream vs. Dream accessible to
+        people who read different languages?
+        * If you are concerned with only English, you can use the first 128
+          ASCII characters.
+        * Many European languages use diacritics and other markings with the
+          Latin alphabet, which if inside the extended ASCII character set may
+          or may not work.
+        * Other languages need Unicode characters, which are not supported.
+        * In terms of actually implementing internationalization and
+          localization, you would probably use something like gettext, which,
+          from my brief research into it, gets the correct text by looking up
+          the original text in the specified language.
+
+    Making fonts:
+      * As described in Section 2.4, you need two components for each .rf font
+        you make:
+        * A .png image of characters on the same row. Align them vertically as
+          you would in normal writing.
+        * A descriptor file. You can specify if the font is monospaced and if
+          it is case insensitive. See Section 2.4 and other font descriptor
+          files for the format of this file.
+
+    Using fonts to display text:
+      * In DvD, Font objects are generally constructed inside Menu objects.
+        These font objects have functions to measure the width of text so that
+        you can anchor text to a location. Most importantly, they have a
+        drawText function that takes a location, text, and optionally, a color
+        mask.
+_______________________________________________________________________________
+
+4. Programming
+
+    Information of programming-related things for the Dream vs. Dream project.
+
+  4.1 Libraries
+
+    Dream vs. Dream requires these libraries:
+      * GIFLIB: Used for DvD
+      * libpng: Used for atlas, DvD, sprtool
+      * libsndfile: Used for DvD
+      * SDL2: Used for DvD, sprtool
+      * zlib: Used for atlas, DvD
+      * any other libraries that these libraries require, and so on
+      * any other runtime libraries depending on what was used to compile
+
+  4.2 Source Code Fixes
+
+    Just obtaining the correct libraries and linking them to the projects was
+    not enough to get the Dream vs. Dream projects to work. I also had to
+    modify some source code.
+
+    Here is where we get into tricky territory and where the disclaimer in
+    Section 1 really comes into play. Different C++ compilers can have
+    different implementations of the same source code. In addition, different
+    operating systems are even more likely to have differing behavior. Combine
+    all of this with my limited C++ knowledge and you have a list of changes I
+    made that may not be the ideal solution, for myself or for anyone.
+
+      4.2.1 Fixing Compiler and Linking Errors
+
+        Even after acquiring the appropriate libraries and linking them, I
+        still had compile and linking errors. These are some of the changes to
+        source that I have made.
+
+        My goal with these changes were simply to get Dream vs. Dream running
+        on my computer, since at the time, I had doubts it was even possible.
+        Code style was not a priority. As it turns out, it is possible, and I
+        am very glad that I could get it to work. However, some of these
+        "solutions" feel like "hacks" and I probably would not do this now.
+
+        I list where the fixes are, but the line number may be off by a few
+        lines. Look for the line that I am referring to, which should be near.
+
+        General solutions:
+          * For fixes that say "Use absolute path":
+            * The read functions attempt to read a relative filepath as an
+              absolute filepath, which obviously does not work.
+              "util::getPath()" turns a relative filepath into an absolute
+              filepath. Whenever you need an absolute filepath, use
+              "util::getPath()". This problem comes up many times.
+              * I suspect that the reason why this behaves this way is that it
+                does not behave this way on another operating system. I believe
+                that the developer of Dream vs. Dream used another operating
+                system, not Windows, that could read relative filepaths as
+                absolute filepaths. Or maybe not. I do not know.
+
+          * For fixes that say "#define SDL_MAIN_HANDLED":
+            * SDL defines the "main" function in a particular way. Adding this
+              preprocessor statement to the beginning of the source files
+              causes SDL to not do so.
+              * Actually, after I applied these changes, I played around with
+                my own SDL project. As it turns out, if you change the header
+                of the main function from "int main(int argc, char ** argv)" to
+                "int main(int argc, char * argv[])", you do not need to add
+                that preprocessor statement. I do not know if this will work
+                for Dream vs. Dream, but I think it will.
+
+        For project atlas:
+          * image.cpp: Use absolute path
+            * line 30: Change "szFileName_" to "util::getPath(szFileName_)"
+            * line 159: Change "szFileName_" to "util::getPath(szFileName_)"
+            * line 226: Change "szFileName_" to "util::getPath(szFileName_)"
+
+        For project compiler:
+          * main.cpp: Use absolute path
+            * line 185: Change '"chars/" + name + "/character.ubu"' to
+              'util::getPath("chars/" + name + "/character.ubu")'
+            * line 234: Change '"chars/" + name + "/sprites.ubu"' to
+              'util::getPath("chars/" + name + "/sprites.ubu")'
+            * line 295: Change '"chars/" + name + "/sounds.ubu"' to
+              'util::getPath("chars/" + name + "/sounds.ubu")'
+            * line 340: Change '"chars/" + name + "/voices.ubu"' to
+              'util::getPath("chars/" + name + "/voices.ubu")'
+            * line 386: Change '"chars/" + name + "/states.ubu"' to
+              'util::getPath( "chars/" + name + "/states.ubu")'
+            * line 593: Change '"chars/" + name + "/commands.ubu"' to
+              'util::getPath("chars/" + name + "/commands.ubu")'
+
+        For project DvD:
+          * animation.cpp:
+            * line 137: Change "DGifCloseFile(gif);" to
+              "DGifCloseFile(gif, nullptr);"
+              * In an older version of GIFLIB, DGifCloseFile may have taken one
+                parameter (GifFileType* GifFile), but the version I used has
+                DGifCloseFile takes two,
+                (GifFileType* GifFile, int* ErrorCode). I added a nullptr to
+                the function call.
+            * lines 140 to 142: Remove "if(f) { fclose(f); }"
+              * If I remember correctly, there is an unnecessary call to
+                "fclose(f)" because DGifCloseFile automatically closes the
+                file. In an older version of GIFLIB, this may not have been the
+                case.
+          * file.cpp: Use absolute path
+            * line 35: Change 'szFileName + ".gz"' to
+              'util::getPath(szFileName + ".gz")'
+            * line 42: Change "szFileName" to "util::getPath(szFileName)"
+          * globals.h:
+            * anywhere inside header guard: Add "#define strcasecmp _stricmp",
+              if using MSVSC++ runtime
+              * VS's runtime is not entirely compatible with POSIX standard, I
+                think. "strcasecmp" does not exist, but "_stricmp" exists.
+          * main.cpp:
+            * line 1: Add "#define SDL_MAIN_HANDLED"
+
+          * graphics.cpp: OPTIONAL change, requires additional change in os.cpp
+            * line 259: Change "sprintf8" to "sprintf" and "OS" to "os"
+              * Macro SHOW_FPS was probably abandoned some time during
+                development. If you want to enable this, you also have to
+                change "OS" to "os" and "sprintf8" to "sprintf". Although a
+                quick glance at the code makes me think that the code is not
+                wrong, I still have doubts that the FPS counter is correct.
+          * os.cpp: OPTIONAL change, required if above graphics.cpp was changed
+            * anywhere at the top: Add "#include <SDL2/SDL_video.h>"
+            * anywhere inside namespace os: Add "void setTitle
+              (const char* title) { SDL_SetWindowTitle(window, title); }"
+              inside namespace os
+              * This implements an unused function. Using SDL_SetWindowTitle
+                requires you to include SDL_video.h.
+
+        For project sprtool:
+          * main.cpp:
+            * line 1: Add "#define SDL_MAIN_HANDLED"
+            * line 51: Use absolute path, change
+              '"chars/" + name + "/sprites.ubu"' to
+              'util::getPath("chars/" + name + "/sprites.ubu")'
+            * lines 117 to 118: Use absolute path, change
+              '"chars/" + name + "/sprites.ubu"' to
+              'util::getPath("chars/" + name + "/sprites.ubu")' in 117,
+              '"chars/" + name + "/sprites.ubu.bak"' to
+              'util::getPath("chars/" + name + "/sprites.ubu.bak")' in 117, and
+              '"chars/" + name + "/sprites.ubu"' to
+              'util::getPath("chars/" + name + "/sprites.ubu")' in 118
+
+        For dependency SDL2:
+          * SDL2/SDL_opengl.h: Comment out conflicting out gl declarations
+            * line 1688: Comment out
+              "GLAPI void GLAPIENTRY glBlendEquation( GLenum mode );"
+            * line 1884: Comment out
+              "GLAPI void GLAPIENTRY glActiveTexture( GLenum texture );"
+              * There is a redefinition error with "glActiveTexture" and
+                "glBlendEquation". I commented out the declarations in
+                SDL_opengl.h. I truly think that there probably is a better way
+                to fix this, but I do not know.
+
+      4.2.2 Logical Fixes
+
+        After fixing the above, Dream vs. Dream may work for you. However,
+        Dream vs. Dream is not a finished and complete game.
+
+        One bug in particular stood out to me: the credits did not show up. As
+        it turns out, there were two bugs caused by different reasons.
+
+        Fixing the credits:
+          * In menu.cpp:
+            * In function MenuCredits::draw(): Change the condition
+              "y - (int)logo.h >= 0" to "y + (int)logo.h >= 0"
+              * The old math logic caused the condition to always be false, so
+                the logo would never show up.
+            * In function MenuCredits::parseLine(): Change
+              "getResource(parser.getArg(2), EXT_TEXT)" to
+              "util::getPath(getResource(parser.getArg(2), EXT_TEXT))" inside
+              the block where the parser is parsing for "CREDITS".
+              * This is another relative paths vs. absolute paths problem.
+
+  4.3 Example Modifications
+
+    The main reason why I wanted to be able to modify the source code in the
+    first place was so that I can play around with Dream vs. Dream. I wanted to
+    see what I could have added beyond version 0.2. I mainly did this to try to
+    add small things on top of Dream vs. Dream.
+
+    I do not have the vision that the Dream vs. Dream development team had. I
+    wrote this documentation for people who are curious about how Dream vs.
+    Dream works, for people who want to tinker around with small changes, for
+    people like me.
+
+    Dream vs. Dream was written in C++. As such, anything you can imagine for
+    Dream vs. Dream is possible given enough motivation and time to do it. Here
+    is a sample of some things I changed from Dream vs. Dream version 0.2 as of
+    6 August, 2020. (Yes, I know I never got around with finishing the
+    documentation.)
+
+    Modified general character attributes:
+      * Changed victim hit stun from 14 frames to 16 frames if hit, and 12
+        frames if blocked.
+      * Increased chip damage scaling from 0.1 to 0.125.
+      * Decreased special pause and cut-in animation from 41.67 frames to 18
+        frames.
+      * Decreased hit-hit stun (the global stun when a character gets hit) from
+        6 frames to 3 frames.
+      * Decreased hit-attack stun (the global stun when two attacks hit each
+        other) from 12 frames to 6 frames.
+        * As a result of all of these above changes, the game feels
+          significantly faster than it did in version 0.2.
+      * Added an implementation of super meter. Super meter gained is
+        proportional to the damage of the attack. If the victim is not
+        blocking, the attacker gets the full amount while the victim gets a
+        small amount. If the victim is blocking, the attacker gets a
+        significantly smaller amount and the victim gets a significantly higher
+        amount. Characters cannot use special moves that cost super meter
+        unless they have enough super meter. In my case, all moves that show a
+        cut-in require half of the super meter.
+      * Changed stun attack behavior to clear stunned opponents.
+        * A stun attack, such as Sabitsuki's ShockwaveA, could keep an opponent
+          indefinitely stunned. I changed it so that stunning an already
+          stunned opponent will unstun them. However, a "hurt" opponent can be
+          stunned. I forgot to change that.
+
+    Modified character character.ubu commands:
+      * Changed DEFENSE (float) defense to MAX_HP (int) maxhp:
+        * While defense * 10 was the character's effective max hp and had a
+          base of 100, I changed that to an integer value with a base of 1000.
+          I believe that dealing with actual integers is simpler, and I do not
+          like how floating point can be annoying when trying to deal with
+          exact values.
+
+    Modified character states.ubu commands:
+      * Changed Attack (float) damage, ... to Attack (int) damage, ...:
+        * In the same spirit as the above change, I scaled the damage up by 10.
+          Once again, exact numbers feel cleaner than floating point numbers.
+          The only inaccuracy that I have now is that chip damage may not be an
+          integer value. I think chip damage is floored, though.
+
+    Modified Madotsuki's states.ubu attributes:
+      * Added ability for 5A, 2A, 5B, and 2B to cancel into 4C.
+        * Before, Madotsuki was limited to either a ground combo or an air
+          combo. However, this change lets her start a 4C air combo from the
+          ground, although the timing window is fairly strict. Her best combo
+          is now:
+          [2A > 5A > 2B > 5B >] 4C > jump > 3*j5A > jump > 4*j5A > j5B > j6B >
+          j2C > land > 2C > 5C > 235C
+      * Decreased damage of 4C from 30+40 to 25+35.
+        * This move is a combo starter into an aerial combo, which can do a lot
+          of damage, as described above and below, so I nerfed 4C.
+      * Decreased damage of j5A from 25 to 20.
+        * A combo that involves an attack that can cancel into itself kind of
+          feels like cheating. In particular, you can use 4C, jump into 3 j5As,
+          and jump again into another 4 j5As, so I nerfed the damage of j5A.
+      * Increased damage of j5B from 50 to 60.
+        * Dual knives by itself is pretty difficult to hit on an opponent.
+          Realistically, you can only hit them with dual knives from a combo
+          that launches the opponent into the air. Anyone who can hit with dual
+          knives deserves to be rewarded.
+      * Increased damage of SnowballArc from 45 to 50.
+        * SnowballArc tends to be the least used snowball special, so I added a
+          small damage buff.
+      * Decreased damage of SnowballFast from 35 to 30, increased damage of
+        SnowballSuper from 35 to 50.
+        * The total damage remains the same, but being interrupted means that
+          you will do less damage.
+
+    Modified Sabitsuki's states.ubu attributes:
+      * Increased walk speed (both forward and backward) from 100 pixels per
+        second to 150 pixels per second.
+        * Madotsuki walked much faster than Sabitsuki, and I felt that that was
+          a bit unfair. Now Sabitsuki's walk speed is faster than Madotsuki's
+          backward walk speed but slower than Madotsuki's forward walk speed.
+      * Increased endlag of 5A from 12 frames to 14 frames.
+        * With the faster pace changes as mentioned above, I had to slow down
+          5A so that Sabitsuki could not lock the opponent into hit stun.
+      * Decreased startup of 5B from 12 frames to 10 frames, increased endlag
+        from 8 frames to 10 frames.
+        * Although 5B was reasonably powerful, it was fairly slow. This makes
+          5B more likely to hit while still lasting the same number of frames
+          on whiff.
+      * Increased knockback of the final hit of 3C from (1, 4) to (1, 18).
+        * 3C was always underutilized because the last hit always knocked
+          opponents down, not allowing for follow ups. By increasing vertical
+          knockback, Sabitsuki can jump cancel into an aerial combo, something
+          that she did not really have before then. However, this led to a
+          fairly broken combo that can do about 2/3 of Madotsuki's max hp:
+          2A > 2B > 2C > 3C > jump > j5A > j5C > land > 236A > 3C > jump >
+          j5A > j5C > land > [236A >] 5B > 236C > 214C.
+          At least she has a good aerial combo now.
+      * Increased endlag of 2A from 8 frames to 11 frames.
+        * Sabitsuki's 2A was one of the fastest attacks in the game. In order
+          to justify 47 damage as well as being a combo starter in addition to
+          the increased hit stun, I slowed this attack down just a little bit.
+      * Increased startup of 2B from 6 frames to 8 frames, increased endlag
+        from 10 frames to 12 frames.
+        * If Sabitsuki kept her old states, she would be broken with decently
+          powerful and very fast normals.
+      * Decreased startup of j5B from 13 frames to 11 frames.
+        * j5B's hitboxes did not seem too good. Combining that with the fact
+          that the effect does not match the hitbox, I think decreasing the
+          startup is a reasonable buff.
+      * Increased damage of GunC from 20+20+40 to 40+40+80, increased endlag
+        from 22 frames to 28 frames.
+        * GunC used to do an embarrassing low amount of damage for being a
+          cut-in special move. For comparison, j5B does almost the same amount
+          of damage. Now that the move costs super meter, I decided to
+          significantly buff the damage. In return, however, endlag is
+          increased slightly.
+      * Decreased stun time of ShockwaveA from 40 frames to 30 frames,
+        increased stun time of ShockwaveB from 40 frames to 50 frames.
+        * ShockwaveA saw a lot of usage because it was a moving projectile,
+          while ShockwaveB was always seen as an inferior ShockwaveA. This
+          change nerfs the usage of ShockwaveA while encouraging the usage of
+          ShockwaveB. Even then, I still find myself using ShockwaveA just as
+          often, so maybe even more drastic changes are required.
+
+    Modified character commands.ubu commands:
+      * Added multi-button input moves.
+        * I mainly added this so that a player can input a dash by pressing a
+          direction plus A and B rather than double pressing a direction.
+
+    Added/modified/removed new function keys:
+      * ESC: Modified
+        * Old behavior: Closes Dream vs. Dream.
+        * New behavior: Pauses in game. See below.
+        * I always found it annoying that pressing ESC would close the program
+          when F1 was close by. I wanted to remove this, but decided to
+          repurpose this to the pause menu when I implemented that.
+      * F2: Removed
+        * Old behavior: Opens credits.
+        * New behavior: Nothing.
+        * I honestly do not remember why I removed this. I think that I just
+          found a "developer" shortcut to the credits a bit odd.
+      * F5: Added
+        * Old behavior: Nothing.
+        * New behavior: Reloads character files if not in game.
+        * When making the above changes to Madotsuki and Sabitsuki, adding a
+          feature to reload the character files rather than having to restart
+          DvD greatly saved time. I think I disabled this for in game because
+          it would at times cause a runtime error due to sound.
+      * F8: Added
+        * Old behavior: Nothing.
+        * New behavior: Goes to the control configuration scene. See below.
+        * After adding the control configuration scene, I realized that a
+          player could horribly lock themselves to a terrible control scheme
+          with no way to fix it, so I added a developer shortcut to it. The
+          implementation of the control configuration scene virtually
+          guarantees that a player cannot softlock themselves.
+      * B input in title screen: Modified
+        * Old behavior: Quits Dream vs. Dream.
+        * New behavior: Moves cursor to "Quit" but does not quit.
+        * Similar to the ESC behavior, I found it annoying that the B input
+          would quit DvD when I meant to press the A input instead, so I made
+          the B input less severe.
+
+    Added menu elements:
+      * "Menu elements" are UI components that allow a user to navigate and do
+        actions. They should be conveyed clearly. In version 0.2, menu elements
+        were hardcoded in their respective areas: title and options. However, I
+        decided to make somewhat proper components that could be reused. These
+        include:
+        * Selectable: A menu element that would do an action when a user hovers
+          over it and presses an A input. For example, the "go to" Credits
+          option in the Options scene.
+        * ValuedInt: A menu element that can adjust a setting based on a list
+          of integers. For example, the volume settings.
+        * Enumed: A menu element that can adjust a setting based on a
+          enumerated list. For example, the winner on timeout setting.
+      * "Submenus" are menus themselves. However, they have an action that
+        happens when a user presses a B input (most commonly, changing the menu
+        to a previous menu). In this case, all menus are submenus, so the
+        necessary Selectable elements need to link their A action to their
+        corresponding submenu and all submenus need to link their B action
+        accordingly.
+
+    Added menu description bar:
+      * The menu description bar I added is a small footer area at the bottom
+        of the title menu that has description text. For example, the
+        description text for "Versus CPU" is "Fight a computer player. WIP AI."
+        See below for AI scripts. This small change was not necessary, but I
+        thought that it could serve as a small mockup of how the menu might
+        look like. However, everything is hardcoded in the source code.
+
+    Added character animation in character select screen:
+      * To select a character, you would move your cursor to the character,
+        press A, select the palette, and then press A again to ready up. After
+        pressing A the first time, the character's first sprite would show up.
+        I changed it so that after you press A to ready up, your character does
+        their state 0 animation (usually the standing animation).
+
+    Added new unused stages:
+      * In Dream vs. Dream version 0.2, there were 10 stages each for Yume
+        Nikki and .flow. They were separated by row. I modified it to include
+        a total of 40 stages, 10 each for Yume Nikki, .flow, Yume 2kki, and
+        others. However, most of those additional stages are blank
+        placeholders: they are not drawn and the cursor cannot even hover over
+        them. Some of these stages are missing a lot of what makes a stage a
+        stage. I did however add some of those stages as playable:
+        * y2_apartment
+          * WIDTH_ABS: 640
+          * HEIGHT_ABS: 480
+          * bgm: no
+        * y2_beach
+          * WIDTH_ABS: 1280
+          * HEIGHT_ABS: 960
+          * bgm: 1
+        * y2_mushroom
+          * WIDTH_ABS: 1280
+          * HEIGHT_ABS: 960
+          * bgm: 1
+        * other_clock
+          * WIDTH_ABS: 1280
+          * HEIGHT_ABS: 960
+          * bgm: no
+        * other_needles
+          * WIDTH_ABS: 1280
+          * HEIGHT_ABS: 960
+          * bgm: no
+        * other_starry
+          * WIDTH_ABS: 1280
+          * HEIGHT_ABS: 960
+          * bgm: no
+        * other_wasteland
+          * WIDTH_ABS: 1280
+          * HEIGHT_ABS: 960
+          * bgm: no
+
+    Added stage information in stage select screen:
+      * In the stage select screen, I added additional information that I think
+        could be useful when selecting or testing stages:
+        * The internal name of the stage is shown at the top. Stages do not
+          have information for a well-titled "display" name, so I just put the
+          internal name.
+        * The player can change what music plays in that stage with the C
+          input. If the stage has two different tracks, it will cycle between
+          Random, BGM1, BGM2, and Off. If the stage has one track, it will
+          toggle between BGM1 and Off. If the stage does not have any tracks,
+          it will remain Off. This information is displayed bottom left.
+        * The absolute width (from left bound to right bound) of the stage is
+          displayed in the bottom right.
+
+    Modified stage commands and draw behavior / added animated stage elements:
+      * In version 0.2, the stage drew stage images in a linked list. I changed
+        it to use vectors instead.
+      * yn_garden: The notable changes for this stage are the lights and the
+        fireflies, which were screened on top, and the night gradient, which
+        was multiplied on top. It resembles the stage preview video.
+      * flow_rainbow: The notable changes for this stage are the flowing
+        rainbow elements of the stage and the rainbow gradient, which was
+        multiplied on top.
+
+    Added control configuration scene:
+      * I added a scene to change the controls of both players. Having a
+        control customizer is fairly important so that players can change the
+        control scheme to whatever they feel is comfortable. For my computer
+        keyboard, it cannot register specific three simultaneous key input
+        combinations at a time, so I wanted to be able to change my control
+        settings. There is a way you could have done this in version 0.2, but
+        it was fairly complicated.
+      * The controls for the control configuration scene do not use the
+        players' controls. Rather, they specifically use the arrow keys for
+        navigation, and the space key to select an input. Once an input has
+        been selected, pressing a key will bind that input to that key.
+
+    Added pause menu:
+      * Regular Versus
+        * Options for pausing in game:
+          * Resume: Unpause the game.
+          * Reset Match: Reset this match (scores, meters, rounds, etc. reset).
+          * Select Characters: Go to the character select scene.
+          * Quit to Title: Go to the title menu.
+      * Training Mode
+        * Same as Regular Versus's pause menu except it has another menu
+          element:
+          * Training Options: Selecting this brings up more "training" options:
+            * Game Speed: Changes the gameplay speed. Effects still play at
+              normal speed. [20% to 200% in increments of 10%, 200% to 400% in
+              increments of 50%]
+            * Show Stage: Draw the stage or draw only a black or white
+              background. [On, Black, White]
+            * Show HUD: Draw HUD elements (everything besides the stage and
+              characters) or disable them. [On, Off]
+            * Player Options: Selecting this brings up player specific training
+              options:
+              * Player 1 Control: Determines how character 1 gets inputs.
+                [Human, CPU, None]
+                * Human: player is human controlled (by keyboard)
+                * CPU: player is controlled by AI script (see below)
+                * None: player is not controlled
+              * Player 2 Control: Same thing but for character 2. [Human, CPU,
+                None]
+              * Super Meter: Control super meter behavior. [Normal, Always 0,
+                Always 500, Always 1000, Reset 0, Reset 500, Reset 1000]
+                * Normal: accumulate and use meter normally
+                * Always: meter always stays at this value regardless of any
+                  actions that would accumulate or use meter
+                * Reset: meter resets to this value after a combo ends,
+                  otherwise accumulate and use meter normally while in a combo
+
+    Added significant pause stun on KO attack:
+      * In version 0.2, the characters behave in normal time after a character
+        gets KO'ed. I modified this so that there is a significant global pause
+        stun when a character gets KO'ed to emphasize that finishing move.
+
+    Added win screen scene and menu:
+      * In version 0.2, the win "menu" was a simple hack that was in the same
+        scene as the fight scene. I made a new win scene and included three
+        options:
+        * Rematch
+        * Select Characters
+        * Quit to Title
+      * If it was a local game, only one set of options would be shown. If it
+        was a netplay game, each player gets a set of options. The lowest
+        option takes priority. For example, if one player wanted to rematch but
+        the other player wanted to select characters, they would go the
+        character select scene. If a player chose to quit to title, the netplay
+        connection would instantly stop.
+
+    Added options and reorganized into suboptions:
+      * In version 0.2, all options were listed in the options scene. I added
+        the concept of submenus such that some options would be placed into
+        these submenus:
+        * Gameplay Options:
+          * Difficulty: Previously did nothing. Now controls the AI's latency,
+            see below. [1, 2, 3, 4, 5]
+          * Wins: [1, 2, 3]
+          * Time: Length of time in seconds for each round. [60, 99, Unlimited]
+          * Winner on Timeout: This is a new option that controls who wins the
+            round when time runs out.
+            * Most HP Left: The winner is whoever has the most absolute hp
+              left. This favors characters who have a high amount of hp.
+            * Highest HP Percent: The winner is whoever has the highest
+              percentage of their hp left. This favors characters who do not
+              have too many weaknesses in terms of hp and damage.
+            * Most Damage Done: The winner is whoever has lost the least amount
+              of absolute hp. This favors character who can do a high amount of
+              damage.
+            * Always Draw: Timeouts will always result in a draw. This favors
+              characters who can force timeouts whenever desired.
+        * Audio Options: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+          * SFX Volume
+          * Music Volume
+          * Voice Volume
+        * Video Options:
+          * Fullscreen: Set the type of fullscreen as dictated by SDL2.
+            * Off: Apply windowed 640x480.
+            * Real: Apply fullscreen.
+            * Desktop: Attempt SDL2's local fullscreen, which may not work.
+        * Photosensitivity Mode: [Off, On]
+        * Controls: Go to the Controls scene.
+        * Credits
+        * Intro: Go to the Intro scene.
+
+    Added ability to AI script / added ability to fight computer player:
+      * I added the ability for a Lua AI script to control the inputs for a
+        character. I added latency limitations such as: reaction time, input
+        delay, and input throttling. The difficulty option above decreases the
+        limitations as the difficulty increases. As of now, the AI I am using
+        for all three characters is random button mashing, although you could
+        theoretically script your own algorithm.
+      * Since I added the ability for an automated player, I added the Versus
+        CPU menu item. A human player can select their own character and the
+        computer player's character and play a match against the computer.
+      * I was inspired to use scripting in general when I saw a developer's
+        Tumblr post on using Ruby scripting to replace .ubu scripts. However, I
+        used Lua scripting instead to see if scripting a simple AI was
+        possible. As it turns out, it is. Anything is possible if you are
+        willing to spend the time.
+
+  4.4 Continuing the Legacy
+
+    Dream vs. Dream is a dead project.
+
+    An individual can only do so much: program, design, compose, draw, manage,
+    voice act, even others. But an individual cannot do all those things. I do
+    not know how Dream vs. Dream started, but I know how Dream vs. Dream ended:
+    the team dissolved; the community dissolved. If you want to work on Dream
+    vs. Dream, do it with as many dedicated people as you can and build a well
+    structured team and a well structured plan. Do not be too ambitious.
+
+    I apologize for sounding very stern above. I want to be as realistic as
+    possible. As said above, I wrote this document for people who are curious
+    about how Dream vs. Dream works, for people who want to tinker around with
+    small changes, for people like me, or people like you, interested enough to
+    read some or all parts of this document.
+
+    If, somehow, Dream vs. Dream has a new team that can work on it, I have a
+    lot of suggestions that I believe could improve Dream vs. Dream, too many
+    to address in this document. I may not join, but I would like to hear of
+    such an attempt.
+
+    Before I end off, I want to address some things to think about if Dream vs.
+    Dream was ever able to continue beyond its sedentary state. In Dream vs.
+    Dream's GitHub page, there is a license file. The GNU General Public
+    License, if I recall correctly lets you do whatever you want with Dream vs.
+    Dream besides closing the source or changing the license itself. If
+    copyright concerns you, please do research into the specific license to
+    determine what parts of Dream vs. Dream are under this restriction. Next,
+    research into the history of Dream vs. Dream or for planned and unused
+    assets may prove interesting and provide perspective into the vision behind
+    Dream vs. Dream. Above all, always remember what Dream vs. Dream is, a
+    fangame of fangames, a collaborative project in its prime, a 5 years and
+    counting dead project.
+
+    If, after all of this, you decide you do want to work on Dream vs. Dream,
+    you have my blessing. I cannot speak on behalf of those who worked on Dream
+    vs. Dream, but I would be willing to believe that they would not mind. If
+    you have any further questions about this document or anything else related
+    or not, you can try contacting me. However, I cannot promise to respond.
+    Thank you for reading.
