@@ -238,11 +238,9 @@ if(WIN32)
   target_link_libraries(DvD
     PRIVATE ws2_32
     PRIVATE shlwapi
-    PRIVATE opengl32
   )
   target_link_libraries(Sprtool
     PRIVATE shlwapi
-    PRIVATE opengl32
   )
 endif()
 
