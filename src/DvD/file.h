@@ -1,21 +1,22 @@
 #ifndef FILE_H_INCLUDED
 #define FILE_H_INCLUDED
 
-#include "globals.h"
-
-#define FILE_IO_READ 0
-#define FILE_IO_WRITE (1<<0)
-#define FILE_COMPRESS_NORMAL 0
-#define FILE_COMPRESS_GZ (1<<1)
-
-#define FILE_READ_NORMAL  (FILE_IO_READ|FILE_COMPRESS_NORMAL)
-#define FILE_READ_GZ      (FILE_IO_READ|FILE_COMPRESS_GZ)
-#define FILE_WRITE_NORMAL (FILE_IO_WRITE|FILE_COMPRESS_NORMAL)
-#define FILE_WRITE_GZ     (FILE_IO_WRITE|FILE_COMPRESS_GZ)
+#include <string>
 
 /// @brief High-level file read/write
 /// @details Designed for binary files, has its own RW protocol
 class File {
+public:
+	static constexpr auto FILE_IO_READ = 0;
+	static constexpr auto FILE_IO_WRITE = 1 << 0;
+	static constexpr auto FILE_COMPRESS_NORMAL = 0;
+	static constexpr auto FILE_COMPRESS_GZ = 1 << 1;
+
+	static constexpr auto FILE_READ_NORMAL = FILE_IO_READ | FILE_COMPRESS_NORMAL;
+	static constexpr auto FILE_READ_GZ = FILE_IO_READ | FILE_COMPRESS_GZ;
+	static constexpr auto FILE_WRITE_NORMAL = FILE_IO_WRITE | FILE_COMPRESS_NORMAL;
+	static constexpr auto FILE_WRITE_GZ = FILE_IO_WRITE | FILE_COMPRESS_GZ;
+
 public:
 	File();
 	~File();

@@ -9,6 +9,8 @@
 #include "error.h"
 #include "util.h"
 
+#include "sys.h"
+
 #include <fstream>
 
 Animation::Animation() :
@@ -94,9 +96,9 @@ Animation::Animation(const std::string& filename) {
     //Render all of the frames
     for(int i = 0; i < nFrames; i++) {
         //Create the Image
-        frames[i].createFromMemory(&gif[i * stride], width, height, COLORTYPE_RGBA, nullptr);
+        frames[i].createFromMemory(&gif[i * stride], width, height, Image::COLORTYPE_RGBA, nullptr);
         // stb_image stores delays in units of 1/1000ths of a second
-        frameTimes[i] = static_cast<int>(delays[i] * FPS / 1000.0f);
+        frameTimes[i] = static_cast<int>(delays[i] * sys::FPS / 1000.0f);
     }
 
 end:
@@ -108,14 +110,14 @@ end:
     }
 
     if(error) {
-        die("Could not load GIF file \"" + path + "\"");
+        error::die("Could not load GIF file \"" + path + "\"");
     }
 }
 
 void Animation::setPlaying(bool playing) {
     this->playing = playing;
     if(playing) {
-        startFrame = os::frame;
+        startFrame = sys::frame;
     }
 }
 
@@ -133,7 +135,7 @@ void Animation::draw(int x, int y) {
         }
 
         //Determine the frame we must be on
-        int time = (os::frame - startFrame) % total;
+        int time = (sys::frame - startFrame) % total;
         for(int i = 0; i < nFrames; i++) {
             if(time < frameTimes[i]) {
                 frame = i;

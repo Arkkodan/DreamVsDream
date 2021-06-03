@@ -1,8 +1,6 @@
 #ifndef ATLAS_H_INCLUDED
 #define ATLAS_H_INCLUDED
 
-#include "globals.h"
-
 #include "image.h"
 #include "file.h"
 
@@ -28,7 +26,7 @@ public:
 	Atlas(const Atlas& other) = delete;
 	Atlas& operator=(Atlas& other) = delete;
 
-	bool create(File& file, const ubyte_t* palette);
+	bool create(File& file, const uint8_t* palette);
 
 	void draw(int sprite, int x, int y, bool mirror);
 	void drawSprite(int sprite, int x, int y, bool mirror);

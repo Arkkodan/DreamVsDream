@@ -1,20 +1,21 @@
 #ifndef STAGE_H_INCLUDED
 #define STAGE_H_INCLUDED
 
-#include "globals.h"
-
-#include "menu.h"
+#include "scene/scene.h"
 #include "animation.h"
 
-extern int stage;
-#define STAGE stages[stage]
+#define STAGE Stage::stages[Stage::stage]
 
 /// @brief Stage class including creation, logic, and drawing
 class Stage {
 public:
+	static int stage;
+	static Stage stages[];
+
+public:
 	std::string name;
-	MenuImage* imagesAbove;
-	MenuImage* imagesBelow;
+	SceneImage* imagesAbove;
+	SceneImage* imagesBelow;
 	audio::Music bgm;
 	audio::Music bgm2;
 
@@ -47,7 +48,5 @@ public:
 	static void ginit();
 	static void deinit();
 };
-
-extern Stage stages[];
 
 #endif // STAGE_H_INCLUDED

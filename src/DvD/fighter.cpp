@@ -34,8 +34,8 @@ namespace game {
 		//Get that file opened
 		File file;
 		std::string path = util::getPath("chars/" + name + ".char");
-		if(!file.open(FILE_READ_NORMAL, path)) {
-			die("Could not load fighter \"" + path + "\"");
+		if(!file.open(File::FILE_READ_NORMAL, path)) {
+			error::die("Could not load fighter \"" + path + "\"");
 		}
 
 		//Read header
@@ -56,8 +56,8 @@ namespace game {
 			palettes = nullptr;
 		}
 
-		ubyte_t palette_first[256 * 3];
-		ubyte_t palette[256 * 3];
+		uint8_t palette_first[256 * 3];
+		uint8_t palette[256 * 3];
 
 		//Initialize first colors to 0
 		for(int i = 0; i < 3; i++) {
@@ -66,7 +66,7 @@ namespace game {
 		}
 
 		for(int i = 0; i < nPalettes * 2; i++) {
-			ubyte_t* pal;
+			uint8_t* pal;
 			if(i == 0) {
 				pal = palette_first;
 			} else {

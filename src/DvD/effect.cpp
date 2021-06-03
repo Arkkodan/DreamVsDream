@@ -7,9 +7,11 @@
 #include "graphics.h"
 #include "util.h"
 
-#define EFFECT_MAX 256
+#include "sys.h"
 
 namespace effect {
+    constexpr auto EFFECT_MAX = 256;
+
     //VARIABLES
     int nEffectAnims = 0;
     EffectAnimation* effectAnims = nullptr;
@@ -54,7 +56,7 @@ namespace effect {
         for(std::vector<std::string>::size_type i = 0, last = -1; i < files.size(); i++) {
             if(std::find(files.begin(), files.end(), util::toString(i+1) + ".png") != files.end()) {
                 if(last != i - 1) {
-                    error("Missing frames in effect animation \"" + name + "\".");
+                    error::error("Missing frames in effect animation \"" + name + "\".");
                     return;
                 }
                 nFrames++;
@@ -114,7 +116,7 @@ namespace effect {
 
         //We failed to find the animation
         if(i == nEffectAnims) {
-            error("Could not find the effect animation \"" + name + "\".");
+            error::error("Could not find the effect animation \"" + name + "\".");
             this->x = this->y = this->frameEnd = this->frameStart = 0;
         } else {
             //Create object
@@ -125,7 +127,7 @@ namespace effect {
             this->speed = speed;
 
             //Calculate the start and end frames
-            this->frameStart = os::frame;
+            this->frameStart = sys::frame;
             this->frameEnd = this->frameStart + (unsigned int)(anim->getNumFrames() * nLoops * speed);
         }
     }
@@ -138,14 +140,14 @@ namespace effect {
     }
 
     bool Effect::exists() {
-        return frameEnd > os::frame;
+        return frameEnd > sys::frame;
     }
 
     void Effect::draw() {
         if(!exists())
             return;
 
-        Image* frame = anim->getFrame((os::frame - frameStart) / speed);
+        Image* frame = anim->getFrame((sys::frame - frameStart) / speed);
 		
 		int x1 = x - frame->w / 2;
 		int y1 = y - frame->h / 2;
@@ -155,7 +157,7 @@ namespace effect {
 			y1 += parent->pos.y;
 		}
 
-        graphics::setRender(RENDER_ADDITIVE);
+        graphics::setRender(Image::RENDER_ADDITIVE);
         if(moveWithCamera)
             frame->drawSprite(x1, y1, mirror);
         else

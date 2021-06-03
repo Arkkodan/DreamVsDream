@@ -11,6 +11,16 @@
 #include "../DvD/player.h"
 #include "../DvD/error.h"
 
+#include "../DvD/sys.h"
+
+#ifdef _WIN32
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
+#endif
+
 #if(_MSC_VER) // MSVC uses _stricmp instead of strcasecmp
 #define strcasecmp(str1, str2) _stricmp(str1, str2)
 #endif
@@ -47,7 +57,7 @@ AtlasList::~AtlasList() {
 
 bool AtlasList::create(std::string szFileName) {
 	File file;
-	if(!file.open(FILE_READ_NORMAL, szFileName)) {
+	if(!file.open(File::FILE_READ_NORMAL, szFileName)) {
 		return false;
 	}
 
@@ -82,7 +92,7 @@ void embedFile(File& out, const std::string& file) {
 		out.writeDword(0);
 		return;
 	}
-	ubyte_t* data = (ubyte_t*)malloc(size);
+	uint8_t* data = (uint8_t*)malloc(size);
 	fread(data, size, 1, f);
 	fclose(f);
 	
@@ -117,7 +127,7 @@ void stepWriteDword(int* index, void* buffer, int32_t value) {
 }
 
 void stepWriteFloat(int* index, void* buffer, float value) {
-	*((int32_t*)((char*)buffer + *index)) = value * FLOAT_ACCURACY;
+	*((int32_t*)((char*)buffer + *index)) = value * sys::FLOAT_ACCURACY;
 	*index += 4;
 }
 
@@ -218,19 +228,19 @@ namespace game {
 		
 			if(i < nPalettes) {
 				path = util::getPath("chars/" + name + "/palettes/" + util::toString(i+1) + ".act");
-				if(!act.open(FILE_READ_NORMAL, path)) {
-					die("Cannot open \"" + path + "\"!");
+				if(!act.open(File::FILE_READ_NORMAL, path)) {
+					error::die("Cannot open \"" + path + "\"!");
 				}
 			} else {
 				path = util::getPath("chars/" + name + "/palettes/" + util::toString(i-nPalettes+1) + "_nes.act");
-				if(!act.open(FILE_READ_NORMAL, path)) {
-					die("Cannot open \"!" + path + "\"!");
+				if(!act.open(File::FILE_READ_NORMAL, path)) {
+					error::die("Cannot open \"!" + path + "\"!");
 				}
 			}
 			act.seek(3);
 
 			if(act.read(palettes + i * 255 * 3, 255 * 3) != 1) {
-				die("\"" + path + "\" not a valid ACT file!");
+				error::die("\"" + path + "\" not a valid ACT file!");
 			}
 		}
 
@@ -562,7 +572,7 @@ namespace game {
 				} else if(!strcmp(type, "follow")) {
 					BYTE(2);
 				} else {
-					die(std::string("Unknown effect type: ") + type);
+					error::die(std::string("Unknown effect type: ") + type);
 				}
 				BYTE(parser.getArgBool(5, false));
 				BYTE(parser.getArgInt(6));
@@ -810,14 +820,14 @@ int main(int argc, char** argv) {
 	AtlasList atlas_list;
 	std::string path = util::getPath(fighterPrefix + "/atlas/atlas.list");
 	if(!atlas_list.create(path)) {
-		die("Could not load atlas list \"" + path + "\".");
+		error::die("Could not load atlas list \"" + path + "\".");
 	}
 
 
 	//Open the file
 	File file;
 	path = util::getPath(fighterPrefix + ".char");
-	file.open(FILE_WRITE_NORMAL, path);
+	file.open(File::FILE_WRITE_NORMAL, path);
 
 	//Write Header
 	std::cout << "Writing header..." << std::endl;
@@ -899,7 +909,7 @@ int main(int argc, char** argv) {
 	}
 
 	if(!nAtlases) {
-		die("Could not find any atlas graphics in \"" + fighterPrefix + "/atlas\"");
+		error::die("Could not find any atlas graphics in \"" + fighterPrefix + "/atlas\"");
 	}
 	
 	//Write the atlases

@@ -6,7 +6,7 @@ If a library is missing, please contact the project manager.
 
 | Repo | Checked out | License | Usage |
 | ---- | ----------- | ------- | ----- |
-| [SDL](https://github.com/libsdl-org/SDL.git) | release-2.0.14 | zlib License | SDL2 handles multimedia operations for DvD and Sprtool. SDL2main is linked with them as well. |
+| [SDL](https://github.com/libsdl-org/SDL.git) | release-2.0.14 | zlib License | SDL2 handles multimedia operations for DvD and Sprtool. |
 | [zlib](https://github.com/madler/zlib.git) | v1.2.11 | zlib License | zlib/zlibstatic is a dependency of libpng. DvD also references it. |
 | [libpng](https://github.com/glennrp/libpng.git) | v1.6.37 | libpng License (~zlib License) | png/png_static is used for low level png operations in Atlas, DvD, and Sprtool. |
 | [stb_image](https://github.com/nothings/stb.git) | v2.26 | MIT License/Public Domain (Unlicense) | stb_image.h opens gif animations in a GL-ready format. |
@@ -14,7 +14,7 @@ If a library is missing, please contact the project manager.
 | [vorbis](https://gitlab.xiph.org/xiph/vorbis.git) | v1.3.7 | BSD 3-Clause License | vorbis and vorbisenc are requirements for Xiph support in libsndfile. |
 | [flac](https://gitlab.xiph.org/xiph/flac.git) | 1.3.3 | Xiph.org's BSD-like license | FLAC (a.k.a. libFLAC) is a requirement for Xiph support in libsndfile. |
 | [opus](https://gitlab.xiph.org/xiph/opus.git) | v1.3.1 | BSD 3-Clause License | opus is a requirement for Xiph support in libsndfile. |
-| [libsndfile](https://github.com/libsndfile/libsndfile.git) | 1.0.31 | GNU LGPL | sndfile can open sound files of many different formats, including wav and ogg, provided it has the appropriate libraries. |
+| [libsndfile](https://github.com/libsndfile/libsndfile.git) | 1.0.31 | GNU LGPL | sndfile can open sound files of many different formats, including wav and ogg, provided it has the appropriate libraries. Modified: [cmake/SndFileChecks.cmake](../extern/libsndfile/cmake/SndFileChecks.cmake), [src/ogg_opus.c](../extern/libsndfile/src/ogg_opus.c) |
 
 ## SDL
 

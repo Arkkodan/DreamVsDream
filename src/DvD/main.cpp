@@ -1,12 +1,16 @@
-// We have a main function
-#define SDL_MAIN_HANDLED
+#ifdef _WIN32
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
+#endif
 
-#include "globals.h"
 #include "player.h"
 #include "fighter.h"
 #include "graphics.h"
 #include "error.h"
-#include "menu.h"
+#include "scene/scene.h"
 #include "parser.h"
 #include "stage.h"
 #include "network.h"
@@ -14,149 +18,13 @@
 #include "effect.h"
 #include "animation.h"
 
-game::Player madotsuki;
-game::Player poniko;
-util::Vector cameraPos(0,0);
-util::Vector idealCameraPos(0,0);
-util::Vector cameraShake(0,0);
+#include "app.h"
 
-extern game::Fighter fighters[];
-extern Stage stages[];
+#if(_MSC_VER) // MSVC uses _stricmp instead of strcasecmp
+#define strcasecmp(str1, str2) _stricmp(str1, str2)
+#endif
 
-int framePauseTimer = 0;
-void pause(int frames) {
-	framePauseTimer += frames;
-}
-
-int frameShakeTimer = 0;
-void shake(int frames) {
-	frameShakeTimer += frames;
-}
-
-extern void parseArgs(int, char**);
-
-static inline void mainLoop() {
-	os::refresh();
-
-	if(menu == MENU_FIGHT) {
-		if(frameShakeTimer) {
-			cameraShake.x = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
-			cameraShake.y = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
-			frameShakeTimer--;
-		} else {
-			cameraShake.x = cameraShake.y = 0;
-		}
-
-		idealCameraPos.x = (madotsuki.pos.x + poniko.pos.x) / 2;
-		idealCameraPos.y = (madotsuki.pos.y + poniko.pos.y) / 3 - 30;
-
-		if(idealCameraPos.y < 0) {
-			idealCameraPos.y = 0;
-		}
-		if(idealCameraPos.y > STAGE.heightAbs - WINDOW_HEIGHT) {
-			idealCameraPos.y = STAGE.heightAbs - WINDOW_HEIGHT;
-		}
-
-		if(idealCameraPos.x < STAGE.widthAbs / -2 + WINDOW_WIDTH / 2) {
-			idealCameraPos.x = STAGE.widthAbs / -2 + WINDOW_WIDTH / 2;
-		} else if(idealCameraPos.x > STAGE.widthAbs / 2 - WINDOW_WIDTH / 2) {
-			idealCameraPos.x = STAGE.widthAbs / 2 - WINDOW_WIDTH / 2;
-		}
-
-		cameraPos.x = (cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
-		cameraPos.y = (cameraPos.y * 0.8 + idealCameraPos.y * 0.2);
-
-		cameraPos.x += cameraShake.x;
-		cameraPos.y += cameraShake.y;
-
-		if(madotsuki.pos.x < poniko.pos.x) {
-			//if(madotsuki.inStandardState(STATE_STAND))
-			if(madotsuki.isIdle()) {
-				madotsuki.setDir(RIGHT);
-			}
-			//if(poniko.inStandardState(STATE_STAND))
-			if(poniko.isIdle()) {
-				poniko.setDir(LEFT);
-			}
-		} else if(madotsuki.pos.x > poniko.pos.x) {
-			//if(madotsuki.inStandardState(STATE_STAND))
-			if(madotsuki.isIdle()) {
-				madotsuki.setDir(LEFT);
-			}
-			//if(poniko.inStandardState(STATE_STAND))
-			if(poniko.isIdle()) {
-				poniko.setDir(RIGHT);
-			}
-		}
-
-		STAGE.think();
-
-		madotsuki.think();
-		poniko.think();
-
-		if(!framePauseTimer) {
-
-			madotsuki.interact(&poniko);
-			poniko.interact(&madotsuki);
-
-			for(int i = 0; i < MAX_PROJECTILES; i++) {
-				if(madotsuki.projectiles[i].state != STATE_NONE) {
-					madotsuki.projectiles[i].interact(&poniko);
-				}
-				if(poniko.projectiles[i].state != STATE_NONE) {
-					poniko.projectiles[i].interact(&madotsuki);
-				}
-			}
-		} else {
-			framePauseTimer--;
-		}
-
-		//DRAW
-
-		STAGE.draw(false);
-
-		madotsuki.drawSpecial();
-		poniko.drawSpecial();
-
-		if(stage != 3) {
-			madotsuki.draw(true);
-			poniko.draw(true);
-		}
-
-		//Which order do we draw these in?
-		if(madotsuki.drawPriorityFrame < poniko.drawPriorityFrame) {
-			madotsuki.draw(false);
-			poniko.draw(false);
-		} else {
-			poniko.draw(false);
-			madotsuki.draw(false);
-		}
-
-		//Draw projectiles
-		for(int i = 0; i < MAX_PROJECTILES; i++) {
-			if(madotsuki.projectiles[i].state != STATE_NONE) {
-				madotsuki.projectiles[i].draw();
-			}
-			if(poniko.projectiles[i].state != STATE_NONE) {
-				poniko.projectiles[i].draw();
-			}
-		}
-
-		STAGE.draw(true);
-
-		effect::draw();
-
-		MENU->think();
-		MENU->draw();
-		Menu::drawFade();
-
-		((MenuSelect*)menus[MENU_SELECT])->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x, madotsuki.pos.y + madotsuki.fighter->height, true);
-	} else {
-		MENU->think();
-		MENU->draw();
-		Menu::drawFade();
-	}
-}
+static void parseArgs(int argc, char** argv);
 
 #ifdef _WIN32
 int main(int foo, char** bar)
@@ -182,18 +50,67 @@ int main(int argc, char** argv)
 	}
 	free(argv);
 #endif
-	extern void init();
-	init();
-
-	madotsuki.playerNum = 0;
-	madotsuki.speaker.init();
-
-	poniko.playerNum = 1;
-	poniko.speaker.init();
-
-	for(;;) {
-		mainLoop();
-	}
+	
+	app::run();
 
 	return 0;
+}
+
+static void parseArgs(int argc, char** argv) {
+	SceneFight::madotsuki.fighter = &game::fighters[0];
+	SceneFight::poniko.fighter = &game::fighters[0];
+
+	for (int i = 1; i < argc; i++) {
+		if (!strcasecmp(argv[i], "--disable-shaders")) {
+			app::disable_shaders = true;
+		}
+		else if (!strcasecmp(argv[i], "--disable-sound")) {
+			app::disable_sound = true;
+		}
+		else if (!strcasecmp(argv[i], "--training")) {
+			Scene::scene = Scene::SCENE_FIGHT;
+		}
+		else if (!strcasecmp(argv[i], "--versus")) {
+			Scene::scene = Scene::SCENE_FIGHT;
+			app::versus = true;
+		}
+		else if (!strcasecmp(argv[i], "--fullscreen")) {
+			app::fullscreen = true;
+		}
+		else if (!strcasecmp(argv[i], "-char1")) {
+			if (++i < argc) {
+				SceneFight::madotsuki.fighter = &game::fighters[atoi(argv[i])];
+			}
+		}
+		else if (!strcasecmp(argv[i], "-char2")) {
+			if (++i < argc) {
+				SceneFight::poniko.fighter = &game::fighters[atoi(argv[i])];
+			}
+		}
+		else if (!strcasecmp(argv[i], "-pal1")) {
+			if (++i < argc) {
+				SceneFight::madotsuki.palette = atoi(argv[i]);
+			}
+		}
+		else if (!strcasecmp(argv[i], "-pal2")) {
+			if (++i < argc) {
+				SceneFight::poniko.palette = atoi(argv[i]);
+			}
+		}
+		else if (!strcasecmp(argv[i], "-stage")) {
+			if (++i < argc) {
+				Stage::stage = atoi(argv[i]);
+			}
+		}
+		else if (!strcasecmp(argv[i], "-input-delay")) {
+			if (++i < argc) {
+				app::input_delay = atoi(argv[i]);
+			}
+		}
+		else if (!strcasecmp(argv[i], "-max-texture-size")) {
+			if (++i < argc) {
+				app::max_texture_size = atoi(argv[i]);
+			}
+		}
+	}
 }

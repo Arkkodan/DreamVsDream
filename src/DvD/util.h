@@ -1,7 +1,8 @@
 #ifndef UTIL_H_INCLUDED
 #define UTIL_H_INCLUDED
 
-#include "globals.h"
+#include <string>
+#include <vector>
 
 #define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
 #define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
@@ -137,8 +138,5 @@ namespace util {
 	/// @return std::vector of directories or files specified by listFiles
 	std::vector<std::string> listDirectory(const std::string& directory, bool listFiles);
 }
-
-//Position of the camera
-extern util::Vector cameraPos;
 
 #endif // UTIL_H_INCLUDED

@@ -1,8 +1,6 @@
 #ifndef SOUND_H_INCLUDED
 #define SOUND_H_INCLUDED
 
-#include "globals.h"
-
 #include "file.h"
 
 namespace audio {
@@ -37,7 +35,7 @@ namespace audio {
 		int channels;
 	};
 
-#define AUDIO_STREAM_BUFFER_MAX 3
+// #define AUDIO_STREAM_BUFFER_MAX 3
 
 	/// @brief Music wrapper class around Sound
 	class Music {

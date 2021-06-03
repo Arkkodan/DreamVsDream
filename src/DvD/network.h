@@ -1,15 +1,13 @@
 #ifndef NETWORK_H_INCLUDED
 #define NETWORK_H_INCLUDED
 
-#include "globals.h"
-
 #include "player.h"
 
 namespace net {
-	#define DEFAULT_PORT 39300 //"ubo" in base 36
-	#define DEFAULT_IP 0x0100007F //local loopback, 127.0.0.1
+	constexpr auto DEFAULT_PORT = 39300; //"ubo" in base 36
+	constexpr auto DEFAULT_IP = 0x0100007F; //local loopback, 127.0.0.1
 
-	#define INPUT_SEND_COUNT 8
+	constexpr auto INPUT_SEND_COUNT = 8;
 
 	enum {
 		MODE_NONE,
@@ -17,12 +15,12 @@ namespace net {
 		MODE_CLIENT,
 	};
 
-	#define NET_VERSION 2
+	constexpr auto NET_VERSION = 2;
 
 	/// @brief Basic data packet format
 	struct NetHeader {
-	#define NETF_SYN (1<<0)
-	#define NETF_ACK (1<<1)
+		static constexpr auto NETF_SYN = 1 << 0;
+		static constexpr auto NETF_ACK = 1 << 1;
 		uint8_t flags;
 		uint8_t version;
 		uint8_t option1;
@@ -37,7 +35,7 @@ namespace net {
 	};
 
 #ifdef _WIN32
-	#define socklen_t int
+	typedef int socklen_t;
 #endif
 	extern volatile bool enabled;
 	extern volatile bool running;

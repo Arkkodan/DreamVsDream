@@ -2,13 +2,12 @@
 
 #include <stdlib.h>
 
-#include "globals.h"
 #include "file.h"
 #include "stage.h"
 #include "graphics.h"
 
-#define TEXTURE_SIZE 2048
-#define TEXTURE_SIZE_SQ (TEXTURE_SIZE*TEXTURE_SIZE)
+// #define TEXTURE_SIZE 2048
+// #define TEXTURE_SIZE_SQ (TEXTURE_SIZE*TEXTURE_SIZE)
 
 Atlas::Atlas() {
 	nImages = nSprites = 0;
@@ -44,7 +43,7 @@ Atlas::~Atlas() {
 	delete [] images;
 }
 
-bool Atlas::create(File& file, const ubyte_t* palette) {
+bool Atlas::create(File& file, const uint8_t* palette) {
 	(void)palette;
 	
 	//Setup sprite buffers

@@ -1,17 +1,22 @@
-#include "../DvD/globals.h"
 #include "../DvD/graphics.h"
 #include "../DvD/error.h"
 #include "../DvD/fighter.h"
 
-void init() {
+#include "../DvD/sys.h"
+
+namespace init {
+	void init();
 	void deinit();
+}
+
+void init::init() {
 	atexit(deinit);
 
-	os::init();
+	sys::init();
 	graphics::init(false, 0);
 }
 
-void deinit() {
+void init::deinit() {
 	graphics::deinit();
-	os::deinit();
+	sys::deinit();
 }

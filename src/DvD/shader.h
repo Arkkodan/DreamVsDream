@@ -1,8 +1,6 @@
 #ifndef SHADER_H_INCLUDED
 #define SHADER_H_INCLUDED
 
-#include "globals.h"
-
 /// @brief RAII wrapper for OpenGL shaders
 class Shader {
 public:

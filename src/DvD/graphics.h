@@ -1,8 +1,6 @@
 #ifndef GRAPHICS_H_INCLUDED
 #define GRAPHICS_H_INCLUDED
 
-#include "globals.h"
-
 #ifndef COMPILER // Assume Compiler does not need to know about SDL_opengl.h
 #include <SDL_opengl.h>
 #endif
@@ -55,11 +53,11 @@ namespace graphics {
 	void refresh();
 
 	/// @brief Primitive clear color
-	void setClearColor(ubyte_t r, ubyte_t g, ubyte_t b);
+	void setClearColor(uint8_t r, uint8_t g, uint8_t b);
 	/// @brief Primitive rectangle
 	void setRect(int sX, int sY, int sW, int sH);
 	/// @brief Primitive color
-	void setColor(ubyte_t r, ubyte_t g, ubyte_t b, float a = 1.0f);
+	void setColor(uint8_t r, uint8_t g, uint8_t b, float a = 1.0f);
 	/// @brief Primitive scaling
 	void setScale(float scale, float yscale = 0.0f);
 	/// @brief Primitive render
