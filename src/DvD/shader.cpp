@@ -6,6 +6,8 @@
 #include "shader.h"
 #include "util.h"
 
+#include <glad/glad.h>
+
 Shader::Shader() {
 	program = 0;
 	vertex = 0;

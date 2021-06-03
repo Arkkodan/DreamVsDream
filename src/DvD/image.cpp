@@ -2,6 +2,7 @@
 #include <math.h>
 
 #include <png.h>
+#include <glad/glad.h>
 
 #include "image.h"
 #include "sprite.h"

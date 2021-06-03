@@ -8,6 +8,7 @@
 #include "scene/fight.h"
 
 #include <SDL.h>
+#include <glad/glad.h>
 
 namespace sys {
 	unsigned int frame = 0;
@@ -30,6 +31,11 @@ namespace sys {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 		glcontext = SDL_GL_CreateContext(window);
+
+		// Load GL extensions using glad
+		if (!gladLoadGLLoader(SDL_GL_GetProcAddress)) {
+			error::die("Failed to initialize the OpenGL context.");
+		}
 	}
 
 	void deinit() {

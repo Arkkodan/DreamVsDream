@@ -6,6 +6,8 @@
 #include "../stage.h"
 #include "../sys.h"
 
+#include <glad/glad.h>
+
 SceneSelect::SceneSelect() : Scene("select") {
 	width = height = 0;
 	gWidth = gHeight = 0;

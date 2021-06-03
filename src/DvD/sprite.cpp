@@ -5,6 +5,10 @@
 #include "parser.h"
 #include "input.h"
 
+#ifndef COMPILER
+#include <glad/glad.h>
+#endif
+
 namespace sprite {
 
 	HitBox::HitBox() {}

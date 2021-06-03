@@ -7,10 +7,17 @@
 #include "network.h"
 #include "stage.h"
 #include "effect.h"
-
 #include "sys.h"
 
 #include <ctime>
+
+#ifdef _WIN32
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
+#endif
 
 namespace app {
 	constexpr auto OPTIONS_VERSION = 0;

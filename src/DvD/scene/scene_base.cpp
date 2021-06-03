@@ -4,8 +4,9 @@
 
 #include "../stage.h"
 #include "../error.h"
-
 #include "../sys.h"
+
+#include <glad/glad.h>
 
 Scene* Scene::scenes[SCENE_MAX] = { nullptr };
 int Scene::scene = SCENE_INTRO;

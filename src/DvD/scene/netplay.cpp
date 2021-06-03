@@ -3,8 +3,9 @@
 #include "scene.h"
 
 #include "../network.h"
-
 #include "../sys.h"
+
+#include <glad/glad.h>
 
 //NETPLAY
 #ifndef NO_NETWORK

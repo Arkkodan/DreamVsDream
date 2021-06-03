@@ -1,11 +1,3 @@
-#ifdef _WIN32
-#ifndef WINVER
-#define WINVER 0x0500
-#endif
-#include <windows.h>
-#include <shlwapi.h>
-#endif
-
 #include "player.h"
 #include "fighter.h"
 #include "graphics.h"
@@ -17,8 +9,15 @@
 #include "atlas.h"
 #include "effect.h"
 #include "animation.h"
-
 #include "app.h"
+
+#ifdef _WIN32
+#ifndef WINVER
+#define WINVER 0x0500
+#endif
+#include <windows.h>
+#include <shlwapi.h>
+#endif
 
 #if(_MSC_VER) // MSVC uses _stricmp instead of strcasecmp
 #define strcasecmp(str1, str2) _stricmp(str1, str2)
