@@ -14,7 +14,7 @@ If a library is missing, please contact the project manager.
 | [vorbis](https://gitlab.xiph.org/xiph/vorbis.git) | v1.3.7 | BSD 3-Clause License | vorbis and vorbisenc are requirements for Xiph support in libsndfile. |
 | [flac](https://gitlab.xiph.org/xiph/flac.git) | 1.3.3 | Xiph.org's BSD-like license | FLAC (a.k.a. libFLAC) is a requirement for Xiph support in libsndfile. |
 | [opus](https://gitlab.xiph.org/xiph/opus.git) | v1.3.1 | BSD 3-Clause License | opus is a requirement for Xiph support in libsndfile. |
-| [libsndfile](https://github.com/libsndfile/libsndfile.git) | 1.0.31 | GNU LGPL | sndfile can open sound files of many different formats, including wav and ogg, provided it has the appropriate libraries. |
+| [libsndfile](https://github.com/libsndfile/libsndfile.git) | 1.0.31 | GNU LGPL | sndfile can open sound files of many different formats, including wav and ogg, provided it has the appropriate libraries. Modified: [cmake/SndFileChecks.cmake](../extern/libsndfile/cmake/SndFileChecks.cmake), [src/ogg_opus.c](../extern/libsndfile/src/ogg_opus.c) |
 
 ## SDL
 
