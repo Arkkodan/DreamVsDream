@@ -6,6 +6,8 @@
 #include "../effect.h"
 #include "../sys.h"
 
+#include <glad/glad.h>
+
 game::Player SceneFight::madotsuki;
 game::Player SceneFight::poniko;
 util::Vector SceneFight::cameraPos(0, 0);

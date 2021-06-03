@@ -29,6 +29,7 @@ endif()
 # First, mark all external libraries as shared
 set(SHARED_LIBRARIES
   SDL2
+  glad
   zlib
   png
   ogg

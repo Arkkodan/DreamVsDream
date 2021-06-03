@@ -1,47 +1,9 @@
 #ifndef GRAPHICS_H_INCLUDED
 #define GRAPHICS_H_INCLUDED
 
-#ifndef COMPILER // Assume Compiler does not need to know about SDL_opengl.h
-#include <SDL_opengl.h>
-#endif
-
 #include "shader.h"
 
-#ifndef __APPLE__
-#ifdef _WIN32
-#ifndef COMPILER
-//1.3
-// SDL_opengl.h already defines glActiveTexture and glBlendEquation
-// Temporary hack
-#define glActiveTexture procGlActiveTexture
-#define glBlendEquation procGlBlendEquation
-extern PFNGLACTIVETEXTUREPROC           glActiveTexture;
-extern PFNGLBLENDEQUATIONPROC           glBlendEquation;
-#endif
-#endif
-
-#ifdef GAME
-extern PFNGLATTACHSHADERPROC			glAttachShader;
-extern PFNGLCOMPILESHADERPROC			glCompileShader;
-extern PFNGLCREATEPROGRAMPROC			glCreateProgram;
-extern PFNGLDELETEPROGRAMPROC			glDeleteProgram;
-extern PFNGLCREATESHADERPROC			glCreateShader;
-extern PFNGLDELETESHADERPROC			glDeleteShader;
-extern PFNGLGETPROGRAMINFOLOGPROC		glGetProgramInfoLog;
-extern PFNGLGETPROGRAMIVPROC			glGetProgramiv;
-extern PFNGLGETPROGRAMINFOLOGPROC		glGetShaderInfoLog;
-extern PFNGLGETSHADERIVPROC				glGetShaderiv;
-extern PFNGLGETUNIFORMLOCATIONPROC	 	glGetUniformLocation;
-extern PFNGLLINKPROGRAMPROC 			glLinkProgram;
-extern PFNGLSHADERSOURCEPROC 			glShaderSource;
-extern PFNGLUNIFORM1IPROC 				glUniform1i;
-extern PFNGLUNIFORM1FPROC 				glUniform1f;
-extern PFNGLUNIFORM2FPROC 				glUniform2f;
-extern PFNGLUNIFORM3FPROC 				glUniform3f;
-extern PFNGLUNIFORM4FPROC 				glUniform4f;
-extern PFNGLUSEPROGRAMPROC		 		glUseProgram;
-#endif
-#endif
+#include <cstdint>
 
 namespace graphics {
 	/// @brief Set some OpenGL variables, load procedures, check support

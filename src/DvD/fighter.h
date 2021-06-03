@@ -258,7 +258,7 @@ namespace game {
 #ifdef COMPILER
 		uint8_t* palettes;
 #else
-		GLuint* palettes;
+		unsigned int* palettes;
 #endif
 		int nSprites;
 		sprite::Sprite* sprites;

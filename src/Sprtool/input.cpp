@@ -4,6 +4,7 @@
 #include "../DvD/sys.h"
 
 #include <SDL_keycode.h>
+#include <glad/glad.h>
 
 extern game::Fighter fighter;
 extern int frame;

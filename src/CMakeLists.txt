@@ -194,6 +194,7 @@ target_link_libraries(Atlas
 
 target_include_directories(DvD
   PRIVATE SDL2
+  PRIVATE glad
   PRIVATE ${zlib_LIBRARY}
   PRIVATE ${libpng_INCLUDE_DIRS}
   PRIVATE stb_image
@@ -201,6 +202,7 @@ target_include_directories(DvD
 )
 target_link_libraries(DvD
   PRIVATE SDL2
+  PRIVATE glad
   PRIVATE ${zlib_LIBRARY}
   PRIVATE ${libpng_LIBRARY}
   PRIVATE stb_image
@@ -216,10 +218,12 @@ target_link_libraries(DvD
 
 target_include_directories(Sprtool
   PRIVATE SDL2
+  PRIVATE glad
   PRIVATE ${libpng_INCLUDE_DIRS}
 )
 target_link_libraries(Sprtool
   PRIVATE SDL2
+  PRIVATE glad
   PRIVATE ${libpng_LIBRARY}
 )
 
@@ -234,11 +238,9 @@ if(WIN32)
   target_link_libraries(DvD
     PRIVATE ws2_32
     PRIVATE shlwapi
-    PRIVATE opengl32
   )
   target_link_libraries(Sprtool
     PRIVATE shlwapi
-    PRIVATE opengl32
   )
 endif()
 

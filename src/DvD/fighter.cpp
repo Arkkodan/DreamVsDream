@@ -7,6 +7,10 @@
 #include "graphics.h"
 #include "file.h"
 
+#ifdef GAME
+#include <glad/glad.h>
+#endif
+
 namespace game {
 	Fighter fighters[FIGHTERS_MAX];
 

@@ -6,8 +6,9 @@
 #include "stage.h"
 #include "graphics.h"
 #include "effect.h"
-
 #include "sys.h"
+
+#include <glad/glad.h>
 
 namespace game {
 	constexpr auto HITSTUN = 14;

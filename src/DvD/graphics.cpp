@@ -7,42 +7,9 @@
 #include "network.h"
 #include "shader.h"
 #include "stage.h"
-
 #include "sys.h"
 
-#ifndef __APPLE__
-#define LOAD_GL_PROC(name, type) name = (PFN##type##PROC)SDL_GL_GetProcAddress(#name)
-#define LOAD_GL_ARB_PROC(name, type, arbname) name = (PFN##type##PROC)SDL_GL_GetProcAddress(arbname)
-
-#ifdef _WIN32
-//1.3
-// SDL_opengl.h already defines glActiveTexture and glBlendEquation
-PFNGLACTIVETEXTUREPROC          glActiveTexture;
-PFNGLBLENDEQUATIONPROC          glBlendEquation;
-#endif
-
-#ifdef GAME
-PFNGLATTACHSHADERPROC			glAttachShader;
-PFNGLCOMPILESHADERPROC			glCompileShader;
-PFNGLCREATEPROGRAMPROC			glCreateProgram;
-PFNGLDELETEPROGRAMPROC			glDeleteProgram;
-PFNGLCREATESHADERPROC			glCreateShader;
-PFNGLDELETESHADERPROC			glDeleteShader;
-PFNGLGETPROGRAMINFOLOGPROC		glGetProgramInfoLog;
-PFNGLGETPROGRAMIVPROC	        glGetProgramiv;
-PFNGLGETPROGRAMINFOLOGPROC	    glGetShaderInfoLog;
-PFNGLGETSHADERIVPROC			glGetShaderiv;
-PFNGLGETUNIFORMLOCATIONPROC	 	glGetUniformLocation;
-PFNGLLINKPROGRAMPROC 			glLinkProgram;
-PFNGLSHADERSOURCEPROC 			glShaderSource;
-PFNGLUNIFORM1IPROC 				glUniform1i;
-PFNGLUNIFORM1FPROC 				glUniform1f;
-PFNGLUNIFORM2FPROC 				glUniform2f;
-PFNGLUNIFORM3FPROC 				glUniform3f;
-PFNGLUNIFORM4FPROC 				glUniform4f;
-PFNGLUSEPROGRAMPROC		 		glUseProgram;
-#endif
-#endif
+#include <glad/glad.h>
 
 //double oldTime = 0.0f;
 
@@ -111,12 +78,6 @@ namespace graphics {
 		}
 
 #ifdef _WIN32
-		//1.2+ functions are not defined in Windows
-		// SDL_opengl.h already defines glActiveTexture and glBlendEquation
-		LOAD_GL_PROC(glActiveTexture, GLACTIVETEXTURE);
-		LOAD_GL_PROC(glBlendEquation, GLBLENDEQUATION);
-		if(!glBlendEquation)
-            LOAD_GL_ARB_PROC(glBlendEquation, GLBLENDEQUATION, "glBlendEquationARB");
         if(!glActiveTexture || !glBlendEquation) {
             error::die("Your OpenGL implementation isn't capable of running Dream vs. Dream.");
         }
@@ -136,61 +97,11 @@ namespace graphics {
 			GLint version;
 			glGetIntegerv(GL_MAJOR_VERSION, &version);
 			if(version >= 2) {
-				LOAD_GL_PROC(glAttachShader, GLATTACHSHADER);
-				LOAD_GL_PROC(glCompileShader, GLCOMPILESHADER);
-				LOAD_GL_PROC(glCreateProgram, GLCREATEPROGRAM);
-				LOAD_GL_PROC(glDeleteProgram, GLDELETEPROGRAM);
-				LOAD_GL_PROC(glCreateShader, GLCREATESHADER);
-				LOAD_GL_PROC(glDeleteShader, GLDELETESHADER);
-				LOAD_GL_PROC(glGetProgramInfoLog, GLGETPROGRAMINFOLOG);
-				LOAD_GL_PROC(glGetProgramiv, GLGETPROGRAMIV);
-				LOAD_GL_PROC(glGetShaderInfoLog, GLGETSHADERINFOLOG);
-				LOAD_GL_PROC(glGetShaderiv, GLGETSHADERIV);
-				LOAD_GL_PROC(glGetUniformLocation, GLGETUNIFORMLOCATION);
-				LOAD_GL_PROC(glLinkProgram, GLLINKPROGRAM);
-				LOAD_GL_PROC(glShaderSource, GLSHADERSOURCE);
-				LOAD_GL_PROC(glUniform1i, GLUNIFORM1I);
-				LOAD_GL_PROC(glUniform1f, GLUNIFORM1F);
-				LOAD_GL_PROC(glUniform2f, GLUNIFORM2F);
-				LOAD_GL_PROC(glUniform3f, GLUNIFORM3F);
-				LOAD_GL_PROC(glUniform4f, GLUNIFORM4F);
-				LOAD_GL_PROC(glUseProgram, GLUSEPROGRAM);
-
                 shader_support = glAttachShader && glCompileShader && glCreateProgram && glDeleteProgram &&
                                  glCreateShader && glDeleteShader && glGetProgramInfoLog && glGetProgramiv &&
                                  glGetShaderInfoLog && glGetShaderiv && glGetUniformLocation && glLinkProgram &&
                                  glShaderSource && glUniform1i && glUniform1f && glUniform2f && glUniform3f &&
                                  glUniform4f && glUseProgram;
-			}
-			if(!shader_support &&
-                SDL_GL_ExtensionSupported("GL_ARB_shader_objects") &&
-                SDL_GL_ExtensionSupported("GL_ARB_shading_language_100") &&
-                SDL_GL_ExtensionSupported("GL_ARB_vertex_shader") &&
-                SDL_GL_ExtensionSupported("GL_ARB_fragment_shader"))
-            {
-                LOAD_GL_ARB_PROC(glAttachShader, GLATTACHSHADER, "glAttachObjectARB");
-                LOAD_GL_ARB_PROC(glCompileShader, GLCOMPILESHADER, "glCompileShaderARB");
-                LOAD_GL_ARB_PROC(glCreateProgram, GLCREATEPROGRAM, "glCreateProgramObjectARB");
-                LOAD_GL_ARB_PROC(glDeleteProgram, GLDELETEPROGRAM, "glDeleteObjectARB");
-                LOAD_GL_ARB_PROC(glCreateShader, GLCREATESHADER, "glCreateShaderObjectARB");
-                LOAD_GL_ARB_PROC(glDeleteShader, GLDELETESHADER, "glDeleteObjectARB");
-                LOAD_GL_ARB_PROC(glGetProgramInfoLog, GLGETPROGRAMINFOLOG, "glGetInfoLogARB");
-                LOAD_GL_ARB_PROC(glGetProgramiv, GLGETPROGRAMIV, "glGetObjectParameterivARB");
-                LOAD_GL_ARB_PROC(glGetUniformLocation, GLGETUNIFORMLOCATION, "glGetUniformLocationARB");
-				LOAD_GL_ARB_PROC(glLinkProgram, GLLINKPROGRAM, "glLinkProgramARB");
-				LOAD_GL_ARB_PROC(glShaderSource, GLSHADERSOURCE, "glShaderSourceARB");
-				LOAD_GL_ARB_PROC(glUniform1i, GLUNIFORM1I, "glUniform1iARB");
-				LOAD_GL_ARB_PROC(glUniform1f, GLUNIFORM1F, "glUniform1fARB");
-				LOAD_GL_ARB_PROC(glUniform2f, GLUNIFORM2F, "glUniform2fARB");
-				LOAD_GL_ARB_PROC(glUniform3f, GLUNIFORM3F, "glUniform3fARB");
-				LOAD_GL_ARB_PROC(glUniform4f, GLUNIFORM4F, "glUniform4fARB");
-				LOAD_GL_ARB_PROC(glUseProgram, GLUSEPROGRAM, "glUseProgramObjectARB");
-
-                shader_support = glAttachShader && glCompileShader && glCreateProgram && glDeleteProgram &&
-                                 glCreateShader && glDeleteShader && glGetProgramInfoLog && glGetProgramiv &&
-                                 glGetShaderiv && glGetUniformLocation && glLinkProgram && glShaderSource &&
-                                 glUniform1i && glUniform1f && glUniform2f && glUniform3f && glUniform4f &&
-                                 glUseProgram;
 			}
 		}
 		//Load shaders, if possible
