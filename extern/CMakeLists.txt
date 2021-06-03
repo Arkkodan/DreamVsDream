@@ -30,6 +30,13 @@ if(MINGW)
 endif()
 
 
+# glad
+message(STATUS "Library: glad")
+conditional_set_BUILD_SHARED_LIBS(glad)
+set(GLAD_REPRODUCIBLE ON CACHE BOOL "glad: Reproducible build" FORCE)
+add_subdirectory("glad" EXCLUDE_FROM_ALL)
+
+
 # zlib
 message(STATUS "Library: zlib")
 conditional_set_BUILD_SHARED_LIBS(zlib)
