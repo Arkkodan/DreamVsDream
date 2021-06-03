@@ -24,6 +24,7 @@ Please have the following installed on your computer and accessible by your term
 - [git](https://git-scm.com/downloads)
 - [CMake](https://cmake.org/download/)
 - [any generator supported by CMake](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html)
+- [a recent enough version of Python](https://www.python.org/downloads/) (for glad)
 
 These steps are written for a novice to follow, just to build this project.
 
@@ -157,6 +158,7 @@ The following should be in the same directory:
 - data directory
 - DvD executable
 - SDL2 shared library (if it exists)
+- glad shared library (if it exists)
 - zlib shared library (if it exists)
 - png shared library (if it exists)
 - ogg shared library (if it exists)
