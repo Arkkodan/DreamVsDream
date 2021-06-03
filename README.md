@@ -26,9 +26,6 @@ See the original [README.md](./docs/old/README.md).
 This repo aims to continue unofficial development of Dream vs. Dream.
 As such, the development of Dream vs. Dream is limited.
 
-- Currently, this repo only exists locally.
-- The current development team includes one person: myself.
-
 If this repo has been inactive for a substantial amount of time, you can assume that development on this repo has stopped, at least for now. Feel free to continue development on a different fork. Please try to contact the project maintainer first.
 
 ## Users
@@ -53,6 +50,7 @@ Since development on Dream vs. Dream has essentially stopped, any source of cont
 - interviews and documentations
 
 Please review this entire document.
+Also, see [docs/contributors](./docs/contributors).
 Submit issue tickets for broken features.
 If possible, fork this repo and submit pull requests for code changes.
 Otherwise, contact the project maintainer.
@@ -98,7 +96,7 @@ Please contact the project maintainer.
 
 ## Contact
 
-If you need to contact support (e.g. build problems, bugs, removal requests, etc...), please see if your message is can be most appropriately communicated with an issue ticket. Otherwise, you can contact the project maintainer directly.
+If you need to contact support (e.g. build problems, bugs, etc...), please see if your message is can be most appropriately communicated with an issue ticket. Otherwise, you can contact the project maintainer directly.
 
 Arkkodan can be contacted at \<arkkodan [at] gmail [dot] com>
 

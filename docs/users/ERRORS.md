@@ -16,4 +16,4 @@ If you have an error saying that Visual C++ runtime libraries are missing from y
 ### MinGW
 
 If you have an error saying that MinGW runtime libraries are missing from your computer, the distributor may have forgotten to copy those files over.
-Please contact the project manager.
+Please contact the project manager and/or submit an issue.
