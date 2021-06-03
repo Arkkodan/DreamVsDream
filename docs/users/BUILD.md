@@ -41,7 +41,7 @@ In an accessible directory where you are able to identify your local git repo, o
 In your terminal, type:
 
 ```console
-git clone <link-to-repo> DreamVsDream
+git clone https://github.com/Arkkodan/DreamVsDream DreamVsDream
 cd DreamVsDream
 ```
 

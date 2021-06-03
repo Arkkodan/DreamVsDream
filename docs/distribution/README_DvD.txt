@@ -21,7 +21,7 @@ Project Maintainer: arkkodan@gmail.com
 License
 
 This software is licensed under the GNU GPL v3.0. See it here: <https://www.gnu.org/licenses/gpl-3.0.html>.
-Link to git repo: <link-to-repo>
+Link to git repo: <https://github.com/Arkkodan/DreamVsDream>
 
 This software uses third-party libraries. See the repo for more information.
 
