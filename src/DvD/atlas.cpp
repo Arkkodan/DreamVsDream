@@ -11,36 +11,28 @@
 
 Atlas::Atlas() {
 	nImages = nSprites = 0;
-	images = nullptr;
-	sprites = nullptr;
 }
 
-Atlas::Atlas(Atlas&& other) {
+Atlas::Atlas(Atlas&& other) noexcept {
     nSprites = other.nSprites;
-    sprites = other.sprites;
+	sprites = std::move(other.sprites);
 
     nImages = other.nImages;
-    images = other.images;
-    other.sprites = nullptr;
-    other.images = nullptr;
+    images = std::move(other.images);
 }
 
-Atlas& Atlas::operator=(Atlas&& other) {
+Atlas& Atlas::operator=(Atlas&& other) noexcept {
     nSprites = other.nSprites;
     nImages = other.nImages;
 
-    using std::swap;
-    swap(images, other.images);
-    swap(sprites, other.sprites);
+	images.swap(other.images);
+	sprites.swap(other.sprites);
 
     return *this;
 }
 
 Atlas::~Atlas() {
 	//if(textures) glDeleteTextures(c_textures, textures);
-
-	delete [] sprites;
-	delete [] images;
 }
 
 bool Atlas::create(File& file, const uint8_t* palette) {
@@ -48,7 +40,7 @@ bool Atlas::create(File& file, const uint8_t* palette) {
 	
 	//Setup sprite buffers
 	nSprites = file.readWord();
-	sprites = new AtlasSprite[nSprites];
+	sprites.resize(nSprites);
 
 	//Read sprite info
 	for(int i = 0; i < nSprites; i++) {
@@ -61,7 +53,7 @@ bool Atlas::create(File& file, const uint8_t* palette) {
 	
 	//Read images
 	nImages = file.readByte();
-	images = new Image[nImages];
+	images.resize(nImages);
 	for(int i = 0; i < nImages; i++) {
 		images[i].createFromEmbed(file, palette);
 	}
@@ -69,17 +61,17 @@ bool Atlas::create(File& file, const uint8_t* palette) {
 	return true;
 }
 
-void Atlas::draw(int sprite_, int x_, int y_, bool mirror_) {
+void Atlas::draw(int sprite_, int x_, int y_, bool mirror_) const {
 	graphics::setRect(sprites[sprite_].x, sprites[sprite_].y, sprites[sprite_].w, sprites[sprite_].h);
 	images[sprites[sprite_].atlas].draw(x_, y_, mirror_);
 }
 
-void Atlas::drawSprite(int sprite_, int x_, int y_, bool mirror_) {
+void Atlas::drawSprite(int sprite_, int x_, int y_, bool mirror_) const {
 	graphics::setRect(sprites[sprite_].x, sprites[sprite_].y, sprites[sprite_].w, sprites[sprite_].h);
 	images[sprites[sprite_].atlas].drawSprite(x_, y_, mirror_);
 }
 
-AtlasSprite Atlas::getSprite(int sprite_) {
+AtlasSprite Atlas::getSprite(int sprite_) const {
 	if(sprite_ < 0 || sprite_ >= nSprites) {
 		return sprites[0];
 	}

@@ -7,13 +7,13 @@ public:
 	Shader();
 	~Shader();
 
-	void setInt(const char* sz_variable, int value);
-	void setFloat(const char* sz_variable, float value);
-	void setVec2(const char* sz_variable, float value1, float value2);
-	void setVec3(const char* sz_variable, float value1, float value2, float value3);
-	void setVec4(const char* sz_variable, float value1, float value2, float value3, float value4);
+	void setInt(const char* sz_variable, int value) const;
+	void setFloat(const char* sz_variable, float value) const;
+	void setVec2(const char* sz_variable, float value1, float value2) const;
+	void setVec3(const char* sz_variable, float value1, float value2, float value3) const;
+	void setVec4(const char* sz_variable, float value1, float value2, float value3, float value4) const;
 
-	void use();
+	void use() const;
 
 	bool create(const char* sz_vertex, const char* sz_fragment);
 

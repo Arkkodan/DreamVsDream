@@ -5,10 +5,14 @@
 #include "../sound.h"
 #include "../parser.h"
 
+#include <list>
+#include <array>
+#include <memory>
+
 /// @brief Image for displaying, intended for scenes
 class SceneImage {
 public:
-	SceneImage(Image& _image, float _x, float _y, float _parallax, char _render, float _xvel, float _yvel, bool wrap, int round);
+	SceneImage(Image& _image, float _x, float _y, float _parallax, Image::Render _render, float _xvel, float _yvel, bool wrap, int round);
 	~SceneImage();
 
 	Image image;
@@ -16,15 +20,13 @@ public:
 	float parallax; //for stages
 	float xOrig, yOrig;
 	float xvel, yvel;
-	char render;
+	Image::Render render;
 	bool wrap;
 	int round;
 
-	SceneImage* next;
-
 	void think();
 	void reset();
-	void draw(bool _stage);
+	void draw(bool _stage) const;
 };
 
 /// @brief Scene base class
@@ -52,7 +54,7 @@ public:
 		SCENE_QUIT, // Dummy scene for quitting
 	};
 
-	static Scene* scenes[SCENE_MAX];
+	static std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
 	static int scene;
 	static int sceneNew;
 
@@ -64,7 +66,7 @@ public:
 
 	//Members
 	std::string name;
-	SceneImage* images;
+	std::list<SceneImage> images;
 
 	bool initialized;
 
@@ -85,12 +87,12 @@ public:
 
 	virtual void think();
 	virtual void reset();
-	virtual void draw();
+	virtual void draw() const;
 
 	void parseFile(std::string szFileName);
 	virtual void parseLine(Parser& parser);
 
-	std::string getResource(std::string szFileName, std::string extension);
+	std::string getResource(std::string szFileName, std::string extension) const;
 
 	//Static stuff
 	static float fade;

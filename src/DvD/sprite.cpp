@@ -9,6 +9,8 @@
 #include <glad/glad.h>
 #endif
 
+#include <algorithm>
+
 namespace sprite {
 
 	HitBox::HitBox() {}
@@ -21,7 +23,7 @@ namespace sprite {
 
 #ifndef COMPILER
 
-	bool HitBox::collidePoint(int pX, int pY) {
+	bool HitBox::collidePoint(int pX, int pY) const {
 		pY = sys::FLIP(pY);
 
 		if(pos.x <= pX && pX <= pos.x + size.x &&
@@ -40,7 +42,7 @@ namespace sprite {
 		glEnd();
 	}
 
-	void HitBox::draw(int _x, int _y, bool attack, bool selected) {
+	void HitBox::draw(int _x, int _y, bool attack, bool selected) const {
 		_x += sys::WINDOW_WIDTH / 2;
 		_y = sys::FLIP(_y);
 
@@ -68,7 +70,7 @@ namespace sprite {
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 
-	bool HitBox::collideOther(HitBox* other, util::Vector* colpos, bool allowOutOfBounds) {
+	bool HitBox::collideOther(HitBox* other, util::Vector* colpos, bool allowOutOfBounds) const {
 		if(pos.x + size.x < other->pos.x) {
 			return false;
 		}
@@ -113,7 +115,7 @@ namespace sprite {
 		return true;
 	}
 
-	HitBox HitBox::adjust(int _x, int _y, bool m, float scale) {
+	HitBox HitBox::adjust(int _x, int _y, bool m, float scale) const {
 		HitBox adj;
 		adj.size.x = size.x * scale;
 		adj.size.y = size.y * scale;
@@ -128,7 +130,7 @@ namespace sprite {
 		return adj;
 	}
 
-	int Sprite::collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1, float scale2, Sprite* other, util::Vector* colpos, bool allowOutOfBounds) {
+	int Sprite::collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1, float scale2, Sprite* other, util::Vector* colpos, bool allowOutOfBounds) const {
 		//Check for attack hitbox collision with other sprite
 		for(int i = 0; i < aHitBoxes.size; i++) {
 			HitBox me = aHitBoxes.boxes[i].adjust(x1, y1, m1, scale1);
@@ -151,7 +153,7 @@ namespace sprite {
 		return HIT_NOT;
 	}
 
-	void Sprite::draw(int _x, int _y, bool mirror, float scale) {
+	void Sprite::draw(int _x, int _y, bool mirror, float scale) const {
 #ifdef SPRTOOL
 		int x2 = _x;
 		int y2 = _y;
@@ -178,16 +180,16 @@ namespace sprite {
 #else
 		img.drawSprite(_x, _y, mirror);
 		for(int i = 0; i < hitBoxes.size; i++) {
-			hitBoxes.boxes[i].draw(x2, y2, false, input::selectAll || ((hitBoxes.boxes + i == input::selectBox) && !input::selectBoxAttack));
+			hitBoxes.boxes[i].draw(x2, y2, false, input::selectAll || ((&hitBoxes.boxes[i] == input::selectBox) && !input::selectBoxAttack));
 		}
 		for(int i = 0; i < aHitBoxes.size; i++) {
-			aHitBoxes.boxes[i].draw(x2, y2, true, input::selectAll || ((aHitBoxes.boxes + i == input::selectBox) && input::selectBoxAttack));
+			aHitBoxes.boxes[i].draw(x2, y2, true, input::selectAll || ((&aHitBoxes.boxes[i] == input::selectBox) && input::selectBoxAttack));
 		}
 #endif
 	}
 
 #ifndef SPRTOOL
-	void Sprite::drawShadow(int _x, bool mirror, float scale) {
+	void Sprite::drawShadow(int _x, bool mirror, float scale) const {
 		if(mirror) {
 			_x -= atlas->getSprite(atlas_sprite).w * scale - x * scale;
 		} else {
@@ -201,42 +203,86 @@ namespace sprite {
 #endif
 #endif
 
-	Sprite::Sprite() {
-	}
+	Sprite::Sprite() :
+		x(0), y(0)
+#ifdef SPRTOOL
+		,
+		img()
+#endif
+#ifdef GAME
+		,
+		atlas(nullptr), atlas_sprite(0)
+#else
+		,
+		name()
+#endif
+		,
+		hitBoxes(), aHitBoxes()
+	{}
 
 	Sprite::~Sprite() {
+	}
+
+	Sprite::Sprite(Sprite&& other) noexcept :
+		x(other.x), y(other.y)
+#ifdef SPRTOOL
+		,
+		img(std::move(other.img))
+#endif
+#ifdef GAME
+		,
+		atlas(other.atlas), atlas_sprite(other.atlas_sprite)
+#else
+		,
+		name(std::move(other.name))
+#endif
+		,
+		hitBoxes(other.hitBoxes), aHitBoxes(other.aHitBoxes)
+	{
+#ifdef GAME
+		other.atlas = nullptr;
+#endif
+	}
+	Sprite& Sprite::operator=(Sprite&& other) noexcept {
+		x = other.x;
+		y = other.y;
+#ifdef SPRTOOL
+		img = std::move(other.img);
+#endif
+#ifdef GAME
+		atlas = other.atlas;
+		other.atlas = nullptr;
+		atlas_sprite = other.atlas_sprite;
+#else
+		name = std::move(other.name);
+#endif
+		hitBoxes = std::move(other.hitBoxes);
+		aHitBoxes = std::move(other.aHitBoxes);
+
+		return *this;
 	}
 
 
 	HitBoxGroup::HitBoxGroup() {
 		size = 0;
-		boxes = nullptr;
+		boxes.clear();
 	}
 
-	HitBoxGroup::~HitBoxGroup() {
-		delete [] boxes;
-	}
+	HitBoxGroup::~HitBoxGroup() {}
 
 	void HitBoxGroup::init(int size) {
 		this->size = size;
-		if(size) {
-			boxes = new HitBox[size];
+		if (size) {
+			boxes.resize(size);
 		} else {
-			boxes = nullptr;
+			boxes.clear();
 		}
 	}
 
 #ifdef SPRTOOL
 	HitBox* HitBoxGroup::newHitbox() {
-		HitBox* foo = boxes;
-		boxes = new HitBox[size + 1];
+		boxes.resize(size + 1);
 
-		if(foo) {
-			for(int i = 0; i < size; i++) {
-				boxes[i] = foo[i];
-			}
-			delete [] foo;
-		}
 		boxes[size].size = util::Vector(15, 15);
 		return &boxes[size++];
 	}
@@ -246,25 +292,20 @@ namespace sprite {
 			return;
 		}
 
-		if(size == 1) {
-			delete [] boxes;
-			boxes = nullptr;
-			size = 0;
-		} else {
-			HitBox* foo = boxes;
-			boxes = new HitBox[size - 1];
-
-			int off = 0;
-			for(int i = 0; i < size; i++) {
-				if(foo + i == box) {
-					off = 1;
-					continue;
-				}
-				boxes[i-off] = foo[i];
+		int i;
+		for (i = 0; i < boxes.size(); i++) {
+			if (&boxes[i] == box) {
+				break;
 			}
-			size--;
-			delete [] foo;
 		}
+
+		boxes.erase(
+			std::remove_if(
+				boxes.begin(),
+				boxes.end(),
+				[box](HitBox& h) { return &h == box; }),
+			boxes.end());
+		size = boxes.size();
 	}
 #endif
 }

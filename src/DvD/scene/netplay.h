@@ -6,6 +6,8 @@
 #include "../font.h"
 #include "../sys.h"
 
+#include <array>
+
 /// @brief Scene for navigating netplay and connections
 class SceneNetplay : public Scene {
 private:
@@ -24,9 +26,9 @@ public:
 	int digit;
 	bool waiting;
 
-	char portStr[5];
+	std::array<char, 5> portStr;
 	uint16_t port;
-	char ipStr[12];
+	std::array<char, 12> ipStr;
 	uint32_t ip;
 
 	int flashTimer;
@@ -54,10 +56,10 @@ public:
 	void updatePort(bool toint);
 	void updateIp(bool toint);
 
-	void think();
-	void draw();
-	void reset();
-	void parseLine(Parser& parser);
+	void think() override final;
+	void draw() const override final;
+	void reset() override final;
+	void parseLine(Parser& parser) override final;
 };
 
 #endif // DVD_SCENE_NETPLAY_H

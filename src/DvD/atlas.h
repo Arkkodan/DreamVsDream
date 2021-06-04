@@ -4,6 +4,8 @@
 #include "image.h"
 #include "file.h"
 
+#include <vector>
+
 /// @brief Data structure representing a sprite in an atlas
 class AtlasSprite {
 public:
@@ -18,8 +20,8 @@ class Atlas {
 public:
 
 	Atlas();
-	Atlas(Atlas&& other);
-	Atlas& operator=(Atlas&& other);
+	Atlas(Atlas&& other) noexcept;
+	Atlas& operator=(Atlas&& other) noexcept;
 	~Atlas();
 
 	//Do not copy atlases
@@ -28,17 +30,17 @@ public:
 
 	bool create(File& file, const uint8_t* palette);
 
-	void draw(int sprite, int x, int y, bool mirror);
-	void drawSprite(int sprite, int x, int y, bool mirror);
+	void draw(int sprite, int x, int y, bool mirror) const;
+	void drawSprite(int sprite, int x, int y, bool mirror) const;
 
-	AtlasSprite getSprite(int sprite);
+	AtlasSprite getSprite(int sprite) const;
 
 private:
 	int nSprites;
-	AtlasSprite* sprites;
+	std::vector<AtlasSprite> sprites;
 
 	int nImages;
-	Image* images;
+	std::vector<Image> images;
 };
 
 #endif // ATLAS_H_INCLUDED

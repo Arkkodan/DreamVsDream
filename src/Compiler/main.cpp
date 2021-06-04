@@ -138,7 +138,7 @@ void stepWriteString(int* index, void* buffer, const std::string& value) {
 }
 
 namespace game {
-	const char* stateNames[game::STATE_MAX] = {
+	const std::array<std::string, game::STATE_MAX> stateNames = {
 		"Stand",
 		"Crouch",
 		"BeginStand",
@@ -220,7 +220,7 @@ namespace game {
 
 
 		//Palettes
-		palettes = new unsigned char[nPalettes * 255 * 3 * 2];
+		palettes.resize(nPalettes * 255 * 3 * 2);
 
 		for(int i = 0; i < nPalettes * 2; i++) {
 			File act;
@@ -239,7 +239,7 @@ namespace game {
 			}
 			act.seek(3);
 
-			if(act.read(palettes + i * 255 * 3, 255 * 3) != 1) {
+			if(act.read(&palettes[i * 255 * 3], 255 * 3) != 1) {
 				error::die("\"" + path + "\" not a valid ACT file!");
 			}
 		}
@@ -254,7 +254,7 @@ namespace game {
 				nSprites++;
 			}
 		}
-		sprites = new sprite::Sprite[nSprites];
+		sprites.resize(nSprites);
 
 		//Parse the damned sprites for god's sake
 		//Second pass
@@ -315,7 +315,7 @@ namespace game {
 				nSounds++;
 			}
 		}
-		sounds = new SoundGroup[nSounds];
+		sounds.resize(nSounds);
 
 		//Second pass (count sounds within groups, set group ids)
 		parser.reset();
@@ -360,7 +360,7 @@ namespace game {
 				nVoices++;
 			}
 		}
-		voices = new VoiceGroup[nVoices];
+		voices.resize(nVoices);
 
 		//Second pass (count voices within groups, set group ids)
 		parser.reset();
@@ -406,7 +406,7 @@ namespace game {
 				nStates++;
 			}
 		}
-		states = new State[nStates];
+		states.resize(nStates);
 
 		//Second pass (get state names)
 		parser.reset();
@@ -420,8 +420,8 @@ namespace game {
 		int _i_step = 0;
 		unsigned char _b_step[2048];
 
-	#define _STEP(type) if(!strcasecmp(key, #type)) {BYTE(STEP_##type);
-	#define STEP(type) } else if(!strcasecmp(key, #type)) {BYTE(STEP_##type);
+	#define _STEP(type) if(!strcasecmp(key.c_str(), #type)) {BYTE(STEP_##type);
+	#define STEP(type) } else if(!strcasecmp(key.c_str(), #type)) {BYTE(STEP_##type);
 	#define STEP_END() }
 
 		//Third pass (load data)
@@ -432,17 +432,17 @@ namespace game {
 				//Increase the state counter, reset the step counter
 				if(_i_step > 0) {
 					states[stateCounter].size = _i_step;
-					states[stateCounter].steps = malloc(_i_step);
-					memcpy(states[stateCounter].steps, _b_step, _i_step);
+					states[stateCounter].steps.resize(_i_step);
+					memcpy(states[stateCounter].steps.data(), _b_step, _i_step);
 				}
 				stateCounter++;
 				_i_step = 0;
 			} else {
-				const char* key = parser.getArg(0);
+				std::string key = parser.getArg(0);
 
 				_STEP(Sprite)
 				int _i_sprite = 0;
-				const char* sprite = parser.getArg(1);
+				std::string sprite = parser.getArg(1);
 				for(int i = 0; i < nSprites; i++) {
 					if(!sprites[i].name.compare(sprite)) {
 						_i_sprite = i;
@@ -458,20 +458,22 @@ namespace game {
 				STEP(Scale)
 				FLOAT(parser.getArgFloat(1));
 				STEP(Type)
-				BYTE(*parser.getArg(1));
-				BYTE(*parser.getArg(2));
+				BYTE(parser.getArg(1).front());
+				BYTE(parser.getArg(2).front());
 				STEP(Ctrl)
 				BYTE(parser.getArgBool(1, false));
 				STEP(Attack)
 				FLOAT(parser.getArgFloat(1) * 0.01);
 
 				unsigned char type = 0;
-				const char* ht = parser.getArg(2);
-				if(!strcmp(ht, "low")) {
+				std::string ht = parser.getArg(2);
+				if (!ht.compare("low")) {
 					type = HT_LOW;
-				} else if(!strcmp(ht, "mid")) {
+				}
+				else if (!ht.compare("mid")) {
 					type = HT_MID;
-				} else if(!strcmp(ht, "high")) {
+				}
+				else if (!ht.compare("high")) {
 					type = HT_HIGH;
 				}
 				BYTE(type);
@@ -480,7 +482,7 @@ namespace game {
 				FLOAT(parser.getArgFloat(4));
 
 				int sound = 0;
-				const char* g = parser.getArg(5);
+				std::string g = parser.getArg(5);
 				for(int i = 0; i < nStates; i++) {
 					if(!sounds[i].name.compare(g)) {
 						sound = i;
@@ -491,7 +493,7 @@ namespace game {
 
 				BYTE(parser.getArgBool(6, false));
 				STEP(Sound)
-				const char* g = parser.getArg(1);
+				std::string g = parser.getArg(1);
 				int sound = -1;
 				for(int i = 0; i < nSounds; i++) {
 					if(!sounds[i].name.compare(g)) {
@@ -501,7 +503,7 @@ namespace game {
 				}
 				WORD(sound);
 				STEP(Say)
-				const char* g = parser.getArg(1);
+				std::string g = parser.getArg(1);
 				int voice = -1;
 				for(int i = 0; i < nVoices; i++) {
 					if(!voices[i].name.compare(g)) {
@@ -521,7 +523,7 @@ namespace game {
 				FLOAT(parser.getArgFloat(2));
 				STEP(Shoot)
 				int state = 0;
-				const char* target = parser.getArg(1);
+				std::string target = parser.getArg(1);
 				for(int i = 0; i < nStates; i++) {
 					if(!states[i].name.compare(target)) {
 						state = i;
@@ -533,7 +535,7 @@ namespace game {
 				FLOAT(parser.getArgFloat(3));
 				STEP(OnHit)
 				int state = 0;
-				const char* target = parser.getArg(1);
+				std::string target = parser.getArg(1);
 				for(int i = 0; i < nStates; i++) {
 					if(!states[i].name.compare(target)) {
 						state = i;
@@ -564,14 +566,17 @@ namespace game {
 				STRING(parser.getArg(1));
 				WORD(parser.getArgInt(2));
 				WORD(parser.getArgInt(3));
-				const char* type = parser.getArg(4);
-				if(!strcmp(type, "screen")) {
+				std::string type = parser.getArg(4);
+				if (!type.compare("screen")) {
 					BYTE(0);
-				} else if(!strcmp(type, "stay")) {
+				}
+				else if (!type.compare("stay")) {
 					BYTE(1);
-				} else if(!strcmp(type, "follow")) {
+				}
+				else if (!type.compare("follow")) {
 					BYTE(2);
-				} else {
+				}
+				else {
 					error::die(std::string("Unknown effect type: ") + type);
 				}
 				BYTE(parser.getArgBool(5, false));
@@ -579,7 +584,7 @@ namespace game {
 				BYTE(parser.getArgInt(7));
 				STEP(Cancel)
 				int state = 0;
-				const char* target = parser.getArg(1);
+				std::string target = parser.getArg(1);
 				for(int i = 0; i < nStates; i++) {
 					if(!states[i].name.compare(target)) {
 						state = i;
@@ -599,8 +604,8 @@ namespace game {
 		//Second pass (count step sizes)
 		if(stateCounter >= 0 && _i_step > 0) {
 			states[stateCounter].size = _i_step;
-			states[stateCounter].steps = malloc(_i_step);
-			memcpy(states[stateCounter].steps, _b_step, _i_step);
+			states[stateCounter].steps.resize(_i_step);
+			memcpy(states[stateCounter].steps.data(), _b_step, _i_step);
 		}
 
 		//Commands
@@ -616,7 +621,7 @@ namespace game {
 				nCommands++;
 			}
 		}
-		commands = new Command[nCommands];
+		commands.resize(nCommands);
 
 		//Second pass (process commands and count targets/conditions)
 		parser.reset();
@@ -630,14 +635,14 @@ namespace game {
 
 				//Create the old buffer
 				if(commandCounter >= 0) {
-					commands[commandCounter].targets = new CommandTarget[commands[commandCounter].targetC];
+					commands[commandCounter].targets.resize(commands[commandCounter].targetC);
 				}
 
 				commandCounter++;
 
 				//Load the command
 				for(int k = 0; k < argc; k++) {
-					const char* cmd = parser.getArg(k);
+					std::string cmd = parser.getArg(k);
 
 					int key = 0;
 					bool generic = false;
@@ -710,13 +715,13 @@ namespace game {
 			}
 
 			//Count the targets
-			if(*parser.getArg(0) == '@') {
+			if(parser.getArg(0).front() == '@') {
 				//Its a new target, count it.
 				commands[commandCounter].targetC++;
 			}
 		}
 		if(commandCounter >= 0) {
-			commands[commandCounter].targets = new CommandTarget[commands[commandCounter].targetC];
+			commands[commandCounter].targets.resize(commands[commandCounter].targetC);
 		}
 
 		//Third pass (load the targets/conditions)
@@ -733,10 +738,10 @@ namespace game {
 			}
 
 			//What is this?
-			if(*parser.getArg(0) == '@') {
+			if(parser.getArg(0).front() == '@') {
 				//Its a new target!
 				targetCounter++;
-				const char* target = parser.getArg(0) + 1;
+				std::string target = parser.getArg(0).substr(1);
 				for(int i = 0; i < nStates; i++) {
 					if(!states[i].name.compare(target)) {
 						commands[commandCounter].targets[targetCounter].state = i;
@@ -745,23 +750,26 @@ namespace game {
 				}
 			} else {
 				//Behold, a condition
-				const char* cndstr = parser.getArg(0);
+				std::string cndstr = parser.getArg(0);
 				unsigned char& cnd = commands[commandCounter].targets[targetCounter].conditions[commands[commandCounter].targets[targetCounter].conditionC];
-				if(*cndstr == '!') {
+				if(cndstr.front() == '!') {
 					cnd = CND_NOT;
-					cndstr++;
+					cndstr.erase(0, 1);
 				} else {
 					cnd = 0;
 				}
 
 				//Find out what this thing is
-				if(!strcmp(cndstr, "onground")) {
+				if (!cndstr.compare("onground")) {
 					cnd |= CND_ON_GROUND;
-				} else if(!strcmp(cndstr, "crouching")) {
+				}
+				else if (!cndstr.compare("crouching")) {
 					cnd |= CND_CROUCHING;
-				} else if(!strcmp(cndstr, "airdash")) {
+				}
+				else if (!cndstr.compare("airdash")) {
 					cnd |= CND_AIRDASH;
-				} else if(!strcmp(cndstr, "doublejump")) {
+				}
+				else if (!cndstr.compare("doublejump")) {
 					cnd |= CND_DOUBLEJUMP;
 				}
 
@@ -842,7 +850,7 @@ int main(int argc, char** argv) {
 
 	//Write palettes
 	std::cout << "Writing palettes..." << std::endl;
-	file.write(fighter.palettes, fighter.nPalettes * 255 * 3 * 2);
+	file.write(fighter.palettes.data(), fighter.nPalettes * 255 * 3 * 2);
 
 	//Write Sprites
 	std::cout << "Writing sprite information..." << std::endl;
@@ -946,7 +954,7 @@ int main(int argc, char** argv) {
 	file.writeWord(fighter.nStates);
 	for(int state = 0; state < fighter.nStates; state++) {
 		file.writeWord(fighter.states[state].size);
-		file.write(fighter.states[state].steps, fighter.states[state].size);
+		file.write(fighter.states[state].steps.data(), fighter.states[state].size);
 	}
 
 	//Write commands

@@ -8,43 +8,40 @@
 
 #include "error.h"
 #include "util.h"
-
 #include "sys.h"
 
 #include <fstream>
 
 Animation::Animation() :
-    nFrames(0), frames(nullptr), frameTimes(nullptr),
+    nFrames(0), frames(), frameTimes(),
     playing(false), startFrame(0)
 {}
 
-Animation::Animation(Animation&& other) :
-    nFrames(other.nFrames), frames(nullptr), frameTimes(nullptr),
+Animation::Animation(Animation&& other) noexcept :
+    nFrames(other.nFrames), frames(), frameTimes(),
     playing(other.playing), startFrame(other.startFrame)
 {
-    using std::swap;
-    swap(frames, other.frames);
-    swap(frameTimes, other.frameTimes);
+    frames.swap(other.frames);
+    frameTimes.swap(other.frameTimes);
 }
 
-Animation& Animation::operator=(Animation&& other) {
+Animation& Animation::operator=(Animation&& other) noexcept {
     nFrames = other.nFrames;
     playing = other.playing;
     startFrame = other.startFrame;
 
-    using std::swap;
-    swap(frames, other.frames);
-    swap(frameTimes, other.frameTimes);
+    frames.swap(other.frames);
+    frameTimes.swap(other.frameTimes);
     return *this;
 }
 
-Animation::~Animation() {
-    delete [] frames;
-    delete [] frameTimes;
-}
+Animation::~Animation() {}
 
 //Load a GIF
-Animation::Animation(const std::string& filename) {
+Animation::Animation(const std::string& filename) :
+    nFrames(0), frames(), frameTimes(),
+    playing(false), startFrame(0)
+{
     // Set up local variables
     bool error = false;
 
@@ -90,8 +87,8 @@ Animation::Animation(const std::string& filename) {
     stride = width * height * comp;
 
     //Allocate memory for gifs
-    frames = new Image[nFrames];
-    frameTimes = new int[nFrames];
+    frames.resize(nFrames);
+    frameTimes.resize(nFrames);
 
     //Render all of the frames
     for(int i = 0; i < nFrames; i++) {
@@ -121,11 +118,11 @@ void Animation::setPlaying(bool playing) {
     }
 }
 
-bool Animation::isPlaying() {
+bool Animation::isPlaying() const {
     return playing;
 }
 
-void Animation::draw(int x, int y) {
+void Animation::draw(int x, int y) const {
     int frame = 0;
     if(playing) {
         //Get the total number of frames

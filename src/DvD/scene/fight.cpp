@@ -31,7 +31,7 @@ SceneMeter::SceneMeter() {
 SceneMeter::~SceneMeter() {
 }
 
-void SceneMeter::draw(float pct, bool mirror, bool flip) {
+void SceneMeter::draw(float pct, bool mirror, bool flip) const {
 	if (pct > 0) {
 		if (flip) {
 			graphics::setRect(0, 0, img.w * pct, img.h);
@@ -528,7 +528,7 @@ void SceneFight::think() {
 	}
 }
 
-void SceneFight::draw() {
+void SceneFight::draw() const {
 	// From main.cpp
 	STAGE.draw(false);
 
@@ -759,7 +759,7 @@ void SceneFight::draw() {
 	}
 
 	// From main.cpp
-	((SceneSelect*)scenes[SCENE_SELECT])->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x, madotsuki.pos.y + madotsuki.fighter->height, true);
+	((SceneSelect*)scenes[SCENE_SELECT].get())->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x, madotsuki.pos.y + madotsuki.fighter->height, true);
 }
 
 void SceneFight::reset() {

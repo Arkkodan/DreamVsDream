@@ -10,11 +10,11 @@ Thread::Thread() {
 	thread = nullptr;
 }
 
-Thread::Thread(Thread&& other) {
+Thread::Thread(Thread&& other) noexcept {
     thread = other.thread;
 }
 
-Thread& Thread::operator=(Thread&& other) {
+Thread& Thread::operator=(Thread&& other) noexcept {
     thread = other.thread;
     return *this;
 }
@@ -26,7 +26,7 @@ Thread::Thread(void (*func)()) {
 Thread::~Thread() {
 }
 
-void Thread::join() {
+void Thread::join() const {
     if(thread) {
         SDL_WaitThread(thread, nullptr);
     }
@@ -34,7 +34,9 @@ void Thread::join() {
 
 //Mutex
 
-Mutex::Mutex() {
+Mutex::Mutex() :
+    mutex(nullptr)
+{
     //mutex = SDL_CreateMutex();
 }
 
@@ -42,10 +44,10 @@ Mutex::~Mutex() {
     //SDL_DestroyMutex(mutex);
 }
 
-void Mutex::lock() {
+void Mutex::lock() const {
     //SDL_LockMutex(mutex);
 }
 
-void Mutex::unlock() {
+void Mutex::unlock() const {
     //SDL_UnlockMutex(mutex);
 }

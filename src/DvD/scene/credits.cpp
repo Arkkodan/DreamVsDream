@@ -45,12 +45,12 @@ void SceneCredits::think() {
 	}
 }
 
-void SceneCredits::draw() {
+void SceneCredits::draw() const {
 	Scene::draw();
 
 	if (!timer_start) {
 		if (done) {
-			const static char* _sz = "Secret character unlocked!";
+			static std::string _sz = "Secret character unlocked!";
 			font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(_sz) - CREDITS_OFFSET, sys::FLIP(font.img.h * 2), _sz, 255, 255, 255, secret_alpha);
 		}
 		else {

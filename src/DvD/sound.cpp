@@ -116,7 +116,7 @@ namespace audio {
 					out[1] = sound->samples[((int)i_music_sample) * 2 + 1] * music_volume;
 				}
 
-				i_music_sample += (sound->sample_rate / (float)SAMPLE_RATE) * music_frequency;
+				i_music_sample += (static_cast<double>(sound->sample_rate) / (float)SAMPLE_RATE) * music_frequency;
 				if(i_music_sample >= sound->c_samples) {
 					if(Scene::scene == Scene::SCENE_VERSUS) {
 						music = nullptr;
@@ -149,7 +149,7 @@ namespace audio {
 					}
 
 					//Increase sound buffer counters
-					sound_sources[j].i_sample += (sound->sample_rate / (float)SAMPLE_RATE) * sound_sources[j].frequency;
+					sound_sources[j].i_sample += (static_cast<double>(sound->sample_rate) / (float)SAMPLE_RATE) * sound_sources[j].frequency;
 					if(sound_sources[j].i_sample >= sound->c_samples) {
 						sound_sources[j].sound = nullptr;
 					}
@@ -178,7 +178,7 @@ namespace audio {
 					}
 
 					//Increase sound buffer counters
-					speaker_sources[j].i_sample += (sound->sample_rate / (float)SAMPLE_RATE) * speaker_sources[j].frequency;
+					speaker_sources[j].i_sample += (static_cast<double>(sound->sample_rate) / (float)SAMPLE_RATE) * speaker_sources[j].frequency;
 					if(speaker_sources[j].i_sample >= sound->c_samples) {
 						speaker_sources[j].sound = nullptr;
 					}
@@ -231,17 +231,13 @@ namespace audio {
 	}
 
 	Sound::Sound() {
-		samples = nullptr;
+		samples.clear();
 		c_samples = 0;
 		sample_rate = 0;
 		channels = 0;
 	}
 
-	Sound::~Sound() {
-		if(samples) {
-			delete [] samples;
-		}
-	}
+	Sound::~Sound() {}
 
 	void Sound::play() {
 		play(1.0f);
@@ -260,7 +256,7 @@ namespace audio {
 #endif
 	}
 
-	void Sound::stop() {
+	void Sound::stop() const {
 #ifndef NO_SOUND
 		for(int i = 0; i < SOUND_SOURCE_MAX; i++) {
 			if(sound_sources[i].sound == this) {
@@ -271,7 +267,7 @@ namespace audio {
 #endif
 	}
 
-	bool Sound::playing() {
+	bool Sound::playing() const {
 #ifndef NO_SOUND
 		for(int i = 0; i < SOUND_SOURCE_MAX; i++) {
 			if(sound_sources[i].sound == this) {
@@ -307,18 +303,15 @@ namespace audio {
 			c_samples = info.frames;
 			channels = info.channels;
 			sample_rate = info.samplerate;
-			samples = new float[c_samples * channels];
+			samples.resize(c_samples * channels);
 
-			if(sf_readf_float(stream, samples, c_samples) != c_samples) {
+			if (sf_readf_float(stream, samples.data(), c_samples) != c_samples) {
 				goto error;
 			}
 			goto end;
 
 	error:
-			if(samples) {
-				delete [] samples;
-				samples = nullptr;
-			}
+			samples.clear();
 			c_samples = 0;
 			channels = 0;
 			err = true;
@@ -413,17 +406,14 @@ namespace audio {
 		c_samples = info.frames;
 		channels = info.channels;
 		sample_rate = info.samplerate;
-		samples = new float[c_samples * channels];
+		samples.resize(c_samples * channels);
 
-		if(sf_readf_float(stream, samples, c_samples) != c_samples) {
+		if (sf_readf_float(stream, samples.data(), c_samples) != c_samples) {
 			goto error;
 		}
 		goto end;
 	error:
-		if(samples) {
-			delete [] samples;
-			samples = nullptr;
-		}
+		samples.clear();
 		c_samples = 0;
 		channels = 0;
 
@@ -435,9 +425,9 @@ namespace audio {
 		file.seek(vio.origin + vio.size);
 	}
 
-	bool Sound::exists() {
+	bool Sound::exists() const {
 #ifndef NO_SOUND
-		return samples != nullptr;
+		return !samples.empty();
 #else
 		return true; //don't generate errors
 #endif
@@ -445,9 +435,7 @@ namespace audio {
 
 	void Sound::destroy() {
 #ifndef NO_SOUND
-		if(samples) {
-			delete [] samples;
-		}
+		samples.clear();
 #endif
 	}
 
@@ -535,7 +523,7 @@ namespace audio {
 #endif
 	}
 
-	bool Music::exists() {
+	bool Music::exists() const {
 #ifndef NO_SOUND
 		return loop.exists();
 #else
@@ -543,7 +531,7 @@ namespace audio {
 #endif
 	}
 
-	bool Music::isPlaying() {
+	bool Music::isPlaying() const {
 		return music == this;
 	}
 
@@ -582,7 +570,7 @@ namespace audio {
 #endif
 	}
 
-	void Speaker::play(Voice* voice) {
+	void Speaker::play(Voice* voice) const {
 #ifndef NO_SOUND
 		for(int i = 0; i < SPEAKER_SOURCE_MAX; i++) {
 			if(speaker_sources[i].speaker == this) {
@@ -599,7 +587,7 @@ namespace audio {
 #endif
 	}
 
-	void Speaker::stop() {
+	void Speaker::stop() const {
 #ifndef NO_SOUND
 		for(int i = 0; i < SPEAKER_SOURCE_MAX; i++) {
 			if(speaker_sources[i].speaker == this) {

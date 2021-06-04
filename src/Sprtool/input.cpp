@@ -102,8 +102,8 @@ void keyPress(int key, bool press) {
 
 				//Copy everything
 				if(copyBoxes) {
-					delete [] fighter.sprites[frame].hitBoxes.boxes;
-					delete [] fighter.sprites[frame].aHitBoxes.boxes;
+					fighter.sprites[frame].hitBoxes.boxes.clear();
+					fighter.sprites[frame].aHitBoxes.boxes.clear();
 					fighter.sprites[frame].hitBoxes.init(fighter.sprites[copyFrame].hitBoxes.size);
 					fighter.sprites[frame].aHitBoxes.init(fighter.sprites[copyFrame].aHitBoxes.size);
 
@@ -162,41 +162,41 @@ void keyPress(int key, bool press) {
 			if(selectBox) {
 				int i = 0;
 				for(; i < fighter.sprites[frame].hitBoxes.size; i++)
-					if(fighter.sprites[frame].hitBoxes.boxes + i == selectBox) {
+					if (&fighter.sprites[frame].hitBoxes.boxes[i] == selectBox) {
 						if(i == 0) {
 							if(fighter.sprites[frame].aHitBoxes.size) {
-								selectBox = fighter.sprites[frame].aHitBoxes.boxes + (fighter.sprites[frame].aHitBoxes.size-1);
+								selectBox = &fighter.sprites[frame].aHitBoxes.boxes.back();
 								selectBoxAttack = true;
 							} else {
-								selectBox = fighter.sprites[frame].hitBoxes.boxes + (fighter.sprites[frame].hitBoxes.size-1);
+								selectBox = &fighter.sprites[frame].hitBoxes.boxes.back();
 							}
 						} else {
-							selectBox = fighter.sprites[frame].hitBoxes.boxes + (i - 1);
+							selectBox = &fighter.sprites[frame].hitBoxes.boxes[i - 1];
 						}
 						break;
 					}
 				if(i == fighter.sprites[frame].hitBoxes.size) {
 					for(i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++)
-						if(fighter.sprites[frame].aHitBoxes.boxes + i == selectBox) {
+						if (&fighter.sprites[frame].aHitBoxes.boxes[i] == selectBox) {
 							if(i == 0) {
 								if(fighter.sprites[frame].hitBoxes.size) {
-									selectBox = fighter.sprites[frame].hitBoxes.boxes + (fighter.sprites[frame].hitBoxes.size-1);
+									selectBox = &fighter.sprites[frame].hitBoxes.boxes.back();
 									selectBoxAttack = false;
 								} else {
-									selectBox = fighter.sprites[frame].aHitBoxes.boxes + (fighter.sprites[frame].aHitBoxes.size-1);
+									selectBox = &fighter.sprites[frame].aHitBoxes.boxes.back();
 								}
 							} else {
-								selectBox = fighter.sprites[frame].aHitBoxes.boxes + (i - 1);
+								selectBox = &fighter.sprites[frame].aHitBoxes.boxes[i - 1];
 							}
 							break;
 						}
 				}
 			} else {
 				if(fighter.sprites[frame].hitBoxes.size) {
-					selectBox = fighter.sprites[frame].hitBoxes.boxes;
+					selectBox = &fighter.sprites[frame].hitBoxes.boxes.front();
 					selectBoxAttack = false;
 				} else if(fighter.sprites[frame].aHitBoxes.size) {
-					selectBox = fighter.sprites[frame].aHitBoxes.boxes;
+					selectBox = &fighter.sprites[frame].aHitBoxes.boxes.front();
 					selectBoxAttack = true;
 				}
 			}
@@ -209,41 +209,41 @@ void keyPress(int key, bool press) {
 			if(selectBox) {
 				int i = 0;
 				for(; i < fighter.sprites[frame].hitBoxes.size; i++)
-					if(fighter.sprites[frame].hitBoxes.boxes + i == selectBox) {
+					if (&fighter.sprites[frame].hitBoxes.boxes[i] == selectBox) {
 						if(i == fighter.sprites[frame].hitBoxes.size-1) {
 							if(fighter.sprites[frame].aHitBoxes.size) {
-								selectBox = fighter.sprites[frame].aHitBoxes.boxes;
+								selectBox = &fighter.sprites[frame].aHitBoxes.boxes.front();
 								selectBoxAttack = true;
 							} else {
-								selectBox = fighter.sprites[frame].hitBoxes.boxes;
+								selectBox = &fighter.sprites[frame].hitBoxes.boxes.front();
 							}
 						} else {
-							selectBox = fighter.sprites[frame].hitBoxes.boxes + (i + 1);
+							selectBox = &fighter.sprites[frame].hitBoxes.boxes[i + 1];
 						}
 						break;
 					}
 				if(i == fighter.sprites[frame].hitBoxes.size) {
 					for(i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++)
-						if(fighter.sprites[frame].aHitBoxes.boxes + i == selectBox) {
+						if (&fighter.sprites[frame].aHitBoxes.boxes[i] == selectBox) {
 							if(i == fighter.sprites[frame].aHitBoxes.size-1) {
 								if(fighter.sprites[frame].hitBoxes.size) {
-									selectBox = fighter.sprites[frame].hitBoxes.boxes;
+									selectBox = &fighter.sprites[frame].hitBoxes.boxes.front();
 									selectBoxAttack = false;
 								} else {
-									selectBox = fighter.sprites[frame].aHitBoxes.boxes;
+									selectBox = &fighter.sprites[frame].aHitBoxes.boxes.front();
 								}
 							} else {
-								selectBox = fighter.sprites[frame].aHitBoxes.boxes + (i + 1);
+								selectBox = &fighter.sprites[frame].aHitBoxes.boxes[i + 1];
 							}
 							break;
 						}
 				}
 			} else {
 				if(fighter.sprites[frame].hitBoxes.size) {
-					selectBox = fighter.sprites[frame].hitBoxes.boxes;
+					selectBox = &fighter.sprites[frame].hitBoxes.boxes.front();
 					selectBoxAttack = false;
 				} else if(fighter.sprites[frame].aHitBoxes.size) {
-					selectBox = fighter.sprites[frame].aHitBoxes.boxes;
+					selectBox = &fighter.sprites[frame].aHitBoxes.boxes.front();
 					selectBoxAttack = true;
 				}
 			}
@@ -493,7 +493,7 @@ void mousePress(int key, bool press) {
 			for(; i < fighter.sprites[frame].hitBoxes.size; i++)
 				if(fighter.sprites[frame].hitBoxes.boxes[i].collidePoint(mousePos.x - sys::WINDOW_WIDTH / 2, mousePos.y + sys::EDIT_OFFSET)) {
 					selectAll = false; //TODO fix this
-					selectBox = fighter.sprites[frame].hitBoxes.boxes + i;
+					selectBox = &fighter.sprites[frame].hitBoxes.boxes[i];
 					selectBoxAttack = false;
 					selectBoxOffset.x = selectBox->pos.x - mousePos.x;
 					selectBoxOffset.y = selectBox->pos.y - sys::FLIP(mousePos.y);
@@ -506,7 +506,7 @@ void mousePress(int key, bool press) {
 				for(i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++)
 					if(fighter.sprites[frame].aHitBoxes.boxes[i].collidePoint(mousePos.x - sys::WINDOW_WIDTH / 2, mousePos.y + sys::EDIT_OFFSET)) {
 						selectAll = false; //TODO fix this
-						selectBox = fighter.sprites[frame].aHitBoxes.boxes + i;
+						selectBox = &fighter.sprites[frame].aHitBoxes.boxes[i];
 						selectBoxAttack = true;
 						selectBoxOffset.x = selectBox->pos.x - mousePos.x;
 						selectBoxOffset.y = selectBox->pos.y - sys::FLIP(mousePos.y);

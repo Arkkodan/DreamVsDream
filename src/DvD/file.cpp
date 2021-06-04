@@ -5,6 +5,8 @@
 #include <zlib.h>
 #endif
 
+#include <vector>
+
 #include "sys.h"
 #include "file.h"
 #include "util.h"
@@ -47,7 +49,7 @@ bool File::open(int flags, std::string szFileName) {
 }
 
 //READ OPERATIONS
-bool File::read(void* data, size_t size) {
+bool File::read(void* data, size_t size) const {
 #ifndef NO_ZLIB
 	if(flags & FILE_COMPRESS_GZ) {
 		return gzread((gzFile)fp, data, size) == (int)size;
@@ -56,45 +58,43 @@ bool File::read(void* data, size_t size) {
 	return fread(data, 1, size, (FILE*)fp) == size;
 }
 
-int8_t File::readByte() {
+int8_t File::readByte() const {
 	int8_t _value = 0;
 	read(&_value, 1);
 	return _value;
 }
 
-int16_t File::readWord() {
+int16_t File::readWord() const {
 	int16_t _value = 0;
 	read(&_value, 2);
 	return _value;
 }
 
-int32_t File::readDword() {
+int32_t File::readDword() const {
 	int32_t _value = 0;
 	read(&_value, 4);
 	return _value;
 }
 
-float File::readFloat() {
+float File::readFloat() const {
 	int32_t _value_int = 0;
 	read(&_value_int, 4);
 	return _value_int / (float)sys::FLOAT_ACCURACY;
 }
 
-std::string File::readStr() {
+std::string File::readStr() const {
 	uint8_t size = readByte();
 	if(!size) {
 		return "";
 	}
-	char* sz = (char*)malloc(size + 1);
-	sz[size] = 0;
-	read(sz, size);
-	std::string str(sz);
-	free(sz);
+	std::vector<char> sz(size);
+	read(sz.data(), size);
+	std::string str(sz.begin(), sz.end());
 	return str;
 }
 
 //WRITE OPERATIONS
-bool File::write(const void* data, size_t size) {
+bool File::write(const void* data, size_t size) const {
 #ifndef NO_ZLIB
 	if(flags & FILE_COMPRESS_GZ) {
 		return gzwrite((gzFile)fp, data, size) == (int)size;
@@ -103,24 +103,24 @@ bool File::write(const void* data, size_t size) {
 	return fwrite(data, 1, size, (FILE*)fp) == size;
 }
 
-bool File::writeByte(int8_t value) {
+bool File::writeByte(int8_t value) const {
 	return write(&value, 1);
 }
 
-bool File::writeWord(int16_t value) {
+bool File::writeWord(int16_t value) const {
 	return write(&value, 2);
 }
 
-bool File::writeDword(int32_t value) {
+bool File::writeDword(int32_t value) const {
 	return write(&value, 4);
 }
 
-bool File::writeFloat(float value) {
+bool File::writeFloat(float value) const {
 	int32_t valueInt = value * sys::FLOAT_ACCURACY;
 	return write(&valueInt, 4);
 }
 
-bool File::writeStr(const std::string& value) {
+bool File::writeStr(const std::string& value) const {
 	uint8_t size = value.length();
 	if(!write(&size, 1)) {
 		return false;
@@ -131,7 +131,7 @@ bool File::writeStr(const std::string& value) {
 	return write(value.c_str(), size);
 }
 
-void File::seek(long index) {
+void File::seek(long index) const {
 #ifndef NO_ZLIB
 	if(flags & FILE_COMPRESS_GZ) {
 		gzseek((gzFile)fp, index, SEEK_SET);
@@ -141,7 +141,7 @@ void File::seek(long index) {
 
 }
 
-long File::tell() {
+long File::tell() const {
 #ifndef NO_ZLIB
 	if(flags & FILE_COMPRESS_GZ) {
 		return gztell((gzFile)fp);
@@ -150,7 +150,7 @@ long File::tell() {
 	return ftell((FILE*)fp);
 }
 
-size_t File::size() {
+size_t File::size() const {
 	if(flags & FILE_COMPRESS_GZ) {
 		return -1;
 	}

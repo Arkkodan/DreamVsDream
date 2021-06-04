@@ -16,9 +16,9 @@ namespace util {
 	public:
 		Vector();
 		Vector(const Vector& other);
-		Vector(Vector&& other);
+		Vector(Vector&& other) noexcept;
 		Vector& operator=(const Vector& other);
-		Vector& operator=(Vector&& other);
+		Vector& operator=(Vector&& other) noexcept;
 
 		Vector(int x, int y);
 
@@ -26,7 +26,7 @@ namespace util {
 		Vector& operator-=(const Vector& other);
 
 		Vector& operator*=(const int scalar);
-		Vector operator*(const int scalar);
+		Vector operator*(const int scalar) const;
 
 		int x;
 		int y;
@@ -37,9 +37,9 @@ namespace util {
 	public:
 		Vectorf();
 		Vectorf(const Vectorf& other);
-		Vectorf(Vectorf&& other);
+		Vectorf(Vectorf&& other) noexcept;
 		Vectorf& operator=(const Vectorf& other);
-		Vectorf& operator=(Vectorf&& other);
+		Vectorf& operator=(Vectorf&& other) noexcept;
 
 		Vectorf(float x, float y);
 
@@ -47,7 +47,7 @@ namespace util {
 		Vectorf& operator-=(const Vectorf& other);
 
 		Vectorf& operator*=(const float scalar);
-		Vectorf operator*(const float scalar);
+		Vectorf operator*(const float scalar) const;
 
 		float x;
 		float y;
@@ -98,7 +98,7 @@ namespace util {
 	/// @param def Default bool value
 	/// @return Boolean value that str has.
 	/// If str is neither "true" or "false", return def.
-	bool strtobool(const char* str, bool def);
+	bool strtobool(const std::string& str, bool def);
 
 	/// @brief Determine the start and end positions of the next word
 	/// @details Words are delimited by commas and whitespaces.

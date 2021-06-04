@@ -9,22 +9,20 @@
 #include "sys.h"
 #include "stage.h"
 #include "graphics.h"
-
 #include "player.h"
-
 #include "error.h"
 
 Image::Image() : w(0), h(0),
 #ifdef COMPILER
 	data(nullptr), xpad(0), ypad(0)
 #else
-	textures(nullptr), w_textures(0), h_textures(0),
+	textures(), w_textures(0), h_textures(0),
 	w_subtexture(0), h_subtexture(0)
 #endif
 {
 }
 
-Image::Image(Image&& other) {
+Image::Image(Image&& other) noexcept {
     w = other.w;
     h = other.h;
 #ifdef COMPILER
@@ -37,12 +35,11 @@ Image::Image(Image&& other) {
     h_textures = other.h_textures;
     w_subtexture = other.w_subtexture;
     h_subtexture = other.h_subtexture;
-    textures = other.textures;
-    other.textures = nullptr;
+    textures = std::move(other.textures);
 #endif
 }
 
-Image& Image::operator=(Image&& other) {
+Image& Image::operator=(Image&& other) noexcept {
     w = other.w;
     h = other.h;
 
@@ -56,7 +53,7 @@ Image& Image::operator=(Image&& other) {
     h_textures = other.h_textures;
     w_subtexture = other.w_subtexture;
     h_subtexture = other.h_subtexture;
-    swap(textures, other.textures);
+	textures.swap(other.textures);
 #endif
     return *this;
 }
@@ -65,9 +62,8 @@ Image::~Image() {
 #ifdef COMPILER
 	free(data);
 #else
-	if(textures) {
-		glDeleteTextures(w_textures * h_textures, textures);
-		free(textures);
+	if (!textures.empty()) {
+		glDeleteTextures(w_textures * h_textures, textures.data());
 	}
 #endif
 }
@@ -246,7 +242,7 @@ void Image::createFromEmbed(File& file, const uint8_t* palette) {
 	png_size_t size = file.readDword();
 	png_Stream stream = {(png_size_t)file.tell(), size, &file};
 
-	uint8_t* data = nullptr;
+	std::vector<uint8_t> data;
 	int width;
 	int height;
 	int format;
@@ -305,7 +301,7 @@ void Image::createFromEmbed(File& file, const uint8_t* palette) {
 	}
 
 	//Allocate the image buffer and copy data into it
-	data = (uint8_t*)malloc(width * height * channels);
+	data.resize(width * height * channels);
 	row_pointers = png_get_rows(png_ptr, info_ptr);
 	for(int j = 0; j < height; j++)
 		for(int i = 0; i < width * channels; i++) {
@@ -313,7 +309,7 @@ void Image::createFromEmbed(File& file, const uint8_t* palette) {
 		}
 
 	//Turn this data into textures!
-	createFromMemory(data, width, height, format, palette);
+	createFromMemory(data.data(), width, height, format, palette);
 
 	goto end;
 
@@ -324,9 +320,6 @@ end:
 	if(png_ptr || info_ptr) {
 		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
 		png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
-	}
-	if(data) {
-		free(data);
 	}
 
 	//Move cursor back in place
@@ -426,11 +419,11 @@ void Image::createFromMemory(const uint8_t* data_, unsigned int width_, unsigned
 	}
 
 	//Create the buffer for the texture IDs and fill it
-	textures = (unsigned int*)malloc(sizeof(unsigned int*) * (w_textures * h_textures));
-	glGenTextures(w_textures * h_textures, textures);
+	textures.resize(sizeof(unsigned int*) * (w_textures * h_textures));
+	glGenTextures(w_textures * h_textures, textures.data());
 
 	//Loop through each element and create a new texture
-	uint8_t* _b_texture = (uint8_t*)malloc(w_subtexture * h_subtexture * _channels);
+	std::vector<uint8_t> _b_texture(w_subtexture * h_subtexture * _channels);
 	for(unsigned int v = 0; v < h_textures; v++) {
 		for(unsigned int u = 0; u < w_textures; u++) {
 			//Copy the texture
@@ -448,27 +441,26 @@ void Image::createFromMemory(const uint8_t* data_, unsigned int width_, unsigned
 			glBindTexture(GL_TEXTURE_2D, textures[v * w_textures + u]);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-			glTexImage2D(GL_TEXTURE_2D, 0, _format, w_subtexture, h_subtexture, 0, _format, GL_UNSIGNED_BYTE, _b_texture);
+			glTexImage2D(GL_TEXTURE_2D, 0, _format, w_subtexture, h_subtexture, 0, _format, GL_UNSIGNED_BYTE, _b_texture.data());
 		}
 	}
-	free(_b_texture);
 }
 
-void Image::draw(int x, int y, bool mirror) {
+void Image::draw(int x, int y, bool mirror) const {
 	if(!graphics::srcW || !graphics::srcH) {
 		graphics::srcW = w;
 		graphics::srcH = h;
 	}
 
 	//Set correct render mode
-	if(graphics::render == RENDER_ADDITIVE || graphics::render == RENDER_SUBTRACTIVE) {
+	if(graphics::render == Render::ADDITIVE || graphics::render == Render::SUBTRACTIVE) {
 		glBlendFunc(GL_ONE, GL_ONE);
-		if(graphics::render == RENDER_ADDITIVE) {
+		if(graphics::render == Render::ADDITIVE) {
 			glBlendEquation(GL_FUNC_ADD);
-		} else if(graphics::render == RENDER_SUBTRACTIVE) {
+		} else if(graphics::render == Render::SUBTRACTIVE) {
 			glBlendEquation(GL_FUNC_SUBTRACT);
 		}
-	} else if(graphics::render == RENDER_MULTIPLY) {
+	} else if(graphics::render == Render::MULTIPLY) {
 		glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 	}
 
@@ -580,10 +572,10 @@ void Image::draw(int x, int y, bool mirror) {
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 	graphics::srcX = graphics::srcY = graphics::srcW = graphics::srcH = 0;
 	graphics::xscale = graphics::yscale = 1.0f;
-	graphics::render = RENDER_NORMAL;
+	graphics::render = Render::NORMAL;
 }
 
-void Image::drawSprite(int x, int y, bool mirror) {
+void Image::drawSprite(int x, int y, bool mirror) const {
 	if(!graphics::srcW || !graphics::srcH) {
 		graphics::srcW = w;
 		graphics::srcH = h;
@@ -596,10 +588,10 @@ void Image::drawSprite(int x, int y, bool mirror) {
 }
 #endif
 
-bool Image::exists() {
+bool Image::exists() const {
 #ifdef COMPILER
 	return data != nullptr;
 #else
-	return textures != nullptr;
+	return !textures.empty();
 #endif
 }

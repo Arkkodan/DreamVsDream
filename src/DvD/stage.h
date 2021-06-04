@@ -4,18 +4,22 @@
 #include "scene/scene.h"
 #include "animation.h"
 
+#include <array>
+#include <list>
+
 #define STAGE Stage::stages[Stage::stage]
 
 /// @brief Stage class including creation, logic, and drawing
 class Stage {
 public:
 	static int stage;
-	static Stage stages[];
+	static constexpr auto STAGES_MAX = 20;
+	static std::array<Stage, STAGES_MAX> stages;
 
 public:
 	std::string name;
-	SceneImage* imagesAbove;
-	SceneImage* imagesBelow;
+	std::list<SceneImage> imagesAbove;
+	std::list<SceneImage> imagesBelow;
 	audio::Music bgm;
 	audio::Music bgm2;
 
@@ -38,12 +42,12 @@ public:
 
 	void think();
 	void reset();
-	void draw(bool above);
+	void draw(bool above) const;
 
 	void bgmPlay();
 
 	void parseFile(const std::string& szFileName);
-	std::string getResource(const std::string& szFileName, const std::string& extension);
+	std::string getResource(const std::string& szFileName, const std::string& extension) const;
 
 	static void ginit();
 	static void deinit();

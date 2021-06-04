@@ -11,15 +11,11 @@
 
 #include <glad/glad.h>
 
-//double oldTime = 0.0f;
-
-// extern uint8_t* blankTex;
-
 namespace graphics {
 	constexpr auto FPS_BUFFER = 2;
 
 	//State options
-	int render = 0;
+	Image::Render render = Image::Render::NORMAL;
 
 	int srcX = 0;
 	int srcY = 0;
@@ -205,7 +201,7 @@ namespace graphics {
 		}
 	}
 
-	void setRender(int render_) {
+	void setRender(Image::Render render_) {
 		render = render_;
 	}
 

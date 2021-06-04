@@ -41,7 +41,7 @@ void SceneIntro::think() {
 	}
 }
 
-void SceneIntro::draw() {
+void SceneIntro::draw() const {
 	//Draw our own fade
 	float _alpha = timer / (float)(sys::FPS / 2);
 	if (state % 2 == 0) {

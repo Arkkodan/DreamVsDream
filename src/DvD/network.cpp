@@ -287,7 +287,7 @@ namespace net {
 			//First, load this input up into our net buffer
 			game::Player* p = getMyPlayer();
 			game::Player* py = getYourPlayer();
-			game::InputBuff* nb = p->netBuff + p->netBuffCounter;
+			game::InputBuff* nb = &p->netBuff[p->netBuffCounter];
 			nb->input = p->frameInput;
 			nb->frame = frame + inputDelay;
 

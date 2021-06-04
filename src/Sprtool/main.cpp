@@ -57,7 +57,7 @@ void Fighter::create(std::string name_) {
 	name = name_;
 
 	//Palettes
-	palettes = nullptr;
+	palettes.clear();
 
 	//Sprites
 	Parser parser("chars/" + name + "/sprites.ubu");
@@ -69,7 +69,7 @@ void Fighter::create(std::string name_) {
 			nSprites++;
 		}
 	}
-	sprites = new sprite::Sprite[nSprites];
+	sprites.resize(nSprites);
 
 	//Parse the damned sprites for god's sake
 	//Second pass

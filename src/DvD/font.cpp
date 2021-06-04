@@ -11,8 +11,10 @@
 float Font::xscale = 1.0f;
 float Font::yscale = 1.0f;
 
-Font::Font() {
-}
+Font::Font() :
+	pos(), width(),
+	mono(0), sensitive(false)
+{}
 
 Font::~Font() {
 }
@@ -49,19 +51,19 @@ void Font::createFromFile(std::string filename) {
 	img.createFromEmbed(file, nullptr);
 }
 
-bool Font::exists() {
+bool Font::exists() const {
 	return img.exists();
 }
 
-void Font::drawText(int x, int y, std::string text) {
+void Font::drawText(int x, int y, std::string text) const {
 	drawText(x, y, text, 255, 255, 255, 1.0f);
 }
 
-void Font::drawChar(int x, int y, char c) {
+void Font::drawChar(int x, int y, char c) const {
 	drawChar(x, y, c, 255, 255, 255, 1.0f);
 }
 
-void Font::drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b, float a) {
+void Font::drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b, float a) const {
 	if(!sensitive) {
 		if(c >= 'A' && c <= 'Z') {
 			c += 'a' - 'A';
@@ -79,7 +81,7 @@ void Font::drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b, float
 	yscale = 1.0f;
 }
 
-void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g, uint8_t b, float a) {
+void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g, uint8_t b, float a) const {
 	if(!text.length()) {
 		return;
 	}
@@ -125,7 +127,7 @@ void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g, uint8_
 	yscale = 1.0f;
 }
 
-int Font::getTextWidth(std::string text) {
+int Font::getTextWidth(std::string text) const {
 	if(!mono) {
 		int w = 0;
 		for(const char* sz = text.c_str(); *sz; sz++) {
@@ -136,7 +138,7 @@ int Font::getTextWidth(std::string text) {
 	return text.length() * mono * xscale;
 }
 
-int Font::getCharWidth(char c) {
+int Font::getCharWidth(char c) const {
 	if(mono) {
 		return mono;
 	}

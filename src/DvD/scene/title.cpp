@@ -2,7 +2,7 @@
 
 #include "scene.h"
 
-const char* SceneTitle::menuChoicesMain[CHOICE_MAX] = {
+std::vector<std::string> SceneTitle::menuChoicesMain = {
 		"Arcade",
 		"Story",
 		"Versus",
@@ -15,7 +15,7 @@ const char* SceneTitle::menuChoicesMain[CHOICE_MAX] = {
 		"Quit",
 };
 
-const char* SceneTitle::menuChoicesVersus[CHOICE_VS_MAX] = {
+std::vector<std::string> SceneTitle::menuChoicesVersus = {
 	"Versus Player",
 	"Versus CPU",
 	"Tag Team",
@@ -23,12 +23,12 @@ const char* SceneTitle::menuChoicesVersus[CHOICE_VS_MAX] = {
 	"Return",
 };
 
-const char** SceneTitle::menuChoices[TM_MAX] = {
-	menuChoicesMain,
-	menuChoicesVersus,
+std::array<std::vector<std::string>*, SceneTitle::TM_MAX> SceneTitle::menuChoices = {
+	&menuChoicesMain,
+	&menuChoicesVersus,
 };
 
-const int SceneTitle::menuChoicesMax[TM_MAX] = {
+const std::array<int, SceneTitle::TM_MAX> SceneTitle::menuChoicesMax = {
 	CHOICE_MAX,
 	CHOICE_VS_MAX,
 };
@@ -43,12 +43,9 @@ SceneTitle::SceneTitle() : Scene("title") {
 	submenu = 0;
 
 	nThemes = 0;
-	themes = nullptr;
 }
 
-SceneTitle::~SceneTitle() {
-	delete[] themes;
-}
+SceneTitle::~SceneTitle() {}
 
 void SceneTitle::init() {
 	Scene::init();
@@ -195,7 +192,7 @@ void SceneTitle::reset() {
 	Scene::reset();
 }
 
-void SceneTitle::draw() {
+void SceneTitle::draw() const {
 	Scene::draw();
 
 	if (menuFont.exists()) {
@@ -224,13 +221,13 @@ void SceneTitle::draw() {
 			}
 
 			if (i == choice) {
-				menuFont.drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer), menuY + menuFont.img.h * i, menuChoices[submenu][i], aR / gray, aG / gray, aB / gray, 255);
+				menuFont.drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer), menuY + menuFont.img.h * i, menuChoices[submenu]->at(i), aR / gray, aG / gray, aB / gray, 255);
 			}
 			else if (i == choiceLast) {
-				menuFont.drawText(menuX + i * menuXOffset + choiceTimer, menuY + menuFont.img.h * i, menuChoices[submenu][i], iR / gray, iG / gray, iB / gray, 255);
+				menuFont.drawText(menuX + i * menuXOffset + choiceTimer, menuY + menuFont.img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
 			}
 			else {
-				menuFont.drawText(menuX + i * menuXOffset, menuY + menuFont.img.h * i, menuChoices[submenu][i], iR / gray, iG / gray, iB / gray, 255);
+				menuFont.drawText(menuX + i * menuXOffset, menuY + menuFont.img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
 			}
 		}
 	}
@@ -265,7 +262,7 @@ void SceneTitle::parseLine(Parser& parser) {
 	}
 	else if (parser.is("THEMES", 1)) {
 		nThemes = 0;
-		themes = new std::string[parser.getArgInt(1)];
+		themes.resize(parser.getArgInt(1));
 	}
 	else if (parser.is("THEME", 1)) {
 		themes[nThemes++] = parser.getArg(1);

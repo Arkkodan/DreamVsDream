@@ -16,13 +16,13 @@ SceneOptions::SceneOptions() : Scene("options") {
 	madoFrame = 1;
 	madoDir = 2;
 	madoWakeTimer = 0;
-	themes = nullptr;
+	themes.clear();
 	nThemes = 0;
+	iR = iG = iB = aR = aG = aB = 0;
+	aXOffset = 0;
 }
 
-SceneOptions::~SceneOptions() {
-	delete[] themes;
-}
+SceneOptions::~SceneOptions() {}
 
 void SceneOptions::think() {
 	Scene::think();
@@ -248,7 +248,7 @@ void SceneOptions::reset() {
 	madoWakeTimer = 0;
 }
 
-void SceneOptions::draw() {
+void SceneOptions::draw() const {
 	Scene::draw();
 
 	//Draw the menu options
@@ -356,7 +356,7 @@ void SceneOptions::parseLine(Parser& parser) {
 	}
 	else if (parser.is("THEMES", 1)) {
 		nThemes = 0;
-		themes = new std::string[parser.getArgInt(1)];
+		themes.resize(parser.getArgInt(1));
 	}
 	else if (parser.is("THEME", 1)) {
 		themes[nThemes++] = parser.getArg(1);

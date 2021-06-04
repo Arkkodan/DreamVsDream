@@ -23,23 +23,23 @@ public:
 
 	bool open(int flags, std::string szFilename);
 
-	bool read(void* data, size_t size);
-	int8_t readByte();
-	int16_t readWord();
-	int32_t readDword();
-	float readFloat();
-	std::string readStr();
+	bool read(void* data, size_t size) const;
+	int8_t readByte() const;
+	int16_t readWord() const;
+	int32_t readDword() const;
+	float readFloat() const;
+	std::string readStr() const;
 
-	bool write(const void* data, size_t size);
-	bool writeByte(int8_t);
-	bool writeWord(int16_t);
-	bool writeDword(int32_t);
-	bool writeFloat(float);
-	bool writeStr(const std::string&);
+	bool write(const void* data, size_t size) const;
+	bool writeByte(int8_t) const;
+	bool writeWord(int16_t) const;
+	bool writeDword(int32_t) const;
+	bool writeFloat(float) const;
+	bool writeStr(const std::string&) const;
 
-	void seek(long index);
-	long tell();
-	size_t size();
+	void seek(long index) const;
+	long tell() const;
+	size_t size() const;
 
 private:
     void close();

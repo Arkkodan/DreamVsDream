@@ -2,6 +2,8 @@
 #define PARSER_H_INCLUDED
 
 #include <string>
+#include <vector>
+#include <array>
 
 /// @brief Data structure to hold information about a parsed line from Parser
 class ParserLine {
@@ -14,7 +16,7 @@ public:
 
 	bool group;
 	int argc;
-	char* argv[ARGV_SIZE];
+	std::array<std::string, ARGV_SIZE> argv;
 };
 
 /// @brief Parser for a text file
@@ -33,7 +35,7 @@ public:
 public:
 	bool open(std::string szFileName);
 	void reset();
-	bool exists();
+	bool exists() const;
 
 	Parser();
 	Parser(std::string szFileName);
@@ -41,21 +43,21 @@ public:
 
 	bool parseLine();
 
-	bool isGroup();
-	int getArgC();
+	bool isGroup() const;
+	int getArgC() const;
 
-	const char* getArg(int arg);
-	int getArgInt(int arg);
-	float getArgFloat(int arg);
-	bool getArgBool(int arg, bool def);
+	std::string getArg(int arg) const;
+	int getArgInt(int arg) const;
+	float getArgFloat(int arg) const;
+	bool getArgBool(int arg, bool def) const;
 
-	bool is(std::string szTest, int argc);
+	bool is(std::string szTest, int argc) const;
 
 protected:
 	int iLine;
 	int nLines;
 	char** szLines;
-	ParserLine* lines;
+	std::vector<ParserLine> lines;
 };
 
 #endif // PARSER_H_INCLUDED

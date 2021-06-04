@@ -7,13 +7,15 @@
 #include "../font.h"
 #include "../player.h"
 
+#include <array>
+
 /// @brief Helper object for drawing meters, primarily for SceneFight
 class SceneMeter {
 public:
 	SceneMeter();
 	~SceneMeter();
 
-	void draw(float pct, bool mirror, bool flip);
+	void draw(float pct, bool mirror, bool flip) const;
 
 	Image img;
 	util::Vector pos;
@@ -44,7 +46,7 @@ public:
 	SceneFight();
 	~SceneFight();
 
-	void init();
+	void init() override final;
 
 	Image hud;
 	Image hud_tag;
@@ -68,12 +70,12 @@ public:
 	audio::Sound fadeinSnd;
 	audio::Sound fadeoutSnd;
 
-	Image round_splash[5];
+	std::array<Image, 5> round_splash;
 	Image round_hud[5];
 	int x_round_hud;
 	int y_round_hud;
 
-	Image ko[3]; //KO, timeout, draw
+	std::array<Image, 3> ko; // KO, timeout, draw
 
 	Font combo;
 	Image comboLeft;
@@ -97,15 +99,15 @@ public:
 	util::Vector orb_pos;
 
 	//Timers for various effects
-	int timer_flash;
+	mutable int timer_flash;
 	int timer_round_in;
 	int timer_round_out;
 	int timer_ko; //timeout/draw too
 
 	//Logic
 	int round; //What round is it?
-	int wins[2]; //How many times each player has on (including draws)
-	int win_types[2][3]; //What type of win was it? Win or draw?
+	std::array<int, 2> wins; // How many times each player has won (including draws)
+	std::array<std::array<int, 3>, 2> win_types; // What type of win was it? Win or draw?
 	int winner; //Who won the game?
 
 	int ko_player; //Which player was ko'd/lost? 2 = draw
@@ -116,13 +118,13 @@ public:
 	int gametype;
 
 	//Functions
-	void think();
-	void draw();
-	void reset();
+	void think() override final;
+	void draw() const override final;
+	void reset() override final;
 
 	void knockout(int player);
 
-	void parseLine(Parser& parser);
+	void parseLine(Parser& parser) override final;
 };
 
 #endif // DVD_SCENE_FIGHT_H

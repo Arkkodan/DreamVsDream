@@ -8,26 +8,18 @@
 
 #include <glad/glad.h>
 
+#include <algorithm>
+
 SceneSelect::SceneSelect() : Scene("select") {
 	width = height = 0;
 	gWidth = gHeight = 0;
-	gui = nullptr;
-	grid = nullptr;
-	gridFighters = nullptr;
 	gridC = 0;
-
-	curData = nullptr;
 
 	cursor_stage = 0;
 	cursor_stage_offset = 0;
 }
 
-SceneSelect::~SceneSelect() {
-	delete gui;
-	delete[] curData;
-	delete[] grid;
-	delete[] gridFighters;
-}
+SceneSelect::~SceneSelect() {}
 
 void SceneSelect::init() {
 	Scene::init();
@@ -225,7 +217,7 @@ void SceneSelect::think() {
 					else if (cursors[cur].lockState == Cursor::CURSOR_COLORSWAP) {
 						cursors[cur].lockState = Cursor::CURSOR_UNLOCKED;
 
-						if (curData) {
+						if (!curData.empty()) {
 							group = cursors[cur].getGroup(width, gWidth, gHeight);
 							curData[group].sndDeselect.play();
 							curData[group].sndSelect.stop();
@@ -239,7 +231,7 @@ void SceneSelect::think() {
 					}
 					else if (cursors[cur].lockState == Cursor::CURSOR_COLORSWAP) {
 						cursors[cur].lockState = Cursor::CURSOR_UNLOCKED;
-						if (curData) {
+						if (!curData.empty()) {
 							group = cursors[cur].getGroup(width, gWidth, gHeight);
 							curData[group].sndDeselect.play();
 							curData[group].sndSelect.stop();
@@ -309,7 +301,7 @@ void SceneSelect::think() {
 			if (input(game::INPUT_B)) {
 				cursors[1].lockState = Cursor::CURSOR_COLORSWAP;
 
-				if (curData) {
+				if (!curData.empty()) {
 					int group = cursors[1].getGroup(width, gWidth, gHeight);
 					curData[group].sndDeselect.play();
 					curData[group].sndSelect.stop();
@@ -338,9 +330,9 @@ void SceneSelect::think() {
 			SceneFight::madotsuki.fighter = &game::fighters[gridFighters[cursors[0].pos]];
 			SceneFight::poniko.fighter = &game::fighters[gridFighters[cursors[1].pos]];
 
-			((SceneVersus*)scenes[SCENE_VERSUS])->portraits[0] = &SceneFight::madotsuki.fighter->portrait;
+			(reinterpret_cast<SceneVersus*>(scenes[SCENE_VERSUS].get()))->portraits[0] = &SceneFight::madotsuki.fighter->portrait;
 
-			((SceneVersus*)scenes[SCENE_VERSUS])->portraits[1] = &SceneFight::poniko.fighter->portrait;
+			(reinterpret_cast<SceneVersus*>(scenes[SCENE_VERSUS].get()))->portraits[1] = &SceneFight::poniko.fighter->portrait;
 
 			Stage::stage = cursor_stage;
 			setScene(SCENE_VERSUS);
@@ -364,7 +356,7 @@ void SceneSelect::reset() {
 	cursor_stage = 0;
 }
 
-void SceneSelect::draw() {
+void SceneSelect::draw() const {
 	Scene::draw();
 
 	//Draw portraits first
@@ -392,9 +384,9 @@ void SceneSelect::draw() {
 	}
 
 	//Now the GUI
-	if (gui) {
-		gui->draw(false);
-	}
+	std::for_each(gui.cbegin(), gui.cend(),
+		[](const SceneImage& si) {si.draw(false); }
+	);
 
 	if (cursors[1].lockState >= Cursor::CURSOR_COLORSWAP) {
 		if (gridFighters[cursors[1].pos] >= 0) {
@@ -428,7 +420,7 @@ void SceneSelect::draw() {
 
 	//Cursor
 	//Get the current group
-	if (curData) {
+	if (!curData.empty()) {
 		int count = 1;
 		if (FIGHT->gametype == SceneFight::GAMETYPE_TRAINING && cursors[0].lockState != Cursor::CURSOR_LOCKED) {
 			count = 0;
@@ -460,9 +452,9 @@ void SceneSelect::draw() {
 
 		//Draw the stage list
 		for (int i = 0; i < 20; i++) {
-			int x = 38 + (8 + 76) * (i % 10 + 3 - cursor_stage % 10) + cursor_stage_offset;
+			int x = static_cast<int>(38 + (8 + 76) * (i % 10 + 3 - cursor_stage % 10) + cursor_stage_offset);
 			int y = 150 + (8 + 50) * (i / 10);
-			cursor_stage_offset *= 0.95;
+			cursor_stage_offset *= 0.95f;
 			if (!Stage::stages[i].thumbnail.isPlaying())
 				Stage::stages[i].thumbnail.setPlaying(true);
 			if (cursor_stage == i) {
@@ -478,7 +470,7 @@ void SceneSelect::draw() {
 }
 
 void SceneSelect::newEffect(int player, int group) {
-	if (curData) {
+	if (!curData.empty()) {
 		curData[group].sndSelect.play();
 		curData[group].sndDeselect.stop();
 	}
@@ -486,12 +478,12 @@ void SceneSelect::newEffect(int player, int group) {
 	cursors[player].frame = 1;
 }
 
-void SceneSelect::drawEffect(int player, int group, int _x, int _y, bool spr) {
+void SceneSelect::drawEffect(int player, int group, int _x, int _y, bool spr) const {
 	if (cursors[player].frame) {
 		float scale = 1.0f;
 		float alpha = 1.0f - (cursors[player].frame - 1) / (float)curData[group].frameC;;
 		if (curData[group].grow) {
-			scale += (cursors[player].frame - 1) * 0.1;
+			scale += (cursors[player].frame - 1) * 0.1f;
 		}
 		int x = (cursors[player].frame - 1) % (curData[group].imgSelect.h / 96);
 
@@ -523,15 +515,15 @@ void SceneSelect::parseLine(Parser& parser) {
 		width = parser.getArgInt(1);
 		height = parser.getArgInt(2);
 
-		grid = new util::Vector[width * height];
-		gridFighters = new int[width * height];
+		grid.resize(width * height);
+		gridFighters.resize(width * height);
 
 		//Now for the groups...
 		gWidth = parser.getArgInt(3);
 		gHeight = parser.getArgInt(4);
 
 		int gSize = (width / gWidth) * (height / gHeight);
-		curData = new CursorData[gSize];
+		curData.resize(gSize);
 
 		//Set the p2 cursor to the width - 1
 		cursors[1].pos = width - 1;
@@ -565,7 +557,7 @@ void SceneSelect::parseLine(Parser& parser) {
 		gridFighters[gridC] = -1;
 
 		//Is it a null?
-		if (!strcmp(parser.getArg(1), "null")) {
+		if (!parser.getArg(1).compare("null")) {
 			grid[gridC].x = -1;
 			grid[gridC].y = -1;
 			gridC++;
@@ -596,20 +588,20 @@ void SceneSelect::parseLine(Parser& parser) {
 	else if (parser.is("SELECT", 2)) {
 		float x = parser.getArgFloat(2);
 		float y = parser.getArgFloat(3);
-		char render = Image::RENDER_NORMAL;
+		Image::Render render = Image::Render::NORMAL;
 		float xvel = 0.0f;
 		float yvel = 0.0f;
 		bool wrap = false;
 		if (argc > 4) {
-			const char* szRender = parser.getArg(4);
-			if (!strcmp(szRender, "additive")) {
-				render = Image::RENDER_ADDITIVE;
+			std::string szRender = parser.getArg(4);
+			if (!szRender.compare("additive")) {
+				render = Image::Render::ADDITIVE;
 			}
-			else if (!strcmp(szRender, "subtractive")) {
-				render = Image::RENDER_SUBTRACTIVE;
+			else if (!szRender.compare("subtractive")) {
+				render = Image::Render::SUBTRACTIVE;
 			}
-			else if (!strcmp(szRender, "multiply")) {
-				render = Image::RENDER_MULTIPLY;
+			else if (!szRender.compare("multiply")) {
+				render = Image::Render::MULTIPLY;
 			}
 			if (argc > 5) {
 				xvel = parser.getArgFloat(5);
@@ -628,7 +620,7 @@ void SceneSelect::parseLine(Parser& parser) {
 		if (!imgData.exists()) {
 			return;
 		}
-		gui = new SceneImage(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+		gui.emplace_back(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
 	}
 	else if (parser.is("STAGES", 1)) {
 		//Load the font
@@ -662,15 +654,40 @@ CursorData::CursorData() {
 CursorData::~CursorData() {
 }
 
+CursorData::CursorData(CursorData&& other) noexcept :
+	off(std::move(other.off)),
+	img(std::move(other.img)), imgSelect(std::move(other.imgSelect)),
+	sndSelect(std::move(other.sndSelect)), sndDeselect(std::move(other.sndDeselect)),
+	frameC(other.frameC), speed(other.speed), grow(other.grow)
+{}
+
+CursorData& CursorData::operator=(CursorData& other) noexcept {
+	off = std::move(other.off);
+	img = std::move(other.img);
+	imgSelect = std::move(other.imgSelect);
+	sndSelect = std::move(other.sndSelect);
+	sndDeselect = std::move(other.sndDeselect);
+
+	frameC = other.frameC;
+	speed = other.speed;
+	grow = other.grow;
+
+	return *this;
+}
+
 //CURSOR
 Cursor::Cursor() {
-	pos = 0;
+	pos = posOld = posDefault = 0;
 	frame = 0;
 	timer = 0;
 
+	timerPortrait = 0;
+
 	lockState = CURSOR_UNLOCKED;
+
+	r = g = b = 0;
 }
 
-int Cursor::getGroup(int w, int gW, int gH) {
+int Cursor::getGroup(int w, int gW, int gH) const {
 	return (pos % w) / gW + ((pos / w) / gH) * (w / gW);
 }

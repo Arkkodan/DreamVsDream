@@ -57,8 +57,9 @@ namespace game {
 		knockdownOther(false),
 		stunOther(0),
 		drawPriorityFrame(0),
-		flash(0.0f) {
-	}
+		flash(0.0f),
+		attack()
+	{}
 
 	void Projectile::think() {
 		advanceFrame();
@@ -249,7 +250,7 @@ namespace game {
 	void Projectile::shootProjectile() {
 	}
 
-	void Projectile::draw() {
+	void Projectile::draw() const {
 		if(flags & F_VISIBLE) {
 			fighter->draw(sprite, pos.x, pos.y, isMirrored(), scale, palette, spriteAlpha, 0.0f, 0.0f, 0.0f, 0.0f);
 		}
@@ -290,7 +291,7 @@ namespace game {
 		setState(fighter->statesStandard[sstate]);
 	}
 
-	void Projectile::playSound(int id) {
+	void Projectile::playSound(int id) const {
 		//Play a random sound
 		if(id < 0 || id >= fighter->nSounds) {
 			return;
@@ -298,7 +299,7 @@ namespace game {
 		fighter->sounds[id].sounds[util::roll(fighter->sounds[id].size)].play();
 	}
 
-	void Projectile::say(int id) {
+	void Projectile::say(int id) const {
 		//HACK
 		if(!isPlayer()) {
 			return;
@@ -315,11 +316,11 @@ namespace game {
 		}
 	}
 
-	bool Projectile::inStandardState(unsigned int sstate) {
+	bool Projectile::inStandardState(unsigned int sstate) const {
 		return fighter->statesStandard[sstate] == state;
 	}
 
-	bool Projectile::isPlayer() {
+	bool Projectile::isPlayer() const {
 		return false;
 	}
 
@@ -340,7 +341,14 @@ namespace game {
 		super(0),
 
 		special(0),
-		ender(false) {
+		ender(false),
+
+		comboCounter(0),
+		stateCombo(0),
+		techstun(0),
+		cancels(),
+		projectileId(0)
+	{
 		state = 0;
 		flags = F_CTRL | F_ON_GROUND | F_VISIBLE | F_GRAVITY;
 		shoot.state = STATE_NONE;
@@ -555,7 +563,7 @@ namespace game {
 		}
 
 		if(!(flags & (F_DEAD | F_ON_GROUND)) && isBeingHit() && (press || (playerNum == 1 && FIGHT->gametype == SceneFight::GAMETYPE_TRAINING))) {
-			if(pos.y + vel.y <= 0.0 && bounce.force.x == 0 && bounce.force.y == 0 && !(flags & F_KNOCKDOWN)) {
+			if (pos.y + vel.y <= 0.0f && bounce.force.x == 0 && bounce.force.y == 0 && !(flags & F_KNOCKDOWN)) {
 				//We're about to hit the ground, so do a ground tech
 				pos.y = 0;
 				juggle = 1.0f;
@@ -922,7 +930,7 @@ namespace game {
 					      (int)pos.x, (int)pos.y, (int)other->pos.x, (int)other->pos.y,
 					      isMirrored(), other->isMirrored(),
 					      scale, other->scale,
-					      other->fighter->sprites + other->sprite,
+					      &other->fighter->sprites[other->sprite],
 					      &colpos, false);
 
 				if(hit == sprite::HIT_HIT) {
@@ -1083,7 +1091,9 @@ namespace game {
 					}
 				} else if(hit == sprite::HIT_ATTACK) {
 					frameHit = true;
-					pother->frameHit = true;
+					if (pother) {
+						pother->frameHit = true;
+					}
 					SceneFight::pause(12);
 					SceneFight::shake(12);
 					effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1, nullptr);
@@ -1142,7 +1152,7 @@ namespace game {
 			}
 
 			//Confine to screen
-			if(fabs(pos.x - pother->pos.x) >= sys::WINDOW_WIDTH) {
+			if (fabsf(pos.x - pother->pos.x) >= sys::WINDOW_WIDTH) {
 				//Find the center, assign positions outwards from there
 				float _center = (pos.x + pother->pos.x) / 2.0f;
 
@@ -1162,7 +1172,7 @@ namespace game {
 		}
 	}
 
-	void Player::draw(bool shadow) {
+	void Player::draw(bool shadow) const {
 		float pct = flash;
 		float r = 250 / 256.0f;
 		float g = 80 / 256.0f;
@@ -1190,7 +1200,7 @@ namespace game {
 		}
 	}
 
-	void Player::drawSpecial() {
+	void Player::drawSpecial() const {
 		if(!special) {
 			return;
 		}
@@ -1389,27 +1399,27 @@ namespace game {
 	}
 
 	//Helper functions
-	bool Player::isAttacking() {
+	bool Player::isAttacking() const {
 		return type == 'A';
 	}
 
-	bool Player::isDashing() {
+	bool Player::isDashing() const {
 		return type == 'D';
 	}
 
-	bool Player::isIdle() {
+	bool Player::isIdle() const {
 		return type == 'N';
 	}
 
-	bool Player::isBeingHit() {
+	bool Player::isBeingHit() const {
 		return type == 'H';
 	}
 
-	bool Player::isInBlock() {
+	bool Player::isInBlock() const {
 		return type == 'B';
 	}
 
-	bool Player::isKnockedBack() {
+	bool Player::isKnockedBack() const {
 		return inStandardState(STATE_HIT_HIGH)
 		       || inStandardState(STATE_HIT_MID)
 		       || inStandardState(STATE_KB)
@@ -1421,7 +1431,7 @@ namespace game {
 		       || inStandardState(STATE_ON_BACK);
 	}
 
-	bool Player::isKnockedProne() {
+	bool Player::isKnockedProne() const {
 		return inStandardState(STATE_HIT_LOW)
 		       || inStandardState(STATE_KP)
 		       || inStandardState(STATE_KP_FALL)
@@ -1430,23 +1440,23 @@ namespace game {
 		       || inStandardState(STATE_PRONE);
 	}
 
-	bool Player::isKnocked() {
+	bool Player::isKnocked() const {
 		return isKnockedBack() || isKnockedProne();
 	}
 
-	bool Player::isStanding() {
+	bool Player::isStanding() const {
 		return movetype == 'S';
 	}
 
-	bool Player::isCrouching() {
+	bool Player::isCrouching() const {
 		return movetype == 'C';
 	}
 
-	bool Player::isJumping() {
+	bool Player::isJumping() const {
 		return movetype == 'J';
 	}
 
-	bool Player::isBlocking() {
+	bool Player::isBlocking() const {
 		//Check to see if the player is trying to block rather than in a block state
 		if(flags & F_DEAD) {
 			return false;
@@ -1463,43 +1473,43 @@ namespace game {
 		return false;
 	}
 
-	int Player::getMaxHp() {
+	int Player::getMaxHp() const {
 		return DEFAULT_HP_MAX * fighter->defense;
 	}
 
 	int8_t Projectile::readByte() {
-		int8_t value = *((int8_t*)((char*)fighter->states[state].steps + step));
+		int8_t value = *((int8_t*)((char*)&fighter->states[state].steps[step]));
 		step += 1;
 		return value;
 	}
 
 	int16_t Projectile::readWord() {
-		int16_t value = *((int16_t*)((char*)fighter->states[state].steps + step));
+		int16_t value = *((int16_t*)((char*)&fighter->states[state].steps[step]));
 		step += 2;
 		return value;
 	}
 
 	int32_t Projectile::readDword() {
-		int32_t value = *((int32_t*)((char*)fighter->states[state].steps + step));
+		int32_t value = *((int32_t*)((char*)&fighter->states[state].steps[step]));
 		step += 4;
 		return value;
 	}
 
 	float Projectile::readFloat() {
-		int32_t value = *((int32_t*)((char*)fighter->states[state].steps + step));
+		int32_t value = *((int32_t*)((char*)&fighter->states[state].steps[step]));
 		step += 4;
 		return value / (float)sys::FLOAT_ACCURACY;
 	}
 
     std::string Projectile::readString() {
 		uint8_t size = readByte();
-		char* ptr = (char*)fighter->states[state].steps + step;
+		char* ptr = (char*)&fighter->states[state].steps[step];
 		std::string str = std::string(ptr, ptr + size);
 		step += size;
 		return str;
 	}
 
-	bool Projectile::isMirrored() {
+	bool Projectile::isMirrored() const {
 		if(flags & F_MIRROR) {
 			return dir == RIGHT;
 		}
@@ -1563,7 +1573,7 @@ namespace game {
 		return in;
 	}
 
-	bool Player::isPlayer() {
+	bool Player::isPlayer() const {
 		return true;
 	}
 }

@@ -6,6 +6,9 @@
 #include "../util.h"
 #include "../font.h"
 
+#include <vector>
+#include <array>
+
 /// @brief Helper data structure for SceneSelect
 class CursorData {
 public:
@@ -21,6 +24,12 @@ public:
 
 	CursorData();
 	~CursorData();
+
+	CursorData(const CursorData& other) = delete;
+	CursorData& operator=(const CursorData& other) = delete;
+
+	CursorData(CursorData&& other) noexcept;
+	CursorData& operator=(CursorData& other) noexcept;
 };
 
 /// @brief Helper object for SceneSelect
@@ -37,8 +46,8 @@ public:
 	int posOld;
 	int posDefault;
 
-	int frame;
-	int timer;
+	mutable int frame;
+	mutable int timer;
 
 	int timerPortrait;
 
@@ -53,7 +62,7 @@ public:
 
 	Cursor();
 
-	int getGroup(int w, int gW, int gH);
+	int getGroup(int w, int gW, int gH) const;
 };
 
 /// @brief Character and stage selection
@@ -65,34 +74,34 @@ public:
 	SceneSelect();
 	~SceneSelect();
 
-	void init();
+	void init() override final;
 
 	//Members
 	int width, height;
 	int gWidth, gHeight;
 	//Image* sprites;
-	SceneImage* gui;
-	util::Vector* grid;
-	int* gridFighters;
+	std::list<SceneImage> gui;
+	std::vector<util::Vector> grid;
+	std::vector<int> gridFighters;
 	int gridC;
 
-	Cursor cursors[2];
+	std::array<Cursor, 2> cursors;
 
-	CursorData* curData;
+	std::vector<CursorData> curData;
 
 	Font font_stage;
 	int cursor_stage;
-	float cursor_stage_offset;
+	mutable float cursor_stage_offset;
 
 	//Functions
-	void think();
-	void reset();
-	void draw();
+	void think() override final;
+	void reset() override final;
+	void draw() const override final;
 
 	void newEffect(int player, int group);
-	void drawEffect(int player, int group, int _x, int _y, bool spr = false);
+	void drawEffect(int player, int group, int _x, int _y, bool spr = false) const;
 
-	void parseLine(Parser& parser);
+	void parseLine(Parser& parser) override final;
 };
 
 #endif // DVD_SCENE_SELECT_H

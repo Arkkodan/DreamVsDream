@@ -7,8 +7,10 @@
 #include "graphics.h"
 #include "error.h"
 
+#include <algorithm>
+
 int Stage::stage = -1;
-Stage Stage::stages[20];
+std::array<Stage, Stage::STAGES_MAX> Stage::stages;
 
 void Stage::ginit() {
 	stages[0].create("yn_balcony");
@@ -41,7 +43,6 @@ void Stage::deinit() {
 Stage::Stage() {
 	initialized = false;
 
-	imagesAbove = imagesBelow = nullptr;
 	width = height = widthAbs = heightAbs = 0;
 }
 
@@ -50,10 +51,7 @@ Stage::Stage() {
 
 }*/
 
-Stage::~Stage() {
-	delete imagesAbove;
-	delete imagesBelow;
-}
+Stage::~Stage() {}
 
 void Stage::create(std::string _name) {
 	this->name = std::move(_name);
@@ -71,34 +69,34 @@ void Stage::think() {
 	if(!initialized) {
 		init();
 	}
-	if(imagesAbove) {
-		imagesAbove->think();
-	}
-	if(imagesBelow) {
-		imagesBelow->think();
-	}
+	std::for_each(imagesAbove.begin(), imagesAbove.end(),
+		[](SceneImage& si) {si.think(); }
+	);
+	std::for_each(imagesBelow.begin(), imagesBelow.end(),
+		[](SceneImage& si) {si.think(); }
+	);
 }
 
-void Stage::draw(bool _above) {
+void Stage::draw(bool _above) const {
 	if(_above) {
 		graphics::setColor(255, 255, 255, 0.5f);
-		if(imagesAbove) {
-			imagesAbove->draw(true);
-		}
+		std::for_each(imagesAbove.cbegin(), imagesAbove.cend(),
+			[](const SceneImage& si) {si.draw(true); }
+		);
 	} else {
-		if(imagesBelow) {
-			imagesBelow->draw(true);
-		}
+		std::for_each(imagesBelow.cbegin(), imagesBelow.cend(),
+			[](const SceneImage& si) {si.draw(true); }
+		);
 	}
 }
 
 void Stage::reset() {
-	if(imagesAbove) {
-		imagesAbove->reset();
-	}
-	if(imagesBelow) {
-		imagesBelow->reset();
-	}
+	std::for_each(imagesAbove.begin(), imagesAbove.end(),
+		[](SceneImage& si) {si.reset(); }
+	);
+	std::for_each(imagesBelow.begin(), imagesBelow.end(),
+		[](SceneImage& si) {si.reset(); }
+	);
 }
 
 void Stage::parseFile(const std::string& szFileName) {
@@ -139,24 +137,11 @@ void Stage::parseFile(const std::string& szFileName) {
 			if(!imgData.exists()) {
 				continue;
 			}
-			SceneImage* newImg = new SceneImage(imgData, 0, 0, parallax, Image::RENDER_NORMAL, xvel, yvel, wrap, round);
-
-			if(above) {
-				if(imagesAbove) {
-					SceneImage* img = imagesAbove;
-					for(; img->next; img = img->next);
-					img->next = newImg;
-				} else {
-					imagesAbove = newImg;
-				}
-			} else {
-				if(imagesBelow) {
-					SceneImage* img = imagesBelow;
-					for(; img->next; img = img->next);
-					img->next = newImg;
-				} else {
-					imagesBelow = newImg;
-				}
+			if (above) {
+				imagesAbove.emplace_back(imgData, 0.0f, 0.0f, parallax, Image::Render::NORMAL, xvel, yvel, wrap, round);
+			}
+			else {
+				imagesBelow.emplace_back(imgData, 0.0f, 0.0f, parallax, Image::Render::NORMAL, xvel, yvel, wrap, round);
 			}
 		} else if(parser.is("WIDTH", 1)) {
 			width = parser.getArgInt(1);
@@ -182,7 +167,7 @@ void Stage::parseFile(const std::string& szFileName) {
 	}
 }
 
-std::string Stage::getResource(const std::string& resource, const std::string& extension) {
+std::string Stage::getResource(const std::string& resource, const std::string& extension) const {
 	if(*resource.c_str() == '*') {
 		return "stages/common/" + resource.substr(1, std::string::npos) + "." + extension;
 	} else {
