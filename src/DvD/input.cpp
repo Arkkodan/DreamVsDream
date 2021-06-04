@@ -7,8 +7,10 @@
 
 #include <SDL_keycode.h>
 
+#include <array>
+
 namespace input {
-	enum {
+	enum class Key {
 		KEY_1_LEFT,
 		KEY_1_RIGHT,
 		KEY_1_UP,
@@ -28,10 +30,10 @@ namespace input {
 		KEY_MAX
 	};
 
-	constexpr auto KEY_1_MAX = KEY_2_LEFT;
-	constexpr auto KEY_2_MAX = KEY_MAX;
+	constexpr auto KEY_1_MAX = Key::KEY_2_LEFT;
+	constexpr auto KEY_2_MAX = Key::KEY_MAX;
 
-	int key_config[KEY_MAX] = {
+	std::array<int, static_cast<size_t>(Key::KEY_MAX)> key_config = {
 		SDLK_LEFT,
 		SDLK_RIGHT,
 		SDLK_UP,
@@ -56,8 +58,8 @@ namespace input {
 		int nLines;
 		char** szLines = util::getLinesFromFile(&nLines, app::szConfigPath + KEY_CFG_FILE);
 
-		if(nLines == KEY_MAX) {
-			for(int i = 0; i < KEY_MAX; i++) {
+		if(nLines == static_cast<int>(Key::KEY_MAX)) {
+			for(int i = 0; i < static_cast<int>(Key::KEY_MAX); i++) {
 				if(strlen(szLines[i]) >= 2 && szLines[i][0] == '0' && szLines[i][1] == 'x') {
 					key_config[i] = strtol((const char*)szLines[i], nullptr, 16);
 				} else {
@@ -80,8 +82,8 @@ namespace input {
 
 	void keyPress(int key, bool press) {
 		if(press) {
-			for(int i = 0; i < KEY_MAX; i++) {
-				if(net::connected && i >= KEY_1_MAX) {
+			for(int i = 0; i < static_cast<int>(Key::KEY_MAX); i++) {
+				if(net::connected && i >= static_cast<int>(KEY_1_MAX)) {
 					break;
 				}
 
@@ -89,10 +91,10 @@ namespace input {
 					if(net::connected) {
 						net::getMyPlayer()->frameInput |= (1<<i);
 					} else {
-						if(i < KEY_1_MAX) {
+						if(i < static_cast<int>(KEY_1_MAX)) {
 							SceneFight::madotsuki.frameInput |= (1<<i);
 						} else {
-							SceneFight::poniko.frameInput |= (1<<(i - KEY_1_MAX));
+							SceneFight::poniko.frameInput |= (1<<(i - static_cast<int>(KEY_1_MAX)));
 						}
 					}
 					return;
@@ -113,8 +115,8 @@ namespace input {
 				break;
 			}
 		} else {
-			for(int i = 0; i < KEY_MAX; i++) {
-				if(net::connected && i >= KEY_1_MAX) {
+			for(int i = 0; i < static_cast<int>(Key::KEY_MAX); i++) {
+				if(net::connected && i >= static_cast<int>(KEY_1_MAX)) {
 					break;
 				}
 
@@ -122,10 +124,10 @@ namespace input {
 					if(net::connected) {
 						net::getMyPlayer()->frameInput |= (1<<i<<game::INPUT_RELSHIFT);
 					} else {
-						if(i < KEY_1_MAX) {
+						if(i < static_cast<int>(KEY_1_MAX)) {
 							SceneFight::madotsuki.frameInput |= (1<<i<< game::INPUT_RELSHIFT);
 						} else {
-							SceneFight::poniko.frameInput |= (1<<(i - KEY_1_MAX)<< game::INPUT_RELSHIFT);
+							SceneFight::poniko.frameInput |= (1<<(i - static_cast<int>(KEY_1_MAX))<< game::INPUT_RELSHIFT);
 						}
 					}
 					return;

@@ -10,8 +10,8 @@
 class Thread {
 public:
 	Thread();
-	Thread(Thread&& other);
-	Thread& operator=(Thread&& other);
+	Thread(Thread&& other) noexcept;
+	Thread& operator=(Thread&& other) noexcept;
 	~Thread();
 
 	//Don't copy threads
@@ -21,7 +21,7 @@ public:
 	Thread(void (*func)());
 
     void detach();
-	void join();
+	void join() const;
 
 private:
     SDL_Thread* thread;
@@ -40,8 +40,8 @@ public:
 	Mutex(const Mutex& other) = delete;
 	Mutex& operator=(Mutex& other) = delete;
 
-	void lock();
-	void unlock();
+	void lock() const;
+	void unlock() const;
 
 private:
     SDL_mutex* mutex;

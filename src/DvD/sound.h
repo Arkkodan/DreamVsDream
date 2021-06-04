@@ -3,6 +3,8 @@
 
 #include "file.h"
 
+#include <vector>
+
 namespace audio {
 	/// @brief Initialize audio device for playback
 	void init();
@@ -20,16 +22,16 @@ namespace audio {
 		~Sound();
 		void play();
 		void play(float freq);
-		void stop();
+		void stop() const;
 
-		bool playing();
+		bool playing() const;
 
 		void createFromFile(const std::string& filename);
 		void createFromEmbed(File& file);
-		bool exists();
+		bool exists() const;
 		void destroy();
 
-		float* samples;
+		std::vector<float> samples;
 		unsigned int c_samples;
 		unsigned int sample_rate;
 		int channels;
@@ -48,9 +50,9 @@ namespace audio {
 		static void stop();
 
 		void createFromFile(const std::string& szIntro, const std::string& szLoop);
-		bool exists();
+		bool exists() const;
 
-		bool isPlaying();
+		bool isPlaying() const;
 
 		Sound intro;
 		Sound loop;
@@ -79,8 +81,8 @@ namespace audio {
 		~Speaker();
 
 		void init();
-		void play(Voice* voice);
-		void stop();
+		void play(Voice* voice) const;
+		void stop() const;
 	};
 }
 

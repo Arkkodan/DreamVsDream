@@ -4,13 +4,15 @@
 #include "image.h"
 #include "player.h"
 
+#include <vector>
+
 namespace effect {
     /// @brief Data entry containing animation of an effect
     class EffectAnimation {
     public:
         EffectAnimation();
-        EffectAnimation(EffectAnimation&& other);
-        EffectAnimation& operator=(EffectAnimation&& other);
+        EffectAnimation(EffectAnimation&& other) noexcept;
+        EffectAnimation& operator=(EffectAnimation&& other) noexcept;
         ~EffectAnimation();
 
         EffectAnimation(std::string name);
@@ -19,13 +21,13 @@ namespace effect {
         EffectAnimation(const EffectAnimation& other) = delete;
         EffectAnimation& operator=(EffectAnimation& other) = delete;
 
-        std::string getName();
+        std::string getName() const;
         Image* getFrame(int frame);
-        int getNumFrames();
+        int getNumFrames() const;
 
     private:
         std::string name;
-        Image* frames;
+        std::vector<Image> frames;
         int nFrames;
     };
 
@@ -36,10 +38,10 @@ namespace effect {
         Effect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops, game::Projectile* parent);
         ~Effect();
 
-        unsigned int getCreationFrame();
+        unsigned int getCreationFrame() const;
 
-        bool exists();
-        void draw();
+        bool exists() const;
+        void draw() const;
 
     private:
         EffectAnimation* anim;

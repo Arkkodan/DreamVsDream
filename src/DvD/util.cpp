@@ -31,7 +31,7 @@ namespace util {
         x(other.x), y(other.y)
     {}
 
-    Vector::Vector(Vector&& other) :
+    Vector::Vector(Vector&& other) noexcept :
         x(other.x), y(other.y)
     {}
 
@@ -41,7 +41,7 @@ namespace util {
         return *this;
     }
 
-    Vector& Vector::operator=(Vector&& other) {
+    Vector& Vector::operator=(Vector&& other) noexcept {
         x = other.x;
         y = other.y;
         return *this;
@@ -69,7 +69,7 @@ namespace util {
 		return *this;
 	}
 
-	Vector Vector::operator*(const int scalar) {
+	Vector Vector::operator*(const int scalar) const {
 		Vector result;
 		return result *= scalar;
 	}
@@ -82,7 +82,7 @@ namespace util {
         x(other.x), y(other.y)
     {}
 
-    Vectorf::Vectorf(Vectorf&& other) :
+    Vectorf::Vectorf(Vectorf&& other) noexcept :
         x(other.x), y(other.y)
     {}
 
@@ -92,7 +92,7 @@ namespace util {
         return *this;
     }
 
-    Vectorf& Vectorf::operator=(Vectorf&& other) {
+    Vectorf& Vectorf::operator=(Vectorf&& other) noexcept {
         x = other.x;
         y = other.y;
         return *this;
@@ -120,7 +120,7 @@ namespace util {
 		return *this;
 	}
 
-	Vectorf Vectorf::operator*(const float scalar) {
+	Vectorf Vectorf::operator*(const float scalar) const {
 		Vectorf result;
 		return result *= scalar;
 	}
@@ -322,11 +322,12 @@ namespace util {
 		*end = index;
 	}
 
-	bool strtobool(const char* str, bool def) {
-		if(!strcasecmp(str, "true")) {
+	bool strtobool(const std::string& str, bool def) {
+		const char* c_str = str.c_str();
+		if(!strcasecmp(c_str, "true")) {
 			return true;
 		}
-		if(!strcasecmp(str, "false")) {
+		if(!strcasecmp(c_str, "false")) {
 			return false;
 		}
 		return def;

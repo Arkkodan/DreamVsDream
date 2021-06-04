@@ -21,42 +21,42 @@ Shader::~Shader() {
 	}
 }
 
-void Shader::setInt(const char* variable, int value) {
+void Shader::setInt(const char* variable, int value) const {
 	GLint loc = glGetUniformLocation(program, variable);
 	if(loc != -1) {
 		glUniform1i(loc, value);
 	}
 }
 
-void Shader::setFloat(const char* variable, float value) {
+void Shader::setFloat(const char* variable, float value) const {
 	GLint loc = glGetUniformLocation(program, variable);
 	if(loc != -1) {
 		glUniform1f(loc, value);
 	}
 }
 
-void Shader::setVec2(const char* variable, float value1, float value2) {
+void Shader::setVec2(const char* variable, float value1, float value2) const {
 	GLint loc = glGetUniformLocation(program, variable);
 	if(loc != -1) {
 		glUniform2f(loc, value1, value2);
 	}
 }
 
-void Shader::setVec3(const char* variable, float value1, float value2, float value3) {
+void Shader::setVec3(const char* variable, float value1, float value2, float value3) const {
 	GLint loc = glGetUniformLocation(program, variable);
 	if(loc != -1) {
 		glUniform3f(loc, value1, value2, value3);
 	}
 }
 
-void Shader::setVec4(const char* variable, float value1, float value2, float value3, float value4) {
+void Shader::setVec4(const char* variable, float value1, float value2, float value3, float value4) const {
 	GLint loc = glGetUniformLocation(program, variable);
 	if(loc != -1) {
 		glUniform4f(loc, value1, value2, value3, value4);
 	}
 }
 
-void Shader::use() {
+void Shader::use() const {
 	glUseProgram(program);
 }
 

@@ -16,7 +16,7 @@ public:
 	~SceneCredits();
 
 	//Logic
-	bool done;
+	mutable bool done;
 	float oy;
 	int timer_start;
 	int timer_scroll;
@@ -36,10 +36,10 @@ public:
 	uint8_t name_g;
 	uint8_t name_b;
 
-	void think();
-	void draw();
-	void reset();
-	void parseLine(Parser& parser);
+	void think() override final;
+	void draw() const override final;
+	void reset() override final;
+	void parseLine(Parser& parser) override final;
 };
 
 #endif // DVD_SCENE_CREDITS_H

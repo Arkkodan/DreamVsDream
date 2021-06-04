@@ -7,6 +7,9 @@
 #include "util.h"
 #include "graphics.h"
 
+#include <vector>
+#include <array>
+
 namespace game {
 #ifdef GAME
 	/// @brief Create fighters
@@ -55,7 +58,7 @@ namespace game {
 		uint16_t combo[16];
 		uint16_t generic;
 		int targetC;
-		CommandTarget* targets;
+		std::vector<CommandTarget> targets;
 	};
 
 	/// @brief Data structure containing a group of sounds
@@ -69,9 +72,9 @@ namespace game {
 		int size;
 #ifdef COMPILER
 		std::string name;
-		std::string* sounds;
+		std::vector<std::string> sounds;
 #else
-		audio::Sound* sounds;
+		std::vector<audio::Sound> sounds;
 #endif
 	};
 
@@ -87,9 +90,9 @@ namespace game {
 		int pct;
 #ifdef COMPILER
 		std::string name;
-		std::string* voices;
+		std::vector<std::string> voices;
 #else
-		audio::Voice* voices;
+		std::vector<audio::Voice> voices;
 #endif
 	};
 
@@ -104,7 +107,7 @@ namespace game {
 #endif
 
 		unsigned int size;
-		void* steps;
+		std::vector<std::uint8_t> steps;
 	};
 
 	//State steps! Crazy stuff.
@@ -234,7 +237,7 @@ namespace game {
 		STATE_MAX,
 	};
 
-	extern const char* stateNames[STATE_MAX];
+	extern const std::array<std::string, STATE_MAX> stateNames;
 
 	constexpr auto STATE_NONE = UINT_MAX;
 
@@ -256,12 +259,12 @@ namespace game {
 		//Sprites & palettes
 		int nPalettes;
 #ifdef COMPILER
-		uint8_t* palettes;
+		std::vector<uint8_t> palettes;
 #else
-		unsigned int* palettes;
+		std::vector<unsigned int> palettes;
 #endif
 		int nSprites;
-		sprite::Sprite* sprites;
+		std::vector<sprite::Sprite> sprites;
 #ifdef GAME
 		Atlas atlas_sprites;
 #endif
@@ -269,22 +272,22 @@ namespace game {
 #ifndef SPRTOOL
 		//Sounds
 		int nSounds;
-		SoundGroup* sounds;
+		std::vector<SoundGroup> sounds;
 
 		//Voices
 		int nVoices;
-		VoiceGroup* voices;
+		std::vector<VoiceGroup> voices;
 
 		//Commands
 		int nCommands;
-		Command* commands;
+		std::vector<Command> commands;
 
 		//States
 		int nStates;
-		State* states;
+		std::vector<State> states;
 
 		//Standard states
-		unsigned int statesStandard[STATE_MAX];
+		std::array<unsigned int, STATE_MAX> statesStandard;
 #endif
 
 #ifdef GAME
@@ -306,15 +309,15 @@ namespace game {
 #endif
 
 #ifndef COMPILER
-		void draw(int sprite, int x, int y, bool mirror, float scale, unsigned int palette, float alpha, float r, float g, float b, float pct);
-		void drawShadow(int sprite, int x, bool mirror, float scale);
+		void draw(int sprite, int x, int y, bool mirror, float scale, unsigned int palette, float alpha, float r, float g, float b, float pct) const;
+		void drawShadow(int sprite, int x, bool mirror, float scale) const;
 #endif
 
 	protected:
 	};
 
 	constexpr auto FIGHTERS_MAX = 3;
-	extern Fighter fighters[FIGHTERS_MAX];
+	extern std::array<Fighter, FIGHTERS_MAX> fighters;
 
 	/// @brief Set a boolean output parameter based on an enum input parameter
 	void setBool(bool& dst, char src);

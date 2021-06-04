@@ -2,11 +2,11 @@
 
 #include <algorithm>
 #include <iostream>
+#include <array>
 
 #include "error.h"
 #include "graphics.h"
 #include "util.h"
-
 #include "sys.h"
 
 namespace effect {
@@ -14,29 +14,26 @@ namespace effect {
 
     //VARIABLES
     int nEffectAnims = 0;
-    EffectAnimation* effectAnims = nullptr;
+    std::vector<EffectAnimation> effectAnims;
 
-    Effect effects[EFFECT_MAX];
+    std::array<Effect, EFFECT_MAX> effects;
 
     //EFFECT ANIMATION
     EffectAnimation::EffectAnimation() {
         name = "";
         nFrames = 0;
-        frames = nullptr;
     }
 
-    EffectAnimation::EffectAnimation(EffectAnimation&& other) {
+    EffectAnimation::EffectAnimation(EffectAnimation&& other) noexcept {
         name = std::move(other.name);
         nFrames = other.nFrames;
-        frames = other.frames;
-        other.frames = nullptr;
+        frames = std::move(other.frames);
     }
 
-    EffectAnimation& EffectAnimation::operator=(EffectAnimation&& other) {
+    EffectAnimation& EffectAnimation::operator=(EffectAnimation&& other) noexcept {
         nFrames = other.nFrames;
-        using std::swap;
-        swap(name, other.name);
-        swap(frames, other.frames);
+        name.swap(other.name);
+        frames.swap(other.frames);
         return *this;
     }
 
@@ -45,7 +42,6 @@ namespace effect {
         std::vector<std::string> files = util::listDirectory(util::getPath("effects/" + name), true);
 
         nFrames = 0;
-        frames = nullptr;
 
         if(files.empty()) {
             return;
@@ -69,18 +65,16 @@ namespace effect {
         }
 
         //Allocate array and try to populate
-        frames = new Image[nFrames];
+        frames.resize(nFrames);
 
         for(int i = 0; i < nFrames; i++) {
             frames[i].createFromFile("effects/" + name + "/" + util::toString(i+1) + ".png");
         }
     }
 
-    EffectAnimation::~EffectAnimation() {
-        delete [] frames;
-    }
+    EffectAnimation::~EffectAnimation() {}
 
-    std::string EffectAnimation::getName() {
+    std::string EffectAnimation::getName() const {
         return name;
     }
 
@@ -91,17 +85,19 @@ namespace effect {
         return &frames[frame % nFrames];
     }
 
-    int EffectAnimation::getNumFrames() {
+    int EffectAnimation::getNumFrames() const {
         return nFrames;
     }
 
     //EFFECT
-    Effect::Effect() {
+    Effect::Effect() :
+        anim(nullptr), moveWithCamera(false), mirror(false), speed(0), parent(nullptr)
+    {
         speed = frameStart = frameEnd = x = y = 0;
     }
 
     Effect::Effect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops, game::Projectile* _parent) :
-		parent(_parent)
+        moveWithCamera(moveWithCamera), mirror(mirror), speed(speed), parent(_parent)
 	{
         anim = nullptr;
 
@@ -109,7 +105,7 @@ namespace effect {
         int i = 0;
         for(; i < nEffectAnims; i++) {
             if(name == effectAnims[i].getName()) {
-                anim = effectAnims + i;
+                anim = &effectAnims[i];
                 break;
             }
         }
@@ -135,15 +131,15 @@ namespace effect {
     Effect::~Effect() {
     }
 
-    unsigned int Effect::getCreationFrame() {
+    unsigned int Effect::getCreationFrame() const {
         return frameStart;
     }
 
-    bool Effect::exists() {
+    bool Effect::exists() const {
         return frameEnd > sys::frame;
     }
 
-    void Effect::draw() {
+    void Effect::draw() const {
         if(!exists())
             return;
 
@@ -157,7 +153,7 @@ namespace effect {
 			y1 += parent->pos.y;
 		}
 
-        graphics::setRender(Image::RENDER_ADDITIVE);
+        graphics::setRender(Image::Render::ADDITIVE);
         if(moveWithCamera)
             frame->drawSprite(x1, y1, mirror);
         else
@@ -173,15 +169,13 @@ namespace effect {
         if(nEffectAnims <= 0)
             return;
 
-        effectAnims = new EffectAnimation[nEffectAnims];
+        effectAnims.resize(nEffectAnims);
         for(int i = 0; i < nEffectAnims; i++) {
             effectAnims[i] = EffectAnimation(dirs[i]);
         }
     }
 
-    void deinit() {
-        delete [] effectAnims;
-    }
+    void deinit() {}
 
     void newEffect(const std::string& name, int x, int y, bool moveWithCamera, bool mirror, int speed, int nLoops, game::Projectile* parent) {
         for(int i = 0; i < EFFECT_MAX; i++) {

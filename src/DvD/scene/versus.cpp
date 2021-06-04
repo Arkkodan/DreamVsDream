@@ -72,7 +72,7 @@ void SceneVersus::reset() {
 	timerF = 0.0f;
 }
 
-void SceneVersus::draw() {
+void SceneVersus::draw() const {
 	Scene::draw();
 
 	if (portraits[1]) {

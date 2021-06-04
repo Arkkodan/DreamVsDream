@@ -3,13 +3,15 @@
 
 #include "image.h"
 
+#include <vector>
+
 /// @brief Animation class represented by a sequence of images
 /// @details Based on gif
 class Animation {
 public:
     Animation();
-    Animation(Animation&& other);
-    Animation& operator=(Animation&& other);
+    Animation(Animation&& other) noexcept;
+    Animation& operator=(Animation&& other) noexcept;
     ~Animation();
 
     Animation(const Animation& other) = delete;
@@ -20,14 +22,14 @@ public:
 
     //Change/get status of animation
     void setPlaying(bool playing);
-    bool isPlaying();
+    bool isPlaying() const;
 
-	void draw(int x, int y);
+	void draw(int x, int y) const;
 
 private:
     int nFrames;
-    Image* frames;
-    int* frameTimes;
+    std::vector<Image> frames;
+    std::vector<int> frameTimes;
 
     bool playing;
     unsigned int startFrame;

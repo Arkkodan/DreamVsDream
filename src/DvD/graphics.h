@@ -2,6 +2,7 @@
 #define GRAPHICS_H_INCLUDED
 
 #include "shader.h"
+#include "image.h"
 
 #include <cstdint>
 
@@ -23,7 +24,7 @@ namespace graphics {
 	/// @brief Primitive scaling
 	void setScale(float scale, float yscale = 0.0f);
 	/// @brief Primitive render
-	void setRender(int render);
+	void setRender(Image::Render render);
 
 	/// @brief Input data into shader
 	void setPalette(unsigned int palette, float alpha, float r, float g, float b, float pct);
@@ -36,7 +37,7 @@ namespace graphics {
 	//Shaders
 	extern Shader shader_palette;
 
-	extern int render;
+	extern Image::Render render;
 	extern int srcX, srcY, srcW, srcH;
 	extern float xscale, yscale;
 	extern unsigned int shader;

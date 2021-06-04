@@ -4,6 +4,8 @@
 #include "atlas.h"
 #include "util.h"
 
+#include <vector>
+
 namespace sprite {
 	/// @brief Unused
 	void init();
@@ -20,19 +22,19 @@ namespace sprite {
 		HitBox();
 		HitBox(int x, int y, int w, int h);
 
-		bool collideOther(HitBox* other, util::Vector* colpos, bool allowOutOfBounds);
+		bool collideOther(HitBox* other, util::Vector* colpos, bool allowOutOfBounds) const;
 
-		HitBox adjust(int x, int y, bool m, float scale);
+		HitBox adjust(int x, int y, bool m, float scale) const;
 
-		bool collidePoint(int pX, int pY);
-		void draw(int x, int y, bool attack, bool selected);
+		bool collidePoint(int pX, int pY) const;
+		void draw(int x, int y, bool attack, bool selected) const;
 	};
 
 	/// @brief Data structure containing a group of hitboxes
 	class HitBoxGroup {
 	public:
 		int size;
-		HitBox* boxes;
+		std::vector<HitBox> boxes;
 
 		HitBoxGroup();
 		~HitBoxGroup();
@@ -57,12 +59,18 @@ namespace sprite {
 		Sprite();
 		~Sprite();
 
+		Sprite(const Sprite& other) = delete;
+		Sprite& operator=(const Sprite& other) = delete;
+
+		Sprite(Sprite&& other) noexcept;
+		Sprite& operator=(Sprite&& other) noexcept;
+
 #ifndef COMPILER
-		void draw(int x, int y, bool mirror, float scale);
-		void drawShadow(int x, bool mirror, float scale);
+		void draw(int x, int y, bool mirror, float scale) const;
+		void drawShadow(int x, bool mirror, float scale) const;
 #endif
 
-		int collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1, float scale2, Sprite* other, util::Vector* colpos, bool allowOutOfBounds);
+		int collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1, float scale2, Sprite* other, util::Vector* colpos, bool allowOutOfBounds) const;
 
 		int x;
 		int y;

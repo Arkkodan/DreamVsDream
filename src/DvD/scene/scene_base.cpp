@@ -8,34 +8,32 @@
 
 #include <glad/glad.h>
 
-Scene* Scene::scenes[SCENE_MAX] = { nullptr };
+#include <algorithm>
+
+std::array<std::unique_ptr<Scene>, Scene::SCENE_MAX> Scene::scenes;
 int Scene::scene = SCENE_INTRO;
 int Scene::sceneNew = 0;
 
 Image Scene::imgLoading;
 
 void Scene::ginit() {
-	scenes[SCENE_INTRO] = new SceneIntro();
-	scenes[SCENE_TITLE] = new SceneTitle();
-	scenes[SCENE_SELECT] = new SceneSelect();
-	scenes[SCENE_VERSUS] = new SceneVersus();
-	scenes[SCENE_FIGHT] = new SceneFight();
-	scenes[SCENE_OPTIONS] = new SceneOptions();
+	scenes[SCENE_INTRO] = std::make_unique<SceneIntro>();
+	scenes[SCENE_TITLE] = std::make_unique<SceneTitle>();
+	scenes[SCENE_SELECT] = std::make_unique<SceneSelect>();
+	scenes[SCENE_VERSUS] = std::make_unique<SceneVersus>();
+	scenes[SCENE_FIGHT] = std::make_unique<SceneFight>();
+	scenes[SCENE_OPTIONS] = std::make_unique<SceneOptions>();
 #ifndef NO_NETWORK
-	scenes[SCENE_NETPLAY] = new SceneNetplay();
+	scenes[SCENE_NETPLAY] = std::make_unique<SceneNetplay>();
 #endif
-	scenes[SCENE_CREDITS] = new SceneCredits();
+	scenes[SCENE_CREDITS] = std::make_unique<SceneCredits>();
 
 	scenes[SCENE_FIGHT]->init();
 	scenes[SCENE_VERSUS]->init();
 	scenes[SCENE_INTRO]->init();
 }
 
-void Scene::deinit() {
-	for (int i = 0; i < SCENE_MAX; i++) {
-		delete scenes[i];
-	}
-}
+void Scene::deinit() {}
 
 void Scene::setScene(int _scene) {
 	if (_scene == scene) {
@@ -85,13 +83,11 @@ Scene::Scene(std::string name_) {
 	name = name_;
 
 	initialized = false;
-	images = nullptr;
 	bgmPlaying = false;
 	//video = nullptr;
 }
 
 Scene::~Scene() {
-	delete images;
 	//delete video;
 }
 
@@ -116,9 +112,9 @@ void Scene::think() {
 		}
 		bgmPlaying = true;
 	}
-	if (images) {
-		images->think();
-	}
+	std::for_each(images.begin(), images.end(),
+		[](SceneImage& si) {si.think(); }
+	);
 	//if(video) video->think();
 
 	//Fade timer
@@ -171,18 +167,18 @@ void Scene::think() {
 }
 
 void Scene::reset() {
-	if (images) {
-		images->reset();
-	}
+	std::for_each(images.begin(), images.end(),
+		[](SceneImage& si) {si.reset(); }
+	);
 	//if(video) video->reset();
 	bgmPlaying = false;
 }
 
-void Scene::draw() {
+void Scene::draw() const {
 	//if(video) video->draw(0, 0);
-	if (images) {
-		images->draw(false);
-	}
+	std::for_each(images.cbegin(), images.cend(),
+		[](const SceneImage& si) {si.draw(false); }
+	);
 
 
 }
@@ -192,20 +188,20 @@ void Scene::parseLine(Parser& parser) {
 	if (parser.is("IMAGE", 3)) {
 		float x = parser.getArgFloat(2);
 		float y = parser.getArgFloat(3);
-		char render = Image::RENDER_NORMAL;
+		Image::Render render = Image::Render::NORMAL;
 		float xvel = 0.0f;
 		float yvel = 0.0f;
 		bool wrap = false;
 		if (argc > 4) {
-			const char* szRender = parser.getArg(4);
-			if (!strcmp(szRender, "additive")) {
-				render = Image::RENDER_ADDITIVE;
+			std::string szRender = parser.getArg(4);
+			if (!szRender.compare("additive")) {
+				render = Image::Render::ADDITIVE;
 			}
-			else if (!strcmp(szRender, "subtractive")) {
-				render = Image::RENDER_SUBTRACTIVE;
+			else if (!szRender.compare("subtractive")) {
+				render = Image::Render::SUBTRACTIVE;
 			}
-			else if (!strcmp(szRender, "multiply")) {
-				render = Image::RENDER_MULTIPLY;
+			else if (!szRender.compare("multiply")) {
+				render = Image::Render::MULTIPLY;
 			}
 			if (argc > 5) {
 				xvel = parser.getArgFloat(5);
@@ -224,16 +220,7 @@ void Scene::parseLine(Parser& parser) {
 		if (!imgData.exists()) {
 			return;
 		}
-		SceneImage* newImg = new SceneImage(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
-
-		if (images) {
-			SceneImage* img = images;
-			for (; img->next; img = img->next);
-			img->next = newImg;
-		}
-		else {
-			images = newImg;
-		}
+		images.emplace_back(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
 	}
 	else if (parser.is("BGM", 1)) {
 		if (argc > 2) {
@@ -270,7 +257,7 @@ void Scene::parseFile(std::string szFileName) {
 	}
 }
 
-std::string Scene::getResource(std::string resource, std::string extension) {
+std::string Scene::getResource(std::string resource, std::string extension) const {
 	if (*resource.c_str() == '*') {
 		return "scenes/common/" + resource.substr(1, std::string::npos) + "." + extension;
 	}
@@ -281,7 +268,7 @@ std::string Scene::getResource(std::string resource, std::string extension) {
 
 //SCENE IMAGE
 
-SceneImage::SceneImage(Image& image_, float x_, float y_, float parallax_, char render_, float xvel_, float yvel_, bool wrap_, int round_) {
+SceneImage::SceneImage(Image& image_, float x_, float y_, float parallax_, Image::Render render_, float xvel_, float yvel_, bool wrap_, int round_) {
 	image = std::move(image_);
 	x = x_;
 	y = y_;
@@ -308,13 +295,9 @@ SceneImage::SceneImage(Image& image_, float x_, float y_, float parallax_, char 
 			y -= image.h;
 		}
 	}
-
-	next = nullptr;
 }
 
-SceneImage::~SceneImage() {
-	delete next;
-}
+SceneImage::~SceneImage() {}
 
 void SceneImage::think() {
 	x += xvel;
@@ -335,22 +318,14 @@ void SceneImage::think() {
 			y -= image.h;
 		}
 	}
-
-	if (next) {
-		next->think();
-	}
 }
 
 void SceneImage::reset() {
 	x = xOrig;
 	y = yOrig;
-
-	if (next) {
-		next->reset();
-	}
 }
 
-void SceneImage::draw(bool _stage) {
+void SceneImage::draw(bool _stage) const {
 	if (image.exists()) {
 		//Draw the image differently if wrapping
 		if (wrap) {
@@ -376,8 +351,5 @@ void SceneImage::draw(bool _stage) {
 				image.draw(x, y);
 			}
 		}
-	}
-	if (next) {
-		next->draw(_stage);
 	}
 }

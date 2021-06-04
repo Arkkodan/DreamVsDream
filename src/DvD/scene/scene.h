@@ -11,10 +11,7 @@
 #include "netplay.h"
 #include "credits.h"
 
-#include "../player.h"
-#include "../image.h"
-
 #define SCENE Scene::scenes[Scene::scene]
-#define FIGHT ((SceneFight*)Scene::scenes[Scene::SCENE_FIGHT])
+#define FIGHT (reinterpret_cast<SceneFight*>(Scene::scenes[Scene::SCENE_FIGHT].get()))
 
 #endif // DVD_SCENE_SCENE_H

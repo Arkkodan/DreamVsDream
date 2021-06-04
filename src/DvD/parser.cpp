@@ -4,7 +4,9 @@
 #include "error.h"
 #include "util.h"
 
-ParserLine::ParserLine() {
+ParserLine::ParserLine() :
+	argv()
+{
 	group = false;
 	argc = 0;
 }
@@ -13,12 +15,12 @@ ParserLine::~ParserLine() {
 }
 
 bool Parser::open(std::string szFileName) {
-	delete [] lines;
+	lines.clear();
 	util::freeLines(szLines);
 	iLine = -1;
 
 	if((szLines = util::getLinesFromFile(&nLines, szFileName))) {
-		lines = new ParserLine[nLines];
+		lines.resize(nLines);
 
 		for(int i = 0; i < nLines; i++) {
 			int size = strlen(szLines[i]);
@@ -47,7 +49,7 @@ bool Parser::open(std::string szFileName) {
 					util::nextWord(szLines[i], start, size, &start, &end);
 
 					//Save the pointer to the arg list
-					lines[i].argv[lines[i].argc++] = szLines[i] + start;
+					lines[i].argv[lines[i].argc++] = std::string(szLines[i] + start, szLines[i] + end);
 
 					//End if we've reached a null
 					if(!szLines[i][end]) {
@@ -60,7 +62,7 @@ bool Parser::open(std::string szFileName) {
 
 		return true;
 	}
-	lines = nullptr;
+	lines.clear();
 	return false;
 }
 
@@ -68,7 +70,7 @@ void Parser::reset() {
 	iLine = -1;
 }
 
-bool Parser::exists() {
+bool Parser::exists() const {
 	return szLines != nullptr;
 }
 
@@ -76,17 +78,16 @@ Parser::Parser() {
 	iLine = -1;
 	nLines = 0;
 	szLines = nullptr;
-	lines = nullptr;
+	lines.clear();
 }
 
 Parser::Parser(std::string szFileName) {
 	szLines = nullptr;
-	lines = nullptr;
+	lines.clear();
 	open(szFileName);
 }
 
 Parser::~Parser() {
-	delete [] lines;
 	util::freeLines(szLines);
 }
 
@@ -104,7 +105,7 @@ bool Parser::parseLine() {
 	return true;
 }
 
-bool Parser::is(std::string szTest, int argc) {
+bool Parser::is(std::string szTest, int argc) const {
 	if(!szTest.compare(lines[iLine].argv[0])) {
 		if(lines[iLine].argc - 1 < argc) {
 			error::error("Not enough arguments for field \"" + szTest + "\".");
@@ -115,48 +116,48 @@ bool Parser::is(std::string szTest, int argc) {
 	return false;
 }
 
-bool Parser::isGroup() {
+bool Parser::isGroup() const {
 	if(!szLines) {
 		return false;
 	}
 	return lines[iLine].group;
 }
 
-int Parser::getArgC() {
+int Parser::getArgC() const {
 	return lines[iLine].argc;
 }
 
-const char* Parser::getArg(int arg) {
+std::string Parser::getArg(int arg) const {
 	if(!szLines) {
-		return nullptr;
+		return "";
 	}
 	if(arg < 0 || arg >= lines[iLine].argc) {
-		return nullptr;
+		return "";
 	}
 	return lines[iLine].argv[arg];
 }
 
-int Parser::getArgInt(int arg) {
+int Parser::getArgInt(int arg) const {
 	if(!szLines) {
 		return 0;
 	}
 	if(arg < 0 || arg >= lines[iLine].argc) {
 		return 0;
 	}
-	return atoi(lines[iLine].argv[arg]);
+	return std::stoi(lines[iLine].argv[arg]);
 }
 
-float Parser::getArgFloat(int arg) {
+float Parser::getArgFloat(int arg) const {
 	if(!szLines) {
 		return 0.0;
 	}
 	if(arg < 0 || arg >= lines[iLine].argc) {
 		return 0.0;
 	}
-	return strtof(lines[iLine].argv[arg], nullptr);
+	return std::stof(lines[iLine].argv[arg], nullptr);
 }
 
-bool Parser::getArgBool(int arg, bool def) {
+bool Parser::getArgBool(int arg, bool def) const {
 	if(!szLines) {
 		return def;
 	}

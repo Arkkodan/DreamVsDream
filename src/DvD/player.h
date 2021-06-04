@@ -3,6 +3,8 @@
 
 #include "fighter.h"
 
+#include <array>
+
 namespace game {
 	constexpr auto INPUT_DIRMASK = 0xF;
 	constexpr auto INPUT_KEYMASK = 0x70;
@@ -115,13 +117,13 @@ namespace game {
 		virtual void advanceFrame();
 		virtual void handleFrame(uint8_t command = 0);
 		virtual void shootProjectile();
-		virtual void draw();
+		virtual void draw() const;
 
 		//Non-virtual
 		void setState(int state);
 		void setStandardState(unsigned int sstate);
-		void playSound(int id);
-		void say(int id);
+		void playSound(int id) const;
+		void say(int id) const;
 
 		//Read from step memory
 		int8_t readByte();
@@ -130,10 +132,10 @@ namespace game {
 		float readFloat();
 		std::string readString();
 
-		bool isMirrored();
+		bool isMirrored() const;
 
-		bool inStandardState(unsigned int sstate);
-		virtual bool isPlayer();
+		bool inStandardState(unsigned int sstate) const;
+		virtual bool isPlayer() const;
 	};
 
 	constexpr auto MAX_PROJECTILES = 128;
@@ -150,12 +152,12 @@ namespace game {
 		int comboCounter;
 
 		int nInputs;
-		InputBuff inputs[INBUFF_SIZE];
+		std::array<InputBuff, INBUFF_SIZE> inputs;
 
 		//List of key inputs on this frame (gotten from either SFML or the network)
 		uint16_t frameInput;
 		uint16_t input; //Persistent input; what keys are held down at the moment
-		InputBuff netBuff[NETBUFF_SIZE];
+		std::array<InputBuff, NETBUFF_SIZE> netBuff;
 		int netBuffCounter;
 
 		//States and stuff
@@ -167,18 +169,18 @@ namespace game {
 
 		//What can we cancel into?
 		int nCancels;
-		int cancels[CANCEL_MAX];
+		std::array<int, CANCEL_MAX> cancels;
 
 		//Meters
 		int hp;
 		int super;
 
 		//Special portrait
-		int special;
+		mutable int special;
 		bool ender;
 
 		//Projectiles
-		Projectile projectiles[MAX_PROJECTILES];
+		std::array<Projectile, MAX_PROJECTILES> projectiles;
 		int projectileId;
 
 		Player();
@@ -192,8 +194,8 @@ namespace game {
 		void shootProjectile();
 		void applyInput();
 		void handleInput();
-		void draw(bool shadow);
-		void drawSpecial();
+		void draw(bool shadow) const;
+		void drawSpecial() const;
 
 		void takeDamage(float damage);
 
@@ -202,21 +204,21 @@ namespace game {
 
 		void becomeIdle();
 
-		bool isAttacking();
-		bool isDashing();
-		bool isIdle();
-		bool isBeingHit();
-		bool isInBlock();
-		bool isKnockedBack();
-		bool isKnockedProne();
-		bool isKnocked();
+		bool isAttacking() const;
+		bool isDashing() const;
+		bool isIdle() const;
+		bool isBeingHit() const;
+		bool isInBlock() const;
+		bool isKnockedBack() const;
+		bool isKnockedProne() const;
+		bool isKnocked() const;
 
-		bool isStanding();
-		bool isCrouching();
-		bool isJumping();
-		bool isBlocking();
+		bool isStanding() const;
+		bool isCrouching() const;
+		bool isJumping() const;
+		bool isBlocking() const;
 
-		int getMaxHp();
+		int getMaxHp() const;
 
 		void setDir(char _dir);
 
@@ -225,7 +227,7 @@ namespace game {
 
 		static bool keycmp(uint16_t key1, uint16_t key2, bool generic);
 		static uint16_t flipInput(uint16_t in);
-		bool isPlayer();
+		bool isPlayer() const;
 	};
 }
 

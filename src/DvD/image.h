@@ -3,6 +3,8 @@
 
 #include "file.h"
 
+#include <vector>
+
 /// @brief Image class ready for rendering
 /// @details createFromFile assumes png but createFromMemory takes an
 /// OpenGL-ready format
@@ -17,17 +19,17 @@ public:
 		COLORTYPE_RGBA
 	};
 
-	enum {
-		RENDER_NORMAL,
-		RENDER_ADDITIVE,
-		RENDER_SUBTRACTIVE,
-		RENDER_MULTIPLY
+	enum class Render {
+		NORMAL,
+		ADDITIVE,
+		SUBTRACTIVE,
+		MULTIPLY
 	};
 
 public:
 	Image();
-	Image(Image&& other);
-	Image& operator=(Image&& other);
+	Image(Image&& other) noexcept;
+	Image& operator=(Image&& other) noexcept;
 	~Image();
 
 	//Do not copy images
@@ -40,14 +42,14 @@ public:
 	int xpad;
 	int ypad;
 #else
-	unsigned int* textures;
+	std::vector<unsigned int> textures;
 	unsigned int w_textures;
 	unsigned int h_textures;
 	unsigned int w_subtexture;
 	unsigned int h_subtexture;
 
-	void draw(int x, int y, bool mirror = false);
-	void drawSprite(int x, int y, bool mirror = false);
+	void draw(int x, int y, bool mirror = false) const;
+	void drawSprite(int x, int y, bool mirror = false) const;
 #endif
 
 	//DvD: Loads a RGB, RGBA, Greyscale, or GA png file
@@ -60,7 +62,7 @@ public:
 	void createFromMemory(const uint8_t* data, unsigned int width, unsigned int height, int format, const uint8_t* palette);
 #endif
 
-	bool exists();
+	bool exists() const;
 
 	static void setShake(bool _shake);
 

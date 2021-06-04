@@ -18,10 +18,10 @@ public:
 	int timer;
 	int state;
 
-	void think();
-	void draw();
+	void think() override final;
+	void draw() const override final;
 
-	void parseLine(Parser& parser);
+	void parseLine(Parser& parser) override final;
 };
 
 #endif // DVD_SCENE_INTRO_H

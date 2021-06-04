@@ -5,6 +5,8 @@
 
 #include "../font.h"
 
+#include <vector>
+
 /// @brief Scene for modifying options
 class SceneOptions : public Scene {
 private:
@@ -34,7 +36,7 @@ public:
 	SceneOptions();
 	~SceneOptions();
 
-	void init();
+	void init() override final;
 
 	//Members
 	Font menuFont;
@@ -59,15 +61,15 @@ public:
 	uint8_t iR, iG, iB, aR, aG, aB;
 	int aXOffset;
 
-	std::string* themes;
+	std::vector<std::string> themes;
 	int nThemes;
 
 	//Functions
-	void think();
-	void reset();
-	void draw();
+	void think() override final;
+	void reset() override final;
+	void draw() const override final;
 
-	void parseLine(Parser& parser);
+	void parseLine(Parser& parser) override final;
 };
 
 #endif // DVD_SCENE_OPTIONS_H

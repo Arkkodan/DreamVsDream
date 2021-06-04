@@ -377,7 +377,7 @@ void SceneNetplay::think() {
 	}
 }
 
-void SceneNetplay::draw() {
+void SceneNetplay::draw() const {
 	Scene::draw();
 
 	int speed = (flashDir + 1) / 2 + 1;
@@ -500,9 +500,9 @@ void SceneNetplay::draw() {
 		glVertex3f(sys::WINDOW_WIDTH, barPos + NET_BAR_SIZE, 0);
 		glEnd();
 
-		graphics::setRender(Image::RENDER_ADDITIVE);
+		graphics::setRender(Image::Render::ADDITIVE);
 		imgStatic.draw(-util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
-		graphics::setRender(Image::RENDER_MULTIPLY);
+		graphics::setRender(Image::Render::MULTIPLY);
 		imgScanlines.draw(0, 0);
 	}
 

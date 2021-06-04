@@ -5,9 +5,12 @@
 
 #include "../font.h"
 
+#include <string>
+#include <array>
+
 /// @brief Scene for the title menu
 class SceneTitle : public Scene {
-private:
+public:
 	enum {
 		TM_MAIN,
 		TM_VERSUS,
@@ -41,18 +44,19 @@ private:
 		CHOICE_VS_MAX
 	};
 
-	static const char* menuChoicesMain[CHOICE_MAX];
-	static const char* menuChoicesVersus[CHOICE_VS_MAX];
-	static const char** menuChoices[TM_MAX];
-	static const int menuChoicesMax[TM_MAX];
+private:
+	static std::vector<std::string> menuChoicesMain;
+	static std::vector<std::string> menuChoicesVersus;
+	static std::array<std::vector<std::string>*, TM_MAX> menuChoices;
+	static const std::array<int, TM_MAX> menuChoicesMax;
 
 public:
 	SceneTitle();
 	~SceneTitle();
 
-	void init();
+	void init() override final;
 
-	std::string* themes;
+	std::vector<std::string> themes;
 	int nThemes;
 
 	//Members
@@ -69,11 +73,11 @@ public:
 	uint8_t submenu;
 
 	//Functions
-	void think();
-	void reset();
-	void draw();
+	void think() override final;
+	void reset() override final;
+	void draw() const override final;
 
-	void parseLine(Parser& parser);
+	void parseLine(Parser& parser) override final;
 };
 
 #endif // DVD_SCENE_TITLE_H
