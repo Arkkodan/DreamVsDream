@@ -70,10 +70,10 @@ void Stage::think() {
 		init();
 	}
 	std::for_each(imagesAbove.begin(), imagesAbove.end(),
-		[](SceneImage& si) {si.think(); }
+		[](scene::SceneImage& si) {si.think(); }
 	);
 	std::for_each(imagesBelow.begin(), imagesBelow.end(),
-		[](SceneImage& si) {si.think(); }
+		[](scene::SceneImage& si) {si.think(); }
 	);
 }
 
@@ -81,21 +81,21 @@ void Stage::draw(bool _above) const {
 	if(_above) {
 		graphics::setColor(255, 255, 255, 0.5f);
 		std::for_each(imagesAbove.cbegin(), imagesAbove.cend(),
-			[](const SceneImage& si) {si.draw(true); }
+			[](const scene::SceneImage& si) {si.draw(true); }
 		);
 	} else {
 		std::for_each(imagesBelow.cbegin(), imagesBelow.cend(),
-			[](const SceneImage& si) {si.draw(true); }
+			[](const scene::SceneImage& si) {si.draw(true); }
 		);
 	}
 }
 
 void Stage::reset() {
 	std::for_each(imagesAbove.begin(), imagesAbove.end(),
-		[](SceneImage& si) {si.reset(); }
+		[](scene::SceneImage& si) {si.reset(); }
 	);
 	std::for_each(imagesBelow.begin(), imagesBelow.end(),
-		[](SceneImage& si) {si.reset(); }
+		[](scene::SceneImage& si) {si.reset(); }
 	);
 }
 

@@ -1,6 +1,8 @@
 #include "select.h"
 
 #include "scene.h"
+#include "fight.h"
+#include "versus.h"
 
 #include "../network.h"
 #include "../stage.h"
@@ -11,7 +13,7 @@
 
 #include <glad/glad.h>
 
-SceneSelect::SceneSelect() : Scene("select") {
+scene::Select::Select() : Scene("select") {
 	width = height = 0;
 	gWidth = gHeight = 0;
 	gridC = 0;
@@ -20,13 +22,13 @@ SceneSelect::SceneSelect() : Scene("select") {
 	cursor_stage_offset = 0;
 }
 
-SceneSelect::~SceneSelect() {}
+scene::Select::~Select() {}
 
-void SceneSelect::init() {
+void scene::Select::init() {
 	Scene::init();
 }
 
-void SceneSelect::think() {
+void scene::Select::think() {
 	Scene::think();
 
 	//Visual effects animations
@@ -45,11 +47,11 @@ void SceneSelect::think() {
 	//Move cursor
 	if (cursors[0].lockState != Cursor::CURSOR_LOCKED || cursors[1].lockState != Cursor::CURSOR_LOCKED) {
 		for (int cur = 0; cur < 2; cur++) {
-			uint16_t input = SceneFight::madotsuki.frameInput;
+			uint16_t input = Fight::madotsuki.frameInput;
 			if (cur == 1) {
-				input = SceneFight::poniko.frameInput;
+				input = Fight::poniko.frameInput;
 			}
-			if (FIGHT->gametype == SceneFight::GAMETYPE_TRAINING) {
+			if (FIGHT->gametype == Fight::GAMETYPE_TRAINING) {
 				if (cursors[0].lockState == Cursor::CURSOR_LOCKED) {
 					cur = 1;
 				}
@@ -143,10 +145,10 @@ void SceneSelect::think() {
 				if (input & game::INPUT_A) {
 					if (gridFighters[cursors[cur].pos] >= 0) {
 						if (cur == 0) {
-							SceneFight::madotsuki.palette = 0;
+							Fight::madotsuki.palette = 0;
 						}
 						else {
-							SceneFight::poniko.palette = 0;
+							Fight::poniko.palette = 0;
 						}
 						cursors[cur].lockState = Cursor::CURSOR_COLORSWAP;
 						newEffect(cur, group);
@@ -161,19 +163,19 @@ void SceneSelect::think() {
 					sndMenu.play();
 
 					if (cur == 0) {
-						if (SceneFight::madotsuki.palette == 0) {
-							SceneFight::madotsuki.palette = game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1;
+						if (Fight::madotsuki.palette == 0) {
+							Fight::madotsuki.palette = game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1;
 						}
 						else {
-							SceneFight::madotsuki.palette--;
+							Fight::madotsuki.palette--;
 						}
 					}
 					else {
-						if (SceneFight::poniko.palette == 0) {
-							SceneFight::poniko.palette = game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1;
+						if (Fight::poniko.palette == 0) {
+							Fight::poniko.palette = game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1;
 						}
 						else {
-							SceneFight::poniko.palette--;
+							Fight::poniko.palette--;
 						}
 					}
 				}
@@ -181,19 +183,19 @@ void SceneSelect::think() {
 					sndMenu.play();
 
 					if (cur == 0) {
-						if (SceneFight::madotsuki.palette == game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1) {
-							SceneFight::madotsuki.palette = 0;
+						if (Fight::madotsuki.palette == game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1) {
+							Fight::madotsuki.palette = 0;
 						}
 						else {
-							SceneFight::madotsuki.palette++;
+							Fight::madotsuki.palette++;
 						}
 					}
 					else {
-						if (SceneFight::poniko.palette == game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1) {
-							SceneFight::poniko.palette = 0;
+						if (Fight::poniko.palette == game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1) {
+							Fight::poniko.palette = 0;
 						}
 						else {
-							SceneFight::poniko.palette++;
+							Fight::poniko.palette++;
 						}
 					}
 				}
@@ -205,7 +207,7 @@ void SceneSelect::think() {
 			}
 
 			if (input & game::INPUT_B) {
-				if (FIGHT->gametype == SceneFight::GAMETYPE_TRAINING) {
+				if (FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING) {
 					if (cursors[0].lockState == Cursor::CURSOR_UNLOCKED) {
 						sndBack.play();
 						setScene(SCENE_TITLE);
@@ -247,7 +249,7 @@ void SceneSelect::think() {
 				}
 			}
 
-			if (FIGHT->gametype == SceneFight::GAMETYPE_TRAINING) {
+			if (FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING) {
 				break;
 			}
 		}
@@ -298,7 +300,7 @@ void SceneSelect::think() {
 			}
 		}
 
-		if (FIGHT->gametype == SceneFight::GAMETYPE_TRAINING) {
+		if (FIGHT->gametype == Fight::GAMETYPE_TRAINING) {
 			if (input(game::INPUT_B)) {
 				cursors[1].lockState = Cursor::CURSOR_COLORSWAP;
 
@@ -328,12 +330,12 @@ void SceneSelect::think() {
 
 		if (input(game::INPUT_A)) {
 			//Start game!
-			SceneFight::madotsuki.fighter = &game::fighters[gridFighters[cursors[0].pos]];
-			SceneFight::poniko.fighter = &game::fighters[gridFighters[cursors[1].pos]];
+			Fight::madotsuki.fighter = &game::fighters[gridFighters[cursors[0].pos]];
+			Fight::poniko.fighter = &game::fighters[gridFighters[cursors[1].pos]];
 
-			(reinterpret_cast<SceneVersus*>(scenes[SCENE_VERSUS].get()))->portraits[0] = &SceneFight::madotsuki.fighter->portrait;
+			(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[0] = &Fight::madotsuki.fighter->portrait;
 
-			(reinterpret_cast<SceneVersus*>(scenes[SCENE_VERSUS].get()))->portraits[1] = &SceneFight::poniko.fighter->portrait;
+			(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[1] = &Fight::poniko.fighter->portrait;
 
 			Stage::stage = cursor_stage;
 			setScene(SCENE_VERSUS);
@@ -342,7 +344,7 @@ void SceneSelect::think() {
 	}
 }
 
-void SceneSelect::reset() {
+void scene::Select::reset() {
 	Scene::reset();
 
 	for (int i = 0; i < 2; i++) {
@@ -357,11 +359,11 @@ void SceneSelect::reset() {
 	cursor_stage = 0;
 }
 
-void SceneSelect::draw() const {
+void scene::Select::draw() const {
 	Scene::draw();
 
 	//Draw portraits first
-	if (cursors[0].lockState == Cursor::CURSOR_LOCKED || FIGHT->gametype == SceneFight::GAMETYPE_VERSUS) {
+	if (cursors[0].lockState == Cursor::CURSOR_LOCKED || FIGHT->gametype == Fight::GAMETYPE_VERSUS) {
 		if (cursors[1].timerPortrait) {
 			if (gridFighters[cursors[1].posOld] >= 0) {
 				graphics::setColor(255, 255, 255, (float)(cursors[1].timerPortrait) / PORTRAIT_FADE);
@@ -395,7 +397,7 @@ void SceneSelect::draw() const {
 			sprite::Sprite& spr = fighter.sprites[0];
 			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
 
-			graphics::setPalette(fighter.palettes[SceneFight::poniko.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+			graphics::setPalette(fighter.palettes[Fight::poniko.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
 			fighter.sprites[0].atlas->draw(spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
 			glUseProgram(0);
 		}
@@ -406,7 +408,7 @@ void SceneSelect::draw() const {
 			sprite::Sprite& spr = fighter.sprites[0];
 			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
 
-			graphics::setPalette(fighter.palettes[SceneFight::madotsuki.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+			graphics::setPalette(fighter.palettes[Fight::madotsuki.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
 			fighter.sprites[0].atlas->draw(spr.atlas_sprite, 50 - spr.x, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
 			glUseProgram(0);
 		}
@@ -423,7 +425,7 @@ void SceneSelect::draw() const {
 	//Get the current group
 	if (!curData.empty()) {
 		int count = 1;
-		if (FIGHT->gametype == SceneFight::GAMETYPE_TRAINING && cursors[0].lockState != Cursor::CURSOR_LOCKED) {
+		if (FIGHT->gametype == Fight::GAMETYPE_TRAINING && cursors[0].lockState != Cursor::CURSOR_LOCKED) {
 			count = 0;
 		}
 		for (int i = 0; i <= count; i++) {
@@ -470,7 +472,7 @@ void SceneSelect::draw() const {
 	}
 }
 
-void SceneSelect::newEffect(int player, int group) {
+void scene::Select::newEffect(int player, int group) {
 	if (!curData.empty()) {
 		curData[group].sndSelect.play();
 		curData[group].sndDeselect.stop();
@@ -479,7 +481,7 @@ void SceneSelect::newEffect(int player, int group) {
 	cursors[player].frame = 1;
 }
 
-void SceneSelect::drawEffect(int player, int group, int _x, int _y, bool spr) const {
+void scene::Select::drawEffect(int player, int group, int _x, int _y, bool spr) const {
 	if (cursors[player].frame) {
 		float scale = 1.0f;
 		float alpha = 1.0f - (cursors[player].frame - 1) / (float)curData[group].frameC;;
@@ -509,7 +511,7 @@ void SceneSelect::drawEffect(int player, int group, int _x, int _y, bool spr) co
 	}
 }
 
-void SceneSelect::parseLine(Parser& parser) {
+void scene::Select::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("GRID", 4)) {
 		//Make the grids!
@@ -646,23 +648,23 @@ void SceneSelect::parseLine(Parser& parser) {
 }
 
 //CURSOR DATA
-CursorData::CursorData() {
+scene::CursorData::CursorData() {
 	frameC = 0;
 	speed = 0;
 	grow = false;
 }
 
-CursorData::~CursorData() {
+scene::CursorData::~CursorData() {
 }
 
-CursorData::CursorData(CursorData&& other) noexcept :
+scene::CursorData::CursorData(CursorData&& other) noexcept :
 	off(std::move(other.off)),
 	img(std::move(other.img)), imgSelect(std::move(other.imgSelect)),
 	sndSelect(std::move(other.sndSelect)), sndDeselect(std::move(other.sndDeselect)),
 	frameC(other.frameC), speed(other.speed), grow(other.grow)
 {}
 
-CursorData& CursorData::operator=(CursorData& other) noexcept {
+scene::CursorData& scene::CursorData::operator=(CursorData& other) noexcept {
 	off = std::move(other.off);
 	img = std::move(other.img);
 	imgSelect = std::move(other.imgSelect);
@@ -677,7 +679,7 @@ CursorData& CursorData::operator=(CursorData& other) noexcept {
 }
 
 //CURSOR
-Cursor::Cursor() {
+scene::Cursor::Cursor() {
 	pos = posOld = posDefault = 0;
 	frame = 0;
 	timer = 0;
@@ -689,6 +691,6 @@ Cursor::Cursor() {
 	r = g = b = 0;
 }
 
-int Cursor::getGroup(int w, int gW, int gH) const {
+int scene::Cursor::getGroup(int w, int gW, int gH) const {
 	return (pos % w) / gW + ((pos / w) / gH) * (w / gW);
 }

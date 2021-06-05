@@ -57,8 +57,8 @@ namespace sys {
 
 	void refresh() {
 #ifdef GAME
-		SceneFight::madotsuki.frameInput = 0;
-		SceneFight::poniko.frameInput = 0;
+		scene::Fight::madotsuki.frameInput = 0;
+		scene::Fight::poniko.frameInput = 0;
 #endif
 
 		SDL_GL_SwapWindow(window);

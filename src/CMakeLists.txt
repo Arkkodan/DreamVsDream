@@ -27,6 +27,7 @@ set(COMPILER_FILES
 
 # DvD
 set(DVD_SCENE_FILES
+  DvD/scene/scene.cpp
   DvD/scene/scene.h
   DvD/scene/scene_base.cpp
   DvD/scene/scene_base.h

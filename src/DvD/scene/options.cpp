@@ -1,21 +1,23 @@
 #include "options.h"
 
 #include "scene.h"
+#include "fight.h"
 
+#include "../player.h"
 #include "../graphics.h"
 #include "../../util/rng.h"
 
 #include <cstring>
 
-int SceneOptions::optionDifficulty = 3;
-int SceneOptions::optionWins = 2;
-int SceneOptions::optionTime = 99;
-int SceneOptions::optionSfxVolume = 100;
-int SceneOptions::optionMusVolume = 100;
-int SceneOptions::optionVoiceVolume = 100;
-bool SceneOptions::optionEpilepsy = false;
+int scene::Options::optionDifficulty = 3;
+int scene::Options::optionWins = 2;
+int scene::Options::optionTime = 99;
+int scene::Options::optionSfxVolume = 100;
+int scene::Options::optionMusVolume = 100;
+int scene::Options::optionVoiceVolume = 100;
+bool scene::Options::optionEpilepsy = false;
 
-SceneOptions::SceneOptions() : Scene("options") {
+scene::Options::Options() : Scene("options") {
 	cursor = cursorLast = cursorTimer = 0;
 	madoPos = 0;
 	madoFrame = 1;
@@ -27,9 +29,9 @@ SceneOptions::SceneOptions() : Scene("options") {
 	aXOffset = 0;
 }
 
-SceneOptions::~SceneOptions() {}
+scene::Options::~Options() {}
 
-void SceneOptions::think() {
+void scene::Options::think() {
 	Scene::think();
 
 	//Cursor stuff
@@ -209,13 +211,13 @@ void SceneOptions::think() {
 					if (optionVoiceVolume > 0) {
 						optionVoiceVolume -= 10;
 					}
-					SceneFight::madotsuki.speaker.play(&dame);
+					Fight::madotsuki.speaker.play(&dame);
 				}
 				else {
 					if (optionVoiceVolume < 100) {
 						optionVoiceVolume += 10;
 					}
-					SceneFight::madotsuki.speaker.play(&muri);
+					Fight::madotsuki.speaker.play(&muri);
 				}
 				break;
 
@@ -243,7 +245,7 @@ void SceneOptions::think() {
 	}
 }
 
-void SceneOptions::reset() {
+void scene::Options::reset() {
 	Scene::reset();
 
 	cursor = cursorLast = cursorTimer = 0;
@@ -253,7 +255,7 @@ void SceneOptions::reset() {
 	madoWakeTimer = 0;
 }
 
-void SceneOptions::draw() const {
+void scene::Options::draw() const {
 	Scene::draw();
 
 	//Draw the menu options
@@ -324,7 +326,7 @@ void SceneOptions::draw() const {
 	madoImg.draw(32, 64 + madoPos);
 }
 
-void SceneOptions::init() {
+void scene::Options::init() {
 	Scene::init();
 
 	//Parse a random theme
@@ -333,7 +335,7 @@ void SceneOptions::init() {
 	}
 }
 
-void SceneOptions::parseLine(Parser& parser) {
+void scene::Options::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("FONT", 1)) {
 		//The font

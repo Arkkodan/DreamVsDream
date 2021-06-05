@@ -8,99 +8,102 @@
 
 #include <vector>
 
-/// @brief Helper data structure for SceneSelect
-class CursorData {
-public:
-	util::Vector off;
-	Image img;
-	Image imgSelect;
-	audio::Sound sndSelect;
-	audio::Sound sndDeselect;
+namespace scene {
 
-	int frameC;
-	int speed;
-	bool grow;
+	/// @brief Helper data structure for SceneSelect
+	class CursorData {
+	public:
+		util::Vector off;
+		Image img;
+		Image imgSelect;
+		audio::Sound sndSelect;
+		audio::Sound sndDeselect;
 
-	CursorData();
-	~CursorData();
+		int frameC;
+		int speed;
+		bool grow;
 
-	CursorData(const CursorData& other) = delete;
-	CursorData& operator=(const CursorData& other) = delete;
+		CursorData();
+		~CursorData();
 
-	CursorData(CursorData&& other) noexcept;
-	CursorData& operator=(CursorData& other) noexcept;
-};
+		CursorData(const CursorData& other) = delete;
+		CursorData& operator=(const CursorData& other) = delete;
 
-/// @brief Helper object for SceneSelect
-class Cursor {
-public:
-	enum {
-		CURSOR_UNLOCKED,
-		CURSOR_COLORSWAP,
-		CURSOR_LOCKED,
+		CursorData(CursorData&& other) noexcept;
+		CursorData& operator=(CursorData& other) noexcept;
 	};
 
-public:
-	int pos;
-	int posOld;
-	int posDefault;
+	/// @brief Helper object for SceneSelect
+	class Cursor {
+	public:
+		enum {
+			CURSOR_UNLOCKED,
+			CURSOR_COLORSWAP,
+			CURSOR_LOCKED,
+		};
 
-	mutable int frame;
-	mutable int timer;
+	public:
+		int pos;
+		int posOld;
+		int posDefault;
 
-	int timerPortrait;
+		mutable int frame;
+		mutable int timer;
 
-	int lockState;
+		int timerPortrait;
 
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
+		int lockState;
 
-	//int sprFrame;
-	//int sprTimer;
+		uint8_t r;
+		uint8_t g;
+		uint8_t b;
 
-	Cursor();
+		//int sprFrame;
+		//int sprTimer;
 
-	int getGroup(int w, int gW, int gH) const;
-};
+		Cursor();
 
-/// @brief Character and stage selection
-class SceneSelect : public Scene {
-private:
-	static constexpr auto PORTRAIT_FADE = 50;
+		int getGroup(int w, int gW, int gH) const;
+	};
 
-public:
-	SceneSelect();
-	~SceneSelect();
+	/// @brief Character and stage selection
+	class Select : public Scene {
+	private:
+		static constexpr auto PORTRAIT_FADE = 50;
 
-	void init() override final;
+	public:
+		Select();
+		~Select();
 
-	//Members
-	int width, height;
-	int gWidth, gHeight;
-	//Image* sprites;
-	std::list<SceneImage> gui;
-	std::vector<util::Vector> grid;
-	std::vector<int> gridFighters;
-	int gridC;
+		void init() override final;
 
-	std::array<Cursor, 2> cursors;
+		//Members
+		int width, height;
+		int gWidth, gHeight;
+		//Image* sprites;
+		std::list<SceneImage> gui;
+		std::vector<util::Vector> grid;
+		std::vector<int> gridFighters;
+		int gridC;
 
-	std::vector<CursorData> curData;
+		std::array<Cursor, 2> cursors;
 
-	Font font_stage;
-	int cursor_stage;
-	mutable float cursor_stage_offset;
+		std::vector<CursorData> curData;
 
-	//Functions
-	void think() override final;
-	void reset() override final;
-	void draw() const override final;
+		Font font_stage;
+		int cursor_stage;
+		mutable float cursor_stage_offset;
 
-	void newEffect(int player, int group);
-	void drawEffect(int player, int group, int _x, int _y, bool spr = false) const;
+		//Functions
+		void think() override final;
+		void reset() override final;
+		void draw() const override final;
 
-	void parseLine(Parser& parser) override final;
-};
+		void newEffect(int player, int group);
+		void drawEffect(int player, int group, int _x, int _y, bool spr = false) const;
+
+		void parseLine(Parser& parser) override final;
+	};
+}
 
 #endif // DVD_SCENE_SELECT_H

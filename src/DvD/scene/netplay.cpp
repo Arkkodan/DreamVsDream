@@ -1,6 +1,7 @@
 #include "netplay.h"
 
 #include "scene.h"
+#include "fight.h"
 
 #include "../network.h"
 #include "../graphics.h"
@@ -12,7 +13,7 @@
 
 //NETPLAY
 #ifndef NO_NETWORK
-SceneNetplay::SceneNetplay() : Scene("netplay") {
+scene::Netplay::Netplay() : Scene("netplay") {
 	choice = 0;
 
 	flashTimer = 0;
@@ -27,10 +28,10 @@ SceneNetplay::SceneNetplay() : Scene("netplay") {
 	updatePort(false);
 }
 
-SceneNetplay::~SceneNetplay() {
+scene::Netplay::~Netplay() {
 }
 
-void SceneNetplay::think() {
+void scene::Netplay::think() {
 	Scene::think();
 
 	if (sys::frame % 2) {
@@ -67,7 +68,7 @@ void SceneNetplay::think() {
 				if (input(game::INPUT_A)) {
 					if (net::connected) {
 						sndSelect.play();
-						FIGHT->gametype = SceneFight::GAMETYPE_VERSUS;
+						FIGHT->gametype = Fight::GAMETYPE_VERSUS;
 						setScene(SCENE_SELECT);
 					}
 				}
@@ -147,7 +148,7 @@ void SceneNetplay::think() {
 				if (input(game::INPUT_A)) {
 					if (net::connected) {
 						sndSelect.play();
-						FIGHT->gametype = SceneFight::GAMETYPE_VERSUS;
+						FIGHT->gametype = Fight::GAMETYPE_VERSUS;
 						setScene(SCENE_SELECT);
 					}
 				}
@@ -380,7 +381,7 @@ void SceneNetplay::think() {
 	}
 }
 
-void SceneNetplay::draw() const {
+void scene::Netplay::draw() const {
 	Scene::draw();
 
 	int speed = (flashDir + 1) / 2 + 1;
@@ -534,7 +535,7 @@ void SceneNetplay::draw() const {
 	}
 }
 
-void SceneNetplay::reset() {
+void scene::Netplay::reset() {
 	Scene::reset();
 	choice = 0;
 	mode = net::MODE_NONE;
@@ -545,7 +546,7 @@ void SceneNetplay::reset() {
 	waiting = false;
 }
 
-void SceneNetplay::updateIp(bool toint) {
+void scene::Netplay::updateIp(bool toint) {
 	if (toint) {
 		ip = 0;
 		for (int i = 0; i < 4; i++) {
@@ -577,7 +578,7 @@ void SceneNetplay::updateIp(bool toint) {
 	}
 }
 
-void SceneNetplay::updatePort(bool toint) {
+void scene::Netplay::updatePort(bool toint) {
 	if (toint) {
 		int newport = 0;
 		for (int i = 0; i < 5; i++) {
@@ -602,7 +603,7 @@ void SceneNetplay::updatePort(bool toint) {
 	}
 }
 
-void SceneNetplay::parseLine(Parser& parser) {
+void scene::Netplay::parseLine(Parser& parser) {
 	if (parser.is("BGM", 2)) { //Override superclass
 		bgm.createFromFile("", getResource(parser.getArg(1), Parser::EXT_MUSIC));
 		bgmWait.createFromFile("", getResource(parser.getArg(2), Parser::EXT_MUSIC));

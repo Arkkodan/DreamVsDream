@@ -19,8 +19,8 @@ public:
 
 public:
 	std::string name;
-	std::list<SceneImage> imagesAbove;
-	std::list<SceneImage> imagesBelow;
+	std::list<scene::SceneImage> imagesAbove;
+	std::list<scene::SceneImage> imagesBelow;
 	audio::Music bgm;
 	audio::Music bgm2;
 

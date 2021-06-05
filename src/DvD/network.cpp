@@ -1,7 +1,7 @@
 #include "network.h"
 
 #include "error.h"
-#include "scene/scene_base.h"
+#include "scene/scene.h"
 #include "scene/options.h"
 #include "scene/fight.h"
 #include "thread.h"
@@ -112,8 +112,8 @@ namespace net {
 						if(buff.flags & NetHeader::NETF_SYN && !(buff.flags & NetHeader::NETF_ACK)) {
 							buff.flags = NetHeader::NETF_SYN | NetHeader::NETF_ACK;
 
-							buff.option1 = SceneOptions::optionWins;
-							buff.option2 = SceneOptions::optionTime;
+							buff.option1 = scene::Options::optionWins;
+							buff.option2 = scene::Options::optionTime;
 							if(send(&buff, sizeof(buff))) {
 								unsigned long _timer = sys::getTime(); //Latency calculation
 								if(recv(&buff, sizeof(buff))) {
@@ -168,8 +168,8 @@ namespace net {
 
 							if(buff.flags & (NetHeader::NETF_SYN | NetHeader::NETF_ACK)) {
 								//Save options
-								SceneOptions::optionWins = buff.option1;
-								SceneOptions::optionTime = buff.option2;
+								scene::Options::optionWins = buff.option1;
+								scene::Options::optionTime = buff.option2;
 
 								//Send an ACK. We've got a connection!
 								buff.flags = NetHeader::NETF_ACK;
@@ -360,7 +360,7 @@ namespace net {
 					if((now - timeout) >= 5 * 1000) {
                         neterror = "Lost connection to opponent.";
 						stop();
-						Scene::setScene(Scene::SCENE_TITLE);
+						scene::setScene(scene::SCENE_TITLE);
 						break;
 					}
 				}
@@ -541,9 +541,9 @@ namespace net {
 	game::Player* getMyPlayer() {
 #ifndef NO_NETWORK
 		if(mode == MODE_SERVER) {
-			return &SceneFight::madotsuki;
+			return &scene::Fight::madotsuki;
 		} else if(mode == MODE_CLIENT) {
-			return &SceneFight::poniko;
+			return &scene::Fight::poniko;
 		}
 #endif
 		return nullptr;
@@ -552,9 +552,9 @@ namespace net {
 	game::Player* getYourPlayer() {
 #ifndef NO_NETWORK
 		if(mode == MODE_SERVER) {
-			return &SceneFight::poniko;
+			return &scene::Fight::poniko;
 		} else if(mode == MODE_CLIENT) {
-			return &SceneFight::madotsuki;
+			return &scene::Fight::madotsuki;
 		}
 #endif
 		return nullptr;

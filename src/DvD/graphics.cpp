@@ -7,8 +7,9 @@
 #ifdef GAME
 #include "network.h"
 #include "stage.h"
-#include "scene/options.h"
+#include "scene/scene.h"
 #include "scene/fight.h"
+#include "scene/options.h"
 #include "../util/rng.h"
 #endif // GAME
 
@@ -138,7 +139,7 @@ namespace graphics {
 			}
 			shift = 0;
 
-			if(!SceneOptions::optionEpilepsy) {
+			if(!scene::Options::optionEpilepsy) {
 				if(FIGHT->round >= 2) {
 					if(!util::roll(64)) {
 						shift = util::roll(1, 2);

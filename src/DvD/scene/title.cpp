@@ -1,10 +1,12 @@
 #include "title.h"
 
 #include "scene.h"
+#include "fight.h"
 
+#include "../player.h"
 #include "../../util/rng.h"
 
-std::vector<std::string> SceneTitle::menuChoicesMain = {
+std::vector<std::string> scene::Title::menuChoicesMain = {
 		"Arcade",
 		"Story",
 		"Versus",
@@ -17,7 +19,7 @@ std::vector<std::string> SceneTitle::menuChoicesMain = {
 		"Quit",
 };
 
-std::vector<std::string> SceneTitle::menuChoicesVersus = {
+std::vector<std::string> scene::Title::menuChoicesVersus = {
 	"Versus Player",
 	"Versus CPU",
 	"Tag Team",
@@ -25,17 +27,17 @@ std::vector<std::string> SceneTitle::menuChoicesVersus = {
 	"Return",
 };
 
-std::array<std::vector<std::string>*, SceneTitle::TM_MAX> SceneTitle::menuChoices = {
+std::array<std::vector<std::string>*, scene::Title::TM_MAX> scene::Title::menuChoices = {
 	&menuChoicesMain,
 	&menuChoicesVersus,
 };
 
-const std::array<int, SceneTitle::TM_MAX> SceneTitle::menuChoicesMax = {
+const std::array<int, scene::Title::TM_MAX> scene::Title::menuChoicesMax = {
 	CHOICE_MAX,
 	CHOICE_VS_MAX,
 };
 
-SceneTitle::SceneTitle() : Scene("title") {
+scene::Title::Title() : Scene("title") {
 	menuX = menuY = 0;
 	menuXOffset = 0;
 	iR = iG = iB = aR = aG = aB = 255;
@@ -47,9 +49,9 @@ SceneTitle::SceneTitle() : Scene("title") {
 	nThemes = 0;
 }
 
-SceneTitle::~SceneTitle() {}
+scene::Title::~Title() {}
 
-void SceneTitle::init() {
+void scene::Title::init() {
 	Scene::init();
 
 	//Parse a random theme
@@ -65,7 +67,7 @@ void SceneTitle::init() {
 	}
 }
 
-void SceneTitle::think() {
+void scene::Title::think() {
 	Scene::think();
 
 	if (choiceTimer) {
@@ -127,7 +129,7 @@ void SceneTitle::think() {
 				break;
 			case CHOICE_TRAINING:
 				sndSelect.play();
-				FIGHT->gametype = SceneFight::GAMETYPE_TRAINING;
+				FIGHT->gametype = Fight::GAMETYPE_TRAINING;
 				setScene(SCENE_SELECT);
 				break;
 			default:
@@ -155,7 +157,7 @@ void SceneTitle::think() {
 			switch (choice) {
 			case CHOICE_VS_PLR:
 				sndSelect.play();
-				FIGHT->gametype = SceneFight::GAMETYPE_VERSUS;
+				FIGHT->gametype = Fight::GAMETYPE_VERSUS;
 				setScene(SCENE_SELECT);
 				break;
 			default:
@@ -190,11 +192,11 @@ void SceneTitle::think() {
 	}
 }
 
-void SceneTitle::reset() {
+void scene::Title::reset() {
 	Scene::reset();
 }
 
-void SceneTitle::draw() const {
+void scene::Title::draw() const {
 	Scene::draw();
 
 	if (menuFont.exists()) {
@@ -235,7 +237,7 @@ void SceneTitle::draw() const {
 	}
 }
 
-void SceneTitle::parseLine(Parser& parser) {
+void scene::Title::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("MENU", 3)) {
 		//Font

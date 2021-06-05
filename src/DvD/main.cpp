@@ -5,6 +5,7 @@
 
 #ifndef DVD_DISABLE_PARSEARGS
 #include "../util/fileIO.h"
+#include "scene/scene.h"
 #include "scene/fight.h"
 #include "player.h"
 #include "fighter.h"
@@ -55,8 +56,8 @@ int main(int argc, char** argv)
 }
 
 static void parseArgs(int argc, char** argv) {
-	SceneFight::madotsuki.fighter = &game::fighters[0];
-	SceneFight::poniko.fighter = &game::fighters[0];
+	scene::Fight::madotsuki.fighter = &game::fighters[0];
+	scene::Fight::poniko.fighter = &game::fighters[0];
 
 	for (int i = 1; i < argc; i++) {
 		if (!strcasecmp(argv[i], "--disable-shaders")) {
@@ -66,10 +67,10 @@ static void parseArgs(int argc, char** argv) {
 			app::disable_sound = true;
 		}
 		else if (!strcasecmp(argv[i], "--training")) {
-			Scene::scene = Scene::SCENE_FIGHT;
+			scene::scene = scene::SCENE_FIGHT;
 		}
 		else if (!strcasecmp(argv[i], "--versus")) {
-			Scene::scene = Scene::SCENE_FIGHT;
+			scene::scene = scene::SCENE_FIGHT;
 			app::versus = true;
 		}
 		else if (!strcasecmp(argv[i], "--fullscreen")) {
@@ -77,22 +78,22 @@ static void parseArgs(int argc, char** argv) {
 		}
 		else if (!strcasecmp(argv[i], "-char1")) {
 			if (++i < argc) {
-				SceneFight::madotsuki.fighter = &game::fighters[atoi(argv[i])];
+				scene::Fight::madotsuki.fighter = &game::fighters[atoi(argv[i])];
 			}
 		}
 		else if (!strcasecmp(argv[i], "-char2")) {
 			if (++i < argc) {
-				SceneFight::poniko.fighter = &game::fighters[atoi(argv[i])];
+				scene::Fight::poniko.fighter = &game::fighters[atoi(argv[i])];
 			}
 		}
 		else if (!strcasecmp(argv[i], "-pal1")) {
 			if (++i < argc) {
-				SceneFight::madotsuki.palette = atoi(argv[i]);
+				scene::Fight::madotsuki.palette = atoi(argv[i]);
 			}
 		}
 		else if (!strcasecmp(argv[i], "-pal2")) {
 			if (++i < argc) {
-				SceneFight::poniko.palette = atoi(argv[i]);
+				scene::Fight::poniko.palette = atoi(argv[i]);
 			}
 		}
 		else if (!strcasecmp(argv[i], "-stage")) {

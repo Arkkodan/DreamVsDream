@@ -9,124 +9,125 @@
 
 #include <array>
 
-#define FIGHT (reinterpret_cast<SceneFight*>(Scene::scenes[Scene::SCENE_FIGHT].get()))
+namespace scene {
 
-/// @brief Helper object for drawing meters, primarily for SceneFight
-class SceneMeter {
-public:
-	SceneMeter();
-	~SceneMeter();
+	/// @brief Helper object for drawing meters, primarily for SceneFight
+	class SceneMeter {
+	public:
+		SceneMeter();
+		~SceneMeter();
 
-	void draw(float pct, bool mirror, bool flip) const;
+		void draw(float pct, bool mirror, bool flip) const;
 
-	Image img;
-	util::Vector pos;
-};
-
-/// @brief Fighting game scene
-class SceneFight : public Scene {
-public:
-	static game::Player madotsuki;
-	static game::Player poniko;
-	static util::Vector cameraPos;
-	static util::Vector idealCameraPos;
-	static util::Vector cameraShake;
-
-	static int framePauseTimer;
-	static int frameShakeTimer;
-
-	static void pause(int frames);
-	static void shake(int frames);
-
-public:
-	enum {
-		GAMETYPE_VERSUS,
-		GAMETYPE_TRAINING,
+		Image img;
+		util::Vector pos;
 	};
 
-public:
-	SceneFight();
-	~SceneFight();
+	/// @brief Fighting game scene
+	class Fight : public Scene {
+	public:
+		static game::Player madotsuki;
+		static game::Player poniko;
+		static util::Vector cameraPos;
+		static util::Vector idealCameraPos;
+		static util::Vector cameraShake;
 
-	void init() override final;
+		static int framePauseTimer;
+		static int frameShakeTimer;
 
-	Image hud;
-	Image hud_tag;
-	Image portraits;
-	Image portraits_tag;
-	Image timer;
-	Font timer_font;
-	Image shine;
-	Image shine_tag;
+		static void pause(int frames);
+		static void shake(int frames);
 
-	//Bars and stuff
-	SceneMeter meterHp;
-	SceneMeter meterSuper;
-	SceneMeter meterTag;
-	SceneMeter meterStun;
-	SceneMeter meterGuard;
-	SceneMeter meterDpm;
+	public:
+		enum {
+			GAMETYPE_VERSUS,
+			GAMETYPE_TRAINING,
+		};
 
-	Image staticImg;
-	audio::Sound staticSnd;
-	audio::Sound fadeinSnd;
-	audio::Sound fadeoutSnd;
+	public:
+		Fight();
+		~Fight();
 
-	std::array<Image, 5> round_splash;
-	Image round_hud[5];
-	int x_round_hud;
-	int y_round_hud;
+		void init() override final;
 
-	std::array<Image, 3> ko; // KO, timeout, draw
+		Image hud;
+		Image hud_tag;
+		Image portraits;
+		Image portraits_tag;
+		Image timer;
+		Font timer_font;
+		Image shine;
+		Image shine_tag;
 
-	Font combo;
-	Image comboLeft;
-	Image comboRight;
-	unsigned int comboLeftOff;
-	unsigned int comboRightOff;
-	int comboLeftLast;
-	int comboRightLast;
-	int comboLeftTimer;
-	int comboRightTimer;
+		//Bars and stuff
+		SceneMeter meterHp;
+		SceneMeter meterSuper;
+		SceneMeter meterTag;
+		SceneMeter meterStun;
+		SceneMeter meterGuard;
+		SceneMeter meterDpm;
 
-	util::Vector portraitPos;
+		Image staticImg;
+		audio::Sound staticSnd;
+		audio::Sound fadeinSnd;
+		audio::Sound fadeoutSnd;
 
-	Image win;
-	Font win_font;
-	audio::Music win_bgm;
+		std::array<Image, 5> round_splash;
+		Image round_hud[5];
+		int x_round_hud;
+		int y_round_hud;
 
-	Image orb_null;
-	Image orb_win;
-	Image orb_draw;
-	util::Vector orb_pos;
+		std::array<Image, 3> ko; // KO, timeout, draw
 
-	//Timers for various effects
-	mutable int timer_flash;
-	int timer_round_in;
-	int timer_round_out;
-	int timer_ko; //timeout/draw too
+		Font combo;
+		Image comboLeft;
+		Image comboRight;
+		unsigned int comboLeftOff;
+		unsigned int comboRightOff;
+		int comboLeftLast;
+		int comboRightLast;
+		int comboLeftTimer;
+		int comboRightTimer;
 
-	//Logic
-	int round; //What round is it?
-	std::array<int, 2> wins; // How many times each player has won (including draws)
-	std::array<std::array<int, 3>, 2> win_types; // What type of win was it? Win or draw?
-	int winner; //Who won the game?
+		util::Vector portraitPos;
 
-	int ko_player; //Which player was ko'd/lost? 2 = draw
-	int ko_type;   //Was it a ko or was it a timeout?
+		Image win;
+		Font win_font;
+		audio::Music win_bgm;
 
-	int game_timer; //this is the actual game timer
+		Image orb_null;
+		Image orb_win;
+		Image orb_draw;
+		util::Vector orb_pos;
 
-	int gametype;
+		//Timers for various effects
+		mutable int timer_flash;
+		int timer_round_in;
+		int timer_round_out;
+		int timer_ko; //timeout/draw too
 
-	//Functions
-	void think() override final;
-	void draw() const override final;
-	void reset() override final;
+		//Logic
+		int round; //What round is it?
+		std::array<int, 2> wins; // How many times each player has won (including draws)
+		std::array<std::array<int, 3>, 2> win_types; // What type of win was it? Win or draw?
+		int winner; //Who won the game?
 
-	void knockout(int player);
+		int ko_player; //Which player was ko'd/lost? 2 = draw
+		int ko_type;   //Was it a ko or was it a timeout?
 
-	void parseLine(Parser& parser) override final;
-};
+		int game_timer; //this is the actual game timer
+
+		int gametype;
+
+		//Functions
+		void think() override final;
+		void draw() const override final;
+		void reset() override final;
+
+		void knockout(int player);
+
+		void parseLine(Parser& parser) override final;
+	};
+}
 
 #endif // DVD_SCENE_FIGHT_H
