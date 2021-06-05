@@ -6,6 +6,7 @@
 #include "sys.h"
 #include "scene/fight.h"
 #include "scene/options.h"
+#include "../util/rng.h"
 
 #include <cmath>
 

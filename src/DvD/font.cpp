@@ -3,7 +3,7 @@
 #include "graphics.h"
 #include "error.h"
 #include "file.h"
-#include "util.h"
+#include "../util/fileIO.h"
 
 float Font::xscale = 1.0f;
 float Font::yscale = 1.0f;

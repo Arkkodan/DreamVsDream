@@ -3,6 +3,7 @@
 #include "scene.h"
 
 #include "../graphics.h"
+#include "../../util/rng.h"
 
 #include <cstring>
 

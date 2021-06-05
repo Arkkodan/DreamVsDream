@@ -3,6 +3,7 @@
 #include "scene.h"
 
 #include "../sys.h"
+#include "../../util/fileIO.h"
 
 SceneCredits::SceneCredits() : Scene("credits") {
 	oy = 0;

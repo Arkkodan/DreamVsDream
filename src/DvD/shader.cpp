@@ -1,7 +1,7 @@
 #include "shader.h"
 
 #include "graphics.h"
-#include "util.h"
+#include "../util/fileIO.h"
 
 #include <string>
 #include <cstdio>

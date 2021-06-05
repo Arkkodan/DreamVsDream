@@ -2,6 +2,8 @@
 
 #include "scene.h"
 
+#include "../../util/rng.h"
+
 std::vector<std::string> SceneTitle::menuChoicesMain = {
 		"Arcade",
 		"Story",

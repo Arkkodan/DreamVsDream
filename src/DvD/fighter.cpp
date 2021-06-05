@@ -4,6 +4,7 @@
 #include "error.h"
 #include "graphics.h"
 #include "file.h"
+#include "../util/fileIO.h"
 
 #include <glad/glad.h>
 #endif // GAME

@@ -11,6 +11,7 @@
 #include "../DvD/player.h"
 #include "../DvD/error.h"
 #include "../DvD/sys.h"
+#include "../util/fileIO.h"
 
 #ifdef _WIN32
 #ifndef WINVER

@@ -4,7 +4,7 @@
 #undef DVD_DISABLE_PARSEARGS
 
 #ifndef DVD_DISABLE_PARSEARGS
-#include "util.h"
+#include "../util/fileIO.h"
 #include "scene/fight.h"
 #include "player.h"
 #include "fighter.h"

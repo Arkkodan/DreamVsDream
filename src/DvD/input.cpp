@@ -4,6 +4,7 @@
 #include "scene/scene.h"
 #include "network.h"
 #include "app.h"
+#include "../util/fileIO.h"
 
 #include <array>
 #include <cstring>

@@ -3,7 +3,7 @@
 
 #include "scene_base.h"
 
-#include "../util.h"
+#include "../../util/vec2.h"
 #include "../font.h"
 
 #include <vector>

@@ -1,7 +1,7 @@
 #ifndef FIGHTER_H_INCLUDED
 #define FIGHTER_H_INCLUDED
 
-#include "util.h"
+#include "../util/vec2.h"
 #include "sprite.h"
 #ifdef GAME
 #include "sound.h"

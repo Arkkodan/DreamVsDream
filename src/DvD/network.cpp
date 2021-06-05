@@ -6,6 +6,7 @@
 #include "scene/fight.h"
 #include "thread.h"
 #include "sys.h"
+#include "../util/fileIO.h"
 
 #include <cmath>
 

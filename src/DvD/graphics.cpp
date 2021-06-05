@@ -3,11 +3,13 @@
 #include "input.h"
 #include "error.h"
 #include "sys.h"
+#include "../util/fileIO.h"
 #ifdef GAME
 #include "network.h"
 #include "stage.h"
 #include "scene/options.h"
 #include "scene/fight.h"
+#include "../util/rng.h"
 #endif // GAME
 
 #include <glad/glad.h>

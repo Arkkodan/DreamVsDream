@@ -3,7 +3,7 @@
 #include "sys.h"
 #include "graphics.h"
 #include "error.h"
-#include "util.h"
+#include "../util/fileIO.h"
 #ifdef GAME
 #include "stage.h"
 #include "scene/fight.h"

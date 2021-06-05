@@ -13,6 +13,7 @@
 #include "fighter.h"
 #include "stage.h"
 #include "effect.h"
+#include "../util/fileIO.h"
 
 #include <ctime>
 

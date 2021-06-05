@@ -3,7 +3,7 @@
 
 #ifndef COMPILER
 #include "fighter.h"
-#include "util.h"
+#include "../util/vec2.h"
 #include "sound.h"
 
 #include <array>

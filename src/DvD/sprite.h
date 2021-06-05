@@ -1,7 +1,7 @@
 #ifndef SPRITE_H_INCLUDED
 #define SPRITE_H_INCLUDED
 
-#include "util.h"
+#include "../util/vec2.h"
 #ifdef GAME
 #include "atlas.h"
 #endif // GAME

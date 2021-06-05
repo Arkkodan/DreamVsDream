@@ -6,6 +6,7 @@
 #include "../effect.h"
 #include "../sys.h"
 #include "../graphics.h"
+#include "../../util/rng.h"
 
 #include <cstring>
 

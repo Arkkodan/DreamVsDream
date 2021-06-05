@@ -4,7 +4,8 @@
 #include "image.h"
 #include "graphics.h"
 #include "error.h"
-#include "util.h"
+#include "../util/rng.h"
+#include "../util/fileIO.h"
 
 #include <algorithm>
 

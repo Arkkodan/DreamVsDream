@@ -1,7 +1,8 @@
 #include "sound.h"
 
 #include "error.h"
-#include "util.h"
+#include "../util/rng.h"
+#include "../util/fileIO.h"
 #include "scene/options.h"
 #include "scene/fight.h"
 #include "stage.h"
