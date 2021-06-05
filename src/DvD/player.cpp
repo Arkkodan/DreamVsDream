@@ -1,12 +1,13 @@
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "player.h"
-#include "input.h"
+
 #include "stage.h"
 #include "graphics.h"
 #include "effect.h"
 #include "sys.h"
+#include "scene/fight.h"
+#include "scene/options.h"
+
+#include <cmath>
 
 #include <glad/glad.h>
 

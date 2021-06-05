@@ -1,11 +1,14 @@
 #include "sys.h"
 
 #include "error.h"
-#include "network.h"
 #include "input.h"
 #include "graphics.h"
-
+#ifdef GAME
 #include "scene/fight.h"
+#include "player.h"
+#include "network.h"
+#include "sound.h"
+#endif
 
 #include <SDL.h>
 #include <glad/glad.h>

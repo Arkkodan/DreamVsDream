@@ -3,7 +3,9 @@
 
 #include "image.h"
 
+#include <string>
 #include <array>
+#include <cstdint>
 
 /// @brief Font class for rendering
 /// @details Uses Dream vs. Dream's font format

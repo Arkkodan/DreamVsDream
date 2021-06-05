@@ -1,8 +1,10 @@
-#include <stdlib.h>
-#include <string.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <math.h>
+#include "sound.h"
+
+#include "error.h"
+#include "util.h"
+#include "scene/options.h"
+#include "scene/fight.h"
+#include "stage.h"
 
 #ifndef _WIN32
 #include <sys/stat.h>
@@ -10,14 +12,8 @@
 
 #ifndef NO_SOUND
 #include <sndfile.h>
-#endif
-
-#include "sound.h"
-#include "error.h"
-#include "scene/scene.h"
-#include "stage.h"
-
 #include <SDL_audio.h>
+#endif
 
 namespace audio {
 	constexpr auto SAMPLE_RATE = 44100;

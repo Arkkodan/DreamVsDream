@@ -1,11 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
 #include "stage.h"
+
 #include "parser.h"
+#include "image.h"
 #include "graphics.h"
 #include "error.h"
+#include "util.h"
 
 #include <algorithm>
 

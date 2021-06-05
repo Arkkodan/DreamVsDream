@@ -1,13 +1,6 @@
 #ifndef DVD_SYS_H
 #define DVD_SYS_H
 #ifndef COMPILER
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <math.h>
-
 #include <string>
 
 #include <SDL_video.h>

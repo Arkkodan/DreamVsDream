@@ -1,15 +1,12 @@
-#include "sprite.h"
 #include "fighter.h"
+
+#ifdef GAME
 #include "error.h"
-#include "parser.h"
-#include "player.h"
-#include "stage.h"
 #include "graphics.h"
 #include "file.h"
 
-#ifdef GAME
 #include <glad/glad.h>
-#endif
+#endif // GAME
 
 namespace game {
 	std::array<Fighter, FIGHTERS_MAX> fighters;
@@ -254,9 +251,7 @@ namespace game {
 			sounds.resize(size);
 		}
 	}
-#endif
 
-#ifndef SPRTOOL
 	VoiceGroup::VoiceGroup() :
 	    size(0),
 	    pct(100),

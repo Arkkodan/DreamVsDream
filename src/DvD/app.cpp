@@ -1,13 +1,18 @@
 #include "app.h"
 
-#include "file.h"
-#include "scene/scene.h"
 #include "error.h"
+#include "file.h"
+#include "scene/scene_base.h"
+#include "scene/fight.h"
+#include "scene/options.h"
+#include "sys.h"
+#include "graphics.h"
 #include "input.h"
+#include "sound.h"
 #include "network.h"
+#include "fighter.h"
 #include "stage.h"
 #include "effect.h"
-#include "sys.h"
 
 #include <ctime>
 

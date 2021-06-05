@@ -3,8 +3,6 @@
 
 #include "scene_base.h"
 
-#include <array>
-
 /// @brief Versus splash cutscene
 class SceneVersus : public Scene {
 public:

@@ -7,7 +7,6 @@
 #include "../font.h"
 
 #include <vector>
-#include <array>
 
 /// @brief Helper data structure for SceneSelect
 class CursorData {

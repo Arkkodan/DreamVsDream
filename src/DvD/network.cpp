@@ -1,3 +1,14 @@
+#include "network.h"
+
+#include "error.h"
+#include "scene/scene_base.h"
+#include "scene/options.h"
+#include "scene/fight.h"
+#include "thread.h"
+#include "sys.h"
+
+#include <cmath>
+
 #ifdef _WIN32
 #include <winsock2.h>
 #define close(x) closesocket(x)
@@ -9,14 +20,6 @@
 #include <netinet/ip.h>
 #include <unistd.h>
 #endif
-
-#include "network.h"
-#include "error.h"
-#include "scene/scene.h"
-#include "thread.h"
-
-#include "sys.h"
-
 
 namespace net {
 	enum {

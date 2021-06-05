@@ -1,11 +1,12 @@
 #ifndef STAGE_H_INCLUDED
 #define STAGE_H_INCLUDED
 
-#include "scene/scene.h"
+#include "scene/scene_base.h"
 #include "animation.h"
 
 #include <array>
 #include <list>
+#include <string>
 
 #define STAGE Stage::stages[Stage::stage]
 

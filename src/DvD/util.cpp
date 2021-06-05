@@ -1,11 +1,9 @@
 #include "util.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-
 #include <sstream>
 #include <algorithm>
+#include <cstdlib>
+#include <cstdio>
 
 #ifndef _WIN32
 #include <dirent.h>

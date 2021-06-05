@@ -4,6 +4,7 @@
 #include "image.h"
 #include "player.h"
 
+#include <string>
 #include <vector>
 
 namespace effect {

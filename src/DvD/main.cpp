@@ -1,15 +1,14 @@
+#include "app.h"
+
+// parseArgs not useful for now
+#undef DVD_DISABLE_PARSEARGS
+
+#ifndef DVD_DISABLE_PARSEARGS
+#include "util.h"
+#include "scene/fight.h"
 #include "player.h"
 #include "fighter.h"
-#include "graphics.h"
-#include "error.h"
-#include "scene/scene.h"
-#include "parser.h"
 #include "stage.h"
-#include "network.h"
-#include "atlas.h"
-#include "effect.h"
-#include "animation.h"
-#include "app.h"
 
 #ifdef _WIN32
 #ifndef WINVER
@@ -113,3 +112,10 @@ static void parseArgs(int argc, char** argv) {
 		}
 	}
 }
+#else // DVD_DISABLE_PARSEARGS
+int main(int argc, char* argv[]) {
+	app::run();
+	return 0;
+}
+
+#endif // DVD_DISABLE_PARSEARGS

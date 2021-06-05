@@ -9,6 +9,8 @@
 
 #include <array>
 
+#define FIGHT (reinterpret_cast<SceneFight*>(Scene::scenes[Scene::SCENE_FIGHT].get()))
+
 /// @brief Helper object for drawing meters, primarily for SceneFight
 class SceneMeter {
 public:

@@ -1,9 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "font.h"
 
 #include "graphics.h"
-#include "font.h"
 #include "error.h"
 #include "file.h"
 #include "util.h"

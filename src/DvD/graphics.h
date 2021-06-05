@@ -1,8 +1,10 @@
 #ifndef GRAPHICS_H_INCLUDED
 #define GRAPHICS_H_INCLUDED
 
-#include "shader.h"
 #include "image.h"
+#ifdef GAME
+#include "shader.h"
+#endif // GAME
 
 #include <cstdint>
 
@@ -34,8 +36,10 @@ namespace graphics {
 	//extern bool force_POT;
 	extern bool shader_support;
 
+#ifdef GAME
 	//Shaders
 	extern Shader shader_palette;
+#endif
 
 	extern Image::Render render;
 	extern int srcX, srcY, srcW, srcH;

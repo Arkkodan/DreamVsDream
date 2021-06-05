@@ -1,9 +1,13 @@
 #ifndef IMAGE_H_INCLUDED
 #define IMAGE_H_INCLUDED
 
+#ifdef GAME
 #include "file.h"
+#endif
 
 #include <vector>
+#include <string>
+#include <cstdint>
 
 /// @brief Image class ready for rendering
 /// @details createFromFile assumes png but createFromMemory takes an

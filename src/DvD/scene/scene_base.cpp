@@ -5,10 +5,12 @@
 #include "../stage.h"
 #include "../error.h"
 #include "../sys.h"
-
-#include <glad/glad.h>
+#include "../util.h"
+#include "../graphics.h"
 
 #include <algorithm>
+
+#include <glad/glad.h>
 
 std::array<std::unique_ptr<Scene>, Scene::SCENE_MAX> Scene::scenes;
 int Scene::scene = SCENE_INTRO;

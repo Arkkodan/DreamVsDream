@@ -5,9 +5,6 @@
 
 #include "../font.h"
 
-#include <string>
-#include <array>
-
 /// @brief Scene for the title menu
 class SceneTitle : public Scene {
 public:

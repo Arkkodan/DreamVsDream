@@ -1,9 +1,15 @@
 #ifndef PLAYER_H_INCLUDED
 #define PLAYER_H_INCLUDED
 
+#ifndef COMPILER
 #include "fighter.h"
+#include "util.h"
+#include "sound.h"
 
 #include <array>
+#include <string>
+#include <cstdint>
+#endif // COMPILER
 
 namespace game {
 	constexpr auto INPUT_DIRMASK = 0xF;
@@ -27,6 +33,7 @@ namespace game {
 	constexpr auto INPUT_B_R = INPUT_B << INPUT_RELSHIFT;
 	constexpr auto INPUT_C_R = INPUT_C << INPUT_RELSHIFT;
 
+#ifndef COMPILER
 	//Settable flags
 	constexpr auto F_CTRL = 1 << 0;
 	constexpr auto F_VISIBLE = 1 << 1;
@@ -229,6 +236,7 @@ namespace game {
 		static uint16_t flipInput(uint16_t in);
 		bool isPlayer() const;
 	};
+#endif // COMPILER
 }
 
 #endif // PLAYER_H_INCLUDED

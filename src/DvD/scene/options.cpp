@@ -2,6 +2,10 @@
 
 #include "scene.h"
 
+#include "../graphics.h"
+
+#include <cstring>
+
 int SceneOptions::optionDifficulty = 3;
 int SceneOptions::optionWins = 2;
 int SceneOptions::optionTime = 99;

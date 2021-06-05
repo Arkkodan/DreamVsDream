@@ -8,6 +8,10 @@
 #include <list>
 #include <array>
 #include <memory>
+#include <string>
+#include <cstdint>
+
+#define SCENE Scene::scenes[Scene::scene]
 
 /// @brief Image for displaying, intended for scenes
 class SceneImage {

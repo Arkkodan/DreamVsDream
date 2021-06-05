@@ -1,13 +1,14 @@
-#include "player.h"
 #include "input.h"
+
+#include "player.h"
 #include "scene/scene.h"
 #include "network.h"
-
 #include "app.h"
 
-#include <SDL_keycode.h>
-
 #include <array>
+#include <cstring>
+
+#include <SDL_keycode.h>
 
 namespace input {
 	enum class Key {

@@ -10,7 +10,6 @@
 #include "../DvD/parser.h"
 #include "../DvD/player.h"
 #include "../DvD/error.h"
-
 #include "../DvD/sys.h"
 
 #ifdef _WIN32

@@ -4,11 +4,6 @@
 #include <string>
 #include <vector>
 
-#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
-#define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
-#undef ARRAYSIZE
-#define ARRAYSIZE(x) (sizeof(x) / sizeof((x)[0]))
-
 namespace util {
 
 	/// @brief Class of vectors using 2 int types

@@ -1,11 +1,10 @@
 #include "error.h"
 
-#include <stdlib.h>
-#include <iostream>
-#include <string>
-
 #include "sys.h"
 #include "util.h"
+
+#include <iostream>
+#include <cstdlib>
 
 #if defined _WIN32 && !defined COMPILER
 #include <SDL_syswm.h>

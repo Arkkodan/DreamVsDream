@@ -2,12 +2,13 @@
 
 #include "input.h"
 #include "error.h"
-#include "player.h"
-#include "scene/scene.h"
-#include "network.h"
-#include "shader.h"
-#include "stage.h"
 #include "sys.h"
+#ifdef GAME
+#include "network.h"
+#include "stage.h"
+#include "scene/options.h"
+#include "scene/fight.h"
+#endif // GAME
 
 #include <glad/glad.h>
 

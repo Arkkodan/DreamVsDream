@@ -1,16 +1,19 @@
-#include <stdlib.h>
-#include <math.h>
+#include "image.h"
+
+#include "sys.h"
+#include "graphics.h"
+#include "error.h"
+#include "util.h"
+#ifdef GAME
+#include "stage.h"
+#include "scene/fight.h"
+#endif
+
+#include <cstring>
+#include <cstdlib>
 
 #include <png.h>
 #include <glad/glad.h>
-
-#include "image.h"
-#include "sprite.h"
-#include "sys.h"
-#include "stage.h"
-#include "graphics.h"
-#include "player.h"
-#include "error.h"
 
 Image::Image() : w(0), h(0),
 #ifdef COMPILER
@@ -68,6 +71,8 @@ Image::~Image() {
 #endif
 }
 
+
+#ifdef GAME
 //For reading of PNGs from memory
 struct png_Stream {
 	png_size_t origin;
@@ -75,7 +80,6 @@ struct png_Stream {
 	File* file;
 };
 
-#ifdef GAME
 static void vio_read(png_structp ptr, png_bytep data, png_size_t size) {
 	png_Stream* stream = (png_Stream*)png_get_io_ptr(ptr);
 

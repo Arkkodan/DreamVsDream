@@ -3,6 +3,7 @@
 #include "scene.h"
 
 #include "../sys.h"
+#include "../graphics.h"
 
 //Scene Versus
 SceneVersus::SceneVersus() : Scene("versus") {

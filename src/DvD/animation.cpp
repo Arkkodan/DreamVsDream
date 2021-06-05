@@ -1,16 +1,14 @@
 #include "animation.h"
 
-// Use stb_image.h instead of gif_lib.h
-// #include <gif_lib.h>
-#define STB_IMAGE_IMPLEMENTATION
-#define STBI_ONLY_GIF
-#include <stb_image.h>
-
 #include "error.h"
 #include "util.h"
 #include "sys.h"
 
 #include <fstream>
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_GIF
+#include <stb_image.h>
 
 Animation::Animation() :
     nFrames(0), frames(), frameTimes(),

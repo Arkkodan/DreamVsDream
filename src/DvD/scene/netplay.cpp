@@ -3,7 +3,9 @@
 #include "scene.h"
 
 #include "../network.h"
-#include "../sys.h"
+#include "../graphics.h"
+
+#include <cstring>
 
 #include <glad/glad.h>
 

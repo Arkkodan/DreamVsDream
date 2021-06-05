@@ -1,9 +1,5 @@
 #include "atlas.h"
 
-#include <stdlib.h>
-
-#include "file.h"
-#include "stage.h"
 #include "graphics.h"
 
 // #define TEXTURE_SIZE 2048

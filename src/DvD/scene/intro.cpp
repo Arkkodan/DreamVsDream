@@ -3,6 +3,7 @@
 #include "scene.h"
 
 #include "../sys.h"
+#include "../graphics.h"
 
 SceneIntro::SceneIntro() : Scene("intro") {
 	timer = sys::FPS / 2;

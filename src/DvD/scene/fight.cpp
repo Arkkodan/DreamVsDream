@@ -5,6 +5,9 @@
 #include "../stage.h"
 #include "../effect.h"
 #include "../sys.h"
+#include "../graphics.h"
+
+#include <cstring>
 
 #include <glad/glad.h>
 
