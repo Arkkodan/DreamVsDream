@@ -106,6 +106,11 @@ set(SPRTOOL_FILES
   Sprtool/main.cpp
 )
 
+# UBU2JSON
+set(UBU2JSON_FILES
+  UBU2JSON/main.cpp
+)
+
 
 # Add executables
 
@@ -169,6 +174,15 @@ add_executable(Sprtool
 target_compile_definitions(Sprtool
   PRIVATE VERSION="${DreamVsDream_VERSION}"
   PRIVATE SPRTOOL
+  PRIVATE NO_ZLIB
+)
+
+add_executable(UBU2JSON
+  ${UBU2JSON_FILES}
+)
+target_compile_definitions(UBU2JSON
+  PRIVATE VERSION="${DreamVsDream_VERSION}"
+  PRIVATE COMPILER
   PRIVATE NO_ZLIB
 )
 
@@ -239,6 +253,13 @@ target_link_libraries(Sprtool
   PRIVATE ${libpng_LIBRARY}
 )
 
+target_include_directories(UBU2JSON
+  PRIVATE nlohmann_json
+)
+target_link_libraries(UBU2JSON
+  PRIVATE nlohmann_json
+)
+
 # Platform specific linking
 if(WIN32)
   target_link_libraries(Atlas
@@ -265,3 +286,4 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD" PREFIX "DvD" FILES ${DVD_FIL
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD/scene" PREFIX "DvD/scene" FILES ${DVD_SCENE_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Fontbuild" PREFIX "Fontbuild" FILES ${FONTBUILD_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Sprtool" PREFIX "Sprtool" FILES ${SPRTOOL_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/UBU2JSON" PREFIX "UBU2JSON" FILES ${UBU2JSON_FILES})

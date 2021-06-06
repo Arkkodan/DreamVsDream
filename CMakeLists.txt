@@ -65,6 +65,7 @@ set(DREAMVSDREAM_BINARIES
   DvD
   Fontbuild
   Sprtool
+  UBU2JSON
 )
 message(STATUS "Dream Vs. Dream binaries: ${DREAMVSDREAM_BINARIES}")
 
