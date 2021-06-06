@@ -1,8 +1,9 @@
-#include <string.h>
-
 #include "parser.h"
+
 #include "error.h"
-#include "util.h"
+#include "../util/fileIO.h"
+
+#include <cstring>
 
 ParserLine::ParserLine() :
 	argv()

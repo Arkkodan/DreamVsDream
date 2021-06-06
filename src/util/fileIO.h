@@ -1,57 +1,10 @@
-#ifndef UTIL_H_INCLUDED
-#define UTIL_H_INCLUDED
+#ifndef UTIL_FILEIO_H
+#define UTIL_FILEIO_H
 
 #include <string>
 #include <vector>
 
-#define MIN(X,Y) ((X) < (Y) ? (X) : (Y))
-#define MAX(X,Y) ((X) > (Y) ? (X) : (Y))
-#undef ARRAYSIZE
-#define ARRAYSIZE(x) (sizeof(x) / sizeof((x)[0]))
-
 namespace util {
-
-	/// @brief Class of vectors using 2 int types
-	class Vector {
-	public:
-		Vector();
-		Vector(const Vector& other);
-		Vector(Vector&& other) noexcept;
-		Vector& operator=(const Vector& other);
-		Vector& operator=(Vector&& other) noexcept;
-
-		Vector(int x, int y);
-
-		Vector& operator+=(const Vector& other);
-		Vector& operator-=(const Vector& other);
-
-		Vector& operator*=(const int scalar);
-		Vector operator*(const int scalar) const;
-
-		int x;
-		int y;
-	};
-
-	/// @brief Class of vectors using 2 float types
-	class Vectorf {
-	public:
-		Vectorf();
-		Vectorf(const Vectorf& other);
-		Vectorf(Vectorf&& other) noexcept;
-		Vectorf& operator=(const Vectorf& other);
-		Vectorf& operator=(Vectorf&& other) noexcept;
-
-		Vectorf(float x, float y);
-
-		Vectorf& operator+=(const Vectorf& other);
-		Vectorf& operator-=(const Vectorf& other);
-
-		Vectorf& operator*=(const float scalar);
-		Vectorf operator*(const float scalar) const;
-
-		float x;
-		float y;
-	};
 
 	/// @brief Unicode-ambivalent fopen
 	/// @details Equivalent to fopen but works with unicode filenames on Windows
@@ -115,19 +68,7 @@ namespace util {
 	char** getLinesFromFile(int* n, const std::string& szFileName);
 	void freeLines(char** lines);
 
-	//RNG
 
-	/// @brief Generate random int
-	/// @return Int value ranges from 0 (inclusive) to size (exclusive).
-	int roll(int size);
-
-	/// @brief Generate random int
-	/// @return Int value ranges from min to max inclusively.
-	int roll(int min, int max);
-
-	/// @brief Generate random float
-	/// @return Float value ranges from 0.0f (inclusive) to 1.0f (exclusive).
-	float rollf();
 
 	/// @brief Convert int to std::string
 	std::string toString(int);
@@ -139,4 +80,4 @@ namespace util {
 	std::vector<std::string> listDirectory(const std::string& directory, bool listFiles);
 }
 
-#endif // UTIL_H_INCLUDED
+#endif // UTIL_FILEIO_H

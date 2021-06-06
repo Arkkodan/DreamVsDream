@@ -1,8 +1,6 @@
 #ifndef THREAD_H_INCLUDED
 #define THREAD_H_INCLUDED
 
-#include "sys.h"
-
 #include <SDL_thread.h>
 
 /// @brief Simple thread class

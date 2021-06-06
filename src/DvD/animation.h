@@ -3,6 +3,7 @@
 
 #include "image.h"
 
+#include <string>
 #include <vector>
 
 /// @brief Animation class represented by a sequence of images

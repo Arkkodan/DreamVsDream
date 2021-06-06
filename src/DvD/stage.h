@@ -1,11 +1,12 @@
 #ifndef STAGE_H_INCLUDED
 #define STAGE_H_INCLUDED
 
-#include "scene/scene.h"
+#include "scene/scene_base.h"
 #include "animation.h"
 
 #include <array>
 #include <list>
+#include <string>
 
 #define STAGE Stage::stages[Stage::stage]
 
@@ -18,8 +19,8 @@ public:
 
 public:
 	std::string name;
-	std::list<SceneImage> imagesAbove;
-	std::list<SceneImage> imagesBelow;
+	std::list<scene::SceneImage> imagesAbove;
+	std::list<scene::SceneImage> imagesBelow;
 	audio::Music bgm;
 	audio::Music bgm2;
 

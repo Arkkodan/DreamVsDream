@@ -1,13 +1,19 @@
 #include "app.h"
 
+#include "error.h"
 #include "file.h"
 #include "scene/scene.h"
-#include "error.h"
+#include "scene/fight.h"
+#include "scene/options.h"
+#include "sys.h"
+#include "graphics.h"
 #include "input.h"
+#include "sound.h"
 #include "network.h"
+#include "fighter.h"
 #include "stage.h"
 #include "effect.h"
-#include "sys.h"
+#include "../util/fileIO.h"
 
 #include <ctime>
 
@@ -40,18 +46,18 @@ namespace app {
 void app::run() {
 	app::init();
 
-	SceneFight::madotsuki.playerNum = 0;
-	SceneFight::madotsuki.speaker.init();
+	scene::Fight::madotsuki.playerNum = 0;
+	scene::Fight::madotsuki.speaker.init();
 
-	SceneFight::poniko.playerNum = 1;
-	SceneFight::poniko.speaker.init();
+	scene::Fight::poniko.playerNum = 1;
+	scene::Fight::poniko.speaker.init();
 
 	for (;;) {
 		sys::refresh();
 
 		SCENE->think();
 		SCENE->draw();
-		Scene::drawFade();
+		scene::drawFade();
 	}
 }
 
@@ -66,13 +72,13 @@ static void app::optionsLoad() {
 		return;
 	}
 
-	SceneOptions::optionDifficulty = file.readByte();
-	SceneOptions::optionWins = file.readByte();
-	SceneOptions::optionTime = file.readByte();
-	SceneOptions::optionSfxVolume = file.readByte();
-	SceneOptions::optionMusVolume = file.readByte();
-	SceneOptions::optionVoiceVolume = file.readByte();
-	SceneOptions::optionEpilepsy = file.readByte();
+	scene::Options::optionDifficulty = file.readByte();
+	scene::Options::optionWins = file.readByte();
+	scene::Options::optionTime = file.readByte();
+	scene::Options::optionSfxVolume = file.readByte();
+	scene::Options::optionMusVolume = file.readByte();
+	scene::Options::optionVoiceVolume = file.readByte();
+	scene::Options::optionEpilepsy = file.readByte();
 }
 
 static void app::optionsSave() {
@@ -82,13 +88,13 @@ static void app::optionsSave() {
 	}
 
 	file.writeByte(OPTIONS_VERSION);
-	file.writeByte(SceneOptions::optionDifficulty);
-	file.writeByte(SceneOptions::optionWins);
-	file.writeByte(SceneOptions::optionTime);
-	file.writeByte(SceneOptions::optionSfxVolume);
-	file.writeByte(SceneOptions::optionMusVolume);
-	file.writeByte(SceneOptions::optionVoiceVolume);
-	file.writeByte(SceneOptions::optionEpilepsy);
+	file.writeByte(scene::Options::optionDifficulty);
+	file.writeByte(scene::Options::optionWins);
+	file.writeByte(scene::Options::optionTime);
+	file.writeByte(scene::Options::optionSfxVolume);
+	file.writeByte(scene::Options::optionMusVolume);
+	file.writeByte(scene::Options::optionVoiceVolume);
+	file.writeByte(scene::Options::optionEpilepsy);
 }
 
 static void app::init() {
@@ -139,8 +145,9 @@ static void app::init() {
 
 	sys::init();
 	graphics::init(disable_shaders, max_texture_size);
-	Scene::imgLoading.createFromFile("scenes/loading.png");
-	Scene::imgLoading.draw(0, 0);
+	scene::imgLoading.createFromFile("scenes/loading.png");
+	scene::imgLoading.draw(0, 0);
+	scene::scene = scene::SCENE_INTRO;
 	sys::refresh();
 
 	input::init();
@@ -149,17 +156,17 @@ static void app::init() {
 	}
 	net::init(input_delay);
 	game::init();
-	Scene::ginit(); //TODO fix this
+	scene::ginit(); //TODO fix this
 	Stage::ginit();
 	effect::init();
 
 	if (versus) {
-		FIGHT->gametype = SceneFight::GAMETYPE_VERSUS;
+		FIGHT->gametype = scene::Fight::GAMETYPE_VERSUS;
 	}
 	//if(fullscreen)
 	//OS::toggleFullscreen();
 
-	if (Scene::scene == Scene::SCENE_FIGHT && Stage::stage == -1) {
+	if (scene::scene == scene::SCENE_FIGHT && Stage::stage == -1) {
 		Stage::stage = 0;
 	}
 }
@@ -169,7 +176,7 @@ static void app::deinit() {
 
 	effect::deinit();
 	Stage::deinit();
-	Scene::deinit();
+	scene::deinit();
 	game::deinit();
 	net::deinit();
 

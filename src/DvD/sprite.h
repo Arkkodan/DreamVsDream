@@ -1,10 +1,18 @@
 #ifndef SPRITE_H_INCLUDED
 #define SPRITE_H_INCLUDED
 
+#include "../util/vec2.h"
+#ifdef GAME
 #include "atlas.h"
-#include "util.h"
+#endif // GAME
+#ifdef SPRTOOL
+#include "image.h"
+#endif // SPRTOOL
 
 #include <vector>
+#ifndef GAME
+#include <string>
+#endif // GAME
 
 namespace sprite {
 	/// @brief Unused

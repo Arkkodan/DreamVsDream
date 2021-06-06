@@ -8,58 +8,61 @@
 
 #include <array>
 
-/// @brief Scene for navigating netplay and connections
-class SceneNetplay : public Scene {
-private:
-	static constexpr auto NET_FLASH_TIME = sys::FPS / 2;
-	static constexpr auto NET_FLASH_HOLD_TIME = sys::FPS / 2;
-	static constexpr auto NET_FADE_TIME = sys::FPS;
-	static constexpr auto NET_SCALE = 2;
-	static constexpr auto NET_BAR_SIZE = 120;
+namespace scene {
 
-public:
-	SceneNetplay();
-	~SceneNetplay();
+	/// @brief Scene for navigating netplay and connections
+	class Netplay : public Scene {
+	private:
+		static constexpr auto NET_FLASH_TIME = sys::FPS / 2;
+		static constexpr auto NET_FLASH_HOLD_TIME = sys::FPS / 2;
+		static constexpr auto NET_FADE_TIME = sys::FPS;
+		static constexpr auto NET_SCALE = 2;
+		static constexpr auto NET_BAR_SIZE = 120;
 
-	int choice;
-	int mode;
-	int digit;
-	bool waiting;
+	public:
+		Netplay();
+		~Netplay();
 
-	std::array<char, 5> portStr;
-	uint16_t port;
-	std::array<char, 12> ipStr;
-	uint32_t ip;
+		int choice;
+		int mode;
+		int digit;
+		bool waiting;
 
-	int flashTimer;
-	int flashDir;
-	int drawShake;
-	int barPos;
+		std::array<char, 5> portStr;
+		uint16_t port;
+		std::array<char, 12> ipStr;
+		uint32_t ip;
 
-	Image imgScanlines;
-	Image imgStatic;
-	Image imgLogo;
+		int flashTimer;
+		int flashDir;
+		int drawShake;
+		int barPos;
 
-	Image imgCursor;
-	Font menuFont;
+		Image imgScanlines;
+		Image imgStatic;
+		Image imgLogo;
 
-	audio::Sound sndOn;
-	audio::Sound sndOff;
+		Image imgCursor;
+		Font menuFont;
 
-	audio::Sound sndConStart;
-	audio::Sound sndConSuccess;
+		audio::Sound sndOn;
+		audio::Sound sndOff;
 
-	audio::Music bgmWait;
+		audio::Sound sndConStart;
+		audio::Sound sndConSuccess;
 
-	//void init();
+		audio::Music bgmWait;
 
-	void updatePort(bool toint);
-	void updateIp(bool toint);
+		//void init();
 
-	void think() override final;
-	void draw() const override final;
-	void reset() override final;
-	void parseLine(Parser& parser) override final;
-};
+		void updatePort(bool toint);
+		void updateIp(bool toint);
+
+		void think() override final;
+		void draw() const override final;
+		void reset() override final;
+		void parseLine(Parser& parser) override final;
+	};
+}
 
 #endif // DVD_SCENE_NETPLAY_H

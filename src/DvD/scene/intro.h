@@ -3,25 +3,28 @@
 
 #include "scene_base.h"
 
-/// @brief Scene for the introductory sceen
-class SceneIntro : public Scene {
-public:
-	SceneIntro();
-	~SceneIntro();
+namespace scene {
 
-	audio::Sound sfx;
-	Image instructions;
-	Image disclaimer_en;
-	Image disclaimer_ja;
-	Image shader_error;
+	/// @brief Scene for the introductory sceen
+	class Intro : public Scene {
+	public:
+		Intro();
+		~Intro();
 
-	int timer;
-	int state;
+		audio::Sound sfx;
+		Image instructions;
+		Image disclaimer_en;
+		Image disclaimer_ja;
+		Image shader_error;
 
-	void think() override final;
-	void draw() const override final;
+		int timer;
+		int state;
 
-	void parseLine(Parser& parser) override final;
-};
+		void think() override final;
+		void draw() const override final;
+
+		void parseLine(Parser& parser) override final;
+	};
+}
 
 #endif // DVD_SCENE_INTRO_H

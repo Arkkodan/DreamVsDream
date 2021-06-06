@@ -1,11 +1,14 @@
 #include "sys.h"
 
 #include "error.h"
-#include "network.h"
 #include "input.h"
 #include "graphics.h"
-
+#ifdef GAME
 #include "scene/fight.h"
+#include "player.h"
+#include "network.h"
+#include "sound.h"
+#endif
 
 #include <SDL.h>
 #include <glad/glad.h>
@@ -54,8 +57,8 @@ namespace sys {
 
 	void refresh() {
 #ifdef GAME
-		SceneFight::madotsuki.frameInput = 0;
-		SceneFight::poniko.frameInput = 0;
+		scene::Fight::madotsuki.frameInput = 0;
+		scene::Fight::poniko.frameInput = 0;
 #endif
 
 		SDL_GL_SwapWindow(window);

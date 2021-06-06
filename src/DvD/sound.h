@@ -3,6 +3,7 @@
 
 #include "file.h"
 
+#include <string>
 #include <vector>
 
 namespace audio {

@@ -1,7 +1,9 @@
 #ifndef INPUT_H_INCLUDED
 #define INPUT_H_INCLUDED
 
+#ifdef SPRTOOL
 #include "sprite.h"
+#endif // SPRTOOL
 
 namespace input {
 	/// @brief Initialize inputs based on a config file or defaults

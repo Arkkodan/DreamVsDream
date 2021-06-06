@@ -1,13 +1,12 @@
 #include "effect.h"
 
-#include <algorithm>
-#include <iostream>
-#include <array>
-
 #include "error.h"
 #include "graphics.h"
-#include "util.h"
+#include "../util/fileIO.h"
 #include "sys.h"
+
+#include <algorithm>
+#include <array>
 
 namespace effect {
     constexpr auto EFFECT_MAX = 256;

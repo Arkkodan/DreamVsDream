@@ -2,10 +2,12 @@
 
 #include "scene.h"
 
+#include "../player.h"
 #include "../sys.h"
+#include "../graphics.h"
 
 //Scene Versus
-SceneVersus::SceneVersus() : Scene("versus") {
+scene::Versus::Versus() : Scene("versus") {
 	//video = nullptr;
 
 	timer1 = timer2 = timer3 = timer4 = timer5 = timer6 = 0;
@@ -14,14 +16,14 @@ SceneVersus::SceneVersus() : Scene("versus") {
 	portraits[0] = portraits[1] = nullptr;
 }
 
-SceneVersus::~SceneVersus() {
+scene::Versus::~Versus() {
 }
 
-void SceneVersus::init() {
+void scene::Versus::init() {
 	Scene::init();
 }
 
-void SceneVersus::think() {
+void scene::Versus::think() {
 	Scene::think();
 
 	if (input(game::INPUT_A))
@@ -59,7 +61,7 @@ void SceneVersus::think() {
 	}
 }
 
-void SceneVersus::reset() {
+void scene::Versus::reset() {
 	Scene::reset();
 
 	timer1 = sys::FPS * 2;
@@ -72,7 +74,7 @@ void SceneVersus::reset() {
 	timerF = 0.0f;
 }
 
-void SceneVersus::draw() const {
+void scene::Versus::draw() const {
 	Scene::draw();
 
 	if (portraits[1]) {
@@ -90,6 +92,6 @@ void SceneVersus::draw() const {
 	}
 }
 
-void SceneVersus::parseLine(Parser& parser) {
+void scene::Versus::parseLine(Parser& parser) {
 	Scene::parseLine(parser);
 }

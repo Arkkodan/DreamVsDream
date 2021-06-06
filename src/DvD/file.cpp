@@ -1,15 +1,14 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdarg.h>
+#include "file.h"
+
+#include "sys.h"
+#include "../util/fileIO.h"
+
+#include <vector>
+#include <cstdio>
+
 #ifndef NO_ZLIB
 #include <zlib.h>
 #endif
-
-#include <vector>
-
-#include "sys.h"
-#include "file.h"
-#include "util.h"
 
 File::File() {
 	fp = nullptr;

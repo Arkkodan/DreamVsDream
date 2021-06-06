@@ -1,14 +1,17 @@
 #ifndef FIGHTER_H_INCLUDED
 #define FIGHTER_H_INCLUDED
 
+#include "../util/vec2.h"
+#include "sprite.h"
+#ifdef GAME
 #include "sound.h"
 #include "image.h"
-#include "sprite.h"
-#include "util.h"
-#include "graphics.h"
+#include "atlas.h"
+#endif // GAME
 
 #include <vector>
 #include <array>
+#include <string>
 
 namespace game {
 #ifdef GAME
@@ -61,6 +64,7 @@ namespace game {
 		std::vector<CommandTarget> targets;
 	};
 
+#ifndef SPRTOOL
 	/// @brief Data structure containing a group of sounds
 	class SoundGroup {
 	public:
@@ -95,6 +99,7 @@ namespace game {
 		std::vector<audio::Voice> voices;
 #endif
 	};
+#endif
 
 	/// @brief Data structure containing a state
 	class State {

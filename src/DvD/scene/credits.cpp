@@ -2,9 +2,11 @@
 
 #include "scene.h"
 
+#include "../player.h"
 #include "../sys.h"
+#include "../../util/fileIO.h"
 
-SceneCredits::SceneCredits() : Scene("credits") {
+scene::Credits::Credits() : Scene("credits") {
 	oy = 0;
 	timer_start = sys::FPS * 6.35;
 	timer_scroll = sys::FPS;
@@ -17,11 +19,11 @@ SceneCredits::SceneCredits() : Scene("credits") {
 	sz_lines = nullptr;
 }
 
-SceneCredits::~SceneCredits() {
+scene::Credits::~Credits() {
 	util::freeLines(sz_lines);
 }
 
-void SceneCredits::think() {
+void scene::Credits::think() {
 	Scene::think();
 
 	if (timer_start) {
@@ -45,7 +47,7 @@ void SceneCredits::think() {
 	}
 }
 
-void SceneCredits::draw() const {
+void scene::Credits::draw() const {
 	Scene::draw();
 
 	if (!timer_start) {
@@ -89,7 +91,7 @@ void SceneCredits::draw() const {
 	}
 }
 
-void SceneCredits::reset() {
+void scene::Credits::reset() {
 	Scene::reset();
 
 	done = false;
@@ -99,7 +101,7 @@ void SceneCredits::reset() {
 	secret_alpha = 0.0f;
 }
 
-void SceneCredits::parseLine(Parser& parser) {
+void scene::Credits::parseLine(Parser& parser) {
 	if (parser.is("LOGO", 1)) {
 		logo.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
 	}

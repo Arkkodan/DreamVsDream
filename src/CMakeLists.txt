@@ -3,6 +3,16 @@
 
 # Gather files
 
+# util
+set(UTIL_MODULES
+  util/fileIO.cpp
+  util/fileIO.h
+  util/rng.cpp
+  util/rng.h
+  util/vec2.cpp
+  util/vec2.h
+)
+
 # Atlas
 set(ATLAS_FILES
   Atlas/image.cpp
@@ -17,6 +27,7 @@ set(COMPILER_FILES
 
 # DvD
 set(DVD_SCENE_FILES
+  DvD/scene/scene.cpp
   DvD/scene/scene.h
   DvD/scene/scene_base.cpp
   DvD/scene/scene_base.h
@@ -80,8 +91,6 @@ set(DVD_FILES
   DvD/sys.h
   DvD/thread.cpp
   DvD/thread.h
-  DvD/util.cpp
-  DvD/util.h
   ${DVD_SCENE_FILES}
 )
 
@@ -103,7 +112,7 @@ set(SPRTOOL_FILES
 add_executable(Atlas
   ${ATLAS_FILES}
   DvD/file.cpp
-  DvD/util.cpp
+  util/fileIO.cpp
 )
 target_compile_definitions(Atlas
   PRIVATE VERSION="${DreamVsDream_VERSION}"
@@ -118,7 +127,8 @@ add_executable(Compiler
   DvD/file.cpp
   DvD/parser.cpp
   DvD/sprite.cpp
-  DvD/util.cpp
+  util/fileIO.cpp
+  util/vec2.cpp
 )
 target_compile_definitions(Compiler
   PRIVATE VERSION="${DreamVsDream_VERSION}"
@@ -128,6 +138,7 @@ target_compile_definitions(Compiler
 
 add_executable(DvD
   ${DVD_FILES}
+  ${UTIL_MODULES}
 )
 target_compile_definitions(DvD
   PRIVATE VERSION="${DreamVsDream_VERSION}"
@@ -152,7 +163,8 @@ add_executable(Sprtool
   DvD/parser.cpp
   DvD/sprite.cpp
   DvD/sys.cpp
-  DvD/util.cpp
+  util/fileIO.cpp
+  util/vec2.cpp
 )
 target_compile_definitions(Sprtool
   PRIVATE VERSION="${DreamVsDream_VERSION}"
@@ -246,6 +258,7 @@ endif()
 
 
 # Organize files for IDEs
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/util" PREFIX "util" FILES ${UTIL_MODULE})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Atlas" PREFIX "Atlas" FILES ${ATLAS_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Compiler" PREFIX "Compiler" FILES ${COMPILER_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD" PREFIX "DvD" FILES ${DVD_FILES})

@@ -1,16 +1,19 @@
-#include <stdlib.h>
-#include <math.h>
+#include "image.h"
+
+#include "sys.h"
+#include "graphics.h"
+#include "error.h"
+#include "../util/fileIO.h"
+#ifdef GAME
+#include "stage.h"
+#include "scene/fight.h"
+#endif
+
+#include <cstring>
+#include <cstdlib>
 
 #include <png.h>
 #include <glad/glad.h>
-
-#include "image.h"
-#include "sprite.h"
-#include "sys.h"
-#include "stage.h"
-#include "graphics.h"
-#include "player.h"
-#include "error.h"
 
 Image::Image() : w(0), h(0),
 #ifdef COMPILER
@@ -68,6 +71,8 @@ Image::~Image() {
 #endif
 }
 
+
+#ifdef GAME
 //For reading of PNGs from memory
 struct png_Stream {
 	png_size_t origin;
@@ -75,7 +80,6 @@ struct png_Stream {
 	File* file;
 };
 
-#ifdef GAME
 static void vio_read(png_structp ptr, png_bytep data, png_size_t size) {
 	png_Stream* stream = (png_Stream*)png_get_io_ptr(ptr);
 
@@ -583,7 +587,7 @@ void Image::drawSprite(int x, int y, bool mirror) const {
 #ifdef SPRTOOL
 	draw(x + sys::WINDOW_WIDTH / 2, sys::FLIP(y) - graphics::srcH * graphics::yscale, mirror);
 #else
-	draw(x + sys::WINDOW_WIDTH / 2 - SceneFight::cameraPos.x, sys::FLIP(y) - graphics::srcH * graphics::yscale - STAGE.height + SceneFight::cameraPos.y, mirror);
+	draw(x + sys::WINDOW_WIDTH / 2 - scene::Fight::cameraPos.x, sys::FLIP(y) - graphics::srcH * graphics::yscale - STAGE.height + scene::Fight::cameraPos.y, mirror);
 #endif
 }
 #endif

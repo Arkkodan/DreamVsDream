@@ -2,17 +2,19 @@
 
 #include "scene.h"
 
+#include "../player.h"
 #include "../sys.h"
+#include "../graphics.h"
 
-SceneIntro::SceneIntro() : Scene("intro") {
+scene::Intro::Intro() : Scene("intro") {
 	timer = sys::FPS / 2;
 	state = 0;
 }
 
-SceneIntro::~SceneIntro() {
+scene::Intro::~Intro() {
 }
 
-void SceneIntro::think() {
+void scene::Intro::think() {
 	Scene::think();
 
 	if (timer == sys::FPS / 2) {
@@ -41,7 +43,7 @@ void SceneIntro::think() {
 	}
 }
 
-void SceneIntro::draw() const {
+void scene::Intro::draw() const {
 	//Draw our own fade
 	float _alpha = timer / (float)(sys::FPS / 2);
 	if (state % 2 == 0) {
@@ -66,7 +68,7 @@ void SceneIntro::draw() const {
 	}
 }
 
-void SceneIntro::parseLine(Parser& parser) {
+void scene::Intro::parseLine(Parser& parser) {
 	if (parser.is("SFX", 1)) {
 		sfx.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
 	}

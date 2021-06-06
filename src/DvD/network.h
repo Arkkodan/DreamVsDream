@@ -3,6 +3,8 @@
 
 #include "player.h"
 
+#include <cstdint>
+
 namespace net {
 	constexpr auto DEFAULT_PORT = 39300; //"ubo" in base 36
 	constexpr auto DEFAULT_IP = 0x0100007F; //local loopback, 127.0.0.1

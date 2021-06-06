@@ -1,37 +1,43 @@
 #include "fight.h"
 
 #include "scene.h"
+#include "options.h"
+#include "select.h"
 
 #include "../stage.h"
 #include "../effect.h"
 #include "../sys.h"
+#include "../graphics.h"
+#include "../../util/rng.h"
+
+#include <cstring>
 
 #include <glad/glad.h>
 
-game::Player SceneFight::madotsuki;
-game::Player SceneFight::poniko;
-util::Vector SceneFight::cameraPos(0, 0);
-util::Vector SceneFight::idealCameraPos(0, 0);
-util::Vector SceneFight::cameraShake(0, 0);
+game::Player scene::Fight::madotsuki;
+game::Player scene::Fight::poniko;
+util::Vector scene::Fight::cameraPos(0, 0);
+util::Vector scene::Fight::idealCameraPos(0, 0);
+util::Vector scene::Fight::cameraShake(0, 0);
 
-int SceneFight::framePauseTimer = 0;
-int SceneFight::frameShakeTimer = 0;
+int scene::Fight::framePauseTimer = 0;
+int scene::Fight::frameShakeTimer = 0;
 
-void SceneFight::pause(int frames) {
+void scene::Fight::pause(int frames) {
 	framePauseTimer += frames;
 }
 
-void SceneFight::shake(int frames) {
+void scene::Fight::shake(int frames) {
 	frameShakeTimer += frames;
 }
 
-SceneMeter::SceneMeter() {
+scene::SceneMeter::SceneMeter() {
 }
 
-SceneMeter::~SceneMeter() {
+scene::SceneMeter::~SceneMeter() {
 }
 
-void SceneMeter::draw(float pct, bool mirror, bool flip) const {
+void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
 	if (pct > 0) {
 		if (flip) {
 			graphics::setRect(0, 0, img.w * pct, img.h);
@@ -65,19 +71,19 @@ void SceneMeter::draw(float pct, bool mirror, bool flip) const {
 	}
 }
 
-SceneFight::SceneFight() : Scene("fight") {
+scene::Fight::Fight() : Scene("fight") {
 	gametype = GAMETYPE_TRAINING;
 	reset();
 }
 
-SceneFight::~SceneFight() {
+scene::Fight::~Fight() {
 }
 
-void SceneFight::init() {
+void scene::Fight::init() {
 	Scene::init();
 }
 
-void SceneFight::parseLine(Parser& parser) {
+void scene::Fight::parseLine(Parser& parser) {
 	if (parser.is("HUD", 1)) {
 		hud.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
 	}
@@ -188,7 +194,7 @@ void SceneFight::parseLine(Parser& parser) {
 	}
 }
 
-void SceneFight::think() {
+void scene::Fight::think() {
 	if (frameShakeTimer) {
 		cameraShake.x = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
 		cameraShake.y = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
@@ -396,7 +402,7 @@ void SceneFight::think() {
 
 
 		//ROUND INTROS
-		if (!SceneOptions::optionEpilepsy && (timer_round_out || timer_round_in)) {
+		if (!Options::optionEpilepsy && (timer_round_out || timer_round_in)) {
 			if (!timer_flash && !util::roll(64)) {
 				staticSnd.play();
 				timer_flash = 5;
@@ -462,7 +468,7 @@ void SceneFight::think() {
 			}
 			else if (!timer_round_out) {
 				//See if someone's won
-				if (wins[0] >= SceneOptions::optionWins || wins[1] >= SceneOptions::optionWins) {
+				if (wins[0] >= Options::optionWins || wins[1] >= Options::optionWins) {
 					//Count up the wins
 					int wins_p1 = 0;
 					int wins_p2 = 0;
@@ -491,7 +497,7 @@ void SceneFight::think() {
 				}
 				timer_round_in = 4.0 * sys::FPS;
 				ko_player = 0;
-				game_timer = SceneOptions::optionTime * sys::FPS - 1;
+				game_timer = Options::optionTime * sys::FPS - 1;
 				if (game_timer < 0) {
 					game_timer = 0;
 				}
@@ -528,7 +534,7 @@ void SceneFight::think() {
 	}
 }
 
-void SceneFight::draw() const {
+void scene::Fight::draw() const {
 	// From main.cpp
 	STAGE.draw(false);
 
@@ -609,7 +615,7 @@ void SceneFight::draw() const {
 
 		if (FIGHT->gametype != GAMETYPE_TRAINING) {
 			//Round orbs
-			for (int i = 0; i < SceneOptions::optionWins; i++) {
+			for (int i = 0; i < Options::optionWins; i++) {
 				int x = orb_pos.x - i * 18;
 				if (i < wins[0]) {
 					if (win_types[0][i]) {
@@ -759,10 +765,10 @@ void SceneFight::draw() const {
 	}
 
 	// From main.cpp
-	((SceneSelect*)scenes[SCENE_SELECT].get())->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x, madotsuki.pos.y + madotsuki.fighter->height, true);
+	((Select*)scenes[SCENE_SELECT].get())->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x, madotsuki.pos.y + madotsuki.fighter->height, true);
 }
 
-void SceneFight::reset() {
+void scene::Fight::reset() {
 	ko_player = 0;
 	ko_type = 0;
 
@@ -780,7 +786,7 @@ void SceneFight::reset() {
 	comboLeftLast = comboRightLast = 0;
 	comboLeftTimer = comboRightTimer = 0;
 
-	game_timer = SceneOptions::optionTime * sys::FPS - 1;
+	game_timer = Options::optionTime * sys::FPS - 1;
 	if (game_timer < 0) {
 		game_timer = 0;
 	}
@@ -788,7 +794,7 @@ void SceneFight::reset() {
 	bgmPlaying = false;
 }
 
-void SceneFight::knockout(int player) {
+void scene::Fight::knockout(int player) {
 	if (ko_player) {
 		return;
 	}

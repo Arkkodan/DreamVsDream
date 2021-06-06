@@ -5,6 +5,7 @@
 #include "file.h"
 
 #include <vector>
+#include <cstdint>
 
 /// @brief Data structure representing a sprite in an atlas
 class AtlasSprite {

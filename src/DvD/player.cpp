@@ -1,12 +1,15 @@
-#include <stdlib.h>
-#include <stdio.h>
-
 #include "player.h"
-#include "input.h"
+
 #include "stage.h"
 #include "graphics.h"
 #include "effect.h"
 #include "sys.h"
+#include "scene/scene.h"
+#include "scene/fight.h"
+#include "scene/options.h"
+#include "../util/rng.h"
+
+#include <cmath>
 
 #include <glad/glad.h>
 
@@ -404,7 +407,7 @@ namespace game {
 		input &= ~((frameInput & INPUT_RELMASK) >> INPUT_RELSHIFT);
 
 		//Adjust buffered input
-		if(dir == LEFT && Scene::scene == Scene::SCENE_FIGHT) {
+		if(dir == LEFT && scene::scene == scene::SCENE_FIGHT) {
 			frameInput = flipInput(frameInput);
 		}
 
@@ -429,7 +432,7 @@ namespace game {
 			input = flipInput(this->input);
 		}
 
-		if(Scene::scene == Scene::SCENE_FIGHT) {
+		if(scene::scene == scene::SCENE_FIGHT) {
 			if(FIGHT->timer_round_in || FIGHT->timer_round_out || FIGHT->timer_ko || FIGHT->ko_player) {
 				return;
 			}
@@ -562,7 +565,7 @@ namespace game {
 			}
 		}
 
-		if(!(flags & (F_DEAD | F_ON_GROUND)) && isBeingHit() && (press || (playerNum == 1 && FIGHT->gametype == SceneFight::GAMETYPE_TRAINING))) {
+		if(!(flags & (F_DEAD | F_ON_GROUND)) && isBeingHit() && (press || (playerNum == 1 && FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING))) {
 			if (pos.y + vel.y <= 0.0f && bounce.force.x == 0 && bounce.force.y == 0 && !(flags & F_KNOCKDOWN)) {
 				//We're about to hit the ground, so do a ground tech
 				pos.y = 0;
@@ -600,7 +603,7 @@ namespace game {
 	}
 
 	void Player::think() {
-		if(!SceneFight::framePauseTimer) {
+		if(!scene::Fight::framePauseTimer) {
 			if(pausestun) {
 				pausestun--;
 			} else {
@@ -734,7 +737,7 @@ namespace game {
 				}
 			}
 
-			if(FIGHT->gametype == SceneFight::GAMETYPE_TRAINING && !isBeingHit() && !isKnocked()) {
+			if(FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING && !isBeingHit() && !isKnocked()) {
 				hp = getMaxHp();
 			}
 
@@ -842,7 +845,7 @@ namespace game {
 			break;
 		case STEP_Special:
 			special = 2500 * sys::SPF;
-			SceneFight::pause(2500 * sys::SPF);
+			scene::Fight::pause(2500 * sys::SPF);
 			effect::newEffect("Actionlines", sys::WINDOW_WIDTH / 2, sys::WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
 			switch(fighter->group) {
 			case 0:
@@ -942,8 +945,8 @@ namespace game {
 						pself->flags |= F_CTRL;
 					}
 
-					SceneFight::pause(6);
-					SceneFight::shake(6);
+					scene::Fight::pause(6);
+					scene::Fight::shake(6);
 					int mirror = 1;
 					if(dir == LEFT) {
 						mirror = -1;
@@ -1094,8 +1097,8 @@ namespace game {
 					if (pother) {
 						pother->frameHit = true;
 					}
-					SceneFight::pause(12);
-					SceneFight::shake(12);
+					scene::Fight::pause(12);
+					scene::Fight::shake(12);
 					effect::newEffect("BlockHit", colpos.x, colpos.y, true, dir == LEFT, 1, 1, nullptr);
 					playSound(0);
 				}
@@ -1182,7 +1185,7 @@ namespace game {
 			r = 1.0f;
 			g = 1.0f;
 			b = 1.0f;
-			if(SceneOptions::optionEpilepsy) {
+			if(scene::Options::optionEpilepsy) {
 				pct = 0.5f;
 			} else {
 				if(sys::frame % 3 == 0) {

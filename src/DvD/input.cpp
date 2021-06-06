@@ -1,13 +1,16 @@
-#include "player.h"
 #include "input.h"
+
+#include "player.h"
 #include "scene/scene.h"
+#include "scene/fight.h"
 #include "network.h"
-
 #include "app.h"
-
-#include <SDL_keycode.h>
+#include "../util/fileIO.h"
 
 #include <array>
+#include <cstring>
+
+#include <SDL_keycode.h>
 
 namespace input {
 	enum class Key {
@@ -72,11 +75,11 @@ namespace input {
 	}
 
 	void refresh() {
-		SceneFight::madotsuki.applyInput();
-		SceneFight::poniko.applyInput();
-		if(Scene::scene == 0) {
-			SceneFight::madotsuki.handleInput();
-			SceneFight::poniko.handleInput();
+		scene::Fight::madotsuki.applyInput();
+		scene::Fight::poniko.applyInput();
+		if (scene::scene == scene::SCENE_FIGHT) {
+			scene::Fight::madotsuki.handleInput();
+			scene::Fight::poniko.handleInput();
 		}
 	}
 
@@ -92,9 +95,9 @@ namespace input {
 						net::getMyPlayer()->frameInput |= (1<<i);
 					} else {
 						if(i < static_cast<int>(KEY_1_MAX)) {
-							SceneFight::madotsuki.frameInput |= (1<<i);
+							scene::Fight::madotsuki.frameInput |= (1<<i);
 						} else {
-							SceneFight::poniko.frameInput |= (1<<(i - static_cast<int>(KEY_1_MAX)));
+							scene::Fight::poniko.frameInput |= (1<<(i - static_cast<int>(KEY_1_MAX)));
 						}
 					}
 					return;
@@ -104,13 +107,13 @@ namespace input {
 			switch(key) {
 			case SDLK_F1:
 				if(!net::connected) {
-					Scene::setScene(Scene::SCENE_TITLE);
+					scene::setScene(scene::SCENE_TITLE);
 				}
 				break;
 
 			case SDLK_F2:
 				if(!net::connected) {
-					Scene::setScene(Scene::SCENE_CREDITS);
+					scene::setScene(scene::SCENE_CREDITS);
 				}
 				break;
 			}
@@ -125,9 +128,9 @@ namespace input {
 						net::getMyPlayer()->frameInput |= (1<<i<<game::INPUT_RELSHIFT);
 					} else {
 						if(i < static_cast<int>(KEY_1_MAX)) {
-							SceneFight::madotsuki.frameInput |= (1<<i<< game::INPUT_RELSHIFT);
+							scene::Fight::madotsuki.frameInput |= (1<<i<< game::INPUT_RELSHIFT);
 						} else {
-							SceneFight::poniko.frameInput |= (1<<(i - static_cast<int>(KEY_1_MAX))<< game::INPUT_RELSHIFT);
+							scene::Fight::poniko.frameInput |= (1<<(i - static_cast<int>(KEY_1_MAX))<< game::INPUT_RELSHIFT);
 						}
 					}
 					return;

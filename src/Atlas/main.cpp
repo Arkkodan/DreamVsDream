@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "../DvD/file.h"
-#include "../DvD/util.h"
+#include "../util/fileIO.h"
 #include "image.h"
 
 #ifdef _WIN32

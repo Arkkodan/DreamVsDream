@@ -1,84 +1,20 @@
 #include "scene_base.h"
 
 #include "scene.h"
+#include "fight.h"
 
 #include "../stage.h"
 #include "../error.h"
 #include "../sys.h"
-
-#include <glad/glad.h>
+#include "../../util/fileIO.h"
+#include "../graphics.h"
 
 #include <algorithm>
 
-std::array<std::unique_ptr<Scene>, Scene::SCENE_MAX> Scene::scenes;
-int Scene::scene = SCENE_INTRO;
-int Scene::sceneNew = 0;
-
-Image Scene::imgLoading;
-
-void Scene::ginit() {
-	scenes[SCENE_INTRO] = std::make_unique<SceneIntro>();
-	scenes[SCENE_TITLE] = std::make_unique<SceneTitle>();
-	scenes[SCENE_SELECT] = std::make_unique<SceneSelect>();
-	scenes[SCENE_VERSUS] = std::make_unique<SceneVersus>();
-	scenes[SCENE_FIGHT] = std::make_unique<SceneFight>();
-	scenes[SCENE_OPTIONS] = std::make_unique<SceneOptions>();
-#ifndef NO_NETWORK
-	scenes[SCENE_NETPLAY] = std::make_unique<SceneNetplay>();
-#endif
-	scenes[SCENE_CREDITS] = std::make_unique<SceneCredits>();
-
-	scenes[SCENE_FIGHT]->init();
-	scenes[SCENE_VERSUS]->init();
-	scenes[SCENE_INTRO]->init();
-}
-
-void Scene::deinit() {}
-
-void Scene::setScene(int _scene) {
-	if (_scene == scene) {
-		return;
-	}
-	if (_scene == SCENE_FIGHT) {
-		SceneFight::madotsuki.reset();
-		SceneFight::poniko.reset();
-		SceneFight::cameraPos.x = 0;
-		SceneFight::cameraPos.y = 0;
-		SceneFight::idealCameraPos.x = 0;
-		SceneFight::idealCameraPos.y = 0;
-	}
-	sceneNew = _scene;
-	fade = 1.0f;
-	fadeIn = false;
-}
-
-bool Scene::input(uint16_t in) {
-	return (SceneFight::madotsuki.frameInput & in) || (SceneFight::poniko.frameInput & in);
-}
-
-float Scene::fade = 1.0f;
-bool Scene::fadeIn = true;
-
-void Scene::drawFade() {
-	//Draw fade!
-	glBindTexture(GL_TEXTURE_2D, 0);
-	if (fadeIn) {
-		glColor4f(0.0f, 0.0f, 0.0f, fade);
-	}
-	else {
-		glColor4f(0.0f, 0.0f, 0.0f, 1.0f - fade);
-	}
-	glBegin(GL_QUADS);
-	glVertex3f(0.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, sys::WINDOW_HEIGHT, 0.0f);
-	glVertex3f(sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0.0f);
-	glVertex3f(sys::WINDOW_WIDTH, 0.0f, 0.0f);
-	glEnd();
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-}
+#include <glad/glad.h>
 
 //SCENES
-Scene::Scene(std::string name_) {
+scene::Scene::Scene(std::string name_) {
 	//Copy the name.
 	name = name_;
 
@@ -87,17 +23,17 @@ Scene::Scene(std::string name_) {
 	//video = nullptr;
 }
 
-Scene::~Scene() {
+scene::Scene::~Scene() {
 	//delete video;
 }
 
-void Scene::init() {
+void scene::Scene::init() {
 	initialized = true;
 	//Load the scene data from the file
 	parseFile("scenes/" + name + ".ubu");
 }
 
-void Scene::think() {
+void scene::Scene::think() {
 	if (!initialized) {
 		init();
 	}
@@ -161,12 +97,12 @@ void Scene::think() {
 		}
 
 		//Always disable controls during fades
-		SceneFight::madotsuki.frameInput = 0;
+		Fight::madotsuki.frameInput = 0;
 		//}
 	}
 }
 
-void Scene::reset() {
+void scene::Scene::reset() {
 	std::for_each(images.begin(), images.end(),
 		[](SceneImage& si) {si.reset(); }
 	);
@@ -174,7 +110,7 @@ void Scene::reset() {
 	bgmPlaying = false;
 }
 
-void Scene::draw() const {
+void scene::Scene::draw() const {
 	//if(video) video->draw(0, 0);
 	std::for_each(images.cbegin(), images.cend(),
 		[](const SceneImage& si) {si.draw(false); }
@@ -183,7 +119,7 @@ void Scene::draw() const {
 
 }
 
-void Scene::parseLine(Parser& parser) {
+void scene::Scene::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("IMAGE", 3)) {
 		float x = parser.getArgFloat(2);
@@ -243,7 +179,7 @@ void Scene::parseLine(Parser& parser) {
 	}
 }
 
-void Scene::parseFile(std::string szFileName) {
+void scene::Scene::parseFile(std::string szFileName) {
 	Parser parser;
 	std::string path = util::getPath(szFileName);
 	if (!parser.open(path)) {
@@ -257,7 +193,7 @@ void Scene::parseFile(std::string szFileName) {
 	}
 }
 
-std::string Scene::getResource(std::string resource, std::string extension) const {
+std::string scene::Scene::getResource(std::string resource, std::string extension) const {
 	if (*resource.c_str() == '*') {
 		return "scenes/common/" + resource.substr(1, std::string::npos) + "." + extension;
 	}
@@ -268,7 +204,7 @@ std::string Scene::getResource(std::string resource, std::string extension) cons
 
 //SCENE IMAGE
 
-SceneImage::SceneImage(Image& image_, float x_, float y_, float parallax_, Image::Render render_, float xvel_, float yvel_, bool wrap_, int round_) {
+scene::SceneImage::SceneImage(Image& image_, float x_, float y_, float parallax_, Image::Render render_, float xvel_, float yvel_, bool wrap_, int round_) {
 	image = std::move(image_);
 	x = x_;
 	y = y_;
@@ -297,9 +233,9 @@ SceneImage::SceneImage(Image& image_, float x_, float y_, float parallax_, Image
 	}
 }
 
-SceneImage::~SceneImage() {}
+scene::SceneImage::~SceneImage() {}
 
-void SceneImage::think() {
+void scene::SceneImage::think() {
 	x += xvel;
 	y += yvel;
 
@@ -320,12 +256,12 @@ void SceneImage::think() {
 	}
 }
 
-void SceneImage::reset() {
+void scene::SceneImage::reset() {
 	x = xOrig;
 	y = yOrig;
 }
 
-void SceneImage::draw(bool _stage) const {
+void scene::SceneImage::draw(bool _stage) const {
 	if (image.exists()) {
 		//Draw the image differently if wrapping
 		if (wrap) {
@@ -344,7 +280,7 @@ void SceneImage::draw(bool _stage) const {
 			graphics::setRender(render);
 			if (_stage) {
 				if (!round || round - 1 == FIGHT->round) {
-					image.draw(x - image.w / 2 + sys::WINDOW_WIDTH / 2 - SceneFight::cameraPos.x * parallax, (sys::WINDOW_HEIGHT - y) - image.h + SceneFight::cameraPos.y * parallax);
+					image.draw(x - image.w / 2 + sys::WINDOW_WIDTH / 2 - Fight::cameraPos.x * parallax, (sys::WINDOW_HEIGHT - y) - image.h + Fight::cameraPos.y * parallax);
 				}
 			}
 			else {

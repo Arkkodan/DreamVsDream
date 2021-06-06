@@ -1,7 +1,6 @@
 #include "../DvD/graphics.h"
 #include "../DvD/error.h"
 #include "../DvD/fighter.h"
-
 #include "../DvD/sys.h"
 
 namespace init {

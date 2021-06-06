@@ -1,15 +1,16 @@
 #include "sprite.h"
+
 #include "sys.h"
-#include "stage.h"
 #include "graphics.h"
-#include "parser.h"
+#ifdef SPRTOOL
 #include "input.h"
+#endif // SPRTOOL
+
+#include <algorithm>
 
 #ifndef COMPILER
 #include <glad/glad.h>
 #endif
-
-#include <algorithm>
 
 namespace sprite {
 

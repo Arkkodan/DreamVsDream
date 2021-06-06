@@ -8,104 +8,67 @@
 #include <list>
 #include <array>
 #include <memory>
+#include <string>
+#include <cstdint>
 
-/// @brief Image for displaying, intended for scenes
-class SceneImage {
-public:
-	SceneImage(Image& _image, float _x, float _y, float _parallax, Image::Render _render, float _xvel, float _yvel, bool wrap, int round);
-	~SceneImage();
+namespace scene {
 
-	Image image;
-	float x, y;
-	float parallax; //for stages
-	float xOrig, yOrig;
-	float xvel, yvel;
-	Image::Render render;
-	bool wrap;
-	int round;
+	/// @brief Image for displaying, intended for scenes
+	class SceneImage {
+	public:
+		SceneImage(Image& _image, float _x, float _y, float _parallax, Image::Render _render, float _xvel, float _yvel, bool wrap, int round);
+		~SceneImage();
 
-	void think();
-	void reset();
-	void draw(bool _stage) const;
-};
+		Image image;
+		float x, y;
+		float parallax; //for stages
+		float xOrig, yOrig;
+		float xvel, yvel;
+		Image::Render render;
+		bool wrap;
+		int round;
 
-/// @brief Scene base class
-class Scene {
-public:
-	enum {
-		SCENE_FIGHT,
-
-		SCENE_INTRO,
-
-		SCENE_TITLE,
-		SCENE_SELECT,
-		SCENE_VERSUS,
-
-		SCENE_OPTIONS,
-
-#ifndef NO_NETWORK
-		SCENE_NETPLAY,
-#endif
-
-		SCENE_CREDITS,
-
-		SCENE_MAX,
-
-		SCENE_QUIT, // Dummy scene for quitting
+		void think();
+		void reset();
+		void draw(bool _stage) const;
 	};
 
-	static std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
-	static int scene;
-	static int sceneNew;
+	/// @brief Scene base class
+	class Scene {
+	public:
+		Scene(std::string name_);
+		virtual ~Scene();
 
-	static Image imgLoading;
+		//Members
+		std::string name;
+		std::list<SceneImage> images;
 
-public:
-	Scene(std::string name_);
-	virtual ~Scene();
+		bool initialized;
 
-	//Members
-	std::string name;
-	std::list<SceneImage> images;
+		audio::Music bgm;
+		bool bgmPlaying;
 
-	bool initialized;
+		//Video
+		//Video* video;
 
-	audio::Music bgm;
-	bool bgmPlaying;
+		//audio::Sounds
+		audio::Sound sndMenu;
+		audio::Sound sndSelect;
+		audio::Sound sndBack;
+		audio::Sound sndInvalid;
 
-	//Video
-	//Video* video;
+		//Functions
+		virtual void init();
 
-	//audio::Sounds
-	audio::Sound sndMenu;
-	audio::Sound sndSelect;
-	audio::Sound sndBack;
-	audio::Sound sndInvalid;
+		virtual void think();
+		virtual void reset();
+		virtual void draw() const;
 
-	//Functions
-	virtual void init();
+		void parseFile(std::string szFileName);
+		virtual void parseLine(Parser& parser);
 
-	virtual void think();
-	virtual void reset();
-	virtual void draw() const;
-
-	void parseFile(std::string szFileName);
-	virtual void parseLine(Parser& parser);
-
-	std::string getResource(std::string szFileName, std::string extension) const;
-
-	//Static stuff
-	static float fade;
-	static bool fadeIn;
-	static void drawFade();
-
-	static void setScene(int _scene);
-
-	static bool input(uint16_t in);
-
-	//Init/deinit
-	static void ginit();
-	static void deinit();
-};
+		std::string getResource(std::string szFileName, std::string extension) const;
+	};
+}
 
 #endif // DVD_SCENE_SCENE_BASE_H

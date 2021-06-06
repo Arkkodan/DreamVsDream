@@ -2,6 +2,7 @@
 #define FILE_H_INCLUDED
 
 #include <string>
+#include <cstdint>
 
 /// @brief High-level file read/write
 /// @details Designed for binary files, has its own RW protocol

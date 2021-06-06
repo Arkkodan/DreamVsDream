@@ -1,10 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "shader.h"
 
 #include "graphics.h"
-#include "shader.h"
-#include "util.h"
+#include "../util/fileIO.h"
+
+#include <string>
+#include <cstdio>
+#include <cstdlib>
 
 #include <glad/glad.h>
 
