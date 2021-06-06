@@ -26,6 +26,13 @@ set(COMPILER_FILES
 )
 
 # DvD
+set(DVD_MENU_FILES
+  DvD/menu/menu_interface.h
+  DvD/menu/submenu.cpp
+  DvD/menu/submenu.h
+  DvD/menu/button.cpp
+  DvD/menu/button.h
+)
 set(DVD_SCENE_FILES
   DvD/scene/scene.cpp
   DvD/scene/scene.h
@@ -91,6 +98,7 @@ set(DVD_FILES
   DvD/sys.h
   DvD/thread.cpp
   DvD/thread.h
+  ${DVD_MENU_FILES}
   ${DVD_SCENE_FILES}
 )
 
@@ -262,6 +270,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/util" PREFIX "util" FILES ${UTIL_
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Atlas" PREFIX "Atlas" FILES ${ATLAS_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Compiler" PREFIX "Compiler" FILES ${COMPILER_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD" PREFIX "DvD" FILES ${DVD_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD/menu" PREFIX "DvD/menu" FILES ${DVD_MENU_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD/scene" PREFIX "DvD/scene" FILES ${DVD_SCENE_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Fontbuild" PREFIX "Fontbuild" FILES ${FONTBUILD_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Sprtool" PREFIX "Sprtool" FILES ${SPRTOOL_FILES})
