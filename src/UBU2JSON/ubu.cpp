@@ -63,12 +63,13 @@ bool ubu::load(const std::string& type, const std::string& input, const std::str
     UBU_LOAD_TYPE("stage", Stage);
 
 #undef UBU_LOAD_TYPE
-
-    std::cout << "Parsing\n";
-    if (currentType->parse()) {
-        std::cout << "Writing\n";
-        currentType->write(output);
-        return true;
+    if (currentType.get()) {
+        std::cout << "Parsing\n";
+        if (currentType->parse()) {
+            std::cout << "Writing\n";
+            currentType->write(output);
+            return true;
+        }
     }
 
     std::cerr << "Failed\n";
