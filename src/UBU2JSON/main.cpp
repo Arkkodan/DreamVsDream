@@ -1,24 +1,27 @@
+#include "ubu.h"
+
 #include <iostream>
 
-#include <nlohmann/json.hpp>
-
 int main(int argc, char* argv[]) {
-    auto j_ex = nlohmann::json::parse(R"(
-{
-  "pi": 3.141,
-  "happy": true,
-  "name": "Niels",
-  "nothing": null,
-  "answer": {
-    "everything": 42
-  },
-  "list": [1, 0, 2],
-  "object": {
-    "currency": "USD",
-    "value": 42.99
-  }
-}
-)");
+    ubu::init();
 
-    std::cout << j_ex.dump(4) << '\n';
+    if (argc != 3 && argc != 4) {
+        ubu::usage();
+        return 1;
+    }
+
+    bool success;
+    if (argc == 4) {
+        success = ubu::load(argv[1], argv[2], argv[3]);
+    }
+    else {
+        success = ubu::load(argv[1], argv[2]);
+    }
+
+    if (!success) {
+        ubu::usage();
+        return 2;
+    }
+
+    return 0;
 }

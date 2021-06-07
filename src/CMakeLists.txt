@@ -109,6 +109,10 @@ set(SPRTOOL_FILES
 # UBU2JSON
 set(UBU2JSON_FILES
   UBU2JSON/main.cpp
+  UBU2JSON/ubu.cpp
+  UBU2JSON/ubu.h
+  UBU2JSON/chars.cpp
+  UBU2JSON/chars.h
 )
 
 
@@ -179,6 +183,9 @@ target_compile_definitions(Sprtool
 
 add_executable(UBU2JSON
   ${UBU2JSON_FILES}
+  DvD/error.cpp
+  DvD/parser.cpp
+  util/fileIO.cpp
 )
 target_compile_definitions(UBU2JSON
   PRIVATE VERSION="${DreamVsDream_VERSION}"
@@ -273,6 +280,9 @@ if(WIN32)
     PRIVATE shlwapi
   )
   target_link_libraries(Sprtool
+    PRIVATE shlwapi
+  )
+  target_link_libraries(UBU2JSON
     PRIVATE shlwapi
   )
 endif()
