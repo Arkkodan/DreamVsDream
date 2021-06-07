@@ -1,7 +1,7 @@
 #include "ubu.h"
 
 #include "chars.h"
-
+#include "scenes.h"
 #include "stages.h"
 
 #include <array>
@@ -25,6 +25,15 @@ void ubu::init() {
     UBU_TYPE_ENTRY(SOUNDS, "sounds");
     UBU_TYPE_ENTRY(VOICES, "voices");
 
+    UBU_TYPE_ENTRY(SCENE, "scene");
+    UBU_TYPE_ENTRY(INTRO, "intro");
+    UBU_TYPE_ENTRY(TITLE, "title");
+    UBU_TYPE_ENTRY(SELECT, "select");
+    UBU_TYPE_ENTRY(OPTIONS, "options");
+    UBU_TYPE_ENTRY(FIGHT, "fight");
+    UBU_TYPE_ENTRY(NETPLAY, "netplay");
+    UBU_TYPE_ENTRY(CREDITS, "credits");
+
     UBU_TYPE_ENTRY(STAGE, "stage");
 
 #undef UBU_TYPE_ENTRY
@@ -41,6 +50,15 @@ bool ubu::load(const std::string& type, const std::string& input, const std::str
     UBU_LOAD_TYPE("sprites", Sprites);
     UBU_LOAD_TYPE("sounds", Sounds);
     UBU_LOAD_TYPE("voices", Voices);
+
+    UBU_LOAD_TYPE("scene", Scene);
+    UBU_LOAD_TYPE("intro", Intro);
+    UBU_LOAD_TYPE("title", Title);
+    UBU_LOAD_TYPE("select", Select);
+    UBU_LOAD_TYPE("options", Options);
+    UBU_LOAD_TYPE("fight", Fight);
+    UBU_LOAD_TYPE("netplay", Netplay);
+    UBU_LOAD_TYPE("credits", Credits);
 
     UBU_LOAD_TYPE("stage", Stage);
 

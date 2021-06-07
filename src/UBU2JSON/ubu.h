@@ -16,16 +16,15 @@ namespace ubu {
 		// STATES,
 		// COMMANDS,
 		
-		// SCENE,
-		// INTRO,
-		// TITLE, // Themes included
-		// SELECT,
-		// // Versus is the same as Scene
-		// OPTIONS, // Themes included
-		// FIGHT,
-		// NETPLAY,
-		// CREDITS,
-		// TODO: SCENE's parse should be final but call a parseLine virtual override
+		SCENE,
+		INTRO,
+		TITLE, // Themes included
+		SELECT,
+		// Versus is the same as Scene
+		OPTIONS, // Themes included
+		FIGHT,
+		NETPLAY,
+		CREDITS,
 
 		STAGE,
 
