@@ -27,7 +27,7 @@ namespace ubu {
 		// CREDITS,
 		// TODO: SCENE's parse should be final but call a parseLine virtual override
 
-		// STAGE,
+		STAGE,
 
 		UBU_TYPE_MAX
 	};
@@ -51,6 +51,5 @@ namespace ubu {
 	};
 
 }
-
 
 #endif // UBU2JSON_UBU_H

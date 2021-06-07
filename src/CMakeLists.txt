@@ -113,6 +113,8 @@ set(UBU2JSON_FILES
   UBU2JSON/ubu.h
   UBU2JSON/chars.cpp
   UBU2JSON/chars.h
+  UBU2JSON/stages.cpp
+  UBU2JSON/stages.h
 )
 
 

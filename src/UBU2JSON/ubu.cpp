@@ -2,6 +2,8 @@
 
 #include "chars.h"
 
+#include "stages.h"
+
 #include <array>
 #include <memory>
 #include <iostream>
@@ -23,6 +25,8 @@ void ubu::init() {
     UBU_TYPE_ENTRY(SOUNDS, "sounds");
     UBU_TYPE_ENTRY(VOICES, "voices");
 
+    UBU_TYPE_ENTRY(STAGE, "stage");
+
 #undef UBU_TYPE_ENTRY
 }
 
@@ -37,6 +41,8 @@ bool ubu::load(const std::string& type, const std::string& input, const std::str
     UBU_LOAD_TYPE("sprites", Sprites);
     UBU_LOAD_TYPE("sounds", Sounds);
     UBU_LOAD_TYPE("voices", Voices);
+
+    UBU_LOAD_TYPE("stage", Stage);
 
 #undef UBU_LOAD_TYPE
 
