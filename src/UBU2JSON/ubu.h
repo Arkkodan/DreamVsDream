@@ -13,8 +13,8 @@ namespace ubu {
 		SPRITES,
 		SOUNDS,
 		VOICES,
-		// STATES,
-		// COMMANDS,
+		STATES,
+		COMMANDS,
 		
 		SCENE,
 		INTRO,

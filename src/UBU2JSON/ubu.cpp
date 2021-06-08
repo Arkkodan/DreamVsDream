@@ -24,6 +24,8 @@ void ubu::init() {
     UBU_TYPE_ENTRY(SPRITES, "sprites");
     UBU_TYPE_ENTRY(SOUNDS, "sounds");
     UBU_TYPE_ENTRY(VOICES, "voices");
+    UBU_TYPE_ENTRY(STATES, "states");
+    UBU_TYPE_ENTRY(COMMANDS, "commands");
 
     UBU_TYPE_ENTRY(SCENE, "scene");
     UBU_TYPE_ENTRY(INTRO, "intro");
@@ -50,6 +52,8 @@ bool ubu::load(const std::string& type, const std::string& input, const std::str
     UBU_LOAD_TYPE("sprites", Sprites);
     UBU_LOAD_TYPE("sounds", Sounds);
     UBU_LOAD_TYPE("voices", Voices);
+    UBU_LOAD_TYPE("states", States);
+    UBU_LOAD_TYPE("commands", Commands);
 
     UBU_LOAD_TYPE("scene", Scene);
     UBU_LOAD_TYPE("intro", Intro);

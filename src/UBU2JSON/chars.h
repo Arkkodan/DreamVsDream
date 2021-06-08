@@ -31,6 +31,20 @@ namespace ubu {
 
 		virtual bool parse() override final;
 	};
+
+	class States : public UBU {
+	public:
+		States(const std::string& file);
+
+		virtual bool parse() override final;
+	};
+
+	class Commands : public UBU {
+	public:
+		Commands(const std::string& file);
+
+		virtual bool parse() override final;
+	};
 }
 
 #endif // UBU2JSON_CHARS_H
