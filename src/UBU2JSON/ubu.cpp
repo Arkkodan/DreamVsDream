@@ -10,7 +10,7 @@
 #include <fstream>
 
 namespace ubu {
-	static std::array<std::string, static_cast<size_t>(Type::UBU_TYPE_MAX)> typesStr;
+	static std::array<std::string, static_cast<size_t>(UBUType::UBU_TYPE_MAX)> typesStr;
 	static std::unique_ptr<UBU> currentType = nullptr;
 }
 
@@ -18,7 +18,7 @@ void ubu::init() {
     std::cout << "Initializing\n";
 
 #define UBU_TYPE_ENTRY(ENUM, STR) \
-    typesStr[static_cast<size_t>(Type::ENUM)] = STR;
+    typesStr[static_cast<size_t>(UBUType::ENUM)] = STR;
 
 	UBU_TYPE_ENTRY(CHARACTER, "character");
     UBU_TYPE_ENTRY(SPRITES, "sprites");

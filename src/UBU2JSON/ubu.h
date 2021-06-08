@@ -8,7 +8,7 @@
 #include <nlohmann/json.hpp>
 
 namespace ubu {
-	enum class Type {
+	enum class UBUType {
 		CHARACTER,
 		SPRITES,
 		SOUNDS,
