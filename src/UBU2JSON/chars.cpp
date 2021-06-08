@@ -48,6 +48,7 @@ bool ubu::Sprites::parse() {
 		return false;
 	}
 
+	int spriteIndex = -1;
 	std::string name = "";
 	int hitBoxIndex = 0;
 	int aHitBoxIndex = 0;
@@ -58,7 +59,8 @@ bool ubu::Sprites::parse() {
 		int argc = parser.getArgC();
 
 		if (parser.isGroup()) {
-			name = parser.getArg(0);
+			spriteIndex++;
+			j_obj[spriteIndex]["image"] = parser.getArg(0);
 
 			hitBoxIndex = 0;
 			aHitBoxIndex = 0;
@@ -66,40 +68,39 @@ bool ubu::Sprites::parse() {
 			currentAHitBoxCount = 0;
 
 			if (argc == 5) {
-				j_obj[name]["x"] = parser.getArgInt(1);
-				j_obj[name]["y"] = parser.getArgInt(2);
+				j_obj[spriteIndex]["pos"]["x"] = parser.getArgInt(1);
+				j_obj[spriteIndex]["pos"]["y"] = parser.getArgInt(2);
 
 				currentHitBoxCount = parser.getArgInt(3);
 				currentAHitBoxCount = parser.getArgInt(4);
 			}
 			else {
-				j_obj[name]["x"] = 0;
-				j_obj[name]["y"] = 0;
-				
+				j_obj[spriteIndex]["pos"]["x"] = 0;
+				j_obj[spriteIndex]["pos"]["y"] = 0;
 			}
 		}
 		else {
 			if (argc == 4) {
 				if (hitBoxIndex < currentHitBoxCount) {
-					//j_obj[name]["hitBoxes"][hitBoxIndex]["pos"]["x"] = parser.getArgInt(0);
-					//j_obj[name]["hitBoxes"][hitBoxIndex]["pos"]["y"] = parser.getArgInt(1);
-					//j_obj[name]["hitBoxes"][hitBoxIndex]["size"]["x"] = parser.getArgInt(2);
-					//j_obj[name]["hitBoxes"][hitBoxIndex]["size"]["y"] = parser.getArgInt(3);
-					j_obj[name]["hitBoxes"][hitBoxIndex]["x"] = parser.getArgInt(0);
-					j_obj[name]["hitBoxes"][hitBoxIndex]["y"] = parser.getArgInt(1);
-					j_obj[name]["hitBoxes"][hitBoxIndex]["w"] = parser.getArgInt(2);
-					j_obj[name]["hitBoxes"][hitBoxIndex]["h"] = parser.getArgInt(3);
+					//j_obj[spriteIndex]["hitBoxes"][hitBoxIndex]["pos"]["x"] = parser.getArgInt(0);
+					//j_obj[spriteIndex]["hitBoxes"][hitBoxIndex]["pos"]["y"] = parser.getArgInt(1);
+					//j_obj[spriteIndex]["hitBoxes"][hitBoxIndex]["size"]["x"] = parser.getArgInt(2);
+					//j_obj[spriteIndex]["hitBoxes"][hitBoxIndex]["size"]["y"] = parser.getArgInt(3);
+					j_obj[spriteIndex]["hitBoxes"][hitBoxIndex]["x"] = parser.getArgInt(0);
+					j_obj[spriteIndex]["hitBoxes"][hitBoxIndex]["y"] = parser.getArgInt(1);
+					j_obj[spriteIndex]["hitBoxes"][hitBoxIndex]["w"] = parser.getArgInt(2);
+					j_obj[spriteIndex]["hitBoxes"][hitBoxIndex]["h"] = parser.getArgInt(3);
 					hitBoxIndex++;
 				}
 				else if (aHitBoxIndex < currentAHitBoxCount) {
-					//j_obj[name]["aHitBoxes"][aHitBoxIndex]["pos"]["x"] = parser.getArgInt(0);
-					//j_obj[name]["aHitBoxes"][aHitBoxIndex]["pos"]["y"] = parser.getArgInt(1);
-					//j_obj[name]["aHitBoxes"][aHitBoxIndex]["size"]["x"] = parser.getArgInt(2);
-					//j_obj[name]["aHitBoxes"][aHitBoxIndex]["size"]["y"] = parser.getArgInt(3);
-					j_obj[name]["aHitBoxes"][aHitBoxIndex]["x"] = parser.getArgInt(0);
-					j_obj[name]["aHitBoxes"][aHitBoxIndex]["y"] = parser.getArgInt(1);
-					j_obj[name]["aHitBoxes"][aHitBoxIndex]["w"] = parser.getArgInt(2);
-					j_obj[name]["aHitBoxes"][aHitBoxIndex]["h"] = parser.getArgInt(3);
+					//j_obj[spriteIndex]["aHitBoxes"][aHitBoxIndex]["pos"]["x"] = parser.getArgInt(0);
+					//j_obj[spriteIndex]["aHitBoxes"][aHitBoxIndex]["pos"]["y"] = parser.getArgInt(1);
+					//j_obj[spriteIndex]["aHitBoxes"][aHitBoxIndex]["size"]["x"] = parser.getArgInt(2);
+					//j_obj[spriteIndex]["aHitBoxes"][aHitBoxIndex]["size"]["y"] = parser.getArgInt(3);
+					j_obj[spriteIndex]["aHitBoxes"][aHitBoxIndex]["x"] = parser.getArgInt(0);
+					j_obj[spriteIndex]["aHitBoxes"][aHitBoxIndex]["y"] = parser.getArgInt(1);
+					j_obj[spriteIndex]["aHitBoxes"][aHitBoxIndex]["w"] = parser.getArgInt(2);
+					j_obj[spriteIndex]["aHitBoxes"][aHitBoxIndex]["h"] = parser.getArgInt(3);
 					aHitBoxIndex++;
 				}
 			}
@@ -118,15 +119,16 @@ bool ubu::Sounds::parse() {
 		return false;
 	}
 
+	int soundslistIndex = -1;
 	std::string name = "";
 
 	while (parser.parseLine()) {
 		if (parser.isGroup()) {
-			name = parser.getArg(0);
+			soundslistIndex++;
+			j_obj[soundslistIndex]["name"] = parser.getArg(0);
 		}
 		else {
-			//j_obj[name].emplace_back(parser.getArg(0));
-			j_obj[name]["sounds"].emplace_back(parser.getArg(0));
+			j_obj[soundslistIndex]["sounds"].emplace_back(parser.getArg(0));
 		}
 	}
 
@@ -142,17 +144,18 @@ bool ubu::Voices::parse() {
 		return false;
 	}
 
+	int voiceslistIndex = -1;
 	std::string name = "";
 
 	while (parser.parseLine()) {
 		if (parser.isGroup()) {
-			name = parser.getArg(0);
-
-			j_obj[name]["percent"] = parser.getArgInt(1);
+			voiceslistIndex++;
+			j_obj[voiceslistIndex]["name"] = parser.getArg(0);
+			j_obj[voiceslistIndex]["percent"] = parser.getArgInt(1);
 		}
 		else {
-			//j_obj[name]["voices"].emplace_back(parser.getArg(0));
-			j_obj[name]["sounds"].emplace_back(parser.getArg(0));
+			//j_obj[voiceslistIndex]["voices"].emplace_back(parser.getArg(0));
+			j_obj[voiceslistIndex]["sounds"].emplace_back(parser.getArg(0));
 		}
 	}
 
