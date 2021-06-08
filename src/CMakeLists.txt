@@ -3,6 +3,12 @@
 
 # Gather files
 
+# fileIO
+set(FILEIO_MODULES
+  fileIO/text.cpp
+  fileIO/text.h
+)
+
 # util
 set(UTIL_MODULES
   util/fileIO.cpp
@@ -135,6 +141,7 @@ target_compile_definitions(Atlas
 
 add_executable(Compiler
   ${COMPILER_FILES}
+  ${FILEIO_MODULES}
   DvD/error.cpp
   DvD/fighter.cpp
   DvD/file.cpp
@@ -151,6 +158,7 @@ target_compile_definitions(Compiler
 
 add_executable(DvD
   ${DVD_FILES}
+  ${FILEIO_MODULES}
   ${UTIL_MODULES}
 )
 target_compile_definitions(DvD
@@ -169,6 +177,7 @@ target_compile_definitions(Fontbuild
 
 add_executable(Sprtool
   ${SPRTOOL_FILES}
+  ${FILEIO_MODULES}
   DvD/error.cpp
   DvD/fighter.cpp
   DvD/graphics.cpp
@@ -187,6 +196,7 @@ target_compile_definitions(Sprtool
 
 add_executable(UBU2JSON
   ${UBU2JSON_FILES}
+  ${FILEIO_MODULES}
   DvD/error.cpp
   DvD/parser.cpp
   util/fileIO.cpp
@@ -293,7 +303,8 @@ endif()
 
 
 # Organize files for IDEs
-source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/util" PREFIX "util" FILES ${UTIL_MODULE})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/fileIO" PREFIX "fileIO" FILES ${FILEIO_MODULES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/util" PREFIX "util" FILES ${UTIL_MODULES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Atlas" PREFIX "Atlas" FILES ${ATLAS_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Compiler" PREFIX "Compiler" FILES ${COMPILER_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD" PREFIX "DvD" FILES ${DVD_FILES})

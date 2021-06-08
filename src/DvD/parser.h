@@ -56,7 +56,7 @@ public:
 protected:
 	int iLine;
 	int nLines;
-	char** szLines;
+	std::vector<std::string> szLines;
 	std::vector<ParserLine> lines;
 };
 

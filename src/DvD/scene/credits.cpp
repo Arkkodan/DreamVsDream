@@ -4,6 +4,7 @@
 
 #include "../player.h"
 #include "../sys.h"
+#include "../../fileIO/text.h"
 #include "../../util/fileIO.h"
 
 scene::Credits::Credits() : Scene("credits") {
@@ -16,12 +17,9 @@ scene::Credits::Credits() : Scene("credits") {
 	//Data
 	title_r = title_g = title_b = name_r = name_g = name_b = 255;
 	c_lines = 0;
-	sz_lines = nullptr;
 }
 
-scene::Credits::~Credits() {
-	util::freeLines(sz_lines);
-}
+scene::Credits::~Credits() {}
 
 void scene::Credits::think() {
 	Scene::think();
@@ -64,7 +62,8 @@ void scene::Credits::draw() const {
 			int oy_title = 0;
 
 			for (int i = 0; i < c_lines; i++) {
-				if (*sz_lines[i] == ':') {
+				const char fc = lines[i].front();
+				if (fc == ':') {
 					oy_title++;
 				}
 
@@ -80,11 +79,12 @@ void scene::Credits::draw() const {
 					break;
 				}
 
-				if (*sz_lines[i] == ':') {
-					font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(sz_lines[i] + 1) - CREDITS_OFFSET, y, sz_lines[i] + 1, title_r, title_g, title_b);
+				if (fc == ':') {
+					std::string out = lines[i].substr(1);
+					font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(out) - CREDITS_OFFSET, y, out, title_r, title_g, title_b);
 				}
 				else {
-					font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(sz_lines[i]) - CREDITS_OFFSET, y, sz_lines[i], name_r, name_g, name_b);
+					font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(lines[i]) - CREDITS_OFFSET, y, lines[i], name_r, name_g, name_b);
 				}
 			}
 		}
@@ -107,7 +107,8 @@ void scene::Credits::parseLine(Parser& parser) {
 	}
 	else if (parser.is("CREDITS", 2)) {
 		font.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
-		sz_lines = util::getLinesFromFile(&c_lines, getResource(parser.getArg(2), Parser::EXT_TEXT));
+		lines = fileIO::readTextAsLines(util::getPath(getResource(parser.getArg(2), Parser::EXT_TEXT)));
+		c_lines = lines.size();
 	}
 	else if (parser.is("COLOR", 6)) {
 		title_r = parser.getArgInt(1);

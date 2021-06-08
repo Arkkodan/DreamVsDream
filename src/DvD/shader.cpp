@@ -1,6 +1,7 @@
 #include "shader.h"
 
 #include "graphics.h"
+#include "../fileIO/text.h"
 #include "../util/fileIO.h"
 
 #include <string>
@@ -62,21 +63,20 @@ void Shader::use() const {
 }
 
 bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
-	int nLines;
-	char** szLines;
 	int isCompiled;
 	
 	std::string vertexPath = util::getPath(szVertexFile);
 	std::string fragmentPath = util::getPath(szFragmentFile);
 
 	//Compile the vertex shader
-	if(!(szLines = util::getLinesFromFile(&nLines, vertexPath))) {
+	std::string vertexSource = fileIO::readText(vertexPath);
+	if (vertexSource.empty()) {
 		return false;
 	}
 	vertex = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex, nLines, (const GLchar**)szLines, nullptr);
+	const GLchar* vs_c_str = vertexSource.c_str();
+	glShaderSource(vertex, 1, &vs_c_str, nullptr);
 	glCompileShader(vertex);
-	util::freeLines(szLines);
 
 	glGetShaderiv(vertex, GL_COMPILE_STATUS, &isCompiled);
 	if(!isCompiled) {
@@ -94,15 +94,16 @@ bool Shader::create(const char* szVertexFile, const char* szFragmentFile) {
 	}
 
 	//Compile the fragment shader
-	if(!(szLines = util::getLinesFromFile(&nLines, fragmentPath))) {
+	std::string fragmentSource = fileIO::readText(fragmentPath);
+	if (fragmentSource.empty()) {
 		glDeleteShader(vertex);
 		vertex = 0;
 		return false;
 	}
 	fragment = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment, nLines, (const GLchar**)szLines, nullptr);
+	const GLchar* fs_c_str = fragmentSource.c_str();
+	glShaderSource(fragment, 1, &fs_c_str, nullptr);
 	glCompileShader(fragment);
-	util::freeLines(szLines);
 
 	glGetShaderiv(fragment, GL_COMPILE_STATUS, &isCompiled);
 	if(!isCompiled) {
