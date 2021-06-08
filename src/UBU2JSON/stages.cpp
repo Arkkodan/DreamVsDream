@@ -47,7 +47,7 @@ bool ubu::Stage::parse() {
 
 void ubu::Stage::parseImage(bool above) {
 	//std::string category = above ? "imageAbove" : "imageBelow";
-	std::string category = above ? "imageAhead" : "imageBehind";
+	std::string category = above ? "imagesAhead" : "imagesBehind";
 	int index = above ? imageAbove : imageBelow;
 	
 	int argc = parser.getArgC();

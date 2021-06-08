@@ -20,17 +20,17 @@ void ubu::Scene::parseLine() {
 	int argc = parser.getArgC();
 
 	if (parser.is("IMAGE", 3)) {
-		j_obj["image"][imageIndex]["image"] = parser.getArg(1);
-		j_obj["image"][imageIndex]["pos"]["x"] = parser.getArgFloat(2);
-		j_obj["image"][imageIndex]["pos"]["y"] = parser.getArgFloat(3);
+		j_obj["images"][imageIndex]["image"] = parser.getArg(1);
+		j_obj["images"][imageIndex]["pos"]["x"] = parser.getArgFloat(2);
+		j_obj["images"][imageIndex]["pos"]["y"] = parser.getArgFloat(3);
 		if (argc > 4) {
-			j_obj["image"][imageIndex]["renderType"] = parser.getArg(4);
+			j_obj["images"][imageIndex]["renderType"] = parser.getArg(4);
 			if (argc > 5) {
-				j_obj["image"][imageIndex]["vel"]["x"] = parser.getArgFloat(5);
+				j_obj["images"][imageIndex]["vel"]["x"] = parser.getArgFloat(5);
 				if (argc > 6) {
-					j_obj["image"][imageIndex]["vel"]["y"] = parser.getArgFloat(6);
+					j_obj["images"][imageIndex]["vel"]["y"] = parser.getArgFloat(6);
 					if (argc > 7) {
-						j_obj["image"][imageIndex]["wrap"] = parser.getArgBool(7, false);
+						j_obj["images"][imageIndex]["wrap"] = parser.getArgBool(7, false);
 					}
 				}
 			}
@@ -112,7 +112,8 @@ void ubu::Title::parseLine() {
 		//j_obj["themeCount"] parser.getArgInt(1);
 	}
 	else if (parser.is("THEME", 1)) {
-		j_obj["theme"][themeIndex] = parser.getArg(1);
+		//j_obj["theme"][themeIndex] = parser.getArg(1);
+		j_obj["themes"][themeIndex] = parser.getArg(1);
 		themeIndex++;
 	}
 	else {
@@ -133,25 +134,25 @@ void ubu::Select::parseLine() {
 	}
 	else if (parser.is("CURSOR", 10)) {
 		int group = parser.getArgInt(1) - 1;
-		j_obj["cursor"][group]["image"] = parser.getArg(2);
-		j_obj["cursor"][group]["offset"]["x"] = parser.getArgInt(3);
-		j_obj["cursor"][group]["offset"]["y"] = parser.getArgInt(4);
-		j_obj["cursor"][group]["effect"]["image"] = parser.getArg(5);
-		j_obj["cursor"][group]["effect"]["frameCount"] = parser.getArgInt(6);
-		j_obj["cursor"][group]["effect"]["speed"] = parser.getArgInt(7);
-		j_obj["cursor"][group]["effect"]["grow"] = parser.getArgBool(8, false);
-		j_obj["cursor"][group]["sound"]["select"] = parser.getArg(9);
-		j_obj["cursor"][group]["sound"]["deselect"] = parser.getArg(10);
+		j_obj["cursors"][group]["image"] = parser.getArg(2);
+		j_obj["cursors"][group]["offset"]["x"] = parser.getArgInt(3);
+		j_obj["cursors"][group]["offset"]["y"] = parser.getArgInt(4);
+		j_obj["cursors"][group]["effect"]["image"] = parser.getArg(5);
+		j_obj["cursors"][group]["effect"]["frameCount"] = parser.getArgInt(6);
+		j_obj["cursors"][group]["effect"]["speed"] = parser.getArgInt(7);
+		j_obj["cursors"][group]["effect"]["grow"] = parser.getArgBool(8, false);
+		j_obj["cursors"][group]["sound"]["select"] = parser.getArg(9);
+		j_obj["cursors"][group]["sound"]["deselect"] = parser.getArg(10);
 	}
 	else if (parser.is("CHAR", 1)) {
 		if (!parser.getArg(1).compare("null")) {
-			j_obj["char"][gridC] = nullptr;
+			j_obj["chars"][gridC] = nullptr;
 			gridC++;
 			return;
 		}
-		j_obj["char"][gridC]["name"] = parser.getArg(1);
-		j_obj["char"][gridC]["pos"]["x"] = parser.getArgInt(2);
-		j_obj["char"][gridC]["pos"]["y"] = parser.getArgInt(3);
+		j_obj["chars"][gridC]["name"] = parser.getArg(1);
+		j_obj["chars"][gridC]["pos"]["x"] = parser.getArgInt(2);
+		j_obj["chars"][gridC]["pos"]["y"] = parser.getArgInt(3);
 		gridC++;
 	}
 	else if (parser.is("SELECT", 3)) {
@@ -178,11 +179,11 @@ void ubu::Select::parseLine() {
 	}
 	else if (parser.is("PLAYER", 6)) {
 		int playerIndex = parser.getArgInt(1) - 1;
-		j_obj["player"][playerIndex]["posDefault"]["x"] = parser.getArgInt(2);
-		j_obj["player"][playerIndex]["posDefault"]["y"] = parser.getArgInt(3);
-		j_obj["player"][playerIndex]["color"]["r"] = parser.getArgInt(4);
-		j_obj["player"][playerIndex]["color"]["g"] = parser.getArgInt(5);
-		j_obj["player"][playerIndex]["color"]["b"] = parser.getArgInt(6);
+		j_obj["players"][playerIndex]["posDefault"]["x"] = parser.getArgInt(2);
+		j_obj["players"][playerIndex]["posDefault"]["y"] = parser.getArgInt(3);
+		j_obj["players"][playerIndex]["color"]["r"] = parser.getArgInt(4);
+		j_obj["players"][playerIndex]["color"]["g"] = parser.getArgInt(5);
+		j_obj["players"][playerIndex]["color"]["b"] = parser.getArgInt(6);
 	}
 	else {
 		Scene::parseLine();
@@ -220,7 +221,8 @@ void ubu::Options::parseLine() {
 		//j_obj["themeCount"] parser.getArgInt(1);
 	}
 	else if (parser.is("THEME", 1)) {
-		j_obj["theme"][themeIndex] = parser.getArg(1);
+		//j_obj["theme"][themeIndex] = parser.getArg(1);
+		j_obj["themes"][themeIndex] = parser.getArg(1);
 		themeIndex++;
 	}
 	else if (parser.is("VOICES", 2)) {
