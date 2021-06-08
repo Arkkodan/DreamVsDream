@@ -4,37 +4,30 @@
 #include "image.h"
 #include "graphics.h"
 #include "error.h"
+#include "../fileIO/json.h"
 #include "../util/rng.h"
 #include "../util/fileIO.h"
 
 #include <algorithm>
 
 int Stage::stage = -1;
-std::array<Stage, Stage::STAGES_MAX> Stage::stages;
+std::vector<Stage> Stage::stages;
 
 void Stage::ginit() {
-	stages[0].create("yn_balcony");
-	stages[1].create("yn_block");
-	stages[2].create("yn_desert");
-	stages[3].create("yn_dungeon");
-	stages[4].create("yn_garden");
-	stages[5].create("yn_masada");
-	stages[6].create("yn_numbers");
-	stages[7].create("yn_poniko");
-	stages[8].create("yn_sewers");
-	stages[9].create("yn_wilderness");
-	stages[10].create("flow_child");
-	stages[11].create("flow_helltech");
-	stages[12].create("flow_hotel");
-	stages[13].create("flow_plant");
-	stages[14].create("flow_rainbow");
-	stages[15].create("flow_rot");
-	stages[16].create("flow_school");
-	stages[17].create("flow_sugar");
-	stages[18].create("flow_underwater");
-	stages[19].create("flow_white");
+	auto j_stages = fileIO::readJSON(util::getPath("stages/stages.json"));
+	if (!j_stages.is_array()) {
+		error::die("Cannot parse stages.json");
+	}
 
-	//stages[0].create("y2_mushroom");
+	int size = j_stages.size();
+	stages.resize(size);
+
+	for (int i = 0; i < size; i++) {
+		const auto& j_stage = j_stages[i];
+		if (j_stage.is_string()) {
+			stages[i].create(j_stage);
+		}
+	}
 }
 
 void Stage::deinit() {

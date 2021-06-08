@@ -575,7 +575,7 @@ void scene::Select::parseLine(Parser& parser) {
 		}
 
 		//Get fighter
-		for (int i = 0; i < game::FIGHTERS_MAX; i++) {
+		for (int i = 0, fightersSize = game::fighters.size(); i < fightersSize; i++) {
 			if (!game::fighters[i].name.compare(parser.getArg(1))) {
 				gridFighters[gridC] = i;
 				break;

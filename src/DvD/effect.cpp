@@ -2,6 +2,7 @@
 
 #include "error.h"
 #include "graphics.h"
+#include "../fileIO/json.h"
 #include "../util/fileIO.h"
 #include "sys.h"
 
@@ -161,17 +162,20 @@ namespace effect {
 
     //MISC FUNCS
     void init() {
-        //See what's in the effects directory
-        std::vector<std::string> dirs = util::listDirectory(util::getPath("effects"), false);
-
-        nEffectAnims = dirs.size();
-        if(nEffectAnims <= 0)
-            return;
-
-        effectAnims.resize(nEffectAnims);
-        for(int i = 0; i < nEffectAnims; i++) {
-            effectAnims[i] = EffectAnimation(dirs[i]);
+        auto j_effects = fileIO::readJSON(util::getPath("effects/effects.json"));
+        if (!j_effects.is_array()) {
+            error::die("Cannot parse effects.json");
         }
+
+        effectAnims.reserve(j_effects.size());
+
+        for (const auto& j_effect : j_effects) {
+            if (j_effect.is_string()) {
+                effectAnims.emplace_back(j_effect);
+            }
+        }
+
+        nEffectAnims = effectAnims.size();
     }
 
     void deinit() {}

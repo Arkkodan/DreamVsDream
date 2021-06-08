@@ -7,6 +7,8 @@
 set(FILEIO_MODULES
   fileIO/text.cpp
   fileIO/text.h
+  fileIO/json.cpp
+  fileIO/json.h
 )
 
 # util
@@ -141,12 +143,12 @@ target_compile_definitions(Atlas
 
 add_executable(Compiler
   ${COMPILER_FILES}
-  ${FILEIO_MODULES}
   DvD/error.cpp
   DvD/fighter.cpp
   DvD/file.cpp
   DvD/parser.cpp
   DvD/sprite.cpp
+  fileIO/text.cpp
   util/fileIO.cpp
   util/vec2.cpp
 )
@@ -177,7 +179,6 @@ target_compile_definitions(Fontbuild
 
 add_executable(Sprtool
   ${SPRTOOL_FILES}
-  ${FILEIO_MODULES}
   DvD/error.cpp
   DvD/fighter.cpp
   DvD/graphics.cpp
@@ -185,6 +186,7 @@ add_executable(Sprtool
   DvD/parser.cpp
   DvD/sprite.cpp
   DvD/sys.cpp
+  fileIO/text.cpp
   util/fileIO.cpp
   util/vec2.cpp
 )
@@ -246,6 +248,7 @@ target_include_directories(DvD
   PRIVATE ${libpng_INCLUDE_DIRS}
   PRIVATE stb_image
   PRIVATE sndfile
+  PRIVATE nlohmann_json
 )
 target_link_libraries(DvD
   PRIVATE SDL2
@@ -254,6 +257,7 @@ target_link_libraries(DvD
   PRIVATE ${libpng_LIBRARY}
   PRIVATE stb_image
   PRIVATE sndfile
+  PRIVATE nlohmann_json
 )
 
 # target_include_directories(Fontbuild

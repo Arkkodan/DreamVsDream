@@ -4,7 +4,7 @@
 #include "scene/scene_base.h"
 #include "animation.h"
 
-#include <array>
+#include <vector>
 #include <list>
 #include <string>
 
@@ -14,8 +14,7 @@
 class Stage {
 public:
 	static int stage;
-	static constexpr auto STAGES_MAX = 20;
-	static std::array<Stage, STAGES_MAX> stages;
+	static std::vector<Stage> stages;
 
 public:
 	std::string name;
@@ -36,6 +35,9 @@ public:
 	Stage();
 	//Stage(const char* name);
 	~Stage();
+
+	Stage(Stage&& other) = default;
+	Stage& operator=(Stage&& other) = default;
 
 	void create(std::string name);
 
