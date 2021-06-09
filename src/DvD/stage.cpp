@@ -4,30 +4,18 @@
 #include "image.h"
 #include "graphics.h"
 #include "error.h"
-#include "../fileIO/json.h"
+#include "resource_manager.h"
 #include "../util/rng.h"
 #include "../util/fileIO.h"
 
 #include <algorithm>
 
 int Stage::stage = -1;
-std::vector<Stage> Stage::stages;
+std::vector<Stage*> Stage::stages;
 
 void Stage::ginit() {
-	auto j_stages = fileIO::readJSON(util::getPath("stages/stages.json"));
-	if (!j_stages.is_array()) {
-		error::die("Cannot parse stages.json");
-	}
-
-	int size = j_stages.size();
-	stages.resize(size);
-
-	for (int i = 0; i < size; i++) {
-		const auto& j_stage = j_stages[i];
-		if (j_stage.is_string()) {
-			stages[i].create(j_stage);
-		}
-	}
+	resource_manager::loadAll<Stage>();
+	stages = resource_manager::getAll<Stage>();
 }
 
 void Stage::deinit() {

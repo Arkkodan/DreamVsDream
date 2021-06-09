@@ -210,15 +210,15 @@ void scene::Fight::think() {
 	if (idealCameraPos.y < 0) {
 		idealCameraPos.y = 0;
 	}
-	if (idealCameraPos.y > STAGE.heightAbs - sys::WINDOW_HEIGHT) {
-		idealCameraPos.y = STAGE.heightAbs - sys::WINDOW_HEIGHT;
+	if (idealCameraPos.y > STAGE->heightAbs - sys::WINDOW_HEIGHT) {
+		idealCameraPos.y = STAGE->heightAbs - sys::WINDOW_HEIGHT;
 	}
 
-	if (idealCameraPos.x < STAGE.widthAbs / -2 + sys::WINDOW_WIDTH / 2) {
-		idealCameraPos.x = STAGE.widthAbs / -2 + sys::WINDOW_WIDTH / 2;
+	if (idealCameraPos.x < STAGE->widthAbs / -2 + sys::WINDOW_WIDTH / 2) {
+		idealCameraPos.x = STAGE->widthAbs / -2 + sys::WINDOW_WIDTH / 2;
 	}
-	else if (idealCameraPos.x > STAGE.widthAbs / 2 - sys::WINDOW_WIDTH / 2) {
-		idealCameraPos.x = STAGE.widthAbs / 2 - sys::WINDOW_WIDTH / 2;
+	else if (idealCameraPos.x > STAGE->widthAbs / 2 - sys::WINDOW_WIDTH / 2) {
+		idealCameraPos.x = STAGE->widthAbs / 2 - sys::WINDOW_WIDTH / 2;
 	}
 
 	cameraPos.x = (cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
@@ -248,7 +248,7 @@ void scene::Fight::think() {
 		}
 	}
 
-	STAGE.think();
+	STAGE->think();
 
 	madotsuki.think();
 	poniko.think();
@@ -281,7 +281,7 @@ void scene::Fight::think() {
 		game_timer = 0;
 
 		if (!bgmPlaying) {
-			STAGE.bgmPlay();
+			STAGE->bgmPlay();
 			bgmPlaying = true;
 		}
 	}
@@ -423,7 +423,7 @@ void scene::Fight::think() {
 		}
 
 		if (timer_round_in == (int)(1.4 * sys::FPS) && !bgmPlaying) {
-			STAGE.bgmPlay();
+			STAGE->bgmPlay();
 			bgmPlaying = true;
 		}
 
@@ -536,7 +536,7 @@ void scene::Fight::think() {
 
 void scene::Fight::draw() const {
 	// From main.cpp
-	STAGE.draw(false);
+	STAGE->draw(false);
 
 	madotsuki.drawSpecial();
 	poniko.drawSpecial();
@@ -566,7 +566,7 @@ void scene::Fight::draw() const {
 		}
 	}
 
-	STAGE.draw(true);
+	STAGE->draw(true);
 
 	effect::draw();
 

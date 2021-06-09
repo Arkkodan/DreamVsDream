@@ -86,11 +86,11 @@ void scene::Scene::think() {
 					sys::refresh();
 					SCENE->init();
 				}
-				if (scene == SCENE_FIGHT && !STAGE.initialized) {
+				if (scene == SCENE_FIGHT && !STAGE->initialized) {
 					//Loading graphic
 					imgLoading.draw(0, 0);
 					sys::refresh();
-					STAGE.init();
+					STAGE->init();
 				}
 				SCENE->reset();
 			}

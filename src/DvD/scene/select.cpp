@@ -271,7 +271,7 @@ void scene::Select::think() {
 
 		int size = Stage::stages.size();
 		int exists = std::count_if(Stage::stages.cbegin(), Stage::stages.cend(),
-			[](const Stage& stage) {return stage.isExists(); }
+			[](const Stage* stage) {return stage->isExists(); }
 		);
 		if (size > 0 && exists > 0) {
 			int dx = (input(game::INPUT_LEFT) ? -1 : 0) + (input(game::INPUT_RIGHT) ? 1 : 0);
@@ -291,7 +291,7 @@ void scene::Select::think() {
 						cursor_stage--;
 						cursor_stage_offset -= STAGE_ICON_WIDTH;
 					}
-				} while (cursor_stage >= size || !Stage::stages[cursor_stage].isExists());
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
 				break;
 			case 1: // Right
 				sndMenu.play();
@@ -305,7 +305,7 @@ void scene::Select::think() {
 						cursor_stage++;
 						cursor_stage_offset += STAGE_ICON_WIDTH;
 					}
-				} while (cursor_stage >= size || !Stage::stages[cursor_stage].isExists());
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
 				break;
 			}
 
@@ -325,7 +325,7 @@ void scene::Select::think() {
 					else {
 						cursor_stage -= STAGES_PER_ROW;
 					}
-				} while (cursor_stage >= size || !Stage::stages[cursor_stage].isExists());
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
 				break;
 			case 1: // Down
 				sndMenu.play();
@@ -335,7 +335,7 @@ void scene::Select::think() {
 						// Wrap-around, into first row
 						cursor_stage %= STAGES_PER_ROW;
 					}
-				} while (cursor_stage >= size || !Stage::stages[cursor_stage].isExists());
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
 				break;
 			}
 		}
@@ -369,7 +369,7 @@ void scene::Select::think() {
 		}
 
 		if (input(game::INPUT_A)) {
-			if (cursor_stage < size && Stage::stages[cursor_stage].isExists()) {
+			if (cursor_stage < size && Stage::stages[cursor_stage]->isExists()) {
 				//Start game!
 				Fight::madotsuki.fighter = fighters[gridFighters[cursors[0].pos]];
 				Fight::poniko.fighter = fighters[gridFighters[cursors[1].pos]];
@@ -404,7 +404,7 @@ void scene::Select::reset() {
 	cursor_stage = 0;
 	// Find the first stage that exists
 	for (const auto& stage : Stage::stages) {
-		if (stage.isExists()) {
+		if (stage->isExists()) {
 			break;
 		}
 		cursor_stage++;
@@ -515,17 +515,17 @@ void scene::Select::draw() const {
 				cursor_stage_offset
 			);
 			int y = 150 + (STAGE_ICON_PADDING + 50) * (i / STAGES_PER_ROW);
-			auto& stage = Stage::stages[i];
-			if (stage.isExists()) {
-				if (!stage.thumbnail.isPlaying())
-					stage.thumbnail.setPlaying(true);
+			auto* stage = Stage::stages[i];
+			if (stage->isExists()) {
+				if (!stage->thumbnail.isPlaying())
+					stage->thumbnail.setPlaying(true);
 				if (cursor_stage == i) {
 					graphics::setColor(255, 255, 255, 1.0f);
-					stage.thumbnail.draw(x, y);
+					stage->thumbnail.draw(x, y);
 				}
 				else {
 					graphics::setColor(127, 127, 127, 1.0f);
-					stage.thumbnail.draw(x, y);
+					stage->thumbnail.draw(x, y);
 				}
 			}
 		}

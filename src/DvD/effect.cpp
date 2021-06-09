@@ -2,9 +2,9 @@
 
 #include "error.h"
 #include "graphics.h"
-#include "../fileIO/json.h"
 #include "../util/fileIO.h"
 #include "sys.h"
+#include "resource_manager.h"
 
 #include <algorithm>
 #include <array>
@@ -14,7 +14,7 @@ namespace effect {
 
     //VARIABLES
     int nEffectAnims = 0;
-    std::vector<EffectAnimation> effectAnims;
+    static std::vector<EffectAnimation*> effectAnims;
 
     std::array<Effect, EFFECT_MAX> effects;
 
@@ -104,8 +104,8 @@ namespace effect {
         //Look up the animation
         int i = 0;
         for(; i < nEffectAnims; i++) {
-            if(name == effectAnims[i].getName()) {
-                anim = &effectAnims[i];
+            if(name == effectAnims[i]->getName()) {
+                anim = effectAnims[i];
                 break;
             }
         }
@@ -162,19 +162,8 @@ namespace effect {
 
     //MISC FUNCS
     void init() {
-        auto j_effects = fileIO::readJSON(util::getPath("effects/effects.json"));
-        if (!j_effects.is_array()) {
-            error::die("Cannot parse effects.json");
-        }
-
-        effectAnims.reserve(j_effects.size());
-
-        for (const auto& j_effect : j_effects) {
-            if (j_effect.is_string()) {
-                effectAnims.emplace_back(j_effect);
-            }
-        }
-
+        resource_manager::loadAll<EffectAnimation>();
+        effectAnims = resource_manager::getAll<EffectAnimation>();
         nEffectAnims = effectAnims.size();
     }
 
