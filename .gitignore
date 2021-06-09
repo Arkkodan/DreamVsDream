@@ -8,6 +8,7 @@ Thumbs.db
 #Projects
 codelite/
 codeblocks/
+.vscode/
 
 #Binary files
 obj/
