@@ -13,6 +13,11 @@
 
 #include <glad/glad.h>
 
+namespace {
+	static constexpr auto STAGES_PER_ROW = 10;
+	static constexpr auto STAGE_ICON_WIDTH = 76;
+}
+
 scene::Select::Select() : Scene("select") {
 	width = height = 0;
 	gWidth = gHeight = 0;
@@ -255,48 +260,79 @@ void scene::Select::think() {
 		}
 	}
 	else {
-		if (input(game::INPUT_LEFT)) {
-			sndMenu.play();
-			if (cursor_stage % 10 == 0) {
-				cursor_stage += 9;
-				cursor_stage_offset += 76 * 10;
-			}
-			else {
-				cursor_stage--;
-				cursor_stage_offset += -76;
-			}
+		cursor_stage_offset *= 0.36f; // 0.95f ^ 20
+		if (std::abs(cursor_stage_offset) < 1) {
+			cursor_stage_offset = 0.0f;
 		}
 
-		if (input(game::INPUT_RIGHT)) {
-			sndMenu.play();
-			if (cursor_stage % 10 == 9) {
-				cursor_stage -= 9;
-				cursor_stage_offset += -76 * 10;
-			}
-			else {
-				cursor_stage++;
-				cursor_stage_offset += 76;
-			}
-		}
+		int size = Stage::stages.size();
+		int exists = std::count_if(Stage::stages.cbegin(), Stage::stages.cend(),
+			[](const Stage& stage) {return stage.isExists(); }
+		);
+		if (size > 0 && exists > 0) {
+			int dx = (input(game::INPUT_LEFT) ? -1 : 0) + (input(game::INPUT_RIGHT) ? 1 : 0);
+			int dy = (input(game::INPUT_UP) ? -1 : 0) + (input(game::INPUT_DOWN) ? 1 : 0);
 
+			switch (dx)
+			{
+			case -1: // Left
+				sndMenu.play();
+				do {
+					if (cursor_stage % STAGES_PER_ROW == 0) {
+						// Wrap-around
+						cursor_stage += STAGES_PER_ROW - 1;
+						cursor_stage_offset += STAGE_ICON_WIDTH * (STAGES_PER_ROW - 1);
+					}
+					else {
+						cursor_stage--;
+						cursor_stage_offset -= STAGE_ICON_WIDTH;
+					}
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage].isExists());
+				break;
+			case 1: // Right
+				sndMenu.play();
+				do {
+					if (cursor_stage % STAGES_PER_ROW == STAGES_PER_ROW - 1) {
+						// Wrap-around
+						cursor_stage -= STAGES_PER_ROW - 1;
+						cursor_stage_offset -= STAGE_ICON_WIDTH * (STAGES_PER_ROW - 1);
+					}
+					else {
+						cursor_stage++;
+						cursor_stage_offset += STAGE_ICON_WIDTH;
+					}
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage].isExists());
+				break;
+			}
 
-		if (input(game::INPUT_UP)) {
-			sndMenu.play();
-			if (cursor_stage < 10) {
-				cursor_stage += 10;
-			}
-			else {
-				cursor_stage -= 10;
-			}
-		}
-
-		if (input(game::INPUT_DOWN)) {
-			sndMenu.play();
-			if (cursor_stage >= 11) {
-				cursor_stage -= 10;
-			}
-			else {
-				cursor_stage += 10;
+			switch (dy)
+			{
+			case -1: // Up
+				sndMenu.play();
+				do {
+					if (cursor_stage - STAGES_PER_ROW < 0) {
+						// Wrap-around, multiple of STAGES_PER_ROW
+						cursor_stage += size / STAGES_PER_ROW * STAGES_PER_ROW;
+						if (cursor_stage >= size) {
+							// Adjust into size if needed
+							cursor_stage -= STAGES_PER_ROW;
+						}
+					}
+					else {
+						cursor_stage -= STAGES_PER_ROW;
+					}
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage].isExists());
+				break;
+			case 1: // Down
+				sndMenu.play();
+				do {
+					cursor_stage += STAGES_PER_ROW;
+					if (cursor_stage >= size) {
+						// Wrap-around, into first row
+						cursor_stage %= STAGES_PER_ROW;
+					}
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage].isExists());
+				break;
 			}
 		}
 
@@ -329,17 +365,22 @@ void scene::Select::think() {
 		}
 
 		if (input(game::INPUT_A)) {
-			//Start game!
-			Fight::madotsuki.fighter = &game::fighters[gridFighters[cursors[0].pos]];
-			Fight::poniko.fighter = &game::fighters[gridFighters[cursors[1].pos]];
+			if (cursor_stage < size && Stage::stages[cursor_stage].isExists()) {
+				//Start game!
+				Fight::madotsuki.fighter = &game::fighters[gridFighters[cursors[0].pos]];
+				Fight::poniko.fighter = &game::fighters[gridFighters[cursors[1].pos]];
 
-			(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[0] = &Fight::madotsuki.fighter->portrait;
+				(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[0] = &Fight::madotsuki.fighter->portrait;
 
-			(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[1] = &Fight::poniko.fighter->portrait;
+				(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[1] = &Fight::poniko.fighter->portrait;
 
-			Stage::stage = cursor_stage;
-			setScene(SCENE_VERSUS);
-			sndSelect.play();
+				Stage::stage = cursor_stage;
+				setScene(SCENE_VERSUS);
+				sndSelect.play();
+			}
+			else {
+				sndInvalid.play();
+			}
 		}
 	}
 }
@@ -357,6 +398,13 @@ void scene::Select::reset() {
 	cursors[1].pos = cursors[1].posDefault;
 
 	cursor_stage = 0;
+	// Find the first stage that exists
+	for (const auto& stage : Stage::stages) {
+		if (stage.isExists()) {
+			break;
+		}
+		cursor_stage++;
+	}
 }
 
 void scene::Select::draw() const {
@@ -454,19 +502,27 @@ void scene::Select::draw() const {
 		glEnd();
 
 		//Draw the stage list
-		for (int i = 0; i < 20; i++) {
-			int x = static_cast<int>(38 + (8 + 76) * (i % 10 + 3 - cursor_stage % 10) + cursor_stage_offset);
-			int y = 150 + (8 + 50) * (i / 10);
-			cursor_stage_offset *= 0.95f;
-			if (!Stage::stages[i].thumbnail.isPlaying())
-				Stage::stages[i].thumbnail.setPlaying(true);
-			if (cursor_stage == i) {
-				graphics::setColor(255, 255, 255, 1.0f);
-				Stage::stages[i].thumbnail.draw(x, y);
-			}
-			else {
-				graphics::setColor(127, 127, 127, 1.0f);
-				Stage::stages[i].thumbnail.draw(x, y);
+		constexpr auto STAGE_ICON_PADDING = 8;
+		for (int i = 0, size = Stage::stages.size(); i < size; i++) {
+			int x = static_cast<int>(
+				(STAGE_ICON_WIDTH + STAGE_ICON_PADDING) *
+				(i % STAGES_PER_ROW + 3 - cursor_stage % STAGES_PER_ROW) +
+				STAGE_ICON_WIDTH / 2 +
+				cursor_stage_offset
+			);
+			int y = 150 + (STAGE_ICON_PADDING + 50) * (i / STAGES_PER_ROW);
+			auto& stage = Stage::stages[i];
+			if (stage.isExists()) {
+				if (!stage.thumbnail.isPlaying())
+					stage.thumbnail.setPlaying(true);
+				if (cursor_stage == i) {
+					graphics::setColor(255, 255, 255, 1.0f);
+					stage.thumbnail.draw(x, y);
+				}
+				else {
+					graphics::setColor(127, 127, 127, 1.0f);
+					stage.thumbnail.draw(x, y);
+				}
 			}
 		}
 	}

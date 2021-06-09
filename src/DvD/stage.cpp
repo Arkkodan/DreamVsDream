@@ -34,7 +34,7 @@ void Stage::deinit() {
 }
 
 Stage::Stage() {
-	initialized = false;
+	exists = initialized = false;
 
 	width = height = widthAbs = heightAbs = 0;
 }
@@ -50,6 +50,8 @@ void Stage::create(std::string _name) {
 	this->name = std::move(_name);
 
 	thumbnail = Animation("stages/" + name + "/thumbnail.gif");
+
+	exists = true;
 }
 
 void Stage::init() {
@@ -180,4 +182,8 @@ void Stage::bgmPlay() {
 			bgm.play();
 		}
 	}
+}
+
+bool Stage::isExists() const {
+	return exists;
 }

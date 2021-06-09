@@ -25,6 +25,7 @@ public:
 
 	Animation thumbnail;
 
+	bool exists;
 	bool initialized;
 
 	int width;
@@ -51,6 +52,8 @@ public:
 
 	void parseFile(const std::string& szFileName);
 	std::string getResource(const std::string& szFileName, const std::string& extension) const;
+
+	bool isExists() const;
 
 	static void ginit();
 	static void deinit();

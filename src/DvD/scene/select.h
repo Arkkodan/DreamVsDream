@@ -92,7 +92,7 @@ namespace scene {
 
 		Font font_stage;
 		int cursor_stage;
-		mutable float cursor_stage_offset;
+		float cursor_stage_offset;
 
 		//Functions
 		void think() override final;
