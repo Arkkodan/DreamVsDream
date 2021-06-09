@@ -4,14 +4,12 @@
 #include "error.h"
 #include "graphics.h"
 #include "file.h"
-#include "../fileIO/json.h"
 #include "../util/fileIO.h"
 
 #include <glad/glad.h>
 #endif // GAME
 
 namespace game {
-	std::vector<Fighter> fighters;
 
 #ifdef GAME
 	audio::Sound sndTransformYn;
@@ -22,20 +20,6 @@ namespace game {
 		sndTransformYn.createFromFile("effects/Transform_yn.wav");
 		sndTransform2kki.createFromFile("effects/Transform_2kki.wav");
 		sndTransformFlow.createFromFile("effects/Transform_flow.wav");
-
-		auto j_fighters = fileIO::readJSON(util::getPath("chars/chars.json"));
-		if (!j_fighters.is_array()) {
-			error::die("Cannot parse chars.json");
-		}
-
-		fighters.reserve(j_fighters.size());
-
-		for (const auto& j_fighter : j_fighters) {
-			if (j_fighter.is_string()) {
-				fighters.emplace_back();
-				fighters.back().create(j_fighter);
-			}
-		}
 	}
 
 	void deinit() {

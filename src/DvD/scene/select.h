@@ -5,6 +5,7 @@
 
 #include "../../util/vec2.h"
 #include "../font.h"
+#include "../fighter.h"
 
 #include <vector>
 
@@ -93,6 +94,8 @@ namespace scene {
 		Font font_stage;
 		int cursor_stage;
 		float cursor_stage_offset;
+
+		std::vector<game::Fighter*> fighters;
 
 		//Functions
 		void think() override final;

@@ -324,8 +324,6 @@ namespace game {
 	protected:
 	};
 
-	extern std::vector<Fighter> fighters;
-
 	/// @brief Set a boolean output parameter based on an enum input parameter
 	void setBool(bool& dst, char src);
 	/// @brief Set an enum output parameter based on a boolean input parameter

@@ -8,6 +8,7 @@
 #include "../stage.h"
 #include "../sys.h"
 #include "../graphics.h"
+#include "../resource_manager.h"
 
 #include <algorithm>
 
@@ -30,6 +31,9 @@ scene::Select::Select() : Scene("select") {
 scene::Select::~Select() {}
 
 void scene::Select::init() {
+	resource_manager::loadAll<game::Fighter>();
+	fighters = resource_manager::getAll<game::Fighter>();
+
 	Scene::init();
 }
 
@@ -169,7 +173,7 @@ void scene::Select::think() {
 
 					if (cur == 0) {
 						if (Fight::madotsuki.palette == 0) {
-							Fight::madotsuki.palette = game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1;
+							Fight::madotsuki.palette = fighters[gridFighters[cursors[0].pos]]->nPalettes - 1;
 						}
 						else {
 							Fight::madotsuki.palette--;
@@ -177,7 +181,7 @@ void scene::Select::think() {
 					}
 					else {
 						if (Fight::poniko.palette == 0) {
-							Fight::poniko.palette = game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1;
+							Fight::poniko.palette = fighters[gridFighters[cursors[1].pos]]->nPalettes - 1;
 						}
 						else {
 							Fight::poniko.palette--;
@@ -188,7 +192,7 @@ void scene::Select::think() {
 					sndMenu.play();
 
 					if (cur == 0) {
-						if (Fight::madotsuki.palette == game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1) {
+						if (Fight::madotsuki.palette == fighters[gridFighters[cursors[0].pos]]->nPalettes - 1) {
 							Fight::madotsuki.palette = 0;
 						}
 						else {
@@ -196,7 +200,7 @@ void scene::Select::think() {
 						}
 					}
 					else {
-						if (Fight::poniko.palette == game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1) {
+						if (Fight::poniko.palette == fighters[gridFighters[cursors[1].pos]]->nPalettes - 1) {
 							Fight::poniko.palette = 0;
 						}
 						else {
@@ -367,8 +371,8 @@ void scene::Select::think() {
 		if (input(game::INPUT_A)) {
 			if (cursor_stage < size && Stage::stages[cursor_stage].isExists()) {
 				//Start game!
-				Fight::madotsuki.fighter = &game::fighters[gridFighters[cursors[0].pos]];
-				Fight::poniko.fighter = &game::fighters[gridFighters[cursors[1].pos]];
+				Fight::madotsuki.fighter = fighters[gridFighters[cursors[0].pos]];
+				Fight::poniko.fighter = fighters[gridFighters[cursors[1].pos]];
 
 				(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[0] = &Fight::madotsuki.fighter->portrait;
 
@@ -415,23 +419,23 @@ void scene::Select::draw() const {
 		if (cursors[1].timerPortrait) {
 			if (gridFighters[cursors[1].posOld] >= 0) {
 				graphics::setColor(255, 255, 255, (float)(cursors[1].timerPortrait) / PORTRAIT_FADE);
-				game::fighters[gridFighters[cursors[1].posOld]].portrait.draw(sys::WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].posOld]].portrait.w + (PORTRAIT_FADE - cursors[1].timerPortrait), 0, true);
+				fighters[gridFighters[cursors[1].posOld]]->portrait.draw(sys::WINDOW_WIDTH - fighters[gridFighters[cursors[1].posOld]]->portrait.w + (PORTRAIT_FADE - cursors[1].timerPortrait), 0, true);
 			}
 		}
 		if (gridFighters[cursors[1].pos] >= 0) {
 			graphics::setColor(255, 255, 255, (float)(PORTRAIT_FADE - cursors[1].timerPortrait) / PORTRAIT_FADE);
-			game::fighters[gridFighters[cursors[1].pos]].portrait.draw(sys::WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].pos]].portrait.w + cursors[1].timerPortrait, 0, true);
+			fighters[gridFighters[cursors[1].pos]]->portrait.draw(sys::WINDOW_WIDTH - fighters[gridFighters[cursors[1].pos]]->portrait.w + cursors[1].timerPortrait, 0, true);
 		}
 	}
 	if (cursors[0].timerPortrait) {
 		if (gridFighters[cursors[0].posOld] >= 0) {
 			graphics::setColor(255, 255, 255, (float)(cursors[0].timerPortrait) / PORTRAIT_FADE);
-			game::fighters[gridFighters[cursors[0].posOld]].portrait.draw(0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
+			fighters[gridFighters[cursors[0].posOld]]->portrait.draw(0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
 		}
 	}
 	if (gridFighters[cursors[0].pos] >= 0) {
 		graphics::setColor(255, 255, 255, (float)(PORTRAIT_FADE - cursors[0].timerPortrait) / PORTRAIT_FADE);
-		game::fighters[gridFighters[cursors[0].pos]].portrait.draw(0 - cursors[0].timerPortrait, 0);
+		fighters[gridFighters[cursors[0].pos]]->portrait.draw(0 - cursors[0].timerPortrait, 0);
 	}
 
 	//Now the GUI
@@ -441,23 +445,23 @@ void scene::Select::draw() const {
 
 	if (cursors[1].lockState >= Cursor::CURSOR_COLORSWAP) {
 		if (gridFighters[cursors[1].pos] >= 0) {
-			game::Fighter& fighter = game::fighters[gridFighters[cursors[1].pos]];
-			sprite::Sprite& spr = fighter.sprites[0];
-			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
+			game::Fighter* fighter = fighters[gridFighters[cursors[1].pos]];
+			sprite::Sprite& spr = fighter->sprites[0];
+			AtlasSprite sprAtlas = fighter->sprites[0].atlas->getSprite(spr.atlas_sprite);
 
-			graphics::setPalette(fighter.palettes[Fight::poniko.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-			fighter.sprites[0].atlas->draw(spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
+			graphics::setPalette(fighter->palettes[Fight::poniko.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+			fighter->sprites[0].atlas->draw(spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
 			glUseProgram(0);
 		}
 	}
 	if (cursors[0].lockState >= Cursor::CURSOR_COLORSWAP) {
 		if (gridFighters[cursors[0].pos] >= 0) {
-			game::Fighter& fighter = game::fighters[gridFighters[cursors[0].pos]];
-			sprite::Sprite& spr = fighter.sprites[0];
-			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
+			game::Fighter* fighter = fighters[gridFighters[cursors[0].pos]];
+			sprite::Sprite& spr = fighter->sprites[0];
+			AtlasSprite sprAtlas = fighter->sprites[0].atlas->getSprite(spr.atlas_sprite);
 
-			graphics::setPalette(fighter.palettes[Fight::madotsuki.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-			fighter.sprites[0].atlas->draw(spr.atlas_sprite, 50 - spr.x, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
+			graphics::setPalette(fighter->palettes[Fight::madotsuki.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+			fighter->sprites[0].atlas->draw(spr.atlas_sprite, 50 - spr.x, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
 			glUseProgram(0);
 		}
 	}
@@ -465,7 +469,7 @@ void scene::Select::draw() const {
 	//Draw the select sprites
 	for (int i = 0; i < gridC; i++) {
 		if (gridFighters[i] >= 0) {
-			game::fighters[gridFighters[i]].select.draw(grid[i].x, grid[i].y);
+			fighters[gridFighters[i]]->select.draw(grid[i].x, grid[i].y);
 		}
 	}
 
@@ -631,8 +635,8 @@ void scene::Select::parseLine(Parser& parser) {
 		}
 
 		//Get fighter
-		for (int i = 0, fightersSize = game::fighters.size(); i < fightersSize; i++) {
-			if (!game::fighters[i].name.compare(parser.getArg(1))) {
+		for (int i = 0, fightersSize = fighters.size(); i < fightersSize; i++) {
+			if (!fighters[i]->name.compare(parser.getArg(1))) {
 				gridFighters[gridC] = i;
 				break;
 			}
