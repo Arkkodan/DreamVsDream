@@ -55,7 +55,7 @@ namespace scene {
 		Image portraits;
 		Image portraits_tag;
 		Image timer;
-		Font timer_font;
+		Font* timer_font;
 		Image shine;
 		Image shine_tag;
 
@@ -68,9 +68,9 @@ namespace scene {
 		SceneMeter meterDpm;
 
 		Image staticImg;
-		audio::Sound staticSnd;
-		audio::Sound fadeinSnd;
-		audio::Sound fadeoutSnd;
+		audio::Sound* staticSnd;
+		audio::Sound* fadeinSnd;
+		audio::Sound* fadeoutSnd;
 
 		std::array<Image, 5> round_splash;
 		Image round_hud[5];
@@ -79,7 +79,7 @@ namespace scene {
 
 		std::array<Image, 3> ko; // KO, timeout, draw
 
-		Font combo;
+		Font* combo;
 		Image comboLeft;
 		Image comboRight;
 		unsigned int comboLeftOff;
@@ -92,7 +92,7 @@ namespace scene {
 		util::Vector portraitPos;
 
 		Image win;
-		Font win_font;
+		Font* win_font;
 		audio::Music win_bgm;
 
 		Image orb_null;
@@ -119,6 +119,7 @@ namespace scene {
 
 		int gametype;
 
+	public:
 		//Functions
 		void think() override final;
 		void draw() const override final;

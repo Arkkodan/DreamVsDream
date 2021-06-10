@@ -611,15 +611,15 @@ namespace game {
 				pos.x += vel.x;
 
 				int w = (dir == RIGHT ? fighter->widthRight : fighter->widthLeft);
-				if(pos.x + w + STAGE_BUFFER > STAGE.width) {
+				if(pos.x + w + STAGE_BUFFER > STAGE->width) {
 					//vel.x = 0.0f;
-					pos.x = STAGE.width - fighter->widthRight - STAGE_BUFFER;
+					pos.x = STAGE->width - fighter->widthRight - STAGE_BUFFER;
 				}
 
 				w = (dir == LEFT ? fighter->widthRight : fighter->widthLeft);
-				if(pos.x - w - STAGE_BUFFER < -STAGE.width) {
+				if(pos.x - w - STAGE_BUFFER < -STAGE->width) {
 					//vel.x = 0.0f;
-					pos.x = -STAGE.width + fighter->widthLeft + STAGE_BUFFER;
+					pos.x = -STAGE->width + fighter->widthLeft + STAGE_BUFFER;
 				}
 
 				if(!(flags & F_ON_GROUND)) {
@@ -849,15 +849,15 @@ namespace game {
 			effect::newEffect("Actionlines", sys::WINDOW_WIDTH / 2, sys::WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
 			switch(fighter->group) {
 			case 0:
-				sndTransformYn.play();
+				sndTransformYn->play();
 				effect::newEffect("Transform_yn", 0, fighter->height / 2, true, dir == LEFT, 1, 1, this);
 				break;
 			case 1:
-				sndTransform2kki.play();
+				sndTransform2kki->play();
 				effect::newEffect("Transform_2kki", 0, fighter->height, true, dir == LEFT, 1, 1, this);
 				break;
 			case 2:
-				sndTransformFlow.play();
+				sndTransformFlow->play();
 				effect::newEffect("Transform_flow", 0, fighter->height / 2, true, dir == LEFT, 1, 1, this);
 				break;
 			}
@@ -984,7 +984,7 @@ namespace game {
 							}
 
 							if(_force > 0 && (flags & F_ON_GROUND)) {
-								if(pother->pos.x + pother->fighter->widthLeft + STAGE_BUFFER >= STAGE.width || pother->pos.x - pother->fighter->widthLeft - STAGE_BUFFER <= -STAGE.width) {
+								if(pother->pos.x + pother->fighter->widthLeft + STAGE_BUFFER >= STAGE->width || pother->pos.x - pother->fighter->widthLeft - STAGE_BUFFER <= -STAGE->width) {
 									vel.x = _force * -mirror;
 								} else {
 									pother->vel.x = _force * mirror;
@@ -1048,7 +1048,7 @@ namespace game {
 							}
 
 							if(_force > 0 && (flags & F_ON_GROUND)) {
-								if(pother->pos.x + pother->fighter->widthLeft + STAGE_BUFFER >= STAGE.width || pother->pos.x - pother->fighter->widthLeft - STAGE_BUFFER <= -STAGE.width) {
+								if(pother->pos.x + pother->fighter->widthLeft + STAGE_BUFFER >= STAGE->width || pother->pos.x - pother->fighter->widthLeft - STAGE_BUFFER <= -STAGE->width) {
 									vel.x = _force * -mirror;
 								} else {
 									pother->vel.x = _force * mirror;

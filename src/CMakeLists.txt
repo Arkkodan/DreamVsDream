@@ -87,6 +87,8 @@ set(DVD_FILES
   DvD/parser.h
   DvD/player.cpp
   DvD/player.h
+  DvD/resource_manager.cpp
+  DvD/resource_manager.h
   DvD/shader.cpp
   DvD/shader.h
   DvD/sound.cpp

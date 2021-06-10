@@ -11,7 +11,7 @@ namespace scene {
 		Intro();
 		~Intro();
 
-		audio::Sound sfx;
+		audio::Sound* sfx;
 		Image instructions;
 		Image disclaimer_en;
 		Image disclaimer_ja;
@@ -20,6 +20,7 @@ namespace scene {
 		int timer;
 		int state;
 
+	public:
 		void think() override final;
 		void draw() const override final;
 

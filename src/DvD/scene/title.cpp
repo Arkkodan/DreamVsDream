@@ -47,6 +47,7 @@ scene::Title::Title() : Scene("title") {
 	submenu = 0;
 
 	nThemes = 0;
+	menuFont = nullptr;
 }
 
 scene::Title::~Title() {}
@@ -92,7 +93,7 @@ void scene::Title::think() {
 	}
 
 	if (input(up)) {
-		sndMenu.play();
+		sndMenu->play();
 
 		choiceTimer = aXOffset;
 		choiceLast = choice;
@@ -104,7 +105,7 @@ void scene::Title::think() {
 		}
 	}
 	else if (input(down)) {
-		sndMenu.play();
+		sndMenu->play();
 
 		choiceTimer = aXOffset;
 		choiceLast = choice;
@@ -121,30 +122,30 @@ void scene::Title::think() {
 		case TM_MAIN:
 			switch (choice) {
 			case CHOICE_VERSUS:
-				sndSelect.play();
+				sndSelect->play();
 				choice = 0;
 				choiceLast = 0;
 				choiceTimer = 0;
 				submenu = TM_VERSUS;
 				break;
 			case CHOICE_TRAINING:
-				sndSelect.play();
+				sndSelect->play();
 				FIGHT->gametype = Fight::GAMETYPE_TRAINING;
 				setScene(SCENE_SELECT);
 				break;
 			default:
 				//if(sndSelect) sndSelect->play();
 				//setScene(SCENE_SELECT);
-				sndInvalid.play();
+				sndInvalid->play();
 				break;
 #ifndef NO_NETWORK
 			case CHOICE_NETPLAY:
-				sndSelect.play();
+				sndSelect->play();
 				setScene(SCENE_NETPLAY);
 				break;
 #endif
 			case CHOICE_OPTIONS:
-				sndSelect.play();
+				sndSelect->play();
 				setScene(SCENE_OPTIONS);
 				break;
 			case CHOICE_QUIT:
@@ -156,17 +157,17 @@ void scene::Title::think() {
 		case TM_VERSUS:
 			switch (choice) {
 			case CHOICE_VS_PLR:
-				sndSelect.play();
+				sndSelect->play();
 				FIGHT->gametype = Fight::GAMETYPE_VERSUS;
 				setScene(SCENE_SELECT);
 				break;
 			default:
 				//if(sndSelect) sndSelect->play();
 				//setScene(SCENE_SELECT);
-				sndInvalid.play();
+				sndInvalid->play();
 				break;
 			case CHOICE_VS_RETURN:
-				sndBack.play();
+				sndBack->play();
 				choice = CHOICE_VERSUS;
 				choiceLast = choice;
 				choiceTimer = 0;
@@ -183,7 +184,7 @@ void scene::Title::think() {
 		}
 		else if (submenu == TM_VERSUS) {
 			//Return
-			sndBack.play();
+			sndBack->play();
 			choice = CHOICE_VERSUS;
 			choiceLast = choice;
 			choiceTimer = 0;
@@ -199,7 +200,7 @@ void scene::Title::reset() {
 void scene::Title::draw() const {
 	Scene::draw();
 
-	if (menuFont.exists()) {
+	if (menuFont->exists()) {
 		for (int i = 0; i < menuChoicesMax[submenu]; i++) {
 			int gray = 2;
 			if (submenu == TM_MAIN) {
@@ -225,13 +226,13 @@ void scene::Title::draw() const {
 			}
 
 			if (i == choice) {
-				menuFont.drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer), menuY + menuFont.img.h * i, menuChoices[submenu]->at(i), aR / gray, aG / gray, aB / gray, 255);
+				menuFont->drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer), menuY + menuFont->img.h * i, menuChoices[submenu]->at(i), aR / gray, aG / gray, aB / gray, 255);
 			}
 			else if (i == choiceLast) {
-				menuFont.drawText(menuX + i * menuXOffset + choiceTimer, menuY + menuFont.img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
+				menuFont->drawText(menuX + i * menuXOffset + choiceTimer, menuY + menuFont->img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
 			}
 			else {
-				menuFont.drawText(menuX + i * menuXOffset, menuY + menuFont.img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
+				menuFont->drawText(menuX + i * menuXOffset, menuY + menuFont->img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
 			}
 		}
 	}
@@ -241,7 +242,7 @@ void scene::Title::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("MENU", 3)) {
 		//Font
-		menuFont.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
+		menuFont = getResourceT<Font>(parser.getArg(1));
 
 		menuX = parser.getArgInt(2);
 		menuY = parser.getArgInt(3);

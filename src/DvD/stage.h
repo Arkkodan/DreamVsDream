@@ -14,7 +14,7 @@
 class Stage {
 public:
 	static int stage;
-	static std::vector<Stage> stages;
+	static std::vector<Stage*> stages;
 
 public:
 	std::string name;

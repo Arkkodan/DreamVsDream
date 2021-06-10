@@ -8,6 +8,7 @@
 #include "../effect.h"
 #include "../sys.h"
 #include "../graphics.h"
+#include "../resource_manager.h"
 #include "../../util/rng.h"
 
 #include <cstring>
@@ -73,11 +74,12 @@ void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
 
 scene::Fight::Fight() : Scene("fight") {
 	gametype = GAMETYPE_TRAINING;
+	staticSnd = fadeinSnd = fadeoutSnd = nullptr;
+	timer_font = combo = win_font = nullptr;
 	reset();
 }
 
-scene::Fight::~Fight() {
-}
+scene::Fight::~Fight() {}
 
 void scene::Fight::init() {
 	Scene::init();
@@ -98,7 +100,7 @@ void scene::Fight::parseLine(Parser& parser) {
 	}
 	else if (parser.is("TIMER", 2)) {
 		timer.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
-		timer_font.createFromFile(getResource(parser.getArg(2), Parser::EXT_FONT));
+		timer_font = getResourceT<Font>(parser.getArg(2));
 	}
 	else if (parser.is("SHINE", 1)) {
 		shine.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
@@ -144,11 +146,11 @@ void scene::Fight::parseLine(Parser& parser) {
 	}
 	else if (parser.is("STATIC", 2)) {
 		staticImg.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
-		staticSnd.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
+		staticSnd = getResourceT<audio::Sound>(parser.getArg(2));
 	}
 	else if (parser.is("FADE", 2)) {
-		fadeinSnd.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
-		fadeoutSnd.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
+		fadeinSnd = getResourceT<audio::Sound>(parser.getArg(1));
+		fadeoutSnd = getResourceT<audio::Sound>(parser.getArg(2));
 	}
 	else if (parser.is("ROUND_SPLASH", 5)) {
 		for (int i = 0; i < 5; i++) {
@@ -172,13 +174,13 @@ void scene::Fight::parseLine(Parser& parser) {
 		portraitPos.y = parser.getArgInt(2);
 	}
 	else if (parser.is("COMBO", 3)) {
-		combo.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
+		combo = getResourceT<Font>(parser.getArg(1));
 		comboLeft.createFromFile(getResource(parser.getArg(2), Parser::EXT_IMAGE));
 		comboRight.createFromFile(getResource(parser.getArg(3), Parser::EXT_IMAGE));
 	}
 	else if (parser.is("WIN", 3)) {
 		win.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
-		win_font.createFromFile(getResource(parser.getArg(2), Parser::EXT_FONT));
+		win_font = getResourceT<Font>(parser.getArg(2));
 		win_bgm.createFromFile("", getResource(parser.getArg(3), Parser::EXT_MUSIC));
 	}
 	else if (parser.is("WIN_ORBS", 5)) {
@@ -210,15 +212,15 @@ void scene::Fight::think() {
 	if (idealCameraPos.y < 0) {
 		idealCameraPos.y = 0;
 	}
-	if (idealCameraPos.y > STAGE.heightAbs - sys::WINDOW_HEIGHT) {
-		idealCameraPos.y = STAGE.heightAbs - sys::WINDOW_HEIGHT;
+	if (idealCameraPos.y > STAGE->heightAbs - sys::WINDOW_HEIGHT) {
+		idealCameraPos.y = STAGE->heightAbs - sys::WINDOW_HEIGHT;
 	}
 
-	if (idealCameraPos.x < STAGE.widthAbs / -2 + sys::WINDOW_WIDTH / 2) {
-		idealCameraPos.x = STAGE.widthAbs / -2 + sys::WINDOW_WIDTH / 2;
+	if (idealCameraPos.x < STAGE->widthAbs / -2 + sys::WINDOW_WIDTH / 2) {
+		idealCameraPos.x = STAGE->widthAbs / -2 + sys::WINDOW_WIDTH / 2;
 	}
-	else if (idealCameraPos.x > STAGE.widthAbs / 2 - sys::WINDOW_WIDTH / 2) {
-		idealCameraPos.x = STAGE.widthAbs / 2 - sys::WINDOW_WIDTH / 2;
+	else if (idealCameraPos.x > STAGE->widthAbs / 2 - sys::WINDOW_WIDTH / 2) {
+		idealCameraPos.x = STAGE->widthAbs / 2 - sys::WINDOW_WIDTH / 2;
 	}
 
 	cameraPos.x = (cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
@@ -248,7 +250,7 @@ void scene::Fight::think() {
 		}
 	}
 
-	STAGE.think();
+	STAGE->think();
 
 	madotsuki.think();
 	poniko.think();
@@ -281,7 +283,7 @@ void scene::Fight::think() {
 		game_timer = 0;
 
 		if (!bgmPlaying) {
-			STAGE.bgmPlay();
+			STAGE->bgmPlay();
 			bgmPlaying = true;
 		}
 	}
@@ -404,7 +406,7 @@ void scene::Fight::think() {
 		//ROUND INTROS
 		if (!Options::optionEpilepsy && (timer_round_out || timer_round_in)) {
 			if (!timer_flash && !util::roll(64)) {
-				staticSnd.play();
+				staticSnd->play();
 				timer_flash = 5;
 				staticImg.draw(0, 0);
 			}
@@ -416,14 +418,14 @@ void scene::Fight::think() {
 			cameraPos.y = 0;
 			idealCameraPos.x = 0;
 			idealCameraPos.y = 0;
-			fadeinSnd.play();
+			fadeinSnd->play();
 		}
 		if (timer_round_out == (int)(1.5 * sys::FPS)) {
-			fadeoutSnd.play();
+			fadeoutSnd->play();
 		}
 
 		if (timer_round_in == (int)(1.4 * sys::FPS) && !bgmPlaying) {
-			STAGE.bgmPlay();
+			STAGE->bgmPlay();
 			bgmPlaying = true;
 		}
 
@@ -536,7 +538,7 @@ void scene::Fight::think() {
 
 void scene::Fight::draw() const {
 	// From main.cpp
-	STAGE.draw(false);
+	STAGE->draw(false);
 
 	madotsuki.drawSpecial();
 	poniko.drawSpecial();
@@ -566,7 +568,7 @@ void scene::Fight::draw() const {
 		}
 	}
 
-	STAGE.draw(true);
+	STAGE->draw(true);
 
 	effect::draw();
 
@@ -582,7 +584,7 @@ void scene::Fight::draw() const {
 		else {
 			sprintf(_b_sz, "Player %d wins!", winner);
 		}
-		win_font.drawText(32, sys::FLIP(32), _b_sz);
+		win_font->drawText(32, sys::FLIP(32), _b_sz);
 	}
 	else {
 		hud.draw(0, 0);
@@ -650,8 +652,8 @@ void scene::Fight::draw() const {
 			else {
 				strcpy(b_timer_text, "00");
 			}
-			int w_timer_text = timer_font.getTextWidth(b_timer_text);
-			timer_font.drawText((sys::WINDOW_WIDTH - w_timer_text) / 2, 30, b_timer_text);
+			int w_timer_text = timer_font->getTextWidth(b_timer_text);
+			timer_font->drawText((sys::WINDOW_WIDTH - w_timer_text) / 2, 30, b_timer_text);
 		}
 
 		shine.draw(0, 0);
@@ -665,8 +667,8 @@ void scene::Fight::draw() const {
 			comboLeft.draw(comboLeftOff - comboLeft.w, 131);
 			char buff[8];
 			sprintf(buff, "%d", comboLeftLast);
-			int w = combo.getTextWidth(buff);
-			combo.drawText(comboLeftOff - w / 2 - 100, 131 + 35, buff);
+			int w = combo->getTextWidth(buff);
+			combo->drawText(comboLeftOff - w / 2 - 100, 131 + 35, buff);
 		}
 
 		//RIGHT
@@ -674,8 +676,8 @@ void scene::Fight::draw() const {
 			comboRight.draw(sys::WINDOW_WIDTH - comboRightOff, 131);
 			char buff[8];
 			sprintf(buff, "%d", comboRightLast);
-			int w = combo.getTextWidth(buff);
-			combo.drawText(sys::WINDOW_WIDTH - comboRightOff - w / 2 + 100, 131 + 35, buff);
+			int w = combo->getTextWidth(buff);
+			combo->drawText(sys::WINDOW_WIDTH - comboRightOff - w / 2 + 100, 131 + 35, buff);
 		}
 
 		//Draw character portraits

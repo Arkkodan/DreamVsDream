@@ -5,6 +5,7 @@
 
 #include "../player.h"
 #include "../graphics.h"
+#include "../resource_manager.h"
 #include "../../util/rng.h"
 
 #include <cstring>
@@ -27,6 +28,8 @@ scene::Options::Options() : Scene("options") {
 	nThemes = 0;
 	iR = iG = iB = aR = aG = aB = 0;
 	aXOffset = 0;
+	madoSfxStep = madoSfxPinch = dame = muri = nullptr;
+	menuFont = nullptr;
 }
 
 scene::Options::~Options() {}
@@ -56,7 +59,7 @@ void scene::Options::think() {
 				madoFrame++;
 			}
 			else if (madoWakeTimer == 32) {
-				madoSfxPinch.play();
+				madoSfxPinch->play();
 				madoFrame++;
 			}
 		}
@@ -73,7 +76,7 @@ void scene::Options::think() {
 					madoFrame = 0;
 				}
 				if (madoFrame % 2 == 1) {
-					madoSfxStep.play();
+					madoSfxStep->play();
 				}
 			}
 		}
@@ -87,7 +90,7 @@ void scene::Options::think() {
 					madoFrame = 0;
 				}
 				if (madoFrame % 2 == 1) {
-					madoSfxStep.play();
+					madoSfxStep->play();
 				}
 			}
 		}
@@ -102,7 +105,7 @@ void scene::Options::think() {
 		}
 
 		if (input(game::INPUT_UP)) {
-			sndMenu.play();
+			sndMenu->play();
 			if (cursor) {
 				cursor--;
 			}
@@ -111,7 +114,7 @@ void scene::Options::think() {
 			}
 		}
 		else if (input(game::INPUT_DOWN)) {
-			sndMenu.play();
+			sndMenu->play();
 			if (cursor < OPTION_MAX - 1) {
 				cursor++;
 			}
@@ -131,7 +134,7 @@ void scene::Options::think() {
 		//Change option
 		if (input(game::INPUT_LEFT) || input(game::INPUT_RIGHT)) {
 			if (cursor != OPTION_VOICE_VOLUME) {
-				sndMenu.play();
+				sndMenu->play();
 			}
 
 			switch (cursor) {
@@ -211,13 +214,13 @@ void scene::Options::think() {
 					if (optionVoiceVolume > 0) {
 						optionVoiceVolume -= 10;
 					}
-					Fight::madotsuki.speaker.play(&dame);
+					Fight::madotsuki.speaker.play(dame);
 				}
 				else {
 					if (optionVoiceVolume < 100) {
 						optionVoiceVolume += 10;
 					}
-					Fight::madotsuki.speaker.play(&muri);
+					Fight::madotsuki.speaker.play(muri);
 				}
 				break;
 
@@ -231,7 +234,7 @@ void scene::Options::think() {
 
 		if (input(game::INPUT_A)) {
 			if (cursor == OPTION_CREDITS) {
-				sndSelect.play();
+				sndSelect->play();
 				setScene(SCENE_CREDITS);
 			}
 		}
@@ -259,7 +262,7 @@ void scene::Options::draw() const {
 	Scene::draw();
 
 	//Draw the menu options
-	if (menuFont.exists()) {
+	if (menuFont->exists()) {
 		for (int i = 0; i < OPTION_MAX; i++) {
 			char buff[80];
 			switch (i) {
@@ -307,13 +310,13 @@ void scene::Options::draw() const {
 			}
 
 			if (i == cursor) {
-				menuFont.drawText(64 + (aXOffset - cursorTimer), 64 + i * 32, buff, aR, aG, aB);
+				menuFont->drawText(64 + (aXOffset - cursorTimer), 64 + i * 32, buff, aR, aG, aB);
 			}
 			else if (i == cursorLast) {
-				menuFont.drawText(64 + cursorTimer, 64 + i * 32, buff, iR, iG, iB);
+				menuFont->drawText(64 + cursorTimer, 64 + i * 32, buff, iR, iG, iB);
 			}
 			else {
-				menuFont.drawText(64, 64 + i * 32, buff, iR, iG, iB);
+				menuFont->drawText(64, 64 + i * 32, buff, iR, iG, iB);
 			}
 		}
 	}
@@ -339,13 +342,13 @@ void scene::Options::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("FONT", 1)) {
 		//The font
-		menuFont.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
+		menuFont = getResourceT<Font>(parser.getArg(1));
 	}
 	else if (parser.is("MADOTSUKI", 3)) {
 		//Madotsuki sprites/sounds
 		madoImg.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
-		madoSfxStep.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
-		madoSfxPinch.createFromFile(getResource(parser.getArg(3), Parser::EXT_SOUND));
+		madoSfxStep = getResourceT<audio::Sound>(parser.getArg(2));
+		madoSfxPinch = getResourceT<audio::Sound>(parser.getArg(3));
 	}
 	else if (parser.is("INACTIVE", 3)) {
 		iR = parser.getArgInt(1);
@@ -369,8 +372,8 @@ void scene::Options::parseLine(Parser& parser) {
 		themes[nThemes++] = parser.getArg(1);
 	}
 	else if (parser.is("VOICES", 2)) {
-		dame.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
-		muri.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
+		dame = getResourceT<audio::Voice>(parser.getArg(1));
+		muri = getResourceT<audio::Voice>(parser.getArg(2));
 	}
 	else {
 		Scene::parseLine(parser);

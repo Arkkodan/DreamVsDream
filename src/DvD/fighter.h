@@ -21,9 +21,9 @@ namespace game {
 	/// @brief Deinit
 	void deinit();
 	
-	extern audio::Sound sndTransformYn;
-	extern audio::Sound sndTransform2kki;
-	extern audio::Sound sndTransformFlow;
+	extern audio::Sound* sndTransformYn;
+	extern audio::Sound* sndTransform2kki;
+	extern audio::Sound* sndTransformFlow;
 #endif
 	enum {
 		SBOOL_UNDEFINED = -1,
@@ -323,8 +323,6 @@ namespace game {
 
 	protected:
 	};
-
-	extern std::vector<Fighter> fighters;
 
 	/// @brief Set a boolean output parameter based on an enum input parameter
 	void setBool(bool& dst, char src);

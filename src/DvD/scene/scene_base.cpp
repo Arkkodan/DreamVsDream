@@ -6,6 +6,7 @@
 #include "../stage.h"
 #include "../error.h"
 #include "../sys.h"
+#include "../resource_manager.h"
 #include "../../util/fileIO.h"
 #include "../graphics.h"
 
@@ -21,9 +22,25 @@ scene::Scene::Scene(std::string name_) {
 	initialized = false;
 	bgmPlaying = false;
 	//video = nullptr;
+
+	sndMenu = sndSelect = sndBack = sndInvalid = nullptr;
+
+	ext2dir[Parser::EXT_SCRIPT] = "scripts";
+	ext2dir[Parser::EXT_IMAGE] = "images";
+	ext2dir[Parser::EXT_SOUND] = "sounds";
+	ext2dir[Parser::EXT_MUSIC] = "music";
+	ext2dir[Parser::EXT_FONT] = "fonts";
+	ext2dir[Parser::EXT_VIDEO] = "videos";
+	ext2dir[Parser::EXT_TEXT] = "texts";
 }
 
 scene::Scene::~Scene() {
+	for (const auto* item : deleteFontVector) {
+		delete item;
+	}
+	for (const auto* item : deleteSoundVector) {
+		delete item;
+	}
 	//delete video;
 }
 
@@ -86,11 +103,11 @@ void scene::Scene::think() {
 					sys::refresh();
 					SCENE->init();
 				}
-				if (scene == SCENE_FIGHT && !STAGE.initialized) {
+				if (scene == SCENE_FIGHT && !STAGE->initialized) {
 					//Loading graphic
 					imgLoading.draw(0, 0);
 					sys::refresh();
-					STAGE.init();
+					STAGE->init();
 				}
 				SCENE->reset();
 			}
@@ -117,6 +134,32 @@ void scene::Scene::draw() const {
 	);
 
 
+}
+
+template<>
+Font* scene::Scene::getResourceT<Font>(const std::string& resource) {
+	if (resource.front() == '*') {
+		return resource_manager::getResource<Font>(resource.substr(1, std::string::npos));
+	}
+	else {
+		Font* res = new Font;
+		res->createFromFile(getResource(resource, Parser::EXT_FONT));
+		deleteFontVector.push_back(res);
+		return res;
+	}
+}
+
+template<>
+audio::Sound* scene::Scene::getResourceT<audio::Sound>(const std::string& resource) {
+	if (resource.front() == '*') {
+		return resource_manager::getResource<audio::Sound>(resource.substr(1, std::string::npos));
+	}
+	else {
+		audio::Sound* res = new audio::Sound;
+		res->createFromFile(getResource(resource, Parser::EXT_SOUND));
+		deleteSoundVector.push_back(res);
+		return res;
+	}
 }
 
 void scene::Scene::parseLine(Parser& parser) {
@@ -169,10 +212,10 @@ void scene::Scene::parseLine(Parser& parser) {
 		}
 	}
 	else if (parser.is("SOUND", 4)) {
-		sndMenu.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
-		sndSelect.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
-		sndBack.createFromFile(getResource(parser.getArg(3), Parser::EXT_SOUND));
-		sndInvalid.createFromFile(getResource(parser.getArg(4), Parser::EXT_SOUND));
+		sndMenu = getResourceT<audio::Sound>(parser.getArg(1));
+		sndSelect = getResourceT<audio::Sound>(parser.getArg(2));
+		sndBack = getResourceT<audio::Sound>(parser.getArg(3));
+		sndInvalid = getResourceT<audio::Sound>(parser.getArg(4));
 	}
 	else if (parser.is("VIDEO", 1)) {
 		//getResource(parser.getArg(1), EXT_VIDEO);
@@ -195,7 +238,7 @@ void scene::Scene::parseFile(std::string szFileName) {
 
 std::string scene::Scene::getResource(std::string resource, std::string extension) const {
 	if (*resource.c_str() == '*') {
-		return "scenes/common/" + resource.substr(1, std::string::npos) + "." + extension;
+		return ext2dir.at(extension) + '/' + resource.substr(1, std::string::npos) + '.' + extension;
 	}
 	else {
 		return "scenes/" + name + "/" + resource + "." + extension;
