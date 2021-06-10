@@ -849,15 +849,15 @@ namespace game {
 			effect::newEffect("Actionlines", sys::WINDOW_WIDTH / 2, sys::WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
 			switch(fighter->group) {
 			case 0:
-				sndTransformYn.play();
+				sndTransformYn->play();
 				effect::newEffect("Transform_yn", 0, fighter->height / 2, true, dir == LEFT, 1, 1, this);
 				break;
 			case 1:
-				sndTransform2kki.play();
+				sndTransform2kki->play();
 				effect::newEffect("Transform_2kki", 0, fighter->height, true, dir == LEFT, 1, 1, this);
 				break;
 			case 2:
-				sndTransformFlow.play();
+				sndTransformFlow->play();
 				effect::newEffect("Transform_flow", 0, fighter->height / 2, true, dir == LEFT, 1, 1, this);
 				break;
 			}

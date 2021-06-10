@@ -21,9 +21,9 @@ namespace game {
 	/// @brief Deinit
 	void deinit();
 	
-	extern audio::Sound sndTransformYn;
-	extern audio::Sound sndTransform2kki;
-	extern audio::Sound sndTransformFlow;
+	extern audio::Sound* sndTransformYn;
+	extern audio::Sound* sndTransform2kki;
+	extern audio::Sound* sndTransformFlow;
 #endif
 	enum {
 		SBOOL_UNDEFINED = -1,

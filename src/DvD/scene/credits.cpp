@@ -4,6 +4,7 @@
 
 #include "../player.h"
 #include "../sys.h"
+#include "../resource_manager.h"
 #include "../../fileIO/text.h"
 #include "../../util/fileIO.h"
 
@@ -17,6 +18,7 @@ scene::Credits::Credits() : Scene("credits") {
 	//Data
 	title_r = title_g = title_b = name_r = name_g = name_b = 255;
 	c_lines = 0;
+	font = nullptr;
 }
 
 scene::Credits::~Credits() {}
@@ -51,7 +53,7 @@ void scene::Credits::draw() const {
 	if (!timer_start) {
 		if (done) {
 			static std::string _sz = "Secret character unlocked!";
-			font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(_sz) - CREDITS_OFFSET, sys::FLIP(font.img.h * 2), _sz, 255, 255, 255, secret_alpha);
+			font->drawText(sys::WINDOW_WIDTH - font->getTextWidth(_sz) - CREDITS_OFFSET, sys::FLIP(font->img.h * 2), _sz, 255, 255, 255, secret_alpha);
 		}
 		else {
 			int y = (sys::WINDOW_HEIGHT - logo.h) / 4 - oy;
@@ -67,7 +69,7 @@ void scene::Credits::draw() const {
 					oy_title++;
 				}
 
-				y = sys::WINDOW_HEIGHT + (font.img.h * (i + oy_title)) - oy;
+				y = sys::WINDOW_HEIGHT + (font->img.h * (i + oy_title)) - oy;
 
 				if (y + 32 < 0) {
 					if (i == c_lines - 1) {
@@ -81,10 +83,10 @@ void scene::Credits::draw() const {
 
 				if (fc == ':') {
 					std::string out = lines[i].substr(1);
-					font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(out) - CREDITS_OFFSET, y, out, title_r, title_g, title_b);
+					font->drawText(sys::WINDOW_WIDTH - font->getTextWidth(out) - CREDITS_OFFSET, y, out, title_r, title_g, title_b);
 				}
 				else {
-					font.drawText(sys::WINDOW_WIDTH - font.getTextWidth(lines[i]) - CREDITS_OFFSET, y, lines[i], name_r, name_g, name_b);
+					font->drawText(sys::WINDOW_WIDTH - font->getTextWidth(lines[i]) - CREDITS_OFFSET, y, lines[i], name_r, name_g, name_b);
 				}
 			}
 		}
@@ -106,7 +108,7 @@ void scene::Credits::parseLine(Parser& parser) {
 		logo.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
 	}
 	else if (parser.is("CREDITS", 2)) {
-		font.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
+		font = getResourceT<Font>(parser.getArg(1));
 		lines = fileIO::readTextAsLines(util::getPath(getResource(parser.getArg(2), Parser::EXT_TEXT)));
 		c_lines = lines.size();
 	}

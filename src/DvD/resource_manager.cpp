@@ -3,6 +3,7 @@
 #include "../fileIO/json.h"
 #include "../util/fileIO.h"
 #include "error.h"
+#include "parser.h"
 
 #include <vector>
 #include <memory>
@@ -23,6 +24,7 @@ bool resource_manager::load<effect::EffectAnimation>(const std::string& resource
 			return false;
 		}
 	}
+	// Unsafe: What if stage does not exist?
 	effectsMap[resource] = std::make_unique<effect::EffectAnimation>(resource);
 	return true;
 }
@@ -89,6 +91,10 @@ bool resource_manager::load<game::Fighter>(const std::string& resource, bool rel
 			return false;
 		}
 	}
+	std::string path = util::getPath("chars/" + resource + ".char");
+	if (!util::fileExists(path)) {
+		return false;
+	}
 	fightersMap[resource] = std::make_unique<game::Fighter>();
 	fightersMap[resource]->create(resource);
 	return true;
@@ -142,6 +148,84 @@ std::vector<game::Fighter*> resource_manager::getFromManifest<game::Fighter>() {
 }
 
 
+#include "font.h"
+
+namespace resource_manager {
+	// static std::vector<std::string> fontsManifest;
+	static std::unordered_map<std::string, std::unique_ptr<Font>> fontsMap;
+}
+
+template<>
+bool resource_manager::load<Font>(const std::string& resource, bool reloadOK) {
+	if (!reloadOK) {
+		if (fontsMap.find(resource) != fontsMap.cend()) {
+			return false;
+		}
+	}
+	std::string path = util::getPath("fonts/" + resource + '.' + Parser::EXT_FONT);
+	if (!util::fileExists(path)) {
+		return false;
+	}
+	fontsMap[resource] = std::make_unique<Font>();
+	fontsMap[resource]->createFromFile(path);
+	return true;
+}
+
+template<>
+void resource_manager::unload<Font>(const std::string& resource) {
+	fontsMap.erase(resource);
+}
+
+template<>
+Font* resource_manager::getResource<Font>(const std::string& resource) {
+	if (fontsMap.find(resource) == fontsMap.cend()) {
+		if (!load<Font>(resource, true)) {
+			return nullptr;
+		}
+	}
+	return fontsMap[resource].get();
+}
+
+
+#include "sound.h"
+
+namespace resource_manager {
+	// static std::vector<std::string> soundsManifest;
+	static std::unordered_map<std::string, std::unique_ptr<audio::Sound>> soundsMap;
+}
+
+template<>
+bool resource_manager::load<audio::Sound>(const std::string& resource, bool reloadOK) {
+	if (!reloadOK) {
+		if (soundsMap.find(resource) != soundsMap.cend()) {
+			return false;
+		}
+	}
+	std::string path = util::getPath("sounds/" + resource + '.' + Parser::EXT_SOUND);
+	if (!util::fileExists(path)) {
+		return false;
+	}
+	soundsMap[resource] = std::make_unique<audio::Sound>();
+	soundsMap[resource]->createFromFile(path);
+	return true;
+}
+
+template<>
+void resource_manager::unload<audio::Sound>(const std::string& resource) {
+	soundsMap.erase(resource);
+}
+
+template<>
+audio::Sound* resource_manager::getResource<audio::Sound>(const std::string& resource) {
+	if (soundsMap.find(resource) == soundsMap.cend()) {
+		if (!load<audio::Sound>(resource, true)) {
+			return nullptr;
+		}
+	}
+	return soundsMap[resource].get();
+}
+
+
 #include "stage.h"
 
 namespace resource_manager {
@@ -156,6 +240,7 @@ bool resource_manager::load<Stage>(const std::string& resource, bool reloadOK) {
 			return false;
 		}
 	}
+	// Unsafe: What if stage does not exist?
 	stagesMap[resource] = std::make_unique<Stage>();
 	stagesMap[resource]->create(resource);
 	return true;

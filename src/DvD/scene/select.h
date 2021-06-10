@@ -7,8 +7,6 @@
 #include "../font.h"
 #include "../fighter.h"
 
-#include <vector>
-
 namespace scene {
 
 	/// @brief Helper data structure for SceneSelect
@@ -17,13 +15,14 @@ namespace scene {
 		util::Vector off;
 		Image img;
 		Image imgSelect;
-		audio::Sound sndSelect;
-		audio::Sound sndDeselect;
+		audio::Sound* sndSelect;
+		audio::Sound* sndDeselect;
 
 		int frameC;
 		int speed;
 		bool grow;
 
+	public:
 		CursorData();
 		~CursorData();
 
@@ -91,12 +90,13 @@ namespace scene {
 
 		std::vector<CursorData> curData;
 
-		Font font_stage;
+		Font* font_stage;
 		int cursor_stage;
 		float cursor_stage_offset;
 
 		std::vector<game::Fighter*> fighters;
 
+	public:
 		//Functions
 		void think() override final;
 		void reset() override final;

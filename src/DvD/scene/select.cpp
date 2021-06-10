@@ -26,6 +26,7 @@ scene::Select::Select() : Scene("select") {
 
 	cursor_stage = 0;
 	cursor_stage_offset = 0;
+	font_stage = nullptr;
 }
 
 scene::Select::~Select() {}
@@ -78,7 +79,7 @@ void scene::Select::think() {
 				}
 
 				if (input & game::INPUT_LEFT) {
-					sndMenu.play();
+					sndMenu->play();
 
 					do {
 						if (cursors[cur].pos % width == 0) {
@@ -95,7 +96,7 @@ void scene::Select::think() {
 					}
 				}
 				else if (input & game::INPUT_RIGHT) {
-					sndMenu.play();
+					sndMenu->play();
 
 					do {
 						if (cursors[cur].pos % width == width - 1) {
@@ -112,7 +113,7 @@ void scene::Select::think() {
 					}
 				}
 				else if (input & game::INPUT_UP) {
-					sndMenu.play();
+					sndMenu->play();
 
 					do {
 						if (cursors[cur].pos / width == 0) {
@@ -134,7 +135,7 @@ void scene::Select::think() {
 					}
 				}
 				else if (input & game::INPUT_DOWN) {
-					sndMenu.play();
+					sndMenu->play();
 
 					do {
 						if (cursors[cur].pos / width == height - 1) {
@@ -163,13 +164,13 @@ void scene::Select::think() {
 						newEffect(cur, group);
 					}
 					else {
-						sndInvalid.play();
+						sndInvalid->play();
 					}
 				}
 			}
 			else if (cursors[cur].lockState == Cursor::CURSOR_COLORSWAP) {
 				if (input & game::INPUT_LEFT) {
-					sndMenu.play();
+					sndMenu->play();
 
 					if (cur == 0) {
 						if (Fight::madotsuki.palette == 0) {
@@ -189,7 +190,7 @@ void scene::Select::think() {
 					}
 				}
 				else if (input & game::INPUT_RIGHT) {
-					sndMenu.play();
+					sndMenu->play();
 
 					if (cur == 0) {
 						if (Fight::madotsuki.palette == fighters[gridFighters[cursors[0].pos]]->nPalettes - 1) {
@@ -210,7 +211,7 @@ void scene::Select::think() {
 				}
 
 				if (input & game::INPUT_A) {
-					sndSelect.play();
+					sndSelect->play();
 					cursors[cur].lockState = Cursor::CURSOR_LOCKED;
 				}
 			}
@@ -218,11 +219,11 @@ void scene::Select::think() {
 			if (input & game::INPUT_B) {
 				if (FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING) {
 					if (cursors[0].lockState == Cursor::CURSOR_UNLOCKED) {
-						sndBack.play();
+						sndBack->play();
 						setScene(SCENE_TITLE);
 					}
 					else if (cursors[cur].lockState == Cursor::CURSOR_UNLOCKED) {
-						sndBack.play();
+						sndBack->play();
 						cur--;
 						cursors[cur].lockState = Cursor::CURSOR_COLORSWAP;
 					}
@@ -231,27 +232,27 @@ void scene::Select::think() {
 
 						if (!curData.empty()) {
 							group = cursors[cur].getGroup(width, gWidth, gHeight);
-							curData[group].sndDeselect.play();
-							curData[group].sndSelect.stop();
+							curData[group].sndDeselect->play();
+							curData[group].sndSelect->stop();
 						}
 					}
 				}
 				else {
 					if (cursors[cur].lockState == Cursor::CURSOR_LOCKED) {
-						sndBack.play();
+						sndBack->play();
 						cursors[cur].lockState = Cursor::CURSOR_COLORSWAP;
 					}
 					else if (cursors[cur].lockState == Cursor::CURSOR_COLORSWAP) {
 						cursors[cur].lockState = Cursor::CURSOR_UNLOCKED;
 						if (!curData.empty()) {
 							group = cursors[cur].getGroup(width, gWidth, gHeight);
-							curData[group].sndDeselect.play();
-							curData[group].sndSelect.stop();
+							curData[group].sndDeselect->play();
+							curData[group].sndSelect->stop();
 						}
 					}
 					else {
 						if (!net::connected) {
-							sndBack.play();
+							sndBack->play();
 							setScene(SCENE_TITLE);
 						}
 					}
@@ -280,7 +281,7 @@ void scene::Select::think() {
 			switch (dx)
 			{
 			case -1: // Left
-				sndMenu.play();
+				sndMenu->play();
 				do {
 					if (cursor_stage % STAGES_PER_ROW == 0) {
 						// Wrap-around
@@ -294,7 +295,7 @@ void scene::Select::think() {
 				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
 				break;
 			case 1: // Right
-				sndMenu.play();
+				sndMenu->play();
 				do {
 					if (cursor_stage % STAGES_PER_ROW == STAGES_PER_ROW - 1) {
 						// Wrap-around
@@ -312,7 +313,7 @@ void scene::Select::think() {
 			switch (dy)
 			{
 			case -1: // Up
-				sndMenu.play();
+				sndMenu->play();
 				do {
 					if (cursor_stage - STAGES_PER_ROW < 0) {
 						// Wrap-around, multiple of STAGES_PER_ROW
@@ -328,7 +329,7 @@ void scene::Select::think() {
 				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
 				break;
 			case 1: // Down
-				sndMenu.play();
+				sndMenu->play();
 				do {
 					cursor_stage += STAGES_PER_ROW;
 					if (cursor_stage >= size) {
@@ -346,14 +347,14 @@ void scene::Select::think() {
 
 				if (!curData.empty()) {
 					int group = cursors[1].getGroup(width, gWidth, gHeight);
-					curData[group].sndDeselect.play();
-					curData[group].sndSelect.stop();
+					curData[group].sndDeselect->play();
+					curData[group].sndSelect->stop();
 				}
 			}
 		}
 		else {
 			if (input(game::INPUT_B)) {
-				sndBack.play();
+				sndBack->play();
 				cursors[0].lockState = Cursor::CURSOR_COLORSWAP;
 				cursors[1].lockState = Cursor::CURSOR_COLORSWAP;
 
@@ -380,10 +381,10 @@ void scene::Select::think() {
 
 				Stage::stage = cursor_stage;
 				setScene(SCENE_VERSUS);
-				sndSelect.play();
+				sndSelect->play();
 			}
 			else {
-				sndInvalid.play();
+				sndInvalid->play();
 			}
 		}
 	}
@@ -534,8 +535,8 @@ void scene::Select::draw() const {
 
 void scene::Select::newEffect(int player, int group) {
 	if (!curData.empty()) {
-		curData[group].sndSelect.play();
-		curData[group].sndDeselect.stop();
+		curData[group].sndSelect->play();
+		curData[group].sndDeselect->stop();
 	}
 
 	cursors[player].frame = 1;
@@ -612,8 +613,8 @@ void scene::Select::parseLine(Parser& parser) {
 		curData[group].grow = parser.getArgBool(8, false);
 
 		//Sounds
-		curData[group].sndSelect.createFromFile(getResource(parser.getArg(9), Parser::EXT_SOUND));
-		curData[group].sndDeselect.createFromFile(getResource(parser.getArg(10), Parser::EXT_SOUND));
+		curData[group].sndSelect = getResourceT<audio::Sound>(parser.getArg(9));
+		curData[group].sndDeselect = getResourceT<audio::Sound>(parser.getArg(10));
 	}
 	else if (parser.is("CHAR", 1)) {
 		//Add to the grids
@@ -687,7 +688,7 @@ void scene::Select::parseLine(Parser& parser) {
 	}
 	else if (parser.is("STAGES", 1)) {
 		//Load the font
-		font_stage.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
+		font_stage = getResourceT<Font>(parser.getArg(1));
 	}
 	else if (parser.is("PLAYER", 6)) {
 		//Load the player
@@ -712,15 +713,15 @@ scene::CursorData::CursorData() {
 	frameC = 0;
 	speed = 0;
 	grow = false;
+	sndSelect = sndDeselect = nullptr;
 }
 
-scene::CursorData::~CursorData() {
-}
+scene::CursorData::~CursorData() {}
 
 scene::CursorData::CursorData(CursorData&& other) noexcept :
 	off(std::move(other.off)),
 	img(std::move(other.img)), imgSelect(std::move(other.imgSelect)),
-	sndSelect(std::move(other.sndSelect)), sndDeselect(std::move(other.sndDeselect)),
+	sndSelect(other.sndSelect), sndDeselect(other.sndDeselect),
 	frameC(other.frameC), speed(other.speed), grow(other.grow)
 {}
 
@@ -728,8 +729,8 @@ scene::CursorData& scene::CursorData::operator=(CursorData& other) noexcept {
 	off = std::move(other.off);
 	img = std::move(other.img);
 	imgSelect = std::move(other.imgSelect);
-	sndSelect = std::move(other.sndSelect);
-	sndDeselect = std::move(other.sndDeselect);
+	sndSelect = other.sndSelect;
+	sndDeselect = other.sndDeselect;
 
 	frameC = other.frameC;
 	speed = other.speed;

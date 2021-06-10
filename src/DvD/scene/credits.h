@@ -28,7 +28,7 @@ namespace scene {
 
 		//Data
 		Image logo;
-		Font font;
+		Font* font;
 		int c_lines;
 		std::vector<std::string> lines;
 

@@ -5,20 +5,21 @@
 #include "../player.h"
 #include "../sys.h"
 #include "../graphics.h"
+#include "../resource_manager.h"
 
 scene::Intro::Intro() : Scene("intro") {
 	timer = sys::FPS / 2;
 	state = 0;
+	sfx = nullptr;
 }
 
-scene::Intro::~Intro() {
-}
+scene::Intro::~Intro() {}
 
 void scene::Intro::think() {
 	Scene::think();
 
 	if (timer == sys::FPS / 2) {
-		sfx.play();
+		sfx->play();
 	}
 
 	if (input(game::INPUT_A) && !timer) {
@@ -70,7 +71,7 @@ void scene::Intro::draw() const {
 
 void scene::Intro::parseLine(Parser& parser) {
 	if (parser.is("SFX", 1)) {
-		sfx.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
+		sfx = getResourceT<audio::Sound>(parser.getArg(1));
 	}
 	else if (parser.is("INSTRUCTIONS", 1)) {
 		instructions.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));

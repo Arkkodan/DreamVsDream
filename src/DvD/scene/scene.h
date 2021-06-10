@@ -3,6 +3,8 @@
 
 #include "scene_base.h"
 
+#include <memory>
+
 #define SCENE (scene::getScene())
 #define FIGHT (reinterpret_cast<scene::Fight*>(scene::scenes[scene::SCENE_FIGHT].get()))
 

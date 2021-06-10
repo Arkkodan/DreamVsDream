@@ -60,7 +60,7 @@ namespace scene {
 
 		//Members
 		int menuX, menuY;
-		Font menuFont;
+		Font* menuFont;
 		int menuXOffset;
 
 		uint8_t iR, iG, iB, aR, aG, aB;
