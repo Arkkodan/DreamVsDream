@@ -14,8 +14,8 @@ int Stage::stage = -1;
 std::vector<Stage*> Stage::stages;
 
 void Stage::ginit() {
-	resource_manager::loadAll<Stage>();
-	stages = resource_manager::getAll<Stage>();
+	resource_manager::loadFromManifest<Stage>();
+	stages = resource_manager::getFromManifest<Stage>();
 }
 
 void Stage::deinit() {

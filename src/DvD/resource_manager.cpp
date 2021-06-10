@@ -12,18 +12,19 @@
 #include "effect.h"
 
 namespace resource_manager {
-	static std::vector<std::string> effectNames;
+	static std::vector<std::string> effectsManifest;
 	static std::unordered_map<std::string, std::unique_ptr<effect::EffectAnimation>> effectsMap;
 }
 
 template<>
-void resource_manager::load<effect::EffectAnimation>(const std::string& resource, bool reloadOK) {
+bool resource_manager::load<effect::EffectAnimation>(const std::string& resource, bool reloadOK) {
 	if (!reloadOK) {
 		if (effectsMap.find(resource) != effectsMap.cend()) {
-			return;
+			return false;
 		}
 	}
 	effectsMap[resource] = std::make_unique<effect::EffectAnimation>(resource);
+	return true;
 }
 
 template<>
@@ -34,25 +35,27 @@ void resource_manager::unload<effect::EffectAnimation>(const std::string& resour
 template<>
 effect::EffectAnimation* resource_manager::getResource<effect::EffectAnimation>(const std::string& resource) {
 	if (effectsMap.find(resource) == effectsMap.cend()) {
-		load<effect::EffectAnimation>(resource, true);
+		if (!load<effect::EffectAnimation>(resource, true)) {
+			return nullptr;
+		}
 	}
 	return effectsMap[resource].get();
 }
 
 template<>
-void resource_manager::loadAll<effect::EffectAnimation>() {
+void resource_manager::loadFromManifest<effect::EffectAnimation>() {
 	auto j_effects = fileIO::readJSON(util::getPath("effects/effects.json"));
 	if (!j_effects.is_array()) {
 		error::die("Cannot parse effects.json");
 	}
 
-	effectNames.reserve(j_effects.size());
+	effectsManifest.reserve(j_effects.size());
 	effectsMap.reserve(j_effects.size());
 
 	for (const auto& j_effect : j_effects) {
 		if (j_effect.is_string()) {
-			if (std::find(effectNames.cbegin(), effectNames.cend(), j_effect) == effectNames.cend()) {
-				effectNames.emplace_back(j_effect);
+			if (std::find(effectsManifest.cbegin(), effectsManifest.cend(), j_effect) == effectsManifest.cend()) {
+				effectsManifest.emplace_back(j_effect);
 			}
 			load<effect::EffectAnimation>(j_effect);
 		}
@@ -60,11 +63,11 @@ void resource_manager::loadAll<effect::EffectAnimation>() {
 }
 
 template<>
-std::vector<effect::EffectAnimation*> resource_manager::getAll<effect::EffectAnimation>() {
+std::vector<effect::EffectAnimation*> resource_manager::getFromManifest<effect::EffectAnimation>() {
 	std::vector<effect::EffectAnimation*> effects;
-	effects.reserve(effectNames.size());
+	effects.reserve(effectsManifest.size());
 
-	for (const auto& effectName : effectNames) {
+	for (const auto& effectName : effectsManifest) {
 		effects.push_back(effectsMap[effectName].get());
 	}
 
@@ -75,19 +78,20 @@ std::vector<effect::EffectAnimation*> resource_manager::getAll<effect::EffectAni
 #include "fighter.h"
 
 namespace resource_manager {
-	static std::vector<std::string> fighterNames;
+	static std::vector<std::string> fightersManifest;
 	static std::unordered_map<std::string, std::unique_ptr<game::Fighter>> fightersMap;
 }
 
 template<>
-void resource_manager::load<game::Fighter>(const std::string& resource, bool reloadOK) {
+bool resource_manager::load<game::Fighter>(const std::string& resource, bool reloadOK) {
 	if (!reloadOK) {
 		if (fightersMap.find(resource) != fightersMap.cend()) {
-			return;
+			return false;
 		}
 	}
 	fightersMap[resource] = std::make_unique<game::Fighter>();
 	fightersMap[resource]->create(resource);
+	return true;
 }
 
 template<>
@@ -98,25 +102,27 @@ void resource_manager::unload<game::Fighter>(const std::string& resource) {
 template<>
 game::Fighter* resource_manager::getResource<game::Fighter>(const std::string& resource) {
 	if (fightersMap.find(resource) == fightersMap.cend()) {
-		load<game::Fighter>(resource, true);
+		if (!load<game::Fighter>(resource, true)) {
+			return nullptr;
+		}
 	}
 	return fightersMap[resource].get();
 }
 
 template<>
-void resource_manager::loadAll<game::Fighter>() {
+void resource_manager::loadFromManifest<game::Fighter>() {
 	auto j_fighters = fileIO::readJSON(util::getPath("chars/chars.json"));
 	if (!j_fighters.is_array()) {
 		error::die("Cannot parse chars.json");
 	}
 
-	fighterNames.reserve(j_fighters.size());
+	fightersManifest.reserve(j_fighters.size());
 	fightersMap.reserve(j_fighters.size());
 
 	for (const auto& j_fighter : j_fighters) {
 		if (j_fighter.is_string()) {
-			if (std::find(fighterNames.cbegin(), fighterNames.cend(), j_fighter) == fighterNames.cend()) {
-				fighterNames.emplace_back(j_fighter);
+			if (std::find(fightersManifest.cbegin(), fightersManifest.cend(), j_fighter) == fightersManifest.cend()) {
+				fightersManifest.emplace_back(j_fighter);
 			}
 			load<game::Fighter>(j_fighter);
 		}
@@ -124,11 +130,11 @@ void resource_manager::loadAll<game::Fighter>() {
 }
 
 template<>
-std::vector<game::Fighter*> resource_manager::getAll<game::Fighter>() {
+std::vector<game::Fighter*> resource_manager::getFromManifest<game::Fighter>() {
 	std::vector<game::Fighter*> fighters;
-	fighters.reserve(fighterNames.size());
+	fighters.reserve(fightersManifest.size());
 
-	for (const auto& fighterName : fighterNames) {
+	for (const auto& fighterName : fightersManifest) {
 		fighters.push_back(fightersMap[fighterName].get());
 	}
 
@@ -139,19 +145,20 @@ std::vector<game::Fighter*> resource_manager::getAll<game::Fighter>() {
 #include "stage.h"
 
 namespace resource_manager {
-	static std::vector<std::string> stageNames;
+	static std::vector<std::string> stagesManifest;
 	static std::unordered_map<std::string, std::unique_ptr<Stage>> stagesMap;
 }
 
 template<>
-void resource_manager::load<Stage>(const std::string& resource, bool reloadOK) {
+bool resource_manager::load<Stage>(const std::string& resource, bool reloadOK) {
 	if (!reloadOK) {
 		if (stagesMap.find(resource) != stagesMap.cend()) {
-			return;
+			return false;
 		}
 	}
 	stagesMap[resource] = std::make_unique<Stage>();
 	stagesMap[resource]->create(resource);
+	return true;
 }
 
 template<>
@@ -162,27 +169,29 @@ void resource_manager::unload<Stage>(const std::string& resource) {
 template<>
 Stage* resource_manager::getResource<Stage>(const std::string& resource) {
 	if (stagesMap.find(resource) == stagesMap.cend()) {
-		load<Stage>(resource, true);
+		if (!load<Stage>(resource, true)) {
+			return nullptr;
+		}
 	}
 	return stagesMap[resource].get();
 }
 
 template<>
-void resource_manager::loadAll<Stage>() {
+void resource_manager::loadFromManifest<Stage>() {
 	auto j_stages = fileIO::readJSON(util::getPath("stages/stages.json"));
 	if (!j_stages.is_array()) {
 		error::die("Cannot parse stages.json");
 	}
 
 	int size = j_stages.size();
-	stageNames.resize(size);
+	stagesManifest.resize(size);
 	stagesMap.reserve(size);
 
 	for (int i = 0; i < size; i++) {
 		const auto& j_stage = j_stages[i];
 		if (j_stage.is_string()) {
-			if (std::find(stageNames.cbegin(), stageNames.cend(), j_stage) == stageNames.cend()) {
-				stageNames[i] = j_stage;
+			if (std::find(stagesManifest.cbegin(), stagesManifest.cend(), j_stage) == stagesManifest.cend()) {
+				stagesManifest[i] = j_stage;
 			}
 			load<Stage>(j_stage);
 		}
@@ -190,11 +199,11 @@ void resource_manager::loadAll<Stage>() {
 }
 
 template<>
-std::vector<Stage*> resource_manager::getAll<Stage>() {
+std::vector<Stage*> resource_manager::getFromManifest<Stage>() {
 	std::vector<Stage*> stages;
-	stages.reserve(stageNames.size());
+	stages.reserve(stagesManifest.size());
 
-	for (const auto& stageName : stageNames) {
+	for (const auto& stageName : stagesManifest) {
 		stages.push_back(stagesMap[stageName].get());
 	}
 

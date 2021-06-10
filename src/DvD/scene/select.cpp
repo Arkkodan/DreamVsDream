@@ -31,8 +31,8 @@ scene::Select::Select() : Scene("select") {
 scene::Select::~Select() {}
 
 void scene::Select::init() {
-	resource_manager::loadAll<game::Fighter>();
-	fighters = resource_manager::getAll<game::Fighter>();
+	resource_manager::loadFromManifest<game::Fighter>();
+	fighters = resource_manager::getFromManifest<game::Fighter>();
 
 	Scene::init();
 }

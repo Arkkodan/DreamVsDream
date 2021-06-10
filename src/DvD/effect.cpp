@@ -162,8 +162,8 @@ namespace effect {
 
     //MISC FUNCS
     void init() {
-        resource_manager::loadAll<EffectAnimation>();
-        effectAnims = resource_manager::getAll<EffectAnimation>();
+        resource_manager::loadFromManifest<EffectAnimation>();
+        effectAnims = resource_manager::getFromManifest<EffectAnimation>();
         nEffectAnims = effectAnims.size();
     }
 
