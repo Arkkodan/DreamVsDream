@@ -196,6 +196,115 @@ void scene::Fight::parseLine(Parser& parser) {
 	}
 }
 
+void scene::Fight::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("hud")) {
+		hud.createFromFile(getResource(j_obj["hud"].at("image"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("hud_tag")) {
+		hud_tag.createFromFile(getResource(j_obj["hud_tag"].at("image"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("portraits")) {
+		portraits.createFromFile(getResource(j_obj["portraits"].at("image"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("portraits_tag")) {
+		portraits_tag.createFromFile(getResource(j_obj["portraits_tag"].at("image"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("timer")) {
+		timer.createFromFile(getResource(j_obj["timer"].at("image"), Parser::EXT_IMAGE));
+		timer_font = getResourceT<Font>(j_obj["timer"].at("font"));
+	}
+	if (j_obj.contains("shine")) {
+		shine.createFromFile(getResource(j_obj["shine"].at("image"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("shine_tag")) {
+		shine_tag.createFromFile(getResource(j_obj["shine_tag"].at("image"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("hp")) {
+		meterHp.img.createFromFile(getResource(j_obj["hp"].at("image"), Parser::EXT_IMAGE));
+
+		meterHp.pos.x = j_obj["hp"].at("pos").at("x");
+		meterHp.pos.y = j_obj["hp"].at("pos").at("y");
+	}
+	if (j_obj.contains("super")) {
+		meterSuper.img.createFromFile(getResource(j_obj["super"].at("image"), Parser::EXT_IMAGE));
+
+		meterSuper.pos.x = j_obj["super"].at("pos").at("x");
+		meterSuper.pos.y = j_obj["super"].at("pos").at("y");
+	}
+	if (j_obj.contains("tag")) {
+		meterTag.img.createFromFile(getResource(j_obj["tag"].at("image"), Parser::EXT_IMAGE));
+
+		meterTag.pos.x = j_obj["tag"].at("pos").at("x");
+		meterTag.pos.y = j_obj["tag"].at("pos").at("y");
+	}
+	if (j_obj.contains("stun")) {
+		meterStun.img.createFromFile(getResource(j_obj["stun"].at("image"), Parser::EXT_IMAGE));
+
+		meterStun.pos.x = j_obj["stun"].at("pos").at("x");
+		meterStun.pos.y = j_obj["stun"].at("pos").at("y");
+	}
+	if (j_obj.contains("guard")) {
+		meterGuard.img.createFromFile(getResource(j_obj["guard"].at("image"), Parser::EXT_IMAGE));
+
+		meterGuard.pos.x = j_obj["guard"].at("pos").at("x");
+		meterGuard.pos.y = j_obj["guard"].at("pos").at("y");
+	}
+	if (j_obj.contains("dpm")) {
+		meterDpm.img.createFromFile(getResource(j_obj["dpm"].at("image"), Parser::EXT_IMAGE));
+
+		meterDpm.pos.x = j_obj["dpm"].at("pos").at("x");
+		meterDpm.pos.y = j_obj["dpm"].at("pos").at("y");
+	}
+	if (j_obj.contains("static")) {
+		staticImg.createFromFile(getResource(j_obj["static"].at("image"), Parser::EXT_IMAGE));
+		staticSnd = getResourceT<audio::Sound>(j_obj["static"].at("sound"));
+	}
+	if (j_obj.contains("fade")) {
+		fadeinSnd = getResourceT<audio::Sound>(j_obj["fade"].at("sound").at("in"));
+		fadeoutSnd = getResourceT<audio::Sound>(j_obj["fade"].at("sound").at("out"));
+	}
+	if (j_obj.contains("round_splash")) {
+		for (int i = 0; i < 5; i++) {
+			round_splash[i].createFromFile(getResource(j_obj["round_splash"].at("image").at(i), Parser::EXT_IMAGE));
+		}
+	}
+	if (j_obj.contains("round_hud")) {
+		for (int i = 0; i < 5; i++) {
+			round_hud[i].createFromFile(getResource(j_obj["round_hud"].at("image").at(i), Parser::EXT_IMAGE));
+		}
+		x_round_hud = j_obj["round_hud"].at("pos").at("x");
+		y_round_hud = j_obj["round_hud"].at("pos").at("y");
+	}
+	if (j_obj.contains("ko")) {
+		ko[0].createFromFile(getResource(j_obj["ko"].at("image").at("ko"), Parser::EXT_IMAGE));
+		ko[1].createFromFile(getResource(j_obj["ko"].at("image").at("timeout"), Parser::EXT_IMAGE));
+		ko[2].createFromFile(getResource(j_obj["ko"].at("image").at("draw"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("portrait_pos")) {
+		portraitPos.x = j_obj["portrait_pos"].at("x");
+		portraitPos.y = j_obj["portrait_pos"].at("y");
+	}
+	if (j_obj.contains("combo")) {
+		combo = getResourceT<Font>(j_obj["combo"].at("font"));
+		comboLeft.createFromFile(getResource(j_obj["combo"].at("image").at("left"), Parser::EXT_IMAGE));
+		comboRight.createFromFile(getResource(j_obj["combo"].at("image").at("right"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("win")) {
+		win.createFromFile(getResource(j_obj["win"].at("image"), Parser::EXT_IMAGE));
+		win_font = getResourceT<Font>(j_obj["win"].at("font"));
+		win_bgm.createFromFile("", getResource(j_obj["win"].at("bgm"), Parser::EXT_MUSIC));
+	}
+	if (j_obj.contains("win_orbs")) {
+		orb_null.createFromFile(getResource(j_obj["win_orbs"].at("image").at("null"), Parser::EXT_IMAGE));
+		orb_win.createFromFile(getResource(j_obj["win_orbs"].at("image").at("win"), Parser::EXT_IMAGE));
+		orb_draw.createFromFile(getResource(j_obj["win_orbs"].at("image").at("draw"), Parser::EXT_IMAGE));
+
+		orb_pos.x = j_obj["win_orbs"].at("pos").at("x");
+		orb_pos.y = j_obj["win_orbs"].at("pos").at("y");
+	}
+	Scene::parseJSON(j_obj);
+}
+
 void scene::Fight::think() {
 	if (frameShakeTimer) {
 		cameraShake.x = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;

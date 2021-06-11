@@ -320,8 +320,8 @@ void ubu::Fight::parseLine() {
 		j_obj["ko"]["image"]["draw"] = parser.getArg(3);
 	}
 	else if (parser.is("PORTRAIT_POS", 2)) {
-		j_obj["portraitPos"]["x"] = parser.getArgInt(1);
-		j_obj["portraitPos"]["y"] = parser.getArgInt(2);
+		j_obj["portrait_pos"]["x"] = parser.getArgInt(1);
+		j_obj["portrait_pos"]["y"] = parser.getArgInt(2);
 	}
 	else if (parser.is("COMBO", 3)) {
 		j_obj["combo"]["font"] = parser.getArg(1);

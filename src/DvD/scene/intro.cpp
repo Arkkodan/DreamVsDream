@@ -6,6 +6,7 @@
 #include "../sys.h"
 #include "../graphics.h"
 #include "../resource_manager.h"
+#include "../error.h"
 
 scene::Intro::Intro() : Scene("intro") {
 	timer = sys::FPS / 2;
@@ -86,4 +87,21 @@ void scene::Intro::parseLine(Parser& parser) {
 	else {
 		Scene::parseLine(parser);
 	}
+}
+
+void scene::Intro::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("sfx")) {
+		sfx = getResourceT<audio::Sound>(j_obj["sfx"]);
+	}
+	if (j_obj.contains("instructions")) {
+		instructions.createFromFile(getResource(j_obj["instructions"], Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("disclaimer")) {
+		disclaimer_en.createFromFile(getResource(j_obj["disclaimer"].at("en"), Parser::EXT_IMAGE));
+		disclaimer_ja.createFromFile(getResource(j_obj["disclaimer"].at("ja"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("shader_error")) {
+		shader_error.createFromFile(getResource(j_obj["shader_error"], Parser::EXT_IMAGE));
+	}
+	Scene::parseJSON(j_obj);
 }

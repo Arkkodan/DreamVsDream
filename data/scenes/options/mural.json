@@ -1,0 +1,14 @@
+{
+    "bgm": {
+        "loop": "mural_bgm"
+    },
+    "images": [
+        {
+            "image": "mural_fg",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            }
+        }
+    ]
+}

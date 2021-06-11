@@ -6,6 +6,8 @@
 #include "../parser.h"
 #include "../font.h"
 
+#include <nlohmann/json.hpp>
+
 #include <list>
 #include <string>
 #include <cstdint>
@@ -73,6 +75,8 @@ namespace scene {
 
 		void parseFile(std::string szFileName);
 		virtual void parseLine(Parser& parser);
+
+		virtual void parseJSON(const nlohmann::ordered_json& j_obj);
 
 		std::string getResource(std::string szFileName, std::string extension) const;
 

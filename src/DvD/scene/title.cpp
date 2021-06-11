@@ -4,6 +4,9 @@
 #include "fight.h"
 
 #include "../player.h"
+#include "../error.h"
+#include "../../fileIO/json.h"
+#include "../../util/fileIO.h"
 #include "../../util/rng.h"
 
 std::vector<std::string> scene::Title::menuChoicesMain = {
@@ -64,7 +67,22 @@ void scene::Title::init() {
 			i = 0;
 		}
 
-		parseFile(getResource(themes[i], Parser::EXT_SCRIPT));
+		bool jsonSuccess = false;
+		auto j_obj = fileIO::readJSON(util::getPath("scenes/title/" + themes[i] + ".json"));
+		if (!j_obj.is_null() && j_obj.is_object()) {
+			try {
+				parseJSON(j_obj);
+				jsonSuccess = true;
+			}
+			catch (const nlohmann::detail::out_of_range& e)
+			{
+				error::error(themes[i] + ".json error: " + e.what());
+			}
+		}
+		if (!jsonSuccess) {
+			error::error("Cannot read " + themes[i] + ".json. Falling back to " + themes[i] + ".ubu");
+			parseFile(getResource(themes[i], Parser::EXT_SCRIPT));
+		}
 	}
 }
 
@@ -275,4 +293,32 @@ void scene::Title::parseLine(Parser& parser) {
 	else {
 		Scene::parseLine(parser);
 	}
+}
+
+void scene::Title::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("menu")) {
+		menuFont = getResourceT<Font>(j_obj["menu"].at("font"));
+		menuX = j_obj["menu"].at("pos").at("x");
+		menuY = j_obj["menu"].at("pos").at("y");
+		menuXOffset = j_obj["menu"].value("dx", 0);
+	}
+	if (j_obj.contains("inactive")) {
+		iR = j_obj["inactive"].at("r");
+		iG = j_obj["inactive"].at("g");
+		iB = j_obj["inactive"].at("b");
+	}
+	if (j_obj.contains("active")) {
+		aR = j_obj["active"].at("r");
+		aG = j_obj["active"].at("g");
+		aB = j_obj["active"].at("b");
+		aXOffset = j_obj["active"].value("dx", 0);
+	}
+	if (j_obj.contains("themes")) {
+		themes.clear();
+		for (const auto& theme : j_obj["themes"]) {
+			themes.push_back(theme);
+		}
+		nThemes = themes.size();
+	}
+	Scene::parseJSON(j_obj);
 }

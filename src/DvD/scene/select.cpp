@@ -708,6 +708,113 @@ void scene::Select::parseLine(Parser& parser) {
 	}
 }
 
+void scene::Select::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("grid")) {
+		//Make the grids!
+		width = j_obj["grid"].at("w");
+		height = j_obj["grid"].at("h");
+
+		grid.resize(width * height);
+		gridFighters.resize(width * height);
+
+		//Now for the groups...
+		gWidth = j_obj["grid"].at("w_group");
+		gHeight = j_obj["grid"].at("h_group");
+
+		int gSize = (width / gWidth) * (height / gHeight);
+		curData.resize(gSize);
+
+		//Set the p2 cursor to the width - 1
+		cursors[1].pos = width - 1;
+		cursors[1].posOld = width - 1;
+	}
+	if (j_obj.contains("cursors")) {
+		for (int i = 0, size = j_obj["cursors"].size(); i < size; i++) {
+			const auto& cursor = j_obj["cursors"][i];
+			curData[i].img.createFromFile(getResource(cursor.at("image"), Parser::EXT_IMAGE));
+
+			curData[i].off.x = cursor.at("offset").at("x");
+			curData[i].off.y = cursor.at("offset").at("y");
+
+			curData[i].imgSelect.createFromFile(getResource(cursor.at("effect").at("image"), Parser::EXT_IMAGE));
+			curData[i].frameC = cursor.at("effect").at("frameCount");
+			curData[i].speed = cursor.at("effect").at("speed");
+			curData[i].grow = cursor.at("effect").at("grow");
+
+			curData[i].sndSelect = getResourceT<audio::Sound>(cursor.at("sound").at("select"));
+			curData[i].sndDeselect = getResourceT<audio::Sound>(cursor.at("sound").at("deselect"));
+		}
+	}
+	if (j_obj.contains("chars")) {
+		gridC = std::min(static_cast<int>(j_obj["chars"].size()), width * height);
+		for (int i = 0; i < gridC; i++) {
+			const auto& charI = j_obj["chars"][i];
+			gridFighters[i] = -1;
+
+			if (charI.is_null()) {
+				grid[i].x = -1;
+				grid[i].y = -1;
+				continue;
+			}
+
+			std::string name = charI.at("name");
+			for (int j = 0, fightersSize = fighters.size(); j < fightersSize; j++) {
+				if (!fighters[j]->name.compare(name)) {
+					gridFighters[i] = j;
+					break;
+				}
+			}
+
+			grid[i].x = charI.at("pos").at("x");
+			grid[i].y = charI.at("pos").at("y");
+		}
+	}
+	if (j_obj.contains("select")) {
+		for (const auto& image : j_obj["select"]) {
+			//Add a new image
+			Image imgData;
+			imgData.createFromFile(getResource(image["image"], Parser::EXT_IMAGE));
+			if (imgData.exists()) {
+				float x = image.at("pos").at("x");
+				float y = image.at("pos").at("y");
+				std::string szRender = image.value("renderType", "normal");
+				Image::Render render = Image::Render::NORMAL;
+				if (!szRender.compare("additive")) {
+					render = Image::Render::ADDITIVE;
+				}
+				else if (!szRender.compare("subtractive")) {
+					render = Image::Render::SUBTRACTIVE;
+				}
+				else if (!szRender.compare("multiply")) {
+					render = Image::Render::MULTIPLY;
+				}
+				float xvel = 0.0f;
+				float yvel = 0.0f;
+				if (image.contains("vel")) {
+					xvel = image["vel"].value("x", 0.0f);
+					yvel = image["vel"].value("y", 0.0f);
+				}
+				bool wrap = image.value("wrap", false);
+				gui.emplace_back(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+			}
+		}
+	}
+	if (j_obj.contains("stages")) {
+		font_stage = getResourceT<Font>(j_obj["stages"].at("font"));
+	}
+	if (j_obj.contains("players")) {
+		for (int i = 0, size = j_obj["players"].size(); i < size; i++) {
+			const auto& player = j_obj["players"][i];
+			cursors[i].posDefault = cursors[i].pos = player.at("posDefault").at("y") * width + player.at("posDefault").at("x");
+
+			cursors[i].r = player.at("color").at("r");
+			cursors[i].g = player.at("color").at("g");
+			cursors[i].b = player.at("color").at("b");
+		}
+	}
+	Scene::parseJSON(j_obj);
+}
+
 //CURSOR DATA
 scene::CursorData::CursorData() {
 	frameC = 0;

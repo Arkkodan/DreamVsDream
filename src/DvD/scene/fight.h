@@ -128,6 +128,7 @@ namespace scene {
 		void knockout(int player);
 
 		void parseLine(Parser& parser) override final;
+		void parseJSON(const nlohmann::ordered_json& j_obj) override final;
 	};
 }
 

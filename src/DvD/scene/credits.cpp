@@ -124,3 +124,23 @@ void scene::Credits::parseLine(Parser& parser) {
 		Scene::parseLine(parser);
 	}
 }
+
+void scene::Credits::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("logo")) {
+		logo.createFromFile(getResource(j_obj["logo"], Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("credits")) {
+		font = getResourceT<Font>(j_obj["credits"].at("font"));
+		lines = fileIO::readTextAsLines(util::getPath(getResource(j_obj["credits"].at("file"), Parser::EXT_TEXT)));
+		c_lines = lines.size();
+	}
+	if (j_obj.contains("color")) {
+		title_r = j_obj["color"].at("title").at("r");
+		title_g = j_obj["color"].at("title").at("g");
+		title_b = j_obj["color"].at("title").at("b");
+		name_r = j_obj["color"].at("name").at("r");
+		name_g = j_obj["color"].at("name").at("g");
+		name_b = j_obj["color"].at("name").at("b");
+	}
+	Scene::parseJSON(j_obj);
+}

@@ -1,0 +1,40 @@
+{
+    "bgm": {
+        "loop": "bgm"
+    },
+    "images": [
+        {
+            "image": "bg",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            }
+        },
+        {
+            "image": "kalimba1",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "renderType": "normal",
+            "vel": {
+                "x": -1.0,
+                "y": 0.0
+            },
+            "wrap": true
+        },
+        {
+            "image": "kalimba2",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "renderType": "normal",
+            "vel": {
+                "x": 1.0,
+                "y": 0.0
+            },
+            "wrap": true
+        }
+    ]
+}

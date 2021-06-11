@@ -6,6 +6,9 @@
 #include "../player.h"
 #include "../graphics.h"
 #include "../resource_manager.h"
+#include "../error.h"
+#include "../../fileIO/json.h"
+#include "../../util/fileIO.h"
 #include "../../util/rng.h"
 
 #include <cstring>
@@ -334,7 +337,23 @@ void scene::Options::init() {
 
 	//Parse a random theme
 	if (nThemes) {
-		parseFile(getResource(themes[util::roll(nThemes)], Parser::EXT_SCRIPT));
+		int i = util::roll(nThemes);
+		bool jsonSuccess = false;
+		auto j_obj = fileIO::readJSON(util::getPath("scenes/options/" + themes[i] + ".json"));
+		if (!j_obj.is_null() && j_obj.is_object()) {
+			try {
+				parseJSON(j_obj);
+				jsonSuccess = true;
+			}
+			catch (const nlohmann::detail::out_of_range& e)
+			{
+				error::error(themes[i] + ".json error: " + e.what());
+			}
+		}
+		if (!jsonSuccess) {
+			error::error("Cannot read " + themes[i] + ".json. Falling back to " + themes[i] + ".ubu");
+			parseFile(getResource(themes[i], Parser::EXT_SCRIPT));
+		}
 	}
 }
 
@@ -378,4 +397,38 @@ void scene::Options::parseLine(Parser& parser) {
 	else {
 		Scene::parseLine(parser);
 	}
+}
+
+void scene::Options::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("font")) {
+		menuFont = getResourceT<Font>(j_obj["font"]);
+	}
+	if (j_obj.contains("madotsuki")) {
+		madoImg.createFromFile(getResource(j_obj["madotsuki"].at("image"), Parser::EXT_IMAGE));
+		madoSfxStep = getResourceT<audio::Sound>(j_obj["madotsuki"].at("sfx").at("step"));
+		madoSfxPinch = getResourceT<audio::Sound>(j_obj["madotsuki"].at("sfx").at("pinch"));
+	}
+	if (j_obj.contains("inactive")) {
+		iR = j_obj["inactive"].at("r");
+		iG = j_obj["inactive"].at("g");
+		iB = j_obj["inactive"].at("b");
+	}
+	if (j_obj.contains("active")) {
+		aR = j_obj["active"].at("r");
+		aG = j_obj["active"].at("g");
+		aB = j_obj["active"].at("b");
+		aXOffset = j_obj["active"].value("dx", 0);
+	}
+	if (j_obj.contains("themes")) {
+		themes.clear();
+		for (const auto& theme : j_obj["themes"]) {
+			themes.push_back(theme);
+		}
+		nThemes = themes.size();
+	}
+	if (j_obj.contains("voices")) {
+		dame = getResourceT<audio::Voice>(j_obj["voices"].at("dame"));
+		muri = getResourceT<audio::Voice>(j_obj["voices"].at("muri"));
+	}
+	Scene::parseJSON(j_obj);
 }

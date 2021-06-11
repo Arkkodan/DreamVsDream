@@ -1,0 +1,38 @@
+{
+    "sound": {
+        "menu": "*menu",
+        "select": "*select",
+        "back": "*back",
+        "invalid": "*invalid"
+    },
+    "themes": [
+        "candle",
+        "mural",
+        "neon",
+        "graffiti",
+        "poniko"
+    ],
+    "font": "*32x32",
+    "inactive": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+    },
+    "active": {
+        "r": 180,
+        "g": 120,
+        "b": 190,
+        "dx": 10
+    },
+    "madotsuki": {
+        "image": "madotsuki",
+        "sfx": {
+            "step": "step",
+            "pinch": "pinch"
+        }
+    },
+    "voices": {
+        "dame": "dame",
+        "muri": "muri"
+    }
+}

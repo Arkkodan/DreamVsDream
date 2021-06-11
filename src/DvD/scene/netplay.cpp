@@ -636,4 +636,70 @@ void scene::Netplay::parseLine(Parser& parser) {
 		Scene::parseLine(parser);
 	}
 }
+
+void scene::Netplay::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("bgm")) { //Override superclass
+		bgm.createFromFile("", getResource(j_obj["bgm"].at("idle"), Parser::EXT_MUSIC));
+		bgmWait.createFromFile("", getResource(j_obj["bgm"].at("wait"), Parser::EXT_MUSIC));
+	}
+	if (j_obj.contains("sfx_connect")) {
+		sndConStart = getResourceT<audio::Sound>(j_obj["sfx_connect"].at("start"));
+		sndConSuccess = getResourceT<audio::Sound>(j_obj["sfx_connect"].at("success"));
+	}
+	if (j_obj.contains("logo")) {
+		imgLogo.createFromFile(getResource(j_obj["logo"], Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("scanlines")) {
+		imgScanlines.createFromFile(getResource(j_obj["scanlines"].at("image").at("scanlines"), Parser::EXT_IMAGE));
+		imgStatic.createFromFile(getResource(j_obj["scanlines"].at("image").at("static"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("menu")) {
+		menuFont = getResourceT<Font>(j_obj["menu"].at("font"));
+		imgCursor.createFromFile(getResource(j_obj["menu"].at("cursorImage"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("sfx_tv")) {
+		sndOn = getResourceT<audio::Sound>(j_obj["sfx_tv"].at("on"));
+		sndOff = getResourceT<audio::Sound>(j_obj["sfx_tv"].at("off"));
+	}
+
+	// Do not call superclass version because "bgm" key is parsed differently
+	// So copy others
+	if (j_obj.contains("images")) {
+		for (const auto& image : j_obj["images"]) {
+			//Add a new image
+			Image imgData;
+			imgData.createFromFile(getResource(image["image"], Parser::EXT_IMAGE));
+			if (imgData.exists()) {
+				float x = image.at("pos").at("x");
+				float y = image.at("pos").at("y");
+				std::string szRender = image.value("renderType", "normal");
+				Image::Render render = Image::Render::NORMAL;
+				if (!szRender.compare("additive")) {
+					render = Image::Render::ADDITIVE;
+				}
+				else if (!szRender.compare("subtractive")) {
+					render = Image::Render::SUBTRACTIVE;
+				}
+				else if (!szRender.compare("multiply")) {
+					render = Image::Render::MULTIPLY;
+				}
+				float xvel = 0.0f;
+				float yvel = 0.0f;
+				if (image.contains("vel")) {
+					xvel = image["vel"].value("x", 0.0f);
+					yvel = image["vel"].value("y", 0.0f);
+				}
+				bool wrap = image.value("wrap", false);
+				images.emplace_back(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+			}
+		}
+	}
+	if (j_obj.contains("sound")) {
+		sndMenu = getResourceT<audio::Sound>(j_obj["sound"].at("menu"));
+		sndSelect = getResourceT<audio::Sound>(j_obj["sound"].at("select"));
+		sndBack = getResourceT<audio::Sound>(j_obj["sound"].at("back"));
+		sndInvalid = getResourceT<audio::Sound>(j_obj["sound"].at("invalid"));
+	}
+}
+
 #endif

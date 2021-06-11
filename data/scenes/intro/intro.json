@@ -1,0 +1,9 @@
+{
+    "sfx": "intro",
+    "instructions": "instructions",
+    "disclaimer": {
+        "en": "disclaimer_en",
+        "ja": "disclaimer_ja"
+    },
+    "shader_error": "error"
+}

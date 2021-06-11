@@ -106,6 +106,7 @@ namespace scene {
 		void drawEffect(int player, int group, int _x, int _y, bool spr = false) const;
 
 		void parseLine(Parser& parser) override final;
+		void parseJSON(const nlohmann::ordered_json& j_obj) override final;
 	};
 }
 

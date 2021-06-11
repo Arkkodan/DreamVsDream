@@ -8,6 +8,7 @@
 #include "../sys.h"
 #include "../resource_manager.h"
 #include "../../util/fileIO.h"
+#include "../../fileIO/json.h"
 #include "../graphics.h"
 
 #include <algorithm>
@@ -47,7 +48,23 @@ scene::Scene::~Scene() {
 void scene::Scene::init() {
 	initialized = true;
 	//Load the scene data from the file
-	parseFile("scenes/" + name + ".ubu");
+	bool jsonSuccess = false;
+	auto j_obj = fileIO::readJSON(util::getPath("scenes/" + name + '/' + name + ".json"));
+	if (!j_obj.is_null() && j_obj.is_object()) {
+		try {
+			parseJSON(j_obj);
+			jsonSuccess = true;
+		}
+		catch (const nlohmann::detail::out_of_range& e)
+		{
+			error::error(name + ".json error: " + e.what());
+			images.clear();
+		}
+	}
+	if (!jsonSuccess) {
+		error::error("Cannot read " + name + ".json. Falling back to " + name + ".ubu");
+		parseFile("scenes/" + name + ".ubu");
+	}
 }
 
 void scene::Scene::think() {
@@ -233,6 +250,58 @@ void scene::Scene::parseFile(std::string szFileName) {
 	while (parser.parseLine()) {
 		//Parse it
 		parseLine(parser);
+	}
+}
+
+void scene::Scene::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("images")) {
+		for (const auto& image : j_obj["images"]) {
+			//Add a new image
+			Image imgData;
+			imgData.createFromFile(getResource(image["image"], Parser::EXT_IMAGE));
+			if (imgData.exists()) {
+				float x = image.at("pos").at("x");
+				float y = image.at("pos").at("y");
+				std::string szRender = image.value("renderType", "normal");
+				Image::Render render = Image::Render::NORMAL;
+				if (!szRender.compare("additive")) {
+					render = Image::Render::ADDITIVE;
+				}
+				else if (!szRender.compare("subtractive")) {
+					render = Image::Render::SUBTRACTIVE;
+				}
+				else if (!szRender.compare("multiply")) {
+					render = Image::Render::MULTIPLY;
+				}
+				float xvel = 0.0f;
+				float yvel = 0.0f;
+				if (image.contains("vel")) {
+					xvel = image["vel"].value("x", 0.0f);
+					yvel = image["vel"].value("y", 0.0f);
+				}
+				bool wrap = image.value("wrap", false);
+				images.emplace_back(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+			}
+		}
+	}
+	if (j_obj.contains("bgm")) {
+		std::string loop = getResource(j_obj["bgm"].at("loop"), Parser::EXT_MUSIC);
+		std::string intro = j_obj["bgm"].value("intro", "");
+		if (intro.empty()) {
+			bgm.createFromFile("", loop);
+		}
+		else {
+			bgm.createFromFile(getResource(intro, Parser::EXT_MUSIC), loop);
+		}
+	}
+	if (j_obj.contains("sound")) {
+		sndMenu = getResourceT<audio::Sound>(j_obj["sound"].at("menu"));
+		sndSelect = getResourceT<audio::Sound>(j_obj["sound"].at("select"));
+		sndBack = getResourceT<audio::Sound>(j_obj["sound"].at("back"));
+		sndInvalid = getResourceT<audio::Sound>(j_obj["sound"].at("invalid"));
+	}
+	if (j_obj.contains("video")) {
+		//
 	}
 }
 
