@@ -7,42 +7,42 @@
 /// @details Uses SDL_Thread
 class Thread {
 public:
-	Thread();
-	Thread(Thread&& other) noexcept;
-	Thread& operator=(Thread&& other) noexcept;
-	~Thread();
+  Thread();
+  Thread(Thread &&other) noexcept;
+  Thread &operator=(Thread &&other) noexcept;
+  ~Thread();
 
-	//Don't copy threads
-	Thread(const Thread& other) = delete;
-	Thread& operator=(Thread& other) = delete;
+  // Don't copy threads
+  Thread(const Thread &other) = delete;
+  Thread &operator=(Thread &other) = delete;
 
-	Thread(void (*func)());
+  Thread(void (*func)());
 
-    void detach();
-	void join() const;
+  void detach();
+  void join() const;
 
 private:
-    SDL_Thread* thread;
+  SDL_Thread *thread;
 };
 
 /// @brief Simple mutex class
 /// @details Uses SDL_mutex
 class Mutex {
 public:
-	Mutex();
-	~Mutex();
+  Mutex();
+  ~Mutex();
 
-	//Don't copy mutexes period
-    Mutex(Mutex&& other) = delete;
-	Mutex& operator=(Mutex&& other) = delete;
-	Mutex(const Mutex& other) = delete;
-	Mutex& operator=(Mutex& other) = delete;
+  // Don't copy mutexes period
+  Mutex(Mutex &&other) = delete;
+  Mutex &operator=(Mutex &&other) = delete;
+  Mutex(const Mutex &other) = delete;
+  Mutex &operator=(Mutex &other) = delete;
 
-	void lock() const;
-	void unlock() const;
+  void lock() const;
+  void unlock() const;
 
 private:
-    SDL_mutex* mutex;
+  SDL_mutex *mutex;
 };
 
-#endif //THREAD_H_INCLUDED
+#endif // THREAD_H_INCLUDED

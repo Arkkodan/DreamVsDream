@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 
 namespace fileIO {
-	nlohmann::ordered_json readJSON(const std::string& file);
+  nlohmann::ordered_json readJSON(const std::string &file);
 }
 
 #endif // FILEIO_JSON_H

@@ -8,47 +8,47 @@
 #include <nlohmann/json.hpp>
 
 namespace ubu {
-	enum class UBUType {
-		CHARACTER,
-		SPRITES,
-		SOUNDS,
-		VOICES,
-		STATES,
-		COMMANDS,
-		
-		SCENE,
-		INTRO,
-		TITLE, // Themes included
-		SELECT,
-		// Versus is the same as Scene
-		OPTIONS, // Themes included
-		FIGHT,
-		NETPLAY,
-		CREDITS,
+  enum class UBUType {
+    CHARACTER,
+    SPRITES,
+    SOUNDS,
+    VOICES,
+    STATES,
+    COMMANDS,
 
-		STAGE,
+    SCENE,
+    INTRO,
+    TITLE, // Themes included
+    SELECT,
+    // Versus is the same as Scene
+    OPTIONS, // Themes included
+    FIGHT,
+    NETPLAY,
+    CREDITS,
 
-		UBU_TYPE_MAX
-	};
+    STAGE,
 
-	void init();
-	bool load(const std::string& type, const std::string& file, const std::string& output = "");
-	void usage();
+    UBU_TYPE_MAX
+  };
 
-	class UBU
-	{
-	protected:
-		UBU(const std::string& file);
+  void init();
+  bool load(const std::string &type, const std::string &file,
+            const std::string &output = "");
+  void usage();
 
-	public:
-		virtual bool parse() = 0;
-		virtual void write(const std::string& output) const final;
+  class UBU {
+  protected:
+    UBU(const std::string &file);
 
-	protected:
-		Parser parser;
-		nlohmann::ordered_json j_obj;
-	};
+  public:
+    virtual bool parse() = 0;
+    virtual void write(const std::string &output) const final;
 
-}
+  protected:
+    Parser parser;
+    nlohmann::ordered_json j_obj;
+  };
+
+} // namespace ubu
 
 #endif // UBU2JSON_UBU_H

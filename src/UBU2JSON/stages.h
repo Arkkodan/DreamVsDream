@@ -4,20 +4,19 @@
 #include "ubu.h"
 
 namespace ubu {
-	class Stage : public UBU
-	{
-	public:
-		Stage(const std::string& file);
+  class Stage : public UBU {
+  public:
+    Stage(const std::string &file);
 
-		virtual bool parse() override final;
+    virtual bool parse() override final;
 
-	private:
-		void parseImage(bool above);
-		void parseBGM(int index);
+  private:
+    void parseImage(bool above);
+    void parseBGM(int index);
 
-	private:
-		int imageAbove, imageBelow;
-	};
-}
+  private:
+    int imageAbove, imageBelow;
+  };
+} // namespace ubu
 
 #endif // UBU2JSON_STAGES_H
