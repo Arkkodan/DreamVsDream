@@ -805,7 +805,7 @@ void scene::Select::parseJSON(const nlohmann::ordered_json& j_obj) {
 	if (j_obj.contains("players")) {
 		for (int i = 0, size = j_obj["players"].size(); i < size; i++) {
 			const auto& player = j_obj["players"][i];
-			cursors[i].posDefault = cursors[i].pos = player.at("posDefault").at("y") * width + player.at("posDefault").at("x");
+			cursors[i].posDefault = cursors[i].pos = static_cast<int>(player.at("posDefault").at("y")) * width + static_cast<int>(player.at("posDefault").at("x"));
 
 			cursors[i].r = player.at("color").at("r");
 			cursors[i].g = player.at("color").at("g");

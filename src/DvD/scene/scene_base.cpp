@@ -50,7 +50,7 @@ void scene::Scene::init() {
 	//Load the scene data from the file
 	bool jsonSuccess = false;
 	auto j_obj = fileIO::readJSON(util::getPath("scenes/" + name + '/' + name + ".json"));
-	if (!j_obj.is_null() && j_obj.is_object()) {
+	if (j_obj.is_object()) {
 		try {
 			parseJSON(j_obj);
 			jsonSuccess = true;

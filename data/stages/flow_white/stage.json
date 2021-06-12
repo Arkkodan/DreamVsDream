@@ -1,0 +1,25 @@
+{
+    "bgm": [
+        {
+            "loop": "loop"
+        },
+        {
+            "intro": "intro2",
+            "loop": "loop2"
+        }
+    ],
+    "imagesBehind": [
+        {
+            "image": "1.0",
+            "parallax": 1.0
+        }
+    ],
+    "entities": {
+        "h_ground": 30,
+        "w_bounds": 448
+    },
+    "camera": {
+        "w": 896,
+        "h": 672
+    }
+}

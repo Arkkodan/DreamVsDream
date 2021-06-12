@@ -51,6 +51,7 @@ public:
 	void bgmPlay();
 
 	void parseFile(const std::string& szFileName);
+	bool parseJSON(const std::string& name);
 	std::string getResource(const std::string& szFileName, const std::string& extension) const;
 
 	bool isExists() const;

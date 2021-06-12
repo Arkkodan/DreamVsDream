@@ -5,6 +5,7 @@
 #include "graphics.h"
 #include "error.h"
 #include "resource_manager.h"
+#include "../fileIO/json.h"
 #include "../util/rng.h"
 #include "../util/fileIO.h"
 
@@ -45,7 +46,20 @@ void Stage::create(std::string _name) {
 void Stage::init() {
 	initialized = true;
 	//Load the stage data from the file
-	parseFile("stages/" + name + "/stage.ubu");
+	bool jsonSuccess = false;
+	try {
+		jsonSuccess = parseJSON(name);
+	}
+	catch (const nlohmann::detail::out_of_range& e)
+	{
+		error::error(name + "/stage.json error: " + e.what());
+		imagesAbove.clear();
+		imagesBelow.clear();
+	}
+	if (!jsonSuccess) {
+		error::error("Cannot read " + name + "/stage.json. Falling back to " + name + "/stage.ubu");
+		parseFile("stages/" + name + "/stage.ubu");
+	}
 }
 
 void Stage::think() {
@@ -148,6 +162,81 @@ void Stage::parseFile(const std::string& szFileName) {
 			}
 		}
 	}
+}
+
+bool Stage::parseJSON(const std::string& name) {
+	const auto& j_obj = fileIO::readJSON(util::getPath("stages/" + name + "/stage.json"));
+	if (!j_obj.is_object()) {
+		return false;
+	}
+
+	if (j_obj.contains("imagesAhead")) {
+		for (const auto& image : j_obj["imagesAhead"]) {
+			Image imgData;
+			imgData.createFromFile(getResource(image["image"], Parser::EXT_IMAGE));
+			if (imgData.exists()) {
+				float parallax = image.at("parallax");
+				int round = image.value("round", 0);
+				float xvel = 0.0f;
+				float yvel = 0.0f;
+				if (image.contains("vel")) {
+					xvel = image["vel"].value("x", 0.0f);
+					yvel = image["vel"].value("y", 0.0f);
+				}
+				bool wrap = image.value("wrap", false);
+				imagesAbove.emplace_back(imgData, 0.0f, 0.0f, parallax, Image::Render::NORMAL, xvel, yvel, wrap, round);
+			}
+		}
+	}
+	if (j_obj.contains("imagesBehind")) {
+		for (const auto& image : j_obj["imagesBehind"]) {
+			Image imgData;
+			imgData.createFromFile(getResource(image["image"], Parser::EXT_IMAGE));
+			if (imgData.exists()) {
+				float parallax = image.at("parallax");
+				int round = image.value("round", 0);
+				float xvel = 0.0f;
+				float yvel = 0.0f;
+				if (image.contains("vel")) {
+					xvel = image["vel"].value("x", 0.0f);
+					yvel = image["vel"].value("y", 0.0f);
+				}
+				bool wrap = image.value("wrap", false);
+				imagesBelow.emplace_back(imgData, 0.0f, 0.0f, parallax, Image::Render::NORMAL, xvel, yvel, wrap, round);
+			}
+		}
+	}
+	if (j_obj.contains("entities")) {
+		width = j_obj["entities"].at("w_bounds");
+		height = j_obj["entities"].at("h_ground");
+	}
+	if (j_obj.contains("camera")) {
+		widthAbs = j_obj["camera"].at("w");
+		heightAbs = j_obj["camera"].at("h");
+	}
+	if (j_obj.contains("bgm")) {
+		for (int i = 0, size = j_obj["bgm"].size(); i < size; i++) {
+			const auto& j_bgm = j_obj["bgm"][i];
+			std::string loop = getResource(j_bgm.at("loop"), Parser::EXT_MUSIC);
+			std::string intro = j_bgm.value("intro", "");
+			switch (i) {
+			case 0:
+				bgm.createFromFile(
+					(intro.empty() ? "" : getResource(intro, Parser::EXT_MUSIC)),
+					loop
+				);
+				break;
+			case 1:
+				bgm2.createFromFile(
+					(intro.empty() ? "" : getResource(intro, Parser::EXT_MUSIC)),
+					loop
+				);
+				break;
+			}
+		}
+	}
+
+	return true;
 }
 
 std::string Stage::getResource(const std::string& resource, const std::string& extension) const {

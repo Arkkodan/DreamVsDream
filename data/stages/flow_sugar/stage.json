@@ -1,0 +1,50 @@
+{
+    "bgm": [
+        {
+            "intro": "intro",
+            "loop": "loop"
+        }
+    ],
+    "imagesBehind": [
+        {
+            "image": "0",
+            "parallax": 1.0
+        },
+        {
+            "image": "1",
+            "parallax": 1.0
+        },
+        {
+            "image": "1kaibutsu",
+            "parallax": 1.0,
+            "round": 3
+        },
+        {
+            "image": "2",
+            "parallax": 1.0
+        },
+        {
+            "image": "2kaibutsu",
+            "parallax": 1.0,
+            "round": 3
+        },
+        {
+            "image": "3",
+            "parallax": 1.0
+        }
+    ],
+    "imagesAhead": [
+        {
+            "image": "4",
+            "parallax": 1.2000000476837158
+        }
+    ],
+    "entities": {
+        "h_ground": 20,
+        "w_bounds": 426
+    },
+    "camera": {
+        "w": 852,
+        "h": 480
+    }
+}
