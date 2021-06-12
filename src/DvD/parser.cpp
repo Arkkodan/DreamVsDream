@@ -1,6 +1,7 @@
 #include "parser.h"
 
 #include "error.h"
+#include "../fileIO/text.h"
 #include "../util/fileIO.h"
 
 #include <cstring>
@@ -17,46 +18,48 @@ ParserLine::~ParserLine() {
 
 bool Parser::open(std::string szFileName) {
 	lines.clear();
-	util::freeLines(szLines);
 	iLine = -1;
 
-	if((szLines = util::getLinesFromFile(&nLines, szFileName))) {
+	szLines = fileIO::readTextAsLines(szFileName);
+	nLines = szLines.size();
+
+	if (!szLines.empty()) {
 		lines.resize(nLines);
 
 		for(int i = 0; i < nLines; i++) {
-			int size = strlen(szLines[i]);
+			int size = szLines[i].size();
 
 			//Is this a [group]?
-			if(szLines[i][0] == '[') {
+			if(szLines[i].front() == '[') {
 				//Make sure it ends in a ']'
-				if(szLines[i][size-1] != ']') {
+				if(szLines[i].back() != ']') {
 					return false;
 				}
 
 				lines[i].group = true;
 
 				//Parse the words
-				for(int start = 1, end = 0; szLines[i][start] && lines[i].argc < ParserLine::ARGV_SIZE; start = end + 1) {
-					util::nextWord(szLines[i], start, size, &start, &end);
-					szLines[i][end] = 0;
+				for(int start = 1, end = 0; start < size && lines[i].argc < ParserLine::ARGV_SIZE; start = end + 1) {
+					// TODO: Remove const_cast
+					util::nextWord(const_cast<char*>(szLines[i].c_str()), start, size, &start, &end);
 
 					//Save the pointer to the arg list
-					lines[i].argv[lines[i].argc++] = szLines[i] + start;
+					lines[i].argv[lines[i].argc++] = szLines[i].substr(start, end - start);
 				}
 			} else {
 				//Parse the args
-				for(int start = 0, end = 0; szLines[i][start] && lines[i].argc < ParserLine::ARGV_SIZE; start = end + 1) {
+				for(int start = 0, end = 0; start < size && lines[i].argc < ParserLine::ARGV_SIZE; start = end + 1) {
 					//Parse the words
-					util::nextWord(szLines[i], start, size, &start, &end);
+					// TODO: Remove const_cast
+					util::nextWord(const_cast<char*>(szLines[i].c_str()), start, size, &start, &end);
 
 					//Save the pointer to the arg list
-					lines[i].argv[lines[i].argc++] = std::string(szLines[i] + start, szLines[i] + end);
+					lines[i].argv[lines[i].argc++] = szLines[i].substr(start, end - start);
 
 					//End if we've reached a null
-					if(!szLines[i][end]) {
+					if(end > szLines[i].size()) {
 						break;
 					}
-					szLines[i][end] = 0;
 				}
 			}
 		}
@@ -72,28 +75,26 @@ void Parser::reset() {
 }
 
 bool Parser::exists() const {
-	return szLines != nullptr;
+	return !szLines.empty();
 }
 
 Parser::Parser() {
 	iLine = -1;
 	nLines = 0;
-	szLines = nullptr;
+	szLines.clear();
 	lines.clear();
 }
 
 Parser::Parser(std::string szFileName) {
-	szLines = nullptr;
+	szLines.clear();
 	lines.clear();
 	open(szFileName);
 }
 
-Parser::~Parser() {
-	util::freeLines(szLines);
-}
+Parser::~Parser() {}
 
 bool Parser::parseLine() {
-	if(!szLines) {
+	if (szLines.empty()) {
 		return false;
 	}
 
@@ -118,7 +119,7 @@ bool Parser::is(std::string szTest, int argc) const {
 }
 
 bool Parser::isGroup() const {
-	if(!szLines) {
+	if (szLines.empty()) {
 		return false;
 	}
 	return lines[iLine].group;
@@ -129,7 +130,7 @@ int Parser::getArgC() const {
 }
 
 std::string Parser::getArg(int arg) const {
-	if(!szLines) {
+	if (szLines.empty()) {
 		return "";
 	}
 	if(arg < 0 || arg >= lines[iLine].argc) {
@@ -139,7 +140,7 @@ std::string Parser::getArg(int arg) const {
 }
 
 int Parser::getArgInt(int arg) const {
-	if(!szLines) {
+	if (szLines.empty()) {
 		return 0;
 	}
 	if(arg < 0 || arg >= lines[iLine].argc) {
@@ -149,7 +150,7 @@ int Parser::getArgInt(int arg) const {
 }
 
 float Parser::getArgFloat(int arg) const {
-	if(!szLines) {
+	if (szLines.empty()) {
 		return 0.0;
 	}
 	if(arg < 0 || arg >= lines[iLine].argc) {
@@ -159,7 +160,7 @@ float Parser::getArgFloat(int arg) const {
 }
 
 bool Parser::getArgBool(int arg, bool def) const {
-	if(!szLines) {
+	if (szLines.empty()) {
 		return def;
 	}
 	if(arg < 0 || arg >= lines[iLine].argc) {

@@ -3,6 +3,8 @@
 
 #include "scene_base.h"
 
+#include <vector>
+
 #include "../font.h"
 
 namespace scene {
@@ -26,9 +28,9 @@ namespace scene {
 
 		//Data
 		Image logo;
-		Font font;
+		Font* font;
 		int c_lines;
-		char** sz_lines;
+		std::vector<std::string> lines;
 
 		uint8_t title_r;
 		uint8_t title_g;
@@ -42,6 +44,7 @@ namespace scene {
 		void draw() const override final;
 		void reset() override final;
 		void parseLine(Parser& parser) override final;
+		void parseJSON(const nlohmann::ordered_json& j_obj) override final;
 	};
 }
 

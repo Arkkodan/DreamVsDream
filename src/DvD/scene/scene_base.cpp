@@ -6,7 +6,9 @@
 #include "../stage.h"
 #include "../error.h"
 #include "../sys.h"
+#include "../resource_manager.h"
 #include "../../util/fileIO.h"
+#include "../../fileIO/json.h"
 #include "../graphics.h"
 
 #include <algorithm>
@@ -21,16 +23,48 @@ scene::Scene::Scene(std::string name_) {
 	initialized = false;
 	bgmPlaying = false;
 	//video = nullptr;
+
+	sndMenu = sndSelect = sndBack = sndInvalid = nullptr;
+
+	ext2dir[Parser::EXT_SCRIPT] = "scripts";
+	ext2dir[Parser::EXT_IMAGE] = "images";
+	ext2dir[Parser::EXT_SOUND] = "sounds";
+	ext2dir[Parser::EXT_MUSIC] = "music";
+	ext2dir[Parser::EXT_FONT] = "fonts";
+	ext2dir[Parser::EXT_VIDEO] = "videos";
+	ext2dir[Parser::EXT_TEXT] = "texts";
 }
 
 scene::Scene::~Scene() {
+	for (const auto* item : deleteFontVector) {
+		delete item;
+	}
+	for (const auto* item : deleteSoundVector) {
+		delete item;
+	}
 	//delete video;
 }
 
 void scene::Scene::init() {
 	initialized = true;
 	//Load the scene data from the file
-	parseFile("scenes/" + name + ".ubu");
+	bool jsonSuccess = false;
+	auto j_obj = fileIO::readJSON(util::getPath("scenes/" + name + '/' + name + ".json"));
+	if (j_obj.is_object()) {
+		try {
+			parseJSON(j_obj);
+			jsonSuccess = true;
+		}
+		catch (const nlohmann::detail::out_of_range& e)
+		{
+			error::error(name + ".json error: " + e.what());
+			images.clear();
+		}
+	}
+	if (!jsonSuccess) {
+		error::error("Cannot read " + name + ".json. Falling back to " + name + ".ubu");
+		parseFile("scenes/" + name + ".ubu");
+	}
 }
 
 void scene::Scene::think() {
@@ -86,11 +120,11 @@ void scene::Scene::think() {
 					sys::refresh();
 					SCENE->init();
 				}
-				if (scene == SCENE_FIGHT && !STAGE.initialized) {
+				if (scene == SCENE_FIGHT && !STAGE->initialized) {
 					//Loading graphic
 					imgLoading.draw(0, 0);
 					sys::refresh();
-					STAGE.init();
+					STAGE->init();
 				}
 				SCENE->reset();
 			}
@@ -117,6 +151,32 @@ void scene::Scene::draw() const {
 	);
 
 
+}
+
+template<>
+Font* scene::Scene::getResourceT<Font>(const std::string& resource) {
+	if (resource.front() == '*') {
+		return resource_manager::getResource<Font>(resource.substr(1, std::string::npos));
+	}
+	else {
+		Font* res = new Font;
+		res->createFromFile(getResource(resource, Parser::EXT_FONT));
+		deleteFontVector.push_back(res);
+		return res;
+	}
+}
+
+template<>
+audio::Sound* scene::Scene::getResourceT<audio::Sound>(const std::string& resource) {
+	if (resource.front() == '*') {
+		return resource_manager::getResource<audio::Sound>(resource.substr(1, std::string::npos));
+	}
+	else {
+		audio::Sound* res = new audio::Sound;
+		res->createFromFile(getResource(resource, Parser::EXT_SOUND));
+		deleteSoundVector.push_back(res);
+		return res;
+	}
 }
 
 void scene::Scene::parseLine(Parser& parser) {
@@ -169,10 +229,10 @@ void scene::Scene::parseLine(Parser& parser) {
 		}
 	}
 	else if (parser.is("SOUND", 4)) {
-		sndMenu.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
-		sndSelect.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
-		sndBack.createFromFile(getResource(parser.getArg(3), Parser::EXT_SOUND));
-		sndInvalid.createFromFile(getResource(parser.getArg(4), Parser::EXT_SOUND));
+		sndMenu = getResourceT<audio::Sound>(parser.getArg(1));
+		sndSelect = getResourceT<audio::Sound>(parser.getArg(2));
+		sndBack = getResourceT<audio::Sound>(parser.getArg(3));
+		sndInvalid = getResourceT<audio::Sound>(parser.getArg(4));
 	}
 	else if (parser.is("VIDEO", 1)) {
 		//getResource(parser.getArg(1), EXT_VIDEO);
@@ -193,9 +253,61 @@ void scene::Scene::parseFile(std::string szFileName) {
 	}
 }
 
+void scene::Scene::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("images")) {
+		for (const auto& image : j_obj["images"]) {
+			//Add a new image
+			Image imgData;
+			imgData.createFromFile(getResource(image["image"], Parser::EXT_IMAGE));
+			if (imgData.exists()) {
+				float x = image.at("pos").at("x");
+				float y = image.at("pos").at("y");
+				std::string szRender = image.value("renderType", "normal");
+				Image::Render render = Image::Render::NORMAL;
+				if (!szRender.compare("additive")) {
+					render = Image::Render::ADDITIVE;
+				}
+				else if (!szRender.compare("subtractive")) {
+					render = Image::Render::SUBTRACTIVE;
+				}
+				else if (!szRender.compare("multiply")) {
+					render = Image::Render::MULTIPLY;
+				}
+				float xvel = 0.0f;
+				float yvel = 0.0f;
+				if (image.contains("vel")) {
+					xvel = image["vel"].value("x", 0.0f);
+					yvel = image["vel"].value("y", 0.0f);
+				}
+				bool wrap = image.value("wrap", false);
+				images.emplace_back(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+			}
+		}
+	}
+	if (j_obj.contains("bgm")) {
+		std::string loop = getResource(j_obj["bgm"].at("loop"), Parser::EXT_MUSIC);
+		std::string intro = j_obj["bgm"].value("intro", "");
+		if (intro.empty()) {
+			bgm.createFromFile("", loop);
+		}
+		else {
+			bgm.createFromFile(getResource(intro, Parser::EXT_MUSIC), loop);
+		}
+	}
+	if (j_obj.contains("sound")) {
+		sndMenu = getResourceT<audio::Sound>(j_obj["sound"].at("menu"));
+		sndSelect = getResourceT<audio::Sound>(j_obj["sound"].at("select"));
+		sndBack = getResourceT<audio::Sound>(j_obj["sound"].at("back"));
+		sndInvalid = getResourceT<audio::Sound>(j_obj["sound"].at("invalid"));
+	}
+	if (j_obj.contains("video")) {
+		//
+	}
+}
+
 std::string scene::Scene::getResource(std::string resource, std::string extension) const {
 	if (*resource.c_str() == '*') {
-		return "scenes/common/" + resource.substr(1, std::string::npos) + "." + extension;
+		return ext2dir.at(extension) + '/' + resource.substr(1, std::string::npos) + '.' + extension;
 	}
 	else {
 		return "scenes/" + name + "/" + resource + "." + extension;

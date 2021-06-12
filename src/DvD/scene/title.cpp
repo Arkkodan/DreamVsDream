@@ -4,6 +4,9 @@
 #include "fight.h"
 
 #include "../player.h"
+#include "../error.h"
+#include "../../fileIO/json.h"
+#include "../../util/fileIO.h"
 #include "../../util/rng.h"
 
 std::vector<std::string> scene::Title::menuChoicesMain = {
@@ -47,6 +50,7 @@ scene::Title::Title() : Scene("title") {
 	submenu = 0;
 
 	nThemes = 0;
+	menuFont = nullptr;
 }
 
 scene::Title::~Title() {}
@@ -63,7 +67,22 @@ void scene::Title::init() {
 			i = 0;
 		}
 
-		parseFile(getResource(themes[i], Parser::EXT_SCRIPT));
+		bool jsonSuccess = false;
+		auto j_obj = fileIO::readJSON(util::getPath("scenes/title/" + themes[i] + ".json"));
+		if (!j_obj.is_null() && j_obj.is_object()) {
+			try {
+				parseJSON(j_obj);
+				jsonSuccess = true;
+			}
+			catch (const nlohmann::detail::out_of_range& e)
+			{
+				error::error(themes[i] + ".json error: " + e.what());
+			}
+		}
+		if (!jsonSuccess) {
+			error::error("Cannot read " + themes[i] + ".json. Falling back to " + themes[i] + ".ubu");
+			parseFile(getResource(themes[i], Parser::EXT_SCRIPT));
+		}
 	}
 }
 
@@ -92,7 +111,7 @@ void scene::Title::think() {
 	}
 
 	if (input(up)) {
-		sndMenu.play();
+		sndMenu->play();
 
 		choiceTimer = aXOffset;
 		choiceLast = choice;
@@ -104,7 +123,7 @@ void scene::Title::think() {
 		}
 	}
 	else if (input(down)) {
-		sndMenu.play();
+		sndMenu->play();
 
 		choiceTimer = aXOffset;
 		choiceLast = choice;
@@ -121,30 +140,30 @@ void scene::Title::think() {
 		case TM_MAIN:
 			switch (choice) {
 			case CHOICE_VERSUS:
-				sndSelect.play();
+				sndSelect->play();
 				choice = 0;
 				choiceLast = 0;
 				choiceTimer = 0;
 				submenu = TM_VERSUS;
 				break;
 			case CHOICE_TRAINING:
-				sndSelect.play();
+				sndSelect->play();
 				FIGHT->gametype = Fight::GAMETYPE_TRAINING;
 				setScene(SCENE_SELECT);
 				break;
 			default:
 				//if(sndSelect) sndSelect->play();
 				//setScene(SCENE_SELECT);
-				sndInvalid.play();
+				sndInvalid->play();
 				break;
 #ifndef NO_NETWORK
 			case CHOICE_NETPLAY:
-				sndSelect.play();
+				sndSelect->play();
 				setScene(SCENE_NETPLAY);
 				break;
 #endif
 			case CHOICE_OPTIONS:
-				sndSelect.play();
+				sndSelect->play();
 				setScene(SCENE_OPTIONS);
 				break;
 			case CHOICE_QUIT:
@@ -156,17 +175,17 @@ void scene::Title::think() {
 		case TM_VERSUS:
 			switch (choice) {
 			case CHOICE_VS_PLR:
-				sndSelect.play();
+				sndSelect->play();
 				FIGHT->gametype = Fight::GAMETYPE_VERSUS;
 				setScene(SCENE_SELECT);
 				break;
 			default:
 				//if(sndSelect) sndSelect->play();
 				//setScene(SCENE_SELECT);
-				sndInvalid.play();
+				sndInvalid->play();
 				break;
 			case CHOICE_VS_RETURN:
-				sndBack.play();
+				sndBack->play();
 				choice = CHOICE_VERSUS;
 				choiceLast = choice;
 				choiceTimer = 0;
@@ -183,7 +202,7 @@ void scene::Title::think() {
 		}
 		else if (submenu == TM_VERSUS) {
 			//Return
-			sndBack.play();
+			sndBack->play();
 			choice = CHOICE_VERSUS;
 			choiceLast = choice;
 			choiceTimer = 0;
@@ -199,7 +218,7 @@ void scene::Title::reset() {
 void scene::Title::draw() const {
 	Scene::draw();
 
-	if (menuFont.exists()) {
+	if (menuFont->exists()) {
 		for (int i = 0; i < menuChoicesMax[submenu]; i++) {
 			int gray = 2;
 			if (submenu == TM_MAIN) {
@@ -225,13 +244,13 @@ void scene::Title::draw() const {
 			}
 
 			if (i == choice) {
-				menuFont.drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer), menuY + menuFont.img.h * i, menuChoices[submenu]->at(i), aR / gray, aG / gray, aB / gray, 255);
+				menuFont->drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer), menuY + menuFont->img.h * i, menuChoices[submenu]->at(i), aR / gray, aG / gray, aB / gray, 255);
 			}
 			else if (i == choiceLast) {
-				menuFont.drawText(menuX + i * menuXOffset + choiceTimer, menuY + menuFont.img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
+				menuFont->drawText(menuX + i * menuXOffset + choiceTimer, menuY + menuFont->img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
 			}
 			else {
-				menuFont.drawText(menuX + i * menuXOffset, menuY + menuFont.img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
+				menuFont->drawText(menuX + i * menuXOffset, menuY + menuFont->img.h * i, menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 255);
 			}
 		}
 	}
@@ -241,7 +260,7 @@ void scene::Title::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("MENU", 3)) {
 		//Font
-		menuFont.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
+		menuFont = getResourceT<Font>(parser.getArg(1));
 
 		menuX = parser.getArgInt(2);
 		menuY = parser.getArgInt(3);
@@ -274,4 +293,32 @@ void scene::Title::parseLine(Parser& parser) {
 	else {
 		Scene::parseLine(parser);
 	}
+}
+
+void scene::Title::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("menu")) {
+		menuFont = getResourceT<Font>(j_obj["menu"].at("font"));
+		menuX = j_obj["menu"].at("pos").at("x");
+		menuY = j_obj["menu"].at("pos").at("y");
+		menuXOffset = j_obj["menu"].value("dx", 0);
+	}
+	if (j_obj.contains("inactive")) {
+		iR = j_obj["inactive"].at("r");
+		iG = j_obj["inactive"].at("g");
+		iB = j_obj["inactive"].at("b");
+	}
+	if (j_obj.contains("active")) {
+		aR = j_obj["active"].at("r");
+		aG = j_obj["active"].at("g");
+		aB = j_obj["active"].at("b");
+		aXOffset = j_obj["active"].value("dx", 0);
+	}
+	if (j_obj.contains("themes")) {
+		themes.clear();
+		for (const auto& theme : j_obj["themes"]) {
+			themes.push_back(theme);
+		}
+		nThemes = themes.size();
+	}
+	Scene::parseJSON(j_obj);
 }

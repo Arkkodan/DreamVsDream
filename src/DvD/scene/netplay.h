@@ -43,16 +43,17 @@ namespace scene {
 		Image imgLogo;
 
 		Image imgCursor;
-		Font menuFont;
+		Font* menuFont;
 
-		audio::Sound sndOn;
-		audio::Sound sndOff;
+		audio::Sound* sndOn;
+		audio::Sound* sndOff;
 
-		audio::Sound sndConStart;
-		audio::Sound sndConSuccess;
+		audio::Sound* sndConStart;
+		audio::Sound* sndConSuccess;
 
 		audio::Music bgmWait;
 
+	public:
 		//void init();
 
 		void updatePort(bool toint);
@@ -62,6 +63,7 @@ namespace scene {
 		void draw() const override final;
 		void reset() override final;
 		void parseLine(Parser& parser) override final;
+		void parseJSON(const nlohmann::ordered_json& j_obj) override final;
 	};
 }
 

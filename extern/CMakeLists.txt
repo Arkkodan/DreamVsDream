@@ -134,3 +134,9 @@ conditional_set_BUILD_SHARED_LIBS(sndfile)
 set(BUILD_PROGRAMS OFF CACHE BOOL "libsndfile: Build programs" FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "libsndfile: Build examples" FORCE)
 add_subdirectory("libsndfile" EXCLUDE_FROM_ALL)
+
+# json
+message(STATUS "Library: json")
+set(JSON_BuildTests OFF CACHE BOOL "json: Build the unit tests when BUILD_TESTING is enabled." FORCE)
+set(JSON_Install OFF CACHE BOOL "json: Install CMake targets during install step." FORCE)
+add_subdirectory("json" EXCLUDE_FROM_ALL)

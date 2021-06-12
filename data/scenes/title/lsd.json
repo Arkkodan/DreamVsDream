@@ -1,0 +1,37 @@
+{
+    "sound": {
+        "menu": "*menu_lsd",
+        "select": "*select_lsd",
+        "back": "*select_lsd",
+        "invalid": "*select_lsd"
+    },
+    "images": [
+        {
+            "image": "bg_lsd",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "renderType": "normal"
+        }
+    ],
+    "inactive": {
+        "r": 156,
+        "g": 156,
+        "b": 156
+    },
+    "active": {
+        "r": 255,
+        "g": 255,
+        "b": 0,
+        "dx": 0
+    },
+    "menu": {
+        "font": "*32x32",
+        "pos": {
+            "x": 342,
+            "y": 180
+        },
+        "dx": 0
+    }
+}

@@ -4,29 +4,43 @@
 #include "error.h"
 #include "graphics.h"
 #include "file.h"
+#include "resource_manager.h"
 #include "../util/fileIO.h"
 
 #include <glad/glad.h>
 #endif // GAME
 
 namespace game {
-	std::array<Fighter, FIGHTERS_MAX> fighters;
 
 #ifdef GAME
-	audio::Sound sndTransformYn;
-	audio::Sound sndTransform2kki;
-	audio::Sound sndTransformFlow;
+	audio::Sound* sndTransformYn = nullptr;
+	audio::Sound* sndTransform2kki = nullptr;
+	audio::Sound* sndTransformFlow = nullptr;
+
+	static std::vector<audio::Sound*> deleteSoundVector;
 	
 	void init() {
-		sndTransformYn.createFromFile("effects/Transform_yn.wav");
-		sndTransform2kki.createFromFile("effects/Transform_2kki.wav");
-		sndTransformFlow.createFromFile("effects/Transform_flow.wav");
-		fighters[0].create("madotsuki");
-		fighters[1].create("maddysucky");
-		fighters[2].create("sabitsuki");
+		if (!(sndTransformYn = resource_manager::getResource<audio::Sound>("Transform_yn.wav"))) {
+			sndTransformYn = new audio::Sound;
+			sndTransformYn->createFromFile("effects/Transform_yn.wav");
+			deleteSoundVector.push_back(sndTransformYn);
+		}
+		if (!(sndTransform2kki = resource_manager::getResource<audio::Sound>("Transform_2kki.wav"))) {
+			sndTransform2kki = new audio::Sound;
+			sndTransform2kki->createFromFile("effects/Transform_2kki.wav");
+			deleteSoundVector.push_back(sndTransform2kki);
+		}
+		if (!(sndTransformFlow = resource_manager::getResource<audio::Sound>("Transform_flow.wav"))) {
+			sndTransformFlow = new audio::Sound;
+			sndTransformFlow->createFromFile("effects/Transform_flow.wav");
+			deleteSoundVector.push_back(sndTransformFlow);
+		}
 	}
 
 	void deinit() {
+		for (const auto* item : deleteSoundVector) {
+			delete item;
+		}
 	}
 
 	//Load/create a fighter

@@ -4,7 +4,7 @@
 #include "scene/scene_base.h"
 #include "animation.h"
 
-#include <array>
+#include <vector>
 #include <list>
 #include <string>
 
@@ -14,8 +14,7 @@
 class Stage {
 public:
 	static int stage;
-	static constexpr auto STAGES_MAX = 20;
-	static std::array<Stage, STAGES_MAX> stages;
+	static std::vector<Stage*> stages;
 
 public:
 	std::string name;
@@ -26,6 +25,7 @@ public:
 
 	Animation thumbnail;
 
+	bool exists;
 	bool initialized;
 
 	int width;
@@ -36,6 +36,9 @@ public:
 	Stage();
 	//Stage(const char* name);
 	~Stage();
+
+	Stage(Stage&& other) = default;
+	Stage& operator=(Stage&& other) = default;
 
 	void create(std::string name);
 
@@ -48,7 +51,10 @@ public:
 	void bgmPlay();
 
 	void parseFile(const std::string& szFileName);
+	bool parseJSON(const std::string& name);
 	std::string getResource(const std::string& szFileName, const std::string& extension) const;
+
+	bool isExists() const;
 
 	static void ginit();
 	static void deinit();

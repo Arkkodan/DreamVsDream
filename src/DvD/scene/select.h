@@ -5,8 +5,7 @@
 
 #include "../../util/vec2.h"
 #include "../font.h"
-
-#include <vector>
+#include "../fighter.h"
 
 namespace scene {
 
@@ -16,13 +15,14 @@ namespace scene {
 		util::Vector off;
 		Image img;
 		Image imgSelect;
-		audio::Sound sndSelect;
-		audio::Sound sndDeselect;
+		audio::Sound* sndSelect;
+		audio::Sound* sndDeselect;
 
 		int frameC;
 		int speed;
 		bool grow;
 
+	public:
 		CursorData();
 		~CursorData();
 
@@ -90,10 +90,13 @@ namespace scene {
 
 		std::vector<CursorData> curData;
 
-		Font font_stage;
+		Font* font_stage;
 		int cursor_stage;
-		mutable float cursor_stage_offset;
+		float cursor_stage_offset;
 
+		std::vector<game::Fighter*> fighters;
+
+	public:
 		//Functions
 		void think() override final;
 		void reset() override final;
@@ -103,6 +106,7 @@ namespace scene {
 		void drawEffect(int player, int group, int _x, int _y, bool spr = false) const;
 
 		void parseLine(Parser& parser) override final;
+		void parseJSON(const nlohmann::ordered_json& j_obj) override final;
 	};
 }
 

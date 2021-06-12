@@ -4,12 +4,15 @@
 #include "../image.h"
 #include "../sound.h"
 #include "../parser.h"
+#include "../font.h"
+
+#include <nlohmann/json.hpp>
 
 #include <list>
-#include <array>
-#include <memory>
 #include <string>
 #include <cstdint>
+#include <vector>
+#include <unordered_map>
 
 namespace scene {
 
@@ -52,11 +55,17 @@ namespace scene {
 		//Video* video;
 
 		//audio::Sounds
-		audio::Sound sndMenu;
-		audio::Sound sndSelect;
-		audio::Sound sndBack;
-		audio::Sound sndInvalid;
+		audio::Sound* sndMenu;
+		audio::Sound* sndSelect;
+		audio::Sound* sndBack;
+		audio::Sound* sndInvalid;
 
+	private:
+		std::unordered_map<std::string, std::string> ext2dir;
+		std::vector<Font*> deleteFontVector;
+		std::vector<audio::Sound*> deleteSoundVector;
+
+	public:
 		//Functions
 		virtual void init();
 
@@ -67,7 +76,13 @@ namespace scene {
 		void parseFile(std::string szFileName);
 		virtual void parseLine(Parser& parser);
 
+		virtual void parseJSON(const nlohmann::ordered_json& j_obj);
+
 		std::string getResource(std::string szFileName, std::string extension) const;
+
+		/// @brief Template version of getResource
+		template<typename T>
+		T* getResourceT(const std::string& resource);
 	};
 }
 

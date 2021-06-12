@@ -21,9 +21,9 @@ namespace game {
 	/// @brief Deinit
 	void deinit();
 	
-	extern audio::Sound sndTransformYn;
-	extern audio::Sound sndTransform2kki;
-	extern audio::Sound sndTransformFlow;
+	extern audio::Sound* sndTransformYn;
+	extern audio::Sound* sndTransform2kki;
+	extern audio::Sound* sndTransformFlow;
 #endif
 	enum {
 		SBOOL_UNDEFINED = -1,
@@ -307,6 +307,9 @@ namespace game {
 		Fighter();
 		~Fighter();
 
+		Fighter(Fighter&& other) noexcept = default;
+		Fighter& operator=(Fighter&& other) noexcept = default;
+
 		void create(std::string name);
 
 #ifdef SPRTOOL
@@ -320,9 +323,6 @@ namespace game {
 
 	protected:
 	};
-
-	constexpr auto FIGHTERS_MAX = 3;
-	extern std::array<Fighter, FIGHTERS_MAX> fighters;
 
 	/// @brief Set a boolean output parameter based on an enum input parameter
 	void setBool(bool& dst, char src);

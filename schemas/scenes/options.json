@@ -1,0 +1,80 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Options Scene object",
+    "description": "Extends Scene base class, also applies to themes",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "./scenes.json#/definitions/SceneBase"
+        }
+    ],
+    "properties": {
+        "font": {
+            "type": "string"
+        },
+        "madotsuki": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "sfx": {
+                    "type": "object",
+                    "properties": {
+                        "step": {
+                            "type": "string"
+                        },
+                        "pinch": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "step",
+                        "pinch"
+                    ]
+                }
+            },
+            "required": [
+                "image",
+                "sfx"
+            ]
+        },
+        "inactive": {
+            "$ref": "../references.json#/definitions/u8color3"
+        },
+        "active": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "../references.json#/definitions/u8color3"
+                }
+            ],
+            "properties": {
+                "dx": {
+                    "type": "integer"
+                }
+            }
+        },
+        "themes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "voices": {
+            "type": "object",
+            "properties": {
+                "dame": {
+                    "type": "string"
+                },
+                "muri": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "dame",
+                "muri"
+            ]
+        }
+    }
+}

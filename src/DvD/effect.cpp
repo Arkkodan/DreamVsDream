@@ -4,6 +4,7 @@
 #include "graphics.h"
 #include "../util/fileIO.h"
 #include "sys.h"
+#include "resource_manager.h"
 
 #include <algorithm>
 #include <array>
@@ -13,7 +14,7 @@ namespace effect {
 
     //VARIABLES
     int nEffectAnims = 0;
-    std::vector<EffectAnimation> effectAnims;
+    static std::vector<EffectAnimation*> effectAnims;
 
     std::array<Effect, EFFECT_MAX> effects;
 
@@ -103,8 +104,8 @@ namespace effect {
         //Look up the animation
         int i = 0;
         for(; i < nEffectAnims; i++) {
-            if(name == effectAnims[i].getName()) {
-                anim = &effectAnims[i];
+            if(name == effectAnims[i]->getName()) {
+                anim = effectAnims[i];
                 break;
             }
         }
@@ -161,17 +162,9 @@ namespace effect {
 
     //MISC FUNCS
     void init() {
-        //See what's in the effects directory
-        std::vector<std::string> dirs = util::listDirectory(util::getPath("effects"), false);
-
-        nEffectAnims = dirs.size();
-        if(nEffectAnims <= 0)
-            return;
-
-        effectAnims.resize(nEffectAnims);
-        for(int i = 0; i < nEffectAnims; i++) {
-            effectAnims[i] = EffectAnimation(dirs[i]);
-        }
+        resource_manager::loadFromManifest<EffectAnimation>();
+        effectAnims = resource_manager::getFromManifest<EffectAnimation>();
+        nEffectAnims = effectAnims.size();
     }
 
     void deinit() {}

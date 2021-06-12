@@ -8,10 +8,16 @@
 #include "../stage.h"
 #include "../sys.h"
 #include "../graphics.h"
+#include "../resource_manager.h"
 
 #include <algorithm>
 
 #include <glad/glad.h>
+
+namespace {
+	static constexpr auto STAGES_PER_ROW = 10;
+	static constexpr auto STAGE_ICON_WIDTH = 76;
+}
 
 scene::Select::Select() : Scene("select") {
 	width = height = 0;
@@ -20,11 +26,15 @@ scene::Select::Select() : Scene("select") {
 
 	cursor_stage = 0;
 	cursor_stage_offset = 0;
+	font_stage = nullptr;
 }
 
 scene::Select::~Select() {}
 
 void scene::Select::init() {
+	resource_manager::loadFromManifest<game::Fighter>();
+	fighters = resource_manager::getFromManifest<game::Fighter>();
+
 	Scene::init();
 }
 
@@ -69,7 +79,7 @@ void scene::Select::think() {
 				}
 
 				if (input & game::INPUT_LEFT) {
-					sndMenu.play();
+					sndMenu->play();
 
 					do {
 						if (cursors[cur].pos % width == 0) {
@@ -86,7 +96,7 @@ void scene::Select::think() {
 					}
 				}
 				else if (input & game::INPUT_RIGHT) {
-					sndMenu.play();
+					sndMenu->play();
 
 					do {
 						if (cursors[cur].pos % width == width - 1) {
@@ -103,7 +113,7 @@ void scene::Select::think() {
 					}
 				}
 				else if (input & game::INPUT_UP) {
-					sndMenu.play();
+					sndMenu->play();
 
 					do {
 						if (cursors[cur].pos / width == 0) {
@@ -125,7 +135,7 @@ void scene::Select::think() {
 					}
 				}
 				else if (input & game::INPUT_DOWN) {
-					sndMenu.play();
+					sndMenu->play();
 
 					do {
 						if (cursors[cur].pos / width == height - 1) {
@@ -154,17 +164,17 @@ void scene::Select::think() {
 						newEffect(cur, group);
 					}
 					else {
-						sndInvalid.play();
+						sndInvalid->play();
 					}
 				}
 			}
 			else if (cursors[cur].lockState == Cursor::CURSOR_COLORSWAP) {
 				if (input & game::INPUT_LEFT) {
-					sndMenu.play();
+					sndMenu->play();
 
 					if (cur == 0) {
 						if (Fight::madotsuki.palette == 0) {
-							Fight::madotsuki.palette = game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1;
+							Fight::madotsuki.palette = fighters[gridFighters[cursors[0].pos]]->nPalettes - 1;
 						}
 						else {
 							Fight::madotsuki.palette--;
@@ -172,7 +182,7 @@ void scene::Select::think() {
 					}
 					else {
 						if (Fight::poniko.palette == 0) {
-							Fight::poniko.palette = game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1;
+							Fight::poniko.palette = fighters[gridFighters[cursors[1].pos]]->nPalettes - 1;
 						}
 						else {
 							Fight::poniko.palette--;
@@ -180,10 +190,10 @@ void scene::Select::think() {
 					}
 				}
 				else if (input & game::INPUT_RIGHT) {
-					sndMenu.play();
+					sndMenu->play();
 
 					if (cur == 0) {
-						if (Fight::madotsuki.palette == game::fighters[gridFighters[cursors[0].pos]].nPalettes - 1) {
+						if (Fight::madotsuki.palette == fighters[gridFighters[cursors[0].pos]]->nPalettes - 1) {
 							Fight::madotsuki.palette = 0;
 						}
 						else {
@@ -191,7 +201,7 @@ void scene::Select::think() {
 						}
 					}
 					else {
-						if (Fight::poniko.palette == game::fighters[gridFighters[cursors[1].pos]].nPalettes - 1) {
+						if (Fight::poniko.palette == fighters[gridFighters[cursors[1].pos]]->nPalettes - 1) {
 							Fight::poniko.palette = 0;
 						}
 						else {
@@ -201,7 +211,7 @@ void scene::Select::think() {
 				}
 
 				if (input & game::INPUT_A) {
-					sndSelect.play();
+					sndSelect->play();
 					cursors[cur].lockState = Cursor::CURSOR_LOCKED;
 				}
 			}
@@ -209,11 +219,11 @@ void scene::Select::think() {
 			if (input & game::INPUT_B) {
 				if (FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING) {
 					if (cursors[0].lockState == Cursor::CURSOR_UNLOCKED) {
-						sndBack.play();
+						sndBack->play();
 						setScene(SCENE_TITLE);
 					}
 					else if (cursors[cur].lockState == Cursor::CURSOR_UNLOCKED) {
-						sndBack.play();
+						sndBack->play();
 						cur--;
 						cursors[cur].lockState = Cursor::CURSOR_COLORSWAP;
 					}
@@ -222,27 +232,27 @@ void scene::Select::think() {
 
 						if (!curData.empty()) {
 							group = cursors[cur].getGroup(width, gWidth, gHeight);
-							curData[group].sndDeselect.play();
-							curData[group].sndSelect.stop();
+							curData[group].sndDeselect->play();
+							curData[group].sndSelect->stop();
 						}
 					}
 				}
 				else {
 					if (cursors[cur].lockState == Cursor::CURSOR_LOCKED) {
-						sndBack.play();
+						sndBack->play();
 						cursors[cur].lockState = Cursor::CURSOR_COLORSWAP;
 					}
 					else if (cursors[cur].lockState == Cursor::CURSOR_COLORSWAP) {
 						cursors[cur].lockState = Cursor::CURSOR_UNLOCKED;
 						if (!curData.empty()) {
 							group = cursors[cur].getGroup(width, gWidth, gHeight);
-							curData[group].sndDeselect.play();
-							curData[group].sndSelect.stop();
+							curData[group].sndDeselect->play();
+							curData[group].sndSelect->stop();
 						}
 					}
 					else {
 						if (!net::connected) {
-							sndBack.play();
+							sndBack->play();
 							setScene(SCENE_TITLE);
 						}
 					}
@@ -255,48 +265,79 @@ void scene::Select::think() {
 		}
 	}
 	else {
-		if (input(game::INPUT_LEFT)) {
-			sndMenu.play();
-			if (cursor_stage % 10 == 0) {
-				cursor_stage += 9;
-				cursor_stage_offset += 76 * 10;
-			}
-			else {
-				cursor_stage--;
-				cursor_stage_offset += -76;
-			}
+		cursor_stage_offset *= 0.36f; // 0.95f ^ 20
+		if (std::abs(cursor_stage_offset) < 1) {
+			cursor_stage_offset = 0.0f;
 		}
 
-		if (input(game::INPUT_RIGHT)) {
-			sndMenu.play();
-			if (cursor_stage % 10 == 9) {
-				cursor_stage -= 9;
-				cursor_stage_offset += -76 * 10;
-			}
-			else {
-				cursor_stage++;
-				cursor_stage_offset += 76;
-			}
-		}
+		int size = Stage::stages.size();
+		int exists = std::count_if(Stage::stages.cbegin(), Stage::stages.cend(),
+			[](const Stage* stage) {return stage->isExists(); }
+		);
+		if (size > 0 && exists > 0) {
+			int dx = (input(game::INPUT_LEFT) ? -1 : 0) + (input(game::INPUT_RIGHT) ? 1 : 0);
+			int dy = (input(game::INPUT_UP) ? -1 : 0) + (input(game::INPUT_DOWN) ? 1 : 0);
 
+			switch (dx)
+			{
+			case -1: // Left
+				sndMenu->play();
+				do {
+					if (cursor_stage % STAGES_PER_ROW == 0) {
+						// Wrap-around
+						cursor_stage += STAGES_PER_ROW - 1;
+						cursor_stage_offset += STAGE_ICON_WIDTH * (STAGES_PER_ROW - 1);
+					}
+					else {
+						cursor_stage--;
+						cursor_stage_offset -= STAGE_ICON_WIDTH;
+					}
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
+				break;
+			case 1: // Right
+				sndMenu->play();
+				do {
+					if (cursor_stage % STAGES_PER_ROW == STAGES_PER_ROW - 1) {
+						// Wrap-around
+						cursor_stage -= STAGES_PER_ROW - 1;
+						cursor_stage_offset -= STAGE_ICON_WIDTH * (STAGES_PER_ROW - 1);
+					}
+					else {
+						cursor_stage++;
+						cursor_stage_offset += STAGE_ICON_WIDTH;
+					}
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
+				break;
+			}
 
-		if (input(game::INPUT_UP)) {
-			sndMenu.play();
-			if (cursor_stage < 10) {
-				cursor_stage += 10;
-			}
-			else {
-				cursor_stage -= 10;
-			}
-		}
-
-		if (input(game::INPUT_DOWN)) {
-			sndMenu.play();
-			if (cursor_stage >= 11) {
-				cursor_stage -= 10;
-			}
-			else {
-				cursor_stage += 10;
+			switch (dy)
+			{
+			case -1: // Up
+				sndMenu->play();
+				do {
+					if (cursor_stage - STAGES_PER_ROW < 0) {
+						// Wrap-around, multiple of STAGES_PER_ROW
+						cursor_stage += size / STAGES_PER_ROW * STAGES_PER_ROW;
+						if (cursor_stage >= size) {
+							// Adjust into size if needed
+							cursor_stage -= STAGES_PER_ROW;
+						}
+					}
+					else {
+						cursor_stage -= STAGES_PER_ROW;
+					}
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
+				break;
+			case 1: // Down
+				sndMenu->play();
+				do {
+					cursor_stage += STAGES_PER_ROW;
+					if (cursor_stage >= size) {
+						// Wrap-around, into first row
+						cursor_stage %= STAGES_PER_ROW;
+					}
+				} while (cursor_stage >= size || !Stage::stages[cursor_stage]->isExists());
+				break;
 			}
 		}
 
@@ -306,14 +347,14 @@ void scene::Select::think() {
 
 				if (!curData.empty()) {
 					int group = cursors[1].getGroup(width, gWidth, gHeight);
-					curData[group].sndDeselect.play();
-					curData[group].sndSelect.stop();
+					curData[group].sndDeselect->play();
+					curData[group].sndSelect->stop();
 				}
 			}
 		}
 		else {
 			if (input(game::INPUT_B)) {
-				sndBack.play();
+				sndBack->play();
 				cursors[0].lockState = Cursor::CURSOR_COLORSWAP;
 				cursors[1].lockState = Cursor::CURSOR_COLORSWAP;
 
@@ -329,17 +370,22 @@ void scene::Select::think() {
 		}
 
 		if (input(game::INPUT_A)) {
-			//Start game!
-			Fight::madotsuki.fighter = &game::fighters[gridFighters[cursors[0].pos]];
-			Fight::poniko.fighter = &game::fighters[gridFighters[cursors[1].pos]];
+			if (cursor_stage < size && Stage::stages[cursor_stage]->isExists()) {
+				//Start game!
+				Fight::madotsuki.fighter = fighters[gridFighters[cursors[0].pos]];
+				Fight::poniko.fighter = fighters[gridFighters[cursors[1].pos]];
 
-			(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[0] = &Fight::madotsuki.fighter->portrait;
+				(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[0] = &Fight::madotsuki.fighter->portrait;
 
-			(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[1] = &Fight::poniko.fighter->portrait;
+				(reinterpret_cast<Versus*>(scenes[SCENE_VERSUS].get()))->portraits[1] = &Fight::poniko.fighter->portrait;
 
-			Stage::stage = cursor_stage;
-			setScene(SCENE_VERSUS);
-			sndSelect.play();
+				Stage::stage = cursor_stage;
+				setScene(SCENE_VERSUS);
+				sndSelect->play();
+			}
+			else {
+				sndInvalid->play();
+			}
 		}
 	}
 }
@@ -357,6 +403,13 @@ void scene::Select::reset() {
 	cursors[1].pos = cursors[1].posDefault;
 
 	cursor_stage = 0;
+	// Find the first stage that exists
+	for (const auto& stage : Stage::stages) {
+		if (stage->isExists()) {
+			break;
+		}
+		cursor_stage++;
+	}
 }
 
 void scene::Select::draw() const {
@@ -367,23 +420,23 @@ void scene::Select::draw() const {
 		if (cursors[1].timerPortrait) {
 			if (gridFighters[cursors[1].posOld] >= 0) {
 				graphics::setColor(255, 255, 255, (float)(cursors[1].timerPortrait) / PORTRAIT_FADE);
-				game::fighters[gridFighters[cursors[1].posOld]].portrait.draw(sys::WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].posOld]].portrait.w + (PORTRAIT_FADE - cursors[1].timerPortrait), 0, true);
+				fighters[gridFighters[cursors[1].posOld]]->portrait.draw(sys::WINDOW_WIDTH - fighters[gridFighters[cursors[1].posOld]]->portrait.w + (PORTRAIT_FADE - cursors[1].timerPortrait), 0, true);
 			}
 		}
 		if (gridFighters[cursors[1].pos] >= 0) {
 			graphics::setColor(255, 255, 255, (float)(PORTRAIT_FADE - cursors[1].timerPortrait) / PORTRAIT_FADE);
-			game::fighters[gridFighters[cursors[1].pos]].portrait.draw(sys::WINDOW_WIDTH - game::fighters[gridFighters[cursors[1].pos]].portrait.w + cursors[1].timerPortrait, 0, true);
+			fighters[gridFighters[cursors[1].pos]]->portrait.draw(sys::WINDOW_WIDTH - fighters[gridFighters[cursors[1].pos]]->portrait.w + cursors[1].timerPortrait, 0, true);
 		}
 	}
 	if (cursors[0].timerPortrait) {
 		if (gridFighters[cursors[0].posOld] >= 0) {
 			graphics::setColor(255, 255, 255, (float)(cursors[0].timerPortrait) / PORTRAIT_FADE);
-			game::fighters[gridFighters[cursors[0].posOld]].portrait.draw(0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
+			fighters[gridFighters[cursors[0].posOld]]->portrait.draw(0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
 		}
 	}
 	if (gridFighters[cursors[0].pos] >= 0) {
 		graphics::setColor(255, 255, 255, (float)(PORTRAIT_FADE - cursors[0].timerPortrait) / PORTRAIT_FADE);
-		game::fighters[gridFighters[cursors[0].pos]].portrait.draw(0 - cursors[0].timerPortrait, 0);
+		fighters[gridFighters[cursors[0].pos]]->portrait.draw(0 - cursors[0].timerPortrait, 0);
 	}
 
 	//Now the GUI
@@ -393,23 +446,23 @@ void scene::Select::draw() const {
 
 	if (cursors[1].lockState >= Cursor::CURSOR_COLORSWAP) {
 		if (gridFighters[cursors[1].pos] >= 0) {
-			game::Fighter& fighter = game::fighters[gridFighters[cursors[1].pos]];
-			sprite::Sprite& spr = fighter.sprites[0];
-			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
+			game::Fighter* fighter = fighters[gridFighters[cursors[1].pos]];
+			sprite::Sprite& spr = fighter->sprites[0];
+			AtlasSprite sprAtlas = fighter->sprites[0].atlas->getSprite(spr.atlas_sprite);
 
-			graphics::setPalette(fighter.palettes[Fight::poniko.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-			fighter.sprites[0].atlas->draw(spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
+			graphics::setPalette(fighter->palettes[Fight::poniko.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+			fighter->sprites[0].atlas->draw(spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
 			glUseProgram(0);
 		}
 	}
 	if (cursors[0].lockState >= Cursor::CURSOR_COLORSWAP) {
 		if (gridFighters[cursors[0].pos] >= 0) {
-			game::Fighter& fighter = game::fighters[gridFighters[cursors[0].pos]];
-			sprite::Sprite& spr = fighter.sprites[0];
-			AtlasSprite sprAtlas = fighter.sprites[0].atlas->getSprite(spr.atlas_sprite);
+			game::Fighter* fighter = fighters[gridFighters[cursors[0].pos]];
+			sprite::Sprite& spr = fighter->sprites[0];
+			AtlasSprite sprAtlas = fighter->sprites[0].atlas->getSprite(spr.atlas_sprite);
 
-			graphics::setPalette(fighter.palettes[Fight::madotsuki.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
-			fighter.sprites[0].atlas->draw(spr.atlas_sprite, 50 - spr.x, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
+			graphics::setPalette(fighter->palettes[Fight::madotsuki.palette], 1.0f, 1.0f, 1.0f, 1.0f, 0.0f);
+			fighter->sprites[0].atlas->draw(spr.atlas_sprite, 50 - spr.x, sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
 			glUseProgram(0);
 		}
 	}
@@ -417,7 +470,7 @@ void scene::Select::draw() const {
 	//Draw the select sprites
 	for (int i = 0; i < gridC; i++) {
 		if (gridFighters[i] >= 0) {
-			game::fighters[gridFighters[i]].select.draw(grid[i].x, grid[i].y);
+			fighters[gridFighters[i]]->select.draw(grid[i].x, grid[i].y);
 		}
 	}
 
@@ -454,19 +507,27 @@ void scene::Select::draw() const {
 		glEnd();
 
 		//Draw the stage list
-		for (int i = 0; i < 20; i++) {
-			int x = static_cast<int>(38 + (8 + 76) * (i % 10 + 3 - cursor_stage % 10) + cursor_stage_offset);
-			int y = 150 + (8 + 50) * (i / 10);
-			cursor_stage_offset *= 0.95f;
-			if (!Stage::stages[i].thumbnail.isPlaying())
-				Stage::stages[i].thumbnail.setPlaying(true);
-			if (cursor_stage == i) {
-				graphics::setColor(255, 255, 255, 1.0f);
-				Stage::stages[i].thumbnail.draw(x, y);
-			}
-			else {
-				graphics::setColor(127, 127, 127, 1.0f);
-				Stage::stages[i].thumbnail.draw(x, y);
+		constexpr auto STAGE_ICON_PADDING = 8;
+		for (int i = 0, size = Stage::stages.size(); i < size; i++) {
+			int x = static_cast<int>(
+				(STAGE_ICON_WIDTH + STAGE_ICON_PADDING) *
+				(i % STAGES_PER_ROW + 3 - cursor_stage % STAGES_PER_ROW) +
+				STAGE_ICON_WIDTH / 2 +
+				cursor_stage_offset
+			);
+			int y = 150 + (STAGE_ICON_PADDING + 50) * (i / STAGES_PER_ROW);
+			auto* stage = Stage::stages[i];
+			if (stage->isExists()) {
+				if (!stage->thumbnail.isPlaying())
+					stage->thumbnail.setPlaying(true);
+				if (cursor_stage == i) {
+					graphics::setColor(255, 255, 255, 1.0f);
+					stage->thumbnail.draw(x, y);
+				}
+				else {
+					graphics::setColor(127, 127, 127, 1.0f);
+					stage->thumbnail.draw(x, y);
+				}
 			}
 		}
 	}
@@ -474,8 +535,8 @@ void scene::Select::draw() const {
 
 void scene::Select::newEffect(int player, int group) {
 	if (!curData.empty()) {
-		curData[group].sndSelect.play();
-		curData[group].sndDeselect.stop();
+		curData[group].sndSelect->play();
+		curData[group].sndDeselect->stop();
 	}
 
 	cursors[player].frame = 1;
@@ -552,8 +613,8 @@ void scene::Select::parseLine(Parser& parser) {
 		curData[group].grow = parser.getArgBool(8, false);
 
 		//Sounds
-		curData[group].sndSelect.createFromFile(getResource(parser.getArg(9), Parser::EXT_SOUND));
-		curData[group].sndDeselect.createFromFile(getResource(parser.getArg(10), Parser::EXT_SOUND));
+		curData[group].sndSelect = getResourceT<audio::Sound>(parser.getArg(9));
+		curData[group].sndDeselect = getResourceT<audio::Sound>(parser.getArg(10));
 	}
 	else if (parser.is("CHAR", 1)) {
 		//Add to the grids
@@ -575,8 +636,8 @@ void scene::Select::parseLine(Parser& parser) {
 		}
 
 		//Get fighter
-		for (int i = 0; i < game::FIGHTERS_MAX; i++) {
-			if (!game::fighters[i].name.compare(parser.getArg(1))) {
+		for (int i = 0, fightersSize = fighters.size(); i < fightersSize; i++) {
+			if (!fighters[i]->name.compare(parser.getArg(1))) {
 				gridFighters[gridC] = i;
 				break;
 			}
@@ -627,7 +688,7 @@ void scene::Select::parseLine(Parser& parser) {
 	}
 	else if (parser.is("STAGES", 1)) {
 		//Load the font
-		font_stage.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
+		font_stage = getResourceT<Font>(parser.getArg(1));
 	}
 	else if (parser.is("PLAYER", 6)) {
 		//Load the player
@@ -647,20 +708,127 @@ void scene::Select::parseLine(Parser& parser) {
 	}
 }
 
+void scene::Select::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("grid")) {
+		//Make the grids!
+		width = j_obj["grid"].at("w");
+		height = j_obj["grid"].at("h");
+
+		grid.resize(width * height);
+		gridFighters.resize(width * height);
+
+		//Now for the groups...
+		gWidth = j_obj["grid"].at("w_group");
+		gHeight = j_obj["grid"].at("h_group");
+
+		int gSize = (width / gWidth) * (height / gHeight);
+		curData.resize(gSize);
+
+		//Set the p2 cursor to the width - 1
+		cursors[1].pos = width - 1;
+		cursors[1].posOld = width - 1;
+	}
+	if (j_obj.contains("cursors")) {
+		for (int i = 0, size = j_obj["cursors"].size(); i < size; i++) {
+			const auto& cursor = j_obj["cursors"][i];
+			curData[i].img.createFromFile(getResource(cursor.at("image"), Parser::EXT_IMAGE));
+
+			curData[i].off.x = cursor.at("offset").at("x");
+			curData[i].off.y = cursor.at("offset").at("y");
+
+			curData[i].imgSelect.createFromFile(getResource(cursor.at("effect").at("image"), Parser::EXT_IMAGE));
+			curData[i].frameC = cursor.at("effect").at("frameCount");
+			curData[i].speed = cursor.at("effect").at("speed");
+			curData[i].grow = cursor.at("effect").at("grow");
+
+			curData[i].sndSelect = getResourceT<audio::Sound>(cursor.at("sound").at("select"));
+			curData[i].sndDeselect = getResourceT<audio::Sound>(cursor.at("sound").at("deselect"));
+		}
+	}
+	if (j_obj.contains("chars")) {
+		gridC = std::min(static_cast<int>(j_obj["chars"].size()), width * height);
+		for (int i = 0; i < gridC; i++) {
+			const auto& charI = j_obj["chars"][i];
+			gridFighters[i] = -1;
+
+			if (charI.is_null()) {
+				grid[i].x = -1;
+				grid[i].y = -1;
+				continue;
+			}
+
+			std::string name = charI.at("name");
+			for (int j = 0, fightersSize = fighters.size(); j < fightersSize; j++) {
+				if (!fighters[j]->name.compare(name)) {
+					gridFighters[i] = j;
+					break;
+				}
+			}
+
+			grid[i].x = charI.at("pos").at("x");
+			grid[i].y = charI.at("pos").at("y");
+		}
+	}
+	if (j_obj.contains("select")) {
+		for (const auto& image : j_obj["select"]) {
+			//Add a new image
+			Image imgData;
+			imgData.createFromFile(getResource(image["image"], Parser::EXT_IMAGE));
+			if (imgData.exists()) {
+				float x = image.at("pos").at("x");
+				float y = image.at("pos").at("y");
+				std::string szRender = image.value("renderType", "normal");
+				Image::Render render = Image::Render::NORMAL;
+				if (!szRender.compare("additive")) {
+					render = Image::Render::ADDITIVE;
+				}
+				else if (!szRender.compare("subtractive")) {
+					render = Image::Render::SUBTRACTIVE;
+				}
+				else if (!szRender.compare("multiply")) {
+					render = Image::Render::MULTIPLY;
+				}
+				float xvel = 0.0f;
+				float yvel = 0.0f;
+				if (image.contains("vel")) {
+					xvel = image["vel"].value("x", 0.0f);
+					yvel = image["vel"].value("y", 0.0f);
+				}
+				bool wrap = image.value("wrap", false);
+				gui.emplace_back(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+			}
+		}
+	}
+	if (j_obj.contains("stages")) {
+		font_stage = getResourceT<Font>(j_obj["stages"].at("font"));
+	}
+	if (j_obj.contains("players")) {
+		for (int i = 0, size = j_obj["players"].size(); i < size; i++) {
+			const auto& player = j_obj["players"][i];
+			cursors[i].posDefault = cursors[i].pos = static_cast<int>(player.at("posDefault").at("y")) * width + static_cast<int>(player.at("posDefault").at("x"));
+
+			cursors[i].r = player.at("color").at("r");
+			cursors[i].g = player.at("color").at("g");
+			cursors[i].b = player.at("color").at("b");
+		}
+	}
+	Scene::parseJSON(j_obj);
+}
+
 //CURSOR DATA
 scene::CursorData::CursorData() {
 	frameC = 0;
 	speed = 0;
 	grow = false;
+	sndSelect = sndDeselect = nullptr;
 }
 
-scene::CursorData::~CursorData() {
-}
+scene::CursorData::~CursorData() {}
 
 scene::CursorData::CursorData(CursorData&& other) noexcept :
 	off(std::move(other.off)),
 	img(std::move(other.img)), imgSelect(std::move(other.imgSelect)),
-	sndSelect(std::move(other.sndSelect)), sndDeselect(std::move(other.sndDeselect)),
+	sndSelect(other.sndSelect), sndDeselect(other.sndDeselect),
 	frameC(other.frameC), speed(other.speed), grow(other.grow)
 {}
 
@@ -668,8 +836,8 @@ scene::CursorData& scene::CursorData::operator=(CursorData& other) noexcept {
 	off = std::move(other.off);
 	img = std::move(other.img);
 	imgSelect = std::move(other.imgSelect);
-	sndSelect = std::move(other.sndSelect);
-	sndDeselect = std::move(other.sndDeselect);
+	sndSelect = other.sndSelect;
+	sndDeselect = other.sndDeselect;
 
 	frameC = other.frameC;
 	speed = other.speed;

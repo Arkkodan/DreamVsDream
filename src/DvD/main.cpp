@@ -1,7 +1,7 @@
 #include "app.h"
 
 // parseArgs not useful for now
-#undef DVD_DISABLE_PARSEARGS
+#define DVD_DISABLE_PARSEARGS
 
 #ifndef DVD_DISABLE_PARSEARGS
 #include "../util/fileIO.h"

@@ -1,0 +1,53 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Title Scene object",
+    "description": "Extends Scene base class, also applies to themes",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "./scenes.json#/definitions/SceneBase"
+        }
+    ],
+    "properties": {
+        "menu": {
+            "type": "object",
+            "properties": {
+                "font": {
+                    "type": "string"
+                },
+                "pos": {
+                    "$ref": "../references.json#/definitions/ivec2"
+                },
+                "dx": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "font",
+                "pos"
+            ]
+        },
+        "inactive": {
+            "$ref": "../references.json#/definitions/u8color3"
+        },
+        "active": {
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "../references.json#/definitions/u8color3"
+                }
+            ],
+            "properties": {
+                "dx": {
+                    "type": "integer"
+                }
+            }
+        },
+        "themes": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        }
+    }
+}

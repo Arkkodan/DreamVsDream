@@ -587,7 +587,7 @@ void Image::drawSprite(int x, int y, bool mirror) const {
 #ifdef SPRTOOL
 	draw(x + sys::WINDOW_WIDTH / 2, sys::FLIP(y) - graphics::srcH * graphics::yscale, mirror);
 #else
-	draw(x + sys::WINDOW_WIDTH / 2 - scene::Fight::cameraPos.x, sys::FLIP(y) - graphics::srcH * graphics::yscale - STAGE.height + scene::Fight::cameraPos.y, mirror);
+	draw(x + sys::WINDOW_WIDTH / 2 - scene::Fight::cameraPos.x, sys::FLIP(y) - graphics::srcH * graphics::yscale - STAGE->height + scene::Fight::cameraPos.y, mirror);
 #endif
 }
 #endif

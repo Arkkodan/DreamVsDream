@@ -1,0 +1,27 @@
+{
+    "bgm": {
+        "loop": "graffiti_bgm"
+    },
+    "images": [
+        {
+            "image": "graffiti_bg",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "renderType": "normal",
+            "vel": {
+                "x": 0.10000000149011612,
+                "y": -0.10000000149011612
+            },
+            "wrap": true
+        },
+        {
+            "image": "graffiti_fg",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            }
+        }
+    ]
+}

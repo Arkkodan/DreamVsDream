@@ -5,7 +5,7 @@
 #include "scene/fight.h"
 #include "network.h"
 #include "app.h"
-#include "../util/fileIO.h"
+#include "../fileIO/text.h"
 
 #include <array>
 #include <cstring>
@@ -58,20 +58,18 @@ namespace input {
 
 	void init() {
 		//Read controls from file
-		int nLines;
-		char** szLines = util::getLinesFromFile(&nLines, app::szConfigPath + KEY_CFG_FILE);
-
-		if(nLines == static_cast<int>(Key::KEY_MAX)) {
-			for(int i = 0; i < static_cast<int>(Key::KEY_MAX); i++) {
-				if(strlen(szLines[i]) >= 2 && szLines[i][0] == '0' && szLines[i][1] == 'x') {
-					key_config[i] = strtol((const char*)szLines[i], nullptr, 16);
-				} else {
-					key_config[i] = atoi(szLines[i]);
+		auto lines = fileIO::readTextAsLines(app::szConfigPath + KEY_CFG_FILE);
+		if (lines.size() == static_cast<int>(Key::KEY_MAX)) {
+			for (int i = 0; i < static_cast<int>(Key::KEY_MAX); i++) {
+				const auto& line = lines[i];
+				if (line.size() >= 2 && line.substr(0, 2) == "0x") {
+					key_config[i] = std::strtol(line.c_str(), nullptr, 16);
+				}
+				else {
+					key_config[i] = std::strtol(line.c_str(), nullptr, 10);
 				}
 			}
 		}
-
-		util::freeLines(szLines);
 	}
 
 	void refresh() {

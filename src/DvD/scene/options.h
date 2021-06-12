@@ -5,8 +5,6 @@
 
 #include "../font.h"
 
-#include <vector>
-
 namespace scene {
 
 	/// @brief Scene for modifying options
@@ -41,7 +39,7 @@ namespace scene {
 		void init() override final;
 
 		//Members
-		Font menuFont;
+		Font* menuFont;
 
 		uint8_t cursor;
 		uint8_t cursorLast;
@@ -52,11 +50,11 @@ namespace scene {
 		int madoFrame;
 
 		Image madoImg;
-		audio::Sound madoSfxStep;
-		audio::Sound madoSfxPinch;
+		audio::Sound* madoSfxStep;
+		audio::Sound* madoSfxPinch;
 
-		audio::Voice dame;
-		audio::Voice muri;
+		audio::Voice* dame;
+		audio::Voice* muri;
 
 		int madoWakeTimer;
 
@@ -66,12 +64,14 @@ namespace scene {
 		std::vector<std::string> themes;
 		int nThemes;
 
+	public:
 		//Functions
 		void think() override final;
 		void reset() override final;
 		void draw() const override final;
 
 		void parseLine(Parser& parser) override final;
+		void parseJSON(const nlohmann::ordered_json& j_obj) override final;
 	};
 }
 

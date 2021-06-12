@@ -60,7 +60,7 @@ namespace scene {
 
 		//Members
 		int menuX, menuY;
-		Font menuFont;
+		Font* menuFont;
 		int menuXOffset;
 
 		uint8_t iR, iG, iB, aR, aG, aB;
@@ -77,6 +77,7 @@ namespace scene {
 		void draw() const override final;
 
 		void parseLine(Parser& parser) override final;
+		void parseJSON(const nlohmann::ordered_json& j_obj) override final;
 	};
 }
 

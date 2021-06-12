@@ -5,6 +5,10 @@
 
 #include "../player.h"
 #include "../graphics.h"
+#include "../resource_manager.h"
+#include "../error.h"
+#include "../../fileIO/json.h"
+#include "../../util/fileIO.h"
 #include "../../util/rng.h"
 
 #include <cstring>
@@ -27,6 +31,8 @@ scene::Options::Options() : Scene("options") {
 	nThemes = 0;
 	iR = iG = iB = aR = aG = aB = 0;
 	aXOffset = 0;
+	madoSfxStep = madoSfxPinch = dame = muri = nullptr;
+	menuFont = nullptr;
 }
 
 scene::Options::~Options() {}
@@ -56,7 +62,7 @@ void scene::Options::think() {
 				madoFrame++;
 			}
 			else if (madoWakeTimer == 32) {
-				madoSfxPinch.play();
+				madoSfxPinch->play();
 				madoFrame++;
 			}
 		}
@@ -73,7 +79,7 @@ void scene::Options::think() {
 					madoFrame = 0;
 				}
 				if (madoFrame % 2 == 1) {
-					madoSfxStep.play();
+					madoSfxStep->play();
 				}
 			}
 		}
@@ -87,7 +93,7 @@ void scene::Options::think() {
 					madoFrame = 0;
 				}
 				if (madoFrame % 2 == 1) {
-					madoSfxStep.play();
+					madoSfxStep->play();
 				}
 			}
 		}
@@ -102,7 +108,7 @@ void scene::Options::think() {
 		}
 
 		if (input(game::INPUT_UP)) {
-			sndMenu.play();
+			sndMenu->play();
 			if (cursor) {
 				cursor--;
 			}
@@ -111,7 +117,7 @@ void scene::Options::think() {
 			}
 		}
 		else if (input(game::INPUT_DOWN)) {
-			sndMenu.play();
+			sndMenu->play();
 			if (cursor < OPTION_MAX - 1) {
 				cursor++;
 			}
@@ -131,7 +137,7 @@ void scene::Options::think() {
 		//Change option
 		if (input(game::INPUT_LEFT) || input(game::INPUT_RIGHT)) {
 			if (cursor != OPTION_VOICE_VOLUME) {
-				sndMenu.play();
+				sndMenu->play();
 			}
 
 			switch (cursor) {
@@ -211,13 +217,13 @@ void scene::Options::think() {
 					if (optionVoiceVolume > 0) {
 						optionVoiceVolume -= 10;
 					}
-					Fight::madotsuki.speaker.play(&dame);
+					Fight::madotsuki.speaker.play(dame);
 				}
 				else {
 					if (optionVoiceVolume < 100) {
 						optionVoiceVolume += 10;
 					}
-					Fight::madotsuki.speaker.play(&muri);
+					Fight::madotsuki.speaker.play(muri);
 				}
 				break;
 
@@ -231,7 +237,7 @@ void scene::Options::think() {
 
 		if (input(game::INPUT_A)) {
 			if (cursor == OPTION_CREDITS) {
-				sndSelect.play();
+				sndSelect->play();
 				setScene(SCENE_CREDITS);
 			}
 		}
@@ -259,7 +265,7 @@ void scene::Options::draw() const {
 	Scene::draw();
 
 	//Draw the menu options
-	if (menuFont.exists()) {
+	if (menuFont->exists()) {
 		for (int i = 0; i < OPTION_MAX; i++) {
 			char buff[80];
 			switch (i) {
@@ -307,13 +313,13 @@ void scene::Options::draw() const {
 			}
 
 			if (i == cursor) {
-				menuFont.drawText(64 + (aXOffset - cursorTimer), 64 + i * 32, buff, aR, aG, aB);
+				menuFont->drawText(64 + (aXOffset - cursorTimer), 64 + i * 32, buff, aR, aG, aB);
 			}
 			else if (i == cursorLast) {
-				menuFont.drawText(64 + cursorTimer, 64 + i * 32, buff, iR, iG, iB);
+				menuFont->drawText(64 + cursorTimer, 64 + i * 32, buff, iR, iG, iB);
 			}
 			else {
-				menuFont.drawText(64, 64 + i * 32, buff, iR, iG, iB);
+				menuFont->drawText(64, 64 + i * 32, buff, iR, iG, iB);
 			}
 		}
 	}
@@ -331,7 +337,23 @@ void scene::Options::init() {
 
 	//Parse a random theme
 	if (nThemes) {
-		parseFile(getResource(themes[util::roll(nThemes)], Parser::EXT_SCRIPT));
+		int i = util::roll(nThemes);
+		bool jsonSuccess = false;
+		auto j_obj = fileIO::readJSON(util::getPath("scenes/options/" + themes[i] + ".json"));
+		if (!j_obj.is_null() && j_obj.is_object()) {
+			try {
+				parseJSON(j_obj);
+				jsonSuccess = true;
+			}
+			catch (const nlohmann::detail::out_of_range& e)
+			{
+				error::error(themes[i] + ".json error: " + e.what());
+			}
+		}
+		if (!jsonSuccess) {
+			error::error("Cannot read " + themes[i] + ".json. Falling back to " + themes[i] + ".ubu");
+			parseFile(getResource(themes[i], Parser::EXT_SCRIPT));
+		}
 	}
 }
 
@@ -339,13 +361,13 @@ void scene::Options::parseLine(Parser& parser) {
 	int argc = parser.getArgC();
 	if (parser.is("FONT", 1)) {
 		//The font
-		menuFont.createFromFile(getResource(parser.getArg(1), Parser::EXT_FONT));
+		menuFont = getResourceT<Font>(parser.getArg(1));
 	}
 	else if (parser.is("MADOTSUKI", 3)) {
 		//Madotsuki sprites/sounds
 		madoImg.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
-		madoSfxStep.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
-		madoSfxPinch.createFromFile(getResource(parser.getArg(3), Parser::EXT_SOUND));
+		madoSfxStep = getResourceT<audio::Sound>(parser.getArg(2));
+		madoSfxPinch = getResourceT<audio::Sound>(parser.getArg(3));
 	}
 	else if (parser.is("INACTIVE", 3)) {
 		iR = parser.getArgInt(1);
@@ -369,10 +391,44 @@ void scene::Options::parseLine(Parser& parser) {
 		themes[nThemes++] = parser.getArg(1);
 	}
 	else if (parser.is("VOICES", 2)) {
-		dame.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
-		muri.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
+		dame = getResourceT<audio::Voice>(parser.getArg(1));
+		muri = getResourceT<audio::Voice>(parser.getArg(2));
 	}
 	else {
 		Scene::parseLine(parser);
 	}
+}
+
+void scene::Options::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("font")) {
+		menuFont = getResourceT<Font>(j_obj["font"]);
+	}
+	if (j_obj.contains("madotsuki")) {
+		madoImg.createFromFile(getResource(j_obj["madotsuki"].at("image"), Parser::EXT_IMAGE));
+		madoSfxStep = getResourceT<audio::Sound>(j_obj["madotsuki"].at("sfx").at("step"));
+		madoSfxPinch = getResourceT<audio::Sound>(j_obj["madotsuki"].at("sfx").at("pinch"));
+	}
+	if (j_obj.contains("inactive")) {
+		iR = j_obj["inactive"].at("r");
+		iG = j_obj["inactive"].at("g");
+		iB = j_obj["inactive"].at("b");
+	}
+	if (j_obj.contains("active")) {
+		aR = j_obj["active"].at("r");
+		aG = j_obj["active"].at("g");
+		aB = j_obj["active"].at("b");
+		aXOffset = j_obj["active"].value("dx", 0);
+	}
+	if (j_obj.contains("themes")) {
+		themes.clear();
+		for (const auto& theme : j_obj["themes"]) {
+			themes.push_back(theme);
+		}
+		nThemes = themes.size();
+	}
+	if (j_obj.contains("voices")) {
+		dame = getResourceT<audio::Voice>(j_obj["voices"].at("dame"));
+		muri = getResourceT<audio::Voice>(j_obj["voices"].at("muri"));
+	}
+	Scene::parseJSON(j_obj);
 }

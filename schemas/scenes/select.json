@@ -1,0 +1,179 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Select Scene object",
+    "description": "Extends Scene base class",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "./scenes.json#/definitions/SceneBase"
+        }
+    ],
+    "properties": {
+        "grid": {
+            "type": "object",
+            "properties": {
+                "w": {
+                    "type": "integer"
+                },
+                "h": {
+                    "type": "integer"
+                },
+                "w_group": {
+                    "type": "integer"
+                },
+                "h_group": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "w",
+                "h",
+                "w_group",
+                "h_group"
+            ]
+        },
+        "cursors": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "image": {
+                        "type": "string"
+                    },
+                    "offset": {
+                        "$ref": "../references.json#/definitions/ivec2"
+                    },
+                    "effect": {
+                        "type": "object",
+                        "properties": {
+                            "image": {
+                                "type": "string"
+                            },
+                            "frameCount": {
+                                "type": "integer"
+                            },
+                            "speed": {
+                                "type": "integer"
+                            },
+                            "grow": {
+                                "type": "boolean"
+                            }
+                        },
+                        "required": [
+                            "image",
+                            "frameCount",
+                            "speed",
+                            "grow"
+                        ]
+                    },
+                    "sound": {
+                        "type": "object",
+                        "properties": {
+                            "select": {
+                                "type": "string"
+                            },
+                            "deselect": {
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "select",
+                            "deselect"
+                        ]
+                    }
+                },
+                "required": [
+                    "image",
+                    "offset",
+                    "effect",
+                    "sound"
+                ]
+            }
+        },
+        "chars": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "null"
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "pos": {
+                            "$ref": "../references.json#/definitions/ivec2"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "pos"
+                    ]
+                }
+            ]
+        },
+        "select": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "image": {
+                        "type": "string"
+                    },
+                    "pos": {
+                        "$ref": "../references.json#/definitions/vec2"
+                    },
+                    "renderType": {
+                        "type": "string",
+                        "enum": [
+                            "normal",
+                            "additive",
+                            "subtractive",
+                            "multiply"
+                        ]
+                    },
+                    "vel": {
+                        "$ref": "../references.json#/definitions/vec2"
+                    },
+                    "wrap": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "image",
+                    "pos"
+                ]
+            }
+        },
+        "stages": {
+            "type": "object",
+            "properties": {
+                "font": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "font"
+            ]
+        },
+        "players": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "posDefault": {
+                        "$ref": "../references.json#/definitions/ivec2"
+                    },
+                    "color": {
+                        "$ref": "../references.json#/definitions/u8color3"
+                    }
+                },
+                "required": [
+                    "posDefault",
+                    "color"
+                ]
+            }
+        }
+    }
+}

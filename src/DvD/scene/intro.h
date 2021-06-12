@@ -11,7 +11,7 @@ namespace scene {
 		Intro();
 		~Intro();
 
-		audio::Sound sfx;
+		audio::Sound* sfx;
 		Image instructions;
 		Image disclaimer_en;
 		Image disclaimer_ja;
@@ -20,10 +20,12 @@ namespace scene {
 		int timer;
 		int state;
 
+	public:
 		void think() override final;
 		void draw() const override final;
 
 		void parseLine(Parser& parser) override final;
+		void parseJSON(const nlohmann::ordered_json& j_obj) override final;
 	};
 }
 

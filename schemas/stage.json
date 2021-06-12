@@ -1,0 +1,98 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Stage configuration",
+    "type": "object",
+    "definitions": {
+        "stageImageArray": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "image": {
+                        "type": "string"
+                    },
+                    "parallax": {
+                        "type": "number"
+                    },
+                    "round": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                    },
+                    "vel": {
+                        "$ref": "./references.json#/definitions/vec2"
+                    },
+                    "wrap": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "image",
+                    "parallax"
+                ]
+            }
+        }
+    },
+    "properties": {
+        "imagesAhead": {
+            "$ref": "#/definitions/stageImageArray",
+            "description": "An array of stage images drawn ahead of characters with some transparency"
+        },
+        "imagesBehind": {
+            "$ref": "#/definitions/stageImageArray",
+            "description": "An array of stage images drawn behind characters with full opacity"
+        },
+        "entities": {
+            "type": "object",
+            "properties": {
+                "w_bounds": {
+                    "type": "integer",
+                    "description": "Distance players can move from the center to the edge of the stage. Usually half of camera.w"
+                },
+                "h_ground": {
+                    "type": "integer",
+                    "description": "Distance from the bottom of the screen where \"ground\" is located"
+                }
+            },
+            "required": [
+                "w_bounds",
+                "h_ground"
+            ]
+        },
+        "camera": {
+            "type": "object",
+            "properties": {
+                "w": {
+                    "type": "integer",
+                    "description": "How far the camera can pan from end to end. Usually double of entities.w_bounds"
+                },
+                "h": {
+                    "type": "integer",
+                    "description": "How far the camera can pan from end to end"
+                }
+            },
+            "required": [
+                "w",
+                "h"
+            ]
+        },
+        "bgm": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "intro": {
+                        "type": "string"
+                    },
+                    "loop": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "loop"
+                ]
+            },
+            "description": "An array of bgm that plays for this stage"
+        }
+    }
+}

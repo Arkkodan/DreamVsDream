@@ -5,20 +5,22 @@
 #include "../player.h"
 #include "../sys.h"
 #include "../graphics.h"
+#include "../resource_manager.h"
+#include "../error.h"
 
 scene::Intro::Intro() : Scene("intro") {
 	timer = sys::FPS / 2;
 	state = 0;
+	sfx = nullptr;
 }
 
-scene::Intro::~Intro() {
-}
+scene::Intro::~Intro() {}
 
 void scene::Intro::think() {
 	Scene::think();
 
 	if (timer == sys::FPS / 2) {
-		sfx.play();
+		sfx->play();
 	}
 
 	if (input(game::INPUT_A) && !timer) {
@@ -70,7 +72,7 @@ void scene::Intro::draw() const {
 
 void scene::Intro::parseLine(Parser& parser) {
 	if (parser.is("SFX", 1)) {
-		sfx.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
+		sfx = getResourceT<audio::Sound>(parser.getArg(1));
 	}
 	else if (parser.is("INSTRUCTIONS", 1)) {
 		instructions.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
@@ -85,4 +87,21 @@ void scene::Intro::parseLine(Parser& parser) {
 	else {
 		Scene::parseLine(parser);
 	}
+}
+
+void scene::Intro::parseJSON(const nlohmann::ordered_json& j_obj) {
+	if (j_obj.contains("sfx")) {
+		sfx = getResourceT<audio::Sound>(j_obj["sfx"]);
+	}
+	if (j_obj.contains("instructions")) {
+		instructions.createFromFile(getResource(j_obj["instructions"], Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("disclaimer")) {
+		disclaimer_en.createFromFile(getResource(j_obj["disclaimer"].at("en"), Parser::EXT_IMAGE));
+		disclaimer_ja.createFromFile(getResource(j_obj["disclaimer"].at("ja"), Parser::EXT_IMAGE));
+	}
+	if (j_obj.contains("shader_error")) {
+		shader_error.createFromFile(getResource(j_obj["shader_error"], Parser::EXT_IMAGE));
+	}
+	Scene::parseJSON(j_obj);
 }
