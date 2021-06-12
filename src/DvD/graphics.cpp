@@ -15,6 +15,15 @@
 
 #include <glad/glad.h>
 
+// Macro option to use high-res timer
+// Undef to use original 16 mspf (62.5 fps)
+#define EXACT_60_FPS
+
+#define SHOW_FPS
+#ifdef SHOW_FPS
+#include <sstream>
+#endif // SHOW_FPS
+
 namespace graphics {
   constexpr auto FPS_BUFFER = 2;
 
@@ -34,15 +43,21 @@ namespace graphics {
   bool force_POT = false;
   bool shader_support = false;
 
+#ifdef EXACT_60_FPS
+#define timer_t uint64_t
+#else
+#define timer_t unsigned long
+#endif // EXACT_60_FPS
   // Timer stuff
-  unsigned long time = 0;
+  timer_t time = 0;
 
 #ifdef SHOW_FPS
-#define FPS_COUNTER_SIZE 64
-  unsigned int tickValues[FPS_COUNTER_SIZE] = {0};
-  unsigned int tickSum = 0;
+  constexpr auto FPS_COUNTER_SIZE = 64;
+  timer_t tickValues[FPS_COUNTER_SIZE] = {0};
+  timer_t tickSum = 0;
   unsigned int tickIndex = 0;
 #endif // SHOW_FPS
+#undef timer_t
 
 #ifdef GAME
   Shader shader_palette;
@@ -155,33 +170,52 @@ namespace graphics {
 #endif
 
     // Calculate fps, wait
-    unsigned long delta = sys::getTime() - time;
-    if (delta < sys::MSPF) {
-      if (delta > FPS_BUFFER) {
-        sys::sleep(sys::MSPF - delta);
+#ifdef EXACT_60_FPS
+#define signed_t int64_t
+#define getTimeFunc() sys::getHiResTime()
+    uint64_t counter = getTimeFunc();
+    uint64_t frequency = sys::getHiResFrequency();
+    uint64_t delta = counter - time;
+#else
+#define signed_t long
+#define getTimeFunc() sys::getTime()
+    unsigned long counter = getTimeFunc();
+    unsigned long frequency = 1000; // Resolution of getTime and sleep is 1000
+    unsigned long delta = counter - time;
+#endif // EXACT_60_FPS
+    if (static_cast<signed_t>(delta - frequency / sys::FPS) < 0) {
+      if (static_cast<signed_t>(delta - frequency * FPS_BUFFER / sys::FPS) >
+          0) {
+        sys::sleep((static_cast<signed_t>(frequency / sys::FPS - delta) * 1000 /
+                    frequency));
       }
       for (;;) {
-        if (sys::getTime() - time >= sys::MSPF) {
+        counter = getTimeFunc();
+        if (static_cast<signed_t>(counter - time - frequency / sys::FPS) >= 0) {
           break;
         }
       }
     }
+#undef getTimeFunc
+#undef signed_t
 
 #ifdef SHOW_FPS
-    delta = sys::getTime() - time;
+    delta = counter - time;
     tickSum -= tickValues[tickIndex];
     tickSum += delta;
     tickValues[tickIndex] = delta;
     if (++tickIndex >= FPS_COUNTER_SIZE) {
       tickIndex = 0;
     }
-    char buff[256];
-    sprintf8(buff, "[%f] " WINDOW_TITLE,
-             1000 / ((float)tickSum / FPS_COUNTER_SIZE));
-    sys::setTitle(buff);
+    std::stringstream ss;
+    ss << '['
+       << std::to_string(static_cast<double>(frequency) * FPS_COUNTER_SIZE /
+                         tickSum)
+       << "] " << sys::WINDOW_TITLE;
+    sys::setTitle(ss.str());
 #endif // SHOW_FPS
 
-    time = sys::getTime();
+    time = counter;
 
     glClear(GL_COLOR_BUFFER_BIT);
   }

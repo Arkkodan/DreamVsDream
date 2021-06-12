@@ -49,9 +49,16 @@ namespace sys {
     SDL_Quit();
   }
 
+  void setTitle(const std::string &title) {
+    SDL_SetWindowTitle(window, title.c_str());
+  }
+
   void sleep(unsigned int time) { SDL_Delay(time); }
 
   unsigned long getTime() { return SDL_GetTicks(); }
+
+  uint64_t getHiResTime() { return SDL_GetPerformanceCounter(); }
+  uint64_t getHiResFrequency() { return SDL_GetPerformanceFrequency(); }
 
   void refresh() {
 #ifdef GAME

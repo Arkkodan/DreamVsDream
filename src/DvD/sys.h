@@ -34,7 +34,7 @@ namespace sys {
   /// @brief Delete GL context
   void deinit();
 
-  void setTitle(const char *title);
+  void setTitle(const std::string &title);
 
   /// @brief Update one frame and draw
   void refresh();
@@ -51,6 +51,11 @@ namespace sys {
   /// @brief Get elasped time
   /// @return Time in ms.
   unsigned long getTime();
+
+  /// @brief Get elapsed time using a high resolution timer
+  /// @return A counter value (call frequency to obtain time)
+  uint64_t getHiResTime();
+  uint64_t getHiResFrequency();
 
   extern unsigned int frame;
 
