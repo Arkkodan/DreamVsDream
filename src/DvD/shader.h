@@ -1,5 +1,5 @@
-#ifndef SHADER_H_INCLUDED
-#define SHADER_H_INCLUDED
+#ifndef DVD_SHADER_H
+#define DVD_SHADER_H
 
 /// @brief RAII wrapper for OpenGL shaders
 class Shader {
@@ -25,4 +25,4 @@ private:
   unsigned int fragment;
 };
 
-#endif // SHADER_H_INCLUDED
+#endif // DVD_SHADER_H

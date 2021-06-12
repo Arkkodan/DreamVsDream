@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_H_INCLUDED
-#define GRAPHICS_H_INCLUDED
+#ifndef DVD_GRAPHICS_H
+#define DVD_GRAPHICS_H
 
 #include "image.h"
 #ifdef GAME
@@ -49,4 +49,4 @@ namespace graphics {
   extern unsigned int palette;
 } // namespace graphics
 
-#endif // GRAPHICS_H_INCLUDED
+#endif // DVD_GRAPHICS_H

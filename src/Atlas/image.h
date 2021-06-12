@@ -1,5 +1,5 @@
-#ifndef IMAGE_H_INCLUDED
-#define IMAGE_H_INCLUDED
+#ifndef ATLAS_IMAGE_H
+#define ATLAS_IMAGE_H
 
 #include <stdint.h>
 #include <string>
@@ -25,4 +25,4 @@ int imageReadPalette(std::string szFileName, unsigned char *palette);
 void imageWrite(std::string szFileName, struct Image *img,
                 const unsigned char *palette);
 
-#endif // IMAGE_H_INCLUDED
+#endif // ATLAS_IMAGE_H

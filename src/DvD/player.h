@@ -1,5 +1,5 @@
-#ifndef PLAYER_H_INCLUDED
-#define PLAYER_H_INCLUDED
+#ifndef DVD_PLAYER_H
+#define DVD_PLAYER_H
 
 #ifndef COMPILER
 #include "../util/vec2.h"
@@ -239,4 +239,4 @@ namespace game {
 #endif // COMPILER
 } // namespace game
 
-#endif // PLAYER_H_INCLUDED
+#endif // DVD_PLAYER_H

@@ -1,5 +1,5 @@
-#ifndef ATLAS_H_INCLUDED
-#define ATLAS_H_INCLUDED
+#ifndef DVD_ATLAS_H
+#define DVD_ATLAS_H
 
 #include "file.h"
 #include "image.h"
@@ -43,4 +43,4 @@ private:
   std::vector<Image> images;
 };
 
-#endif // ATLAS_H_INCLUDED
+#endif // DVD_ATLAS_H

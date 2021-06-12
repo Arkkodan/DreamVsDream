@@ -1,5 +1,5 @@
-#ifndef FIGHTER_H_INCLUDED
-#define FIGHTER_H_INCLUDED
+#ifndef DVD_FIGHTER_H
+#define DVD_FIGHTER_H
 
 #include "../util/vec2.h"
 #include "sprite.h"
@@ -332,4 +332,4 @@ namespace game {
   void setStateBool(char &dst, bool src);
 } // namespace game
 
-#endif // FIGHTER_H_INCLUDED
+#endif // DVD_FIGHTER_H

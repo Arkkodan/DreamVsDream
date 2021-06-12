@@ -1,5 +1,5 @@
-#ifndef FILE_H_INCLUDED
-#define FILE_H_INCLUDED
+#ifndef DVD_FILE_H
+#define DVD_FILE_H
 
 #include <cstdint>
 #include <string>
@@ -50,4 +50,4 @@ private:
   int flags;
 };
 
-#endif // FILE_H_INCLUDED
+#endif // DVD_FILE_H

@@ -1,5 +1,5 @@
-#ifndef FONT_H_INCLUDED
-#define FONT_H_INCLUDED
+#ifndef DVD_FONT_H
+#define DVD_FONT_H
 
 #include "image.h"
 
@@ -39,4 +39,4 @@ public:
   static void setScale(float xscale, float yscale = 0.0f);
 };
 
-#endif // FONT_H_INCLUDED
+#endif // DVD_FONT_H

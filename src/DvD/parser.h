@@ -1,5 +1,5 @@
-#ifndef PARSER_H_INCLUDED
-#define PARSER_H_INCLUDED
+#ifndef DVD_PARSER_H
+#define DVD_PARSER_H
 
 #include <array>
 #include <string>
@@ -60,4 +60,4 @@ protected:
   std::vector<ParserLine> lines;
 };
 
-#endif // PARSER_H_INCLUDED
+#endif // DVD_PARSER_H

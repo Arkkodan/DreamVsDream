@@ -1,5 +1,5 @@
-#ifndef STAGE_H_INCLUDED
-#define STAGE_H_INCLUDED
+#ifndef DVD_STAGE_H
+#define DVD_STAGE_H
 
 #include "animation.h"
 #include "scene/scene_base.h"
@@ -61,4 +61,4 @@ public:
   static void deinit();
 };
 
-#endif // STAGE_H_INCLUDED
+#endif // DVD_STAGE_H

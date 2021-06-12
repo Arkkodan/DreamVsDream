@@ -1,5 +1,5 @@
-#ifndef SOUND_H_INCLUDED
-#define SOUND_H_INCLUDED
+#ifndef DVD_SOUND_H
+#define DVD_SOUND_H
 
 #include "file.h"
 
@@ -87,4 +87,4 @@ namespace audio {
   };
 } // namespace audio
 
-#endif // SOUND_H_INCLUDED
+#endif // DVD_SOUND_H

@@ -1,5 +1,5 @@
-#ifndef ANIMATION_H_INCLUDED
-#define ANIMATION_H_INCLUDED
+#ifndef DVD_ANIMATION_H
+#define DVD_ANIMATION_H
 
 #include "image.h"
 
@@ -36,4 +36,4 @@ private:
   unsigned int startFrame;
 };
 
-#endif
+#endif // DVD_ANIMATION_H

@@ -1,5 +1,5 @@
-#ifndef NETWORK_H_INCLUDED
-#define NETWORK_H_INCLUDED
+#ifndef DVD_NETWORK_H
+#define DVD_NETWORK_H
 
 #include "player.h"
 
@@ -79,4 +79,4 @@ namespace net {
   void deinit();
 } // namespace net
 
-#endif // NETWORK_H_INCLUDED
+#endif // DVD_NETWORK_H

@@ -1,5 +1,5 @@
-#ifndef INPUT_H_INCLUDED
-#define INPUT_H_INCLUDED
+#ifndef DVD_INPUT_H
+#define DVD_INPUT_H
 
 #ifdef SPRTOOL
 #include "sprite.h"
@@ -28,4 +28,4 @@ namespace input {
 #endif // SPRTOOL
 } // namespace input
 
-#endif // INPUT_H_INCLUDED
+#endif // DVD_INPUT_H

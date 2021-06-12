@@ -1,5 +1,5 @@
-#ifndef ERROR_H_INCLUDED
-#define ERROR_H_INCLUDED
+#ifndef DVD_ERROR_H
+#define DVD_ERROR_H
 
 #include <string>
 
@@ -15,4 +15,4 @@ namespace error {
 #endif
 } // namespace error
 
-#endif // ERROR_H_INCLUDED
+#endif // DVD_ERROR_H

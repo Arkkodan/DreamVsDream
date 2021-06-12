@@ -1,5 +1,5 @@
-#ifndef THREAD_H_INCLUDED
-#define THREAD_H_INCLUDED
+#ifndef DVD_THREAD_H
+#define DVD_THREAD_H
 
 #include <SDL_thread.h>
 
@@ -45,4 +45,4 @@ private:
   SDL_mutex *mutex;
 };
 
-#endif // THREAD_H_INCLUDED
+#endif // DVD_THREAD_H

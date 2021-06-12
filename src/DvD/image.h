@@ -1,5 +1,5 @@
-#ifndef IMAGE_H_INCLUDED
-#define IMAGE_H_INCLUDED
+#ifndef DVD_IMAGE_H
+#define DVD_IMAGE_H
 
 #ifdef GAME
 #include "file.h"
@@ -70,4 +70,4 @@ public:
   static bool shake;
 };
 
-#endif // IMAGE_H_INCLUDED
+#endif // DVD_IMAGE_H

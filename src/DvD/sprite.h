@@ -1,5 +1,5 @@
-#ifndef SPRITE_H_INCLUDED
-#define SPRITE_H_INCLUDED
+#ifndef DVD_SPRITE_H
+#define DVD_SPRITE_H
 
 #include "../util/vec2.h"
 #ifdef GAME
@@ -104,4 +104,4 @@ namespace sprite {
   };
 } // namespace sprite
 
-#endif // SPRITE_H_INCLUDED
+#endif // DVD_SPRITE_H

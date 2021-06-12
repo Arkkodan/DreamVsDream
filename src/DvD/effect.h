@@ -1,5 +1,5 @@
-#ifndef EFFECT_H_INCLUDED
-#define EFFECT_H_INCLUDED
+#ifndef DVD_EFFECT_H
+#define DVD_EFFECT_H
 
 #include "image.h"
 #include "player.h"
@@ -70,4 +70,4 @@ namespace effect {
   void draw();
 } // namespace effect
 
-#endif // EFFECT_H_INCLUDED
+#endif // DVD_EFFECT_H
