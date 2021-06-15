@@ -6,11 +6,11 @@
 #include "input.h"
 #endif // SPRTOOL
 #ifndef COMPILER
+#include "shader_renderer/fighter_renderer.h"
 #include "shader_renderer/primitive_renderer.h"
 #endif // COMPILER
 
 #include <algorithm>
-
 
 namespace sprite {
 
@@ -185,7 +185,7 @@ namespace sprite {
 #ifdef GAME
     atlas->drawSprite(atlas_sprite, _x, _y, mirror);
 #else
-    img.drawSprite(_x, _y, mirror);
+    img.drawSprite<renderer::FighterRenderer>(_x, _y, mirror);
     for (int i = 0; i < hitBoxes.size; i++) {
       hitBoxes.boxes[i].draw(x2, y2, false,
                              input::selectAll ||
@@ -209,8 +209,8 @@ namespace sprite {
     else {
       _x -= x * scale;
     }
-
-    graphics::setColor(0, 0, 0, 0.5f);
+    renderer::FighterRenderer::setColor(0.0f, 0.0f, 0.0f);
+    renderer::FighterRenderer::setAlpha(0.5f);
     graphics::setScale(scale, 0.2f * scale);
     atlas->drawSprite(atlas_sprite, _x, 0, mirror);
   }

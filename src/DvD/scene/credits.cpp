@@ -6,6 +6,7 @@
 #include "../../util/fileIO.h"
 #include "../player.h"
 #include "../resource_manager.h"
+#include "../shader_renderer/texture2D_renderer.h"
 #include "../sys.h"
 
 scene::Credits::Credits() : Scene("credits") {
@@ -60,7 +61,7 @@ void scene::Credits::draw() const {
     else {
       int y = (sys::WINDOW_HEIGHT - logo.h) / 4 - oy;
       if (y + (int)logo.h >= 0) {
-        logo.draw(sys::WINDOW_WIDTH - logo.w, y);
+        logo.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - logo.w, y);
       }
 
       int oy_title = 0;

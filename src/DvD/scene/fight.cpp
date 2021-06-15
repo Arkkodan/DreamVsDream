@@ -8,12 +8,12 @@
 #include "../effect.h"
 #include "../graphics.h"
 #include "../resource_manager.h"
+#include "../shader_renderer/fighter_renderer.h"
+#include "../shader_renderer/texture2D_renderer.h"
 #include "../stage.h"
 #include "../sys.h"
 
 #include <cstring>
-
-#include <glad/glad.h>
 
 game::Player scene::Fight::madotsuki;
 game::Player scene::Fight::poniko;
@@ -43,25 +43,27 @@ void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
 
     if (mirror) {
       if (flip) {
-        img.draw(sys::WINDOW_WIDTH - img.w - pos.x + img.w * (1 - pct), pos.y,
-                 true);
+        img.draw<renderer::Texture2DRenderer>(
+            sys::WINDOW_WIDTH - img.w - pos.x + img.w * (1 - pct), pos.y, true);
       }
       else {
         // Hack
         if (pct == 1.0f) {
-          img.draw(sys::WINDOW_WIDTH - img.w - pos.x, pos.y, true);
+          img.draw<renderer::Texture2DRenderer>(
+              sys::WINDOW_WIDTH - img.w - pos.x, pos.y, true);
         }
         else {
-          img.draw(sys::WINDOW_WIDTH - img.w - pos.x + 1, pos.y, true);
+          img.draw<renderer::Texture2DRenderer>(
+              sys::WINDOW_WIDTH - img.w - pos.x + 1, pos.y, true);
         }
       }
     }
     else {
       if (flip) {
-        img.draw(pos.x, pos.y);
+        img.draw<renderer::Texture2DRenderer>(pos.x, pos.y);
       }
       else {
-        img.draw(pos.x + img.w * (1 - pct), pos.y);
+        img.draw<renderer::Texture2DRenderer>(pos.x + img.w * (1 - pct), pos.y);
       }
     }
   }
@@ -547,7 +549,7 @@ void scene::Fight::think() {
       if (!timer_flash && !util::roll(64)) {
         staticSnd->play();
         timer_flash = 5;
-        staticImg.draw(0, 0);
+        staticImg.draw<renderer::Texture2DRenderer>(0, 0);
       }
     }
     if (timer_round_in == (int)(4.0 * sys::FPS)) {
@@ -719,7 +721,7 @@ void scene::Fight::draw() const {
   Scene::draw();
 
   if (winner) {
-    win.draw(0, 0);
+    win.draw<renderer::Texture2DRenderer>(0, 0);
 
     char _b_sz[256];
     if (winner == 3) {
@@ -731,8 +733,8 @@ void scene::Fight::draw() const {
     win_font->drawText(32, sys::FLIP(32), _b_sz);
   }
   else {
-    hud.draw(0, 0);
-    hud.draw(sys::WINDOW_WIDTH - hud.w, 0, true);
+    hud.draw<renderer::Texture2DRenderer>(0, 0);
+    hud.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - hud.w, 0, true);
 
     // DRAW METERS
 
@@ -754,10 +756,11 @@ void scene::Fight::draw() const {
     meterDpm.draw(1, false, false);
     meterDpm.draw(1, true, false);
 
-    portraits.draw(0, 0);
-    portraits.draw(sys::WINDOW_WIDTH - shine.w, 0, true);
+    portraits.draw<renderer::Texture2DRenderer>(0, 0);
+    portraits.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shine.w, 0,
+                                                true);
 
-    timer.draw(0, 0);
+    timer.draw<renderer::Texture2DRenderer>(0, 0);
 
     if (FIGHT->gametype != GAMETYPE_TRAINING) {
       // Round orbs
@@ -765,26 +768,29 @@ void scene::Fight::draw() const {
         int x = orb_pos.x - i * 18;
         if (i < wins[0]) {
           if (win_types[0][i]) {
-            orb_draw.draw(x, orb_pos.y);
+            orb_draw.draw<renderer::Texture2DRenderer>(x, orb_pos.y);
           }
           else {
-            orb_win.draw(x, orb_pos.y);
+            orb_win.draw<renderer::Texture2DRenderer>(x, orb_pos.y);
           }
         }
         else {
-          orb_null.draw(x, orb_pos.y);
+          orb_null.draw<renderer::Texture2DRenderer>(x, orb_pos.y);
         }
 
         if (i < wins[1]) {
           if (win_types[0][i]) {
-            orb_draw.draw(sys::WINDOW_WIDTH - x - 18, orb_pos.y);
+            orb_draw.draw<renderer::Texture2DRenderer>(
+                sys::WINDOW_WIDTH - x - 18, orb_pos.y);
           }
           else {
-            orb_win.draw(sys::WINDOW_WIDTH - x - 18, orb_pos.y);
+            orb_win.draw<renderer::Texture2DRenderer>(
+                sys::WINDOW_WIDTH - x - 18, orb_pos.y);
           }
         }
         else {
-          orb_null.draw(sys::WINDOW_WIDTH - x - 18, orb_pos.y);
+          orb_null.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - x - 18,
+                                                     orb_pos.y);
         }
       }
 
@@ -801,15 +807,18 @@ void scene::Fight::draw() const {
                            b_timer_text);
     }
 
-    shine.draw(0, 0);
-    shine.draw(sys::WINDOW_WIDTH - shine.w, 0, true);
+    shine.draw<renderer::Texture2DRenderer>(0, 0);
+    shine.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shine.w, 0,
+                                            true);
 
-    round_hud[round].draw(x_round_hud, y_round_hud);
+    round_hud[round].draw<renderer::Texture2DRenderer>(x_round_hud,
+                                                       y_round_hud);
 
     // Draw combo counters
     // LEFT
     if (comboLeftOff) {
-      comboLeft.draw(comboLeftOff - comboLeft.w, 131);
+      comboLeft.draw<renderer::Texture2DRenderer>(comboLeftOff - comboLeft.w,
+                                                  131);
       char buff[8];
       sprintf(buff, "%d", comboLeftLast);
       int w = combo->getTextWidth(buff);
@@ -818,7 +827,8 @@ void scene::Fight::draw() const {
 
     // RIGHT
     if (comboRightOff) {
-      comboRight.draw(sys::WINDOW_WIDTH - comboRightOff, 131);
+      comboRight.draw<renderer::Texture2DRenderer>(
+          sys::WINDOW_WIDTH - comboRightOff, 131);
       char buff[8];
       sprintf(buff, "%d", comboRightLast);
       int w = combo->getTextWidth(buff);
@@ -831,26 +841,30 @@ void scene::Fight::draw() const {
       graphics::setPalette(madotsuki.fighter->palettes[madotsuki.palette], 1.0f,
                            0.0f, 0.0f, 0.0f, 0.0f);
     }
-    madotsuki.fighter->portrait_ui.draw(portraitPos.x, portraitPos.y);
+    madotsuki.fighter->portrait_ui.draw<renderer::FighterRenderer>(
+        portraitPos.x, portraitPos.y);
     if (graphics::shader_support) {
       graphics::setPalette(poniko.fighter->palettes[poniko.palette], 1.0f, 0.0f,
                            0.0f, 0.0f, 0.0f);
     }
     else {
-      graphics::setColor(150, 150, 150, 1.0);
+      renderer::FighterRenderer::setColor(150 / 255.0f, 150 / 255.0f,
+                                          150 / 255.0f);
+      renderer::FighterRenderer::setAlpha(1.0f);
     }
-    poniko.fighter->portrait_ui.draw(sys::WINDOW_WIDTH - portraitPos.x -
-                                         poniko.fighter->portrait_ui.w,
-                                     portraitPos.y, true);
+    poniko.fighter->portrait_ui.draw<renderer::FighterRenderer>(
+        sys::WINDOW_WIDTH - portraitPos.x - poniko.fighter->portrait_ui.w,
+        portraitPos.y, true);
     if (graphics::shader_support) {
-      glUseProgram(0);
+      renderer::ShaderProgram::unuse();
     }
 
     // Draw round transitions
     if (timer_flash) {
-      graphics::setColor(180, 120, 190, timer_flash / 5.0f);
-      staticImg.draw(-util::roll(sys::WINDOW_WIDTH),
-                     -util::roll(sys::WINDOW_HEIGHT));
+      renderer::Texture2DRenderer::setColor(180 / 255.0f, 120 / 255.0f,
+                                            190 / 255.0f, timer_flash / 5.0f);
+      staticImg.draw<renderer::Texture2DRenderer>(
+          -util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
       timer_flash--;
     }
 
@@ -862,18 +876,19 @@ void scene::Fight::draw() const {
       else if (timer_round_out < 1.5 * sys::FPS) {
         alpha = 1.0 - ((timer_round_out - 0.5 * sys::FPS) / (1.0 * sys::FPS));
       }
-      graphics::setColor(180, 120, 190, alpha);
-      staticImg.draw(-util::roll(sys::WINDOW_WIDTH),
-                     -util::roll(sys::WINDOW_HEIGHT));
+      renderer::Texture2DRenderer::setColor(180 / 255.0f, 120 / 255.0f,
+                                            190 / 255.0f, alpha);
+      staticImg.draw<renderer::Texture2DRenderer>(
+          -util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
     }
 
     if (timer_round_in) {
       if (timer_round_in > 1.0 * sys::FPS) {
-        graphics::setColor(
-            180, 120, 190,
+        renderer::Texture2DRenderer::setColor(
+            180 / 255.0f, 120 / 255.0f, 190 / 255.0f,
             ((timer_round_in - 1.0 * sys::FPS) / (3.0 * sys::FPS)));
-        staticImg.draw(-util::roll(sys::WINDOW_WIDTH),
-                       -util::roll(sys::WINDOW_HEIGHT));
+        staticImg.draw<renderer::Texture2DRenderer>(
+            -util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
       }
 
       if (timer_round_in <= 1.4 * sys::FPS) {
@@ -881,7 +896,7 @@ void scene::Fight::draw() const {
           float scalar =
               (timer_round_in - 1.3 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
           graphics::setScale(scalar);
-          round_splash[round].draw(
+          round_splash[round].draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH / 2 - round_splash[round].w * scalar / 2 -
                   util::roll(10, 30),
               sys::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 -
@@ -889,22 +904,22 @@ void scene::Fight::draw() const {
         }
         else if (timer_round_in < 0.1 * sys::FPS) {
           float scalar = timer_round_in / (0.1 * sys::FPS);
-          graphics::setColor(255, 255, 255, scalar);
-          round_splash[round].draw(
+          renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
+          round_splash[round].draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH / 2 - round_splash[round].w / 2,
               sys::WINDOW_HEIGHT / 2 - round_splash[round].h / 2);
-          graphics::setColor(255, 255, 255, scalar);
+          renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
           scalar = 1.0f - scalar + 1.0f;
           float xscalar = 1 / scalar;
           graphics::setScale(xscalar, scalar);
-          round_splash[round].draw(
+          round_splash[round].draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH / 2 - round_splash[round].w * xscalar / 2 -
                   util::roll(10, 30),
               sys::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 -
                   util::roll(10, 30));
         }
         else {
-          round_splash[round].draw(
+          round_splash[round].draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH / 2 - round_splash[round].w / 2 -
                   util::roll(5, 15),
               sys::WINDOW_HEIGHT / 2 - round_splash[round].h / 2 -
@@ -917,27 +932,30 @@ void scene::Fight::draw() const {
       if (timer_ko > 0.8 * sys::FPS) {
         float scalar = (timer_ko - 0.8 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
         graphics::setScale(scalar);
-        ko[ko_type].draw(sys::WINDOW_WIDTH / 2 - ko[ko_type].w * scalar / 2 -
-                             util::roll(10, 30),
-                         sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 -
-                             util::roll(10, 30));
+        ko[ko_type].draw<renderer::Texture2DRenderer>(
+            sys::WINDOW_WIDTH / 2 - ko[ko_type].w * scalar / 2 -
+                util::roll(10, 30),
+            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 -
+                util::roll(10, 30));
       }
       else if (timer_ko < 0.1 * sys::FPS) {
         float scalar = timer_ko / (0.1 * sys::FPS);
-        graphics::setColor(255, 255, 255, scalar);
-        ko[ko_type].draw(sys::WINDOW_WIDTH / 2 - ko[ko_type].w / 2,
-                         sys::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2);
-        graphics::setColor(255, 255, 255, scalar);
+        renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
+        ko[ko_type].draw<renderer::Texture2DRenderer>(
+            sys::WINDOW_WIDTH / 2 - ko[ko_type].w / 2,
+            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2);
+        renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
         scalar = 1.0f - scalar + 1.0f;
         float xscalar = 1 / scalar;
         graphics::setScale(xscalar, scalar);
-        ko[ko_type].draw(sys::WINDOW_WIDTH / 2 - ko[ko_type].w * xscalar / 2 -
-                             util::roll(10, 30),
-                         sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 -
-                             util::roll(10, 30));
+        ko[ko_type].draw<renderer::Texture2DRenderer>(
+            sys::WINDOW_WIDTH / 2 - ko[ko_type].w * xscalar / 2 -
+                util::roll(10, 30),
+            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 -
+                util::roll(10, 30));
       }
       else {
-        ko[ko_type].draw(
+        ko[ko_type].draw<renderer::Texture2DRenderer>(
             sys::WINDOW_WIDTH / 2 - ko[ko_type].w / 2 - util::roll(5, 15),
             sys::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2 - util::roll(5, 15));
       }

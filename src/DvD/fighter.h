@@ -8,6 +8,9 @@
 #include "image.h"
 #include "sound.h"
 #endif // GAME
+#ifndef COMPILER
+#include "../renderer/texture2D.h"
+#endif // COMPILER
 
 #include <array>
 #include <string>
@@ -266,7 +269,7 @@ namespace game {
 #ifdef COMPILER
     std::vector<uint8_t> palettes;
 #else
-    std::vector<unsigned int> palettes;
+    std::vector<renderer::Texture2D> palettes;
 #endif
     int nSprites;
     std::vector<sprite::Sprite> sprites;

@@ -1,5 +1,6 @@
 #include "graphics.h"
 
+#include "../renderer/gl_loader.h"
 #include "../renderer/renderer.h"
 #include "../util/fileIO.h"
 #include "error.h"
@@ -20,8 +21,6 @@
 
 #include <memory>
 #endif // GAME
-
-#include <glad/glad.h>
 
 // Macro option to use high-res timer
 // Undef to use original 16 mspf (62.5 fps)
@@ -67,10 +66,6 @@ namespace graphics {
 #endif // SHOW_FPS
 #undef timer_t
 
-#ifdef GAME
-  static std::unique_ptr<renderer::ShaderProgram> shader_palette;
-#endif
-
   void init(bool disable_shaders_, unsigned int max_texture_size_) {
     if (!renderer::init()) {
       error::die("Could not initialize OpenGL");
@@ -79,11 +74,6 @@ namespace graphics {
     renderer::FighterRenderer::init();
     renderer::PrimitiveRenderer::init();
     renderer::Texture2DRenderer::init();
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(0, sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0, -1, 1); // -1.0f, 1.0f?
-    glMatrixMode(GL_MODELVIEW);
 
     // OpenGL's matrices are column-major
     float u_mvp[16] = {2.0f / sys::WINDOW_WIDTH,
@@ -138,16 +128,6 @@ namespace graphics {
             glShaderSource && glUniform1i && glUniform1f && glUniform2f &&
             glUniform3f && glUniform4f && glUseProgram;
       }
-    }
-    // Load shaders, if possible
-    if (shader_support) {
-      renderer::Shader vertex(GL_VERTEX_SHADER, fileIO::readText(util::getPath(
-                                                    "shaders/vertex.v.glsl")));
-      renderer::Shader fragment(
-          GL_FRAGMENT_SHADER,
-          fileIO::readText(util::getPath("shaders/palette.f.glsl")));
-      shader_palette =
-          std::make_unique<renderer::ShaderProgram>(vertex, fragment);
     }
 
     renderer::ShaderProgram::unuse();
@@ -246,10 +226,6 @@ namespace graphics {
     glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
   }
 
-  void setColor(uint8_t r, uint8_t g, uint8_t b, float a) {
-    glColor4f(r / 255.0f, g / 255.0f, b / 255.0f, a);
-  }
-
   void setRect(int sX, int sY, int sW, int sH) {
     srcX = sX;
     srcY = sY;
@@ -270,38 +246,28 @@ namespace graphics {
   void setRender(Image::Render render_) { render = render_; }
 
 #ifdef GAME
-  void setPalette(unsigned int palette, float alpha, float r, float g, float b,
-                  float pct) {
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, palette);
-    glActiveTexture(GL_TEXTURE0);
+  void setPalette(const renderer::Texture2D &palette, float alpha, float r,
+                  float g, float b, float pct) {
 
-    shader_palette->use();
+    // u_texture set in image.cpp
+    renderer::FighterRenderer::setPalette(palette, 1);
 
-    int u_texture[1] = {0};
-    shader_palette->setUniform1iv("texture", u_texture);
-    int u_palette[1] = {1};
-    shader_palette->setUniform1iv("palette", u_palette);
-
-    float u_shift[1] = {0.0f};
+    float u_shift = 0.0f;
     if (Stage::stage == 3 && FIGHT->round >= 2) {
-      u_shift[0] = shift / 256.0f;
+      u_shift = shift / 256.0f;
     }
-    shader_palette->setUniform1fv("shift", u_shift);
+    renderer::FighterRenderer::setShift(u_shift);
 
-    float u_color[3] = {r, g, b};
-    shader_palette->setUniform3fv("color", u_color);
-    float u_pct[1] = {pct};
-    shader_palette->setUniform1fv("pct", u_pct);
+    renderer::FighterRenderer::setColor(r, g, b);
+    renderer::FighterRenderer::setPercent(pct);
 
-    float u_alpha[1] = {alpha};
-    shader_palette->setUniform1fv("alpha", u_alpha);
+    renderer::FighterRenderer::setAlpha(alpha);
 
-    int u_pixel[1] = {1};
+    int u_pixel = 1;
     if (Stage::stage == 3) {
-      u_pixel[0] = pixel;
+      u_pixel = pixel;
     }
-    shader_palette->setUniform1iv("pixel", u_pixel);
+    renderer::FighterRenderer::setPixelSize(u_pixel);
   }
 #endif
 } // namespace graphics

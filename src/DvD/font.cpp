@@ -4,6 +4,7 @@
 #include "error.h"
 #include "file.h"
 #include "graphics.h"
+#include "shader_renderer/texture2D_renderer.h"
 
 float Font::xscale = 1.0f;
 float Font::yscale = 1.0f;
@@ -62,7 +63,7 @@ void Font::drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b,
       c += 'a' - 'A';
     }
   }
-  graphics::setColor(r, g, b, a);
+  renderer::Texture2DRenderer::setColor(r / 255.0f, g / 255.0f, b / 255.0f, a);
   if (mono) {
     graphics::setRect(pos[(uint8_t)c], 0, mono, img.h);
   }
@@ -70,7 +71,7 @@ void Font::drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b,
     graphics::setRect(pos[(uint8_t)c], 0, width[(uint8_t)c], img.h);
   }
   graphics::setScale(xscale, yscale);
-  img.draw(x, y);
+  img.draw<renderer::Texture2DRenderer>(x, y);
   xscale = 1.0f;
   yscale = 1.0f;
 }
@@ -106,7 +107,8 @@ void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g,
           c += 'a' - 'A';
         }
       }
-      graphics::setColor(r, g, b, a);
+      renderer::Texture2DRenderer::setColor(r / 255.0f, g / 255.0f, b / 255.0f,
+                                            a);
       if (mono) {
         graphics::setRect(pos[(uint8_t)c], 0, mono, img.h);
       }
@@ -114,7 +116,7 @@ void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g,
         graphics::setRect(pos[(uint8_t)c], 0, width[(uint8_t)c], img.h);
       }
       graphics::setScale(xscale, yscale);
-      img.draw(x, y);
+      img.draw<renderer::Texture2DRenderer>(x, y);
       if (mono) {
         x += mono * xscale;
       }

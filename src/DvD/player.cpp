@@ -7,6 +7,7 @@
 #include "scene/options.h"
 #include "scene/scene.h"
 #include "shader_renderer/primitive_renderer.h"
+#include "shader_renderer/texture2D_renderer.h"
 #include "stage.h"
 #include "sys.h"
 
@@ -1315,80 +1316,92 @@ namespace game {
 
     if (special > 2200 * sys::SPF) {
       float scalar = (special - 2200 * sys::SPF) / (300 * sys::SPF);
-      graphics::setColor(255, 255, 255, 1.0 - scalar);
+      renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f - scalar);
       graphics::setScale(1.0 + scalar * 0.5);
       if (ender) {
         if (dir == RIGHT) {
-          fighter->ender.draw(40 - (fighter->ender.w * scalar) / 4,
-                              sys::FLIP(46) - fighter->ender.h -
-                                  (fighter->ender.h * scalar) / 4);
+          fighter->ender.draw<renderer::Texture2DRenderer>(
+              40 - (fighter->ender.w * scalar) / 4,
+              sys::FLIP(46) - fighter->ender.h -
+                  (fighter->ender.h * scalar) / 4);
         }
         else {
-          fighter->ender.draw(sys::WINDOW_WIDTH - fighter->ender.w -
-                                  (40 - (fighter->ender.w * scalar) / 4),
-                              sys::FLIP(46) - fighter->ender.h -
-                                  (fighter->ender.h * scalar) / 4,
-                              true);
+          fighter->ender.draw<renderer::Texture2DRenderer>(
+              sys::WINDOW_WIDTH - fighter->ender.w -
+                  (40 - (fighter->ender.w * scalar) / 4),
+              sys::FLIP(46) - fighter->ender.h -
+                  (fighter->ender.h * scalar) / 4,
+              true);
         }
       }
       else {
         if (dir == RIGHT) {
-          fighter->special.draw(40 - (fighter->special.w * scalar) / 4,
-                                sys::FLIP(46) - fighter->special.h -
-                                    (fighter->special.h * scalar) / 4);
+          fighter->special.draw<renderer::Texture2DRenderer>(
+              40 - (fighter->special.w * scalar) / 4,
+              sys::FLIP(46) - fighter->special.h -
+                  (fighter->special.h * scalar) / 4);
         }
         else {
-          fighter->special.draw(sys::WINDOW_WIDTH - fighter->special.w -
-                                    (40 - (fighter->special.w * scalar) / 4),
-                                sys::FLIP(46) - fighter->special.h -
-                                    (fighter->special.h * scalar) / 4,
-                                true);
+          fighter->special.draw<renderer::Texture2DRenderer>(
+              sys::WINDOW_WIDTH - fighter->special.w -
+                  (40 - (fighter->special.w * scalar) / 4),
+              sys::FLIP(46) - fighter->special.h -
+                  (fighter->special.h * scalar) / 4,
+              true);
         }
       }
     }
     else if (special > 1000 * sys::SPF) {
       if (ender) {
         if (dir == RIGHT) {
-          fighter->ender.draw(40, sys::FLIP(46) - fighter->ender.h);
+          fighter->ender.draw<renderer::Texture2DRenderer>(
+              40, sys::FLIP(46) - fighter->ender.h);
         }
         else {
-          fighter->ender.draw(sys::WINDOW_WIDTH - fighter->ender.w - 40,
-                              sys::FLIP(46) - fighter->ender.h, true);
+          fighter->ender.draw<renderer::Texture2DRenderer>(
+              sys::WINDOW_WIDTH - fighter->ender.w - 40,
+              sys::FLIP(46) - fighter->ender.h, true);
         }
       }
       else {
         if (dir == RIGHT) {
-          fighter->special.draw(40, sys::FLIP(46) - fighter->special.h);
+          fighter->special.draw<renderer::Texture2DRenderer>(
+              40, sys::FLIP(46) - fighter->special.h);
         }
         else {
-          fighter->special.draw(sys::WINDOW_WIDTH - fighter->special.w - 40,
-                                sys::FLIP(46) - fighter->special.h, true);
+          fighter->special.draw<renderer::Texture2DRenderer>(
+              sys::WINDOW_WIDTH - fighter->special.w - 40,
+              sys::FLIP(46) - fighter->special.h, true);
         }
       }
     }
     else {
       float scalar = 1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF));
-      graphics::setColor(255, 255, 255, scalar);
+      renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
       if (ender) {
         if (dir == RIGHT) {
-          fighter->ender.draw(40 + (1000 * sys::SPF - special) * 30,
-                              sys::FLIP(46) - fighter->ender.h);
+          fighter->ender.draw<renderer::Texture2DRenderer>(
+              40 + (1000 * sys::SPF - special) * 30,
+              sys::FLIP(46) - fighter->ender.h);
         }
         else {
-          fighter->ender.draw(sys::WINDOW_WIDTH - fighter->ender.w -
-                                  (40 + (1000 * sys::SPF - special) * 30),
-                              sys::FLIP(46) - fighter->ender.h, true);
+          fighter->ender.draw<renderer::Texture2DRenderer>(
+              sys::WINDOW_WIDTH - fighter->ender.w -
+                  (40 + (1000 * sys::SPF - special) * 30),
+              sys::FLIP(46) - fighter->ender.h, true);
         }
       }
       else {
         if (dir == RIGHT) {
-          fighter->special.draw(40 + (1000 * sys::SPF - special) * 30,
-                                sys::FLIP(46) - fighter->special.h);
+          fighter->special.draw<renderer::Texture2DRenderer>(
+              40 + (1000 * sys::SPF - special) * 30,
+              sys::FLIP(46) - fighter->special.h);
         }
         else {
-          fighter->special.draw(sys::WINDOW_WIDTH - fighter->special.w -
-                                    (40 + (1000 * sys::SPF - special) * 30),
-                                sys::FLIP(46) - fighter->special.h, true);
+          fighter->special.draw<renderer::Texture2DRenderer>(
+              sys::WINDOW_WIDTH - fighter->special.w -
+                  (40 + (1000 * sys::SPF - special) * 30),
+              sys::FLIP(46) - fighter->special.h, true);
         }
       }
     }

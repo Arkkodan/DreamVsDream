@@ -10,6 +10,7 @@
 #include "../graphics.h"
 #include "../player.h"
 #include "../resource_manager.h"
+#include "../shader_renderer/texture2D_renderer.h"
 
 #include <cstring>
 
@@ -330,7 +331,7 @@ void scene::Options::draw() const {
     xoff = 16;
   }
   graphics::setRect(xoff, madoDir * 32, 16, 32);
-  madoImg.draw(32, 64 + madoPos);
+  madoImg.draw<renderer::Texture2DRenderer>(32, 64 + madoPos);
 }
 
 void scene::Options::init() {

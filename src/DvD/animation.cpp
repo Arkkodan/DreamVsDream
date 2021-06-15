@@ -2,6 +2,7 @@
 
 #include "../util/fileIO.h"
 #include "error.h"
+#include "shader_renderer/texture2D_renderer.h"
 #include "sys.h"
 
 #include <fstream>
@@ -135,5 +136,5 @@ void Animation::draw(int x, int y) const {
   }
 
   // Draw the image!
-  frames[frame].draw(x, y);
+  frames[frame].draw<renderer::Texture2DRenderer>(x, y);
 }

@@ -37,6 +37,7 @@ namespace renderer {
                              unsigned int textureOffset);
 
     static void draw();
+    static void resetColor();
 
   private:
     GLfloat x1, x2, y1, y2;

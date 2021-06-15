@@ -8,6 +8,7 @@
 #include "../error.h"
 #include "../graphics.h"
 #include "../resource_manager.h"
+#include "../shader_renderer/texture2D_renderer.h"
 #include "../stage.h"
 #include "../sys.h"
 
@@ -114,13 +115,13 @@ void scene::Scene::think() {
 
         if (!SCENE->initialized) {
           // Loading graphic
-          imgLoading.draw(0, 0);
+          imgLoading.draw<renderer::Texture2DRenderer>(0, 0);
           sys::refresh();
           SCENE->init();
         }
         if (scene == SCENE_FIGHT && !STAGE->initialized) {
           // Loading graphic
-          imgLoading.draw(0, 0);
+          imgLoading.draw<renderer::Texture2DRenderer>(0, 0);
           sys::refresh();
           STAGE->init();
         }
@@ -386,7 +387,8 @@ void scene::SceneImage::draw(bool _stage) const {
       for (int i = 0; i < xCount; i++) {
         for (int j = 0; j < yCount; j++) {
           graphics::setRender(render);
-          image.draw((int)x + i * image.w, (int)y + j * image.h);
+          image.draw<renderer::Texture2DRenderer>((int)x + i * image.w,
+                                                  (int)y + j * image.h);
         }
       }
     }
@@ -394,14 +396,15 @@ void scene::SceneImage::draw(bool _stage) const {
       graphics::setRender(render);
       if (_stage) {
         if (!round || round - 1 == FIGHT->round) {
-          image.draw(x - image.w / 2 + sys::WINDOW_WIDTH / 2 -
-                         Fight::cameraPos.x * parallax,
-                     (sys::WINDOW_HEIGHT - y) - image.h +
-                         Fight::cameraPos.y * parallax);
+          image.draw<renderer::Texture2DRenderer>(
+              x - image.w / 2 + sys::WINDOW_WIDTH / 2 -
+                  Fight::cameraPos.x * parallax,
+              (sys::WINDOW_HEIGHT - y) - image.h +
+                  Fight::cameraPos.y * parallax);
         }
       }
       else {
-        image.draw(x, y);
+        image.draw<renderer::Texture2DRenderer>(x, y);
       }
     }
   }

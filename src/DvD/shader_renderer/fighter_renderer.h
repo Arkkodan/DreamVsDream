@@ -43,6 +43,7 @@ namespace renderer {
     static void setPixelSize(GLint pixelSize);
 
     static void draw();
+    static void resetColor();
 
   private:
     GLfloat x1, x2, y1, y2;

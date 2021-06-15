@@ -1,7 +1,11 @@
 #ifndef DVD_GRAPHICS_H
 #define DVD_GRAPHICS_H
 
+#ifndef COMPILER
+
 #include "image.h"
+
+#include "../renderer/texture2D.h"
 
 #include <cstdint>
 
@@ -18,16 +22,14 @@ namespace graphics {
   void setClearColor(uint8_t r, uint8_t g, uint8_t b);
   /// @brief Primitive rectangle
   void setRect(int sX, int sY, int sW, int sH);
-  /// @brief Primitive color
-  void setColor(uint8_t r, uint8_t g, uint8_t b, float a = 1.0f);
   /// @brief Primitive scaling
   void setScale(float scale, float yscale = 0.0f);
   /// @brief Primitive render
   void setRender(Image::Render render);
 
   /// @brief Input data into shader
-  void setPalette(unsigned int palette, float alpha, float r, float g, float b,
-                  float pct);
+  void setPalette(const renderer::Texture2D &palette, float alpha, float r,
+                  float g, float b, float pct);
 
   // Immutable stuff
   extern unsigned int max_texture_size;
@@ -40,5 +42,7 @@ namespace graphics {
   extern unsigned int shader;
   extern unsigned int palette;
 } // namespace graphics
+
+#endif // COMPILER
 
 #endif // DVD_GRAPHICS_H

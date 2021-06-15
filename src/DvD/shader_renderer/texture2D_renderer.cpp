@@ -30,6 +30,8 @@ void renderer::Texture2DRenderer::init() {
   s_->shaderProgram->setVAP(VS_POS_LOC, Vertex, pos, GL_FLOAT, GL_FALSE);
   s_->shaderProgram->setVAP(VS_TEXCOORD_LOC, Vertex, texCoord, GL_FLOAT,
                             GL_FALSE);
+
+  resetColor();
 }
 
 void renderer::Texture2DRenderer::setPosRect(GLfloat x1, GLfloat x2, GLfloat y1,
@@ -83,4 +85,8 @@ void renderer::Texture2DRenderer::draw() {
                              GL_DYNAMIC_DRAW);
   s_->indexBuffer->bindQuadData(1, GL_STATIC_DRAW, GL_UNSIGNED_INT);
   s_->indexBuffer->renderQuad();
+}
+
+void renderer::Texture2DRenderer::resetColor() {
+  setColor(1.0f, 1.0f, 1.0f, 1.0f);
 }
