@@ -2,9 +2,6 @@
 #define DVD_GRAPHICS_H
 
 #include "image.h"
-#ifdef GAME
-#include "shader.h"
-#endif // GAME
 
 #include <cstdint>
 
@@ -36,11 +33,6 @@ namespace graphics {
   extern unsigned int max_texture_size;
   // extern bool force_POT;
   extern bool shader_support;
-
-#ifdef GAME
-  // Shaders
-  extern Shader shader_palette;
-#endif
 
   extern Image::Render render;
   extern int srcX, srcY, srcW, srcH;

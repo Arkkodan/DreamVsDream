@@ -1,16 +1,24 @@
 #include "graphics.h"
 
+#include "../renderer/renderer.h"
 #include "../util/fileIO.h"
 #include "error.h"
 #include "input.h"
 #include "sys.h"
 #ifdef GAME
+#include "../fileIO/text.h"
+#include "../renderer/shader.h"
 #include "../util/rng.h"
 #include "network.h"
 #include "scene/fight.h"
 #include "scene/options.h"
 #include "scene/scene.h"
+#include "shader_renderer/fighter_renderer.h"
+#include "shader_renderer/primitive_renderer.h"
+#include "shader_renderer/texture2D_renderer.h"
 #include "stage.h"
+
+#include <memory>
 #endif // GAME
 
 #include <glad/glad.h>
@@ -60,33 +68,47 @@ namespace graphics {
 #undef timer_t
 
 #ifdef GAME
-  Shader shader_palette;
+  static std::unique_ptr<renderer::ShaderProgram> shader_palette;
 #endif
 
   void init(bool disable_shaders_, unsigned int max_texture_size_) {
-    // REQUIRE VERSION 1.3
-    GLint versionMajor, versionMinor;
-    glGetIntegerv(GL_MAJOR_VERSION, &versionMajor);
-    glGetIntegerv(GL_MINOR_VERSION, &versionMinor);
-    if (versionMajor == 1 && versionMinor < 3) {
-      error::die(
-          "Unsupported version of OpenGL: " + util::toString(versionMajor) +
-          "." + util::toString(versionMinor));
+    if (!renderer::init()) {
+      error::die("Could not initialize OpenGL");
     }
 
-    // OPENGL
+    renderer::FighterRenderer::init();
+    renderer::PrimitiveRenderer::init();
+    renderer::Texture2DRenderer::init();
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0, 0, 1);
+    glOrtho(0, sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0, -1, 1); // -1.0f, 1.0f?
     glMatrixMode(GL_MODELVIEW);
 
-    glEnable(GL_TEXTURE_2D);
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
-    glEnable(GL_CULL_FACE);
+    // OpenGL's matrices are column-major
+    float u_mvp[16] = {2.0f / sys::WINDOW_WIDTH,
+                       0.0f,
+                       0.0f,
+                       0.0f,
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                       0.0f,
+                       -2.0f / sys::WINDOW_HEIGHT,
+                       0.0f,
+                       0.0f,
+
+                       0.0f,
+                       0.0f,
+                       1.0f,
+                       0.0f,
+
+                       -1.0f,
+                       1.0f,
+                       0.0f,
+                       1.0f};
+
+    renderer::FighterRenderer::setMVPMatrix(u_mvp);
+    renderer::PrimitiveRenderer::setMVPMatrix(u_mvp);
+    renderer::Texture2DRenderer::setMVPMatrix(u_mvp);
 
     // Get max texture size
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&max_texture_size);
@@ -94,20 +116,13 @@ namespace graphics {
       max_texture_size = max_texture_size_;
     }
 
-#ifdef _WIN32
-    if (!glActiveTexture || !glBlendEquation) {
-      error::die("Your OpenGL implementation isn't capable of running Dream "
-                 "vs. Dream.");
-    }
-#endif
-
 #ifdef SPRTOOL
     (void)disable_shaders_;
-#else
+#else // !SPRTOOL
 #ifdef __APPLE__
     // These functions are all available in OS X 10.6+
     shader_support = !disable_shaders_;
-#else
+#else // !__APPLE__
     // Shader support?
     if (!disable_shaders_) {
       // See if we have opengl >= 2.0; this means we have non-arb
@@ -126,13 +141,19 @@ namespace graphics {
     }
     // Load shaders, if possible
     if (shader_support) {
-      shader_palette.create("shaders/vertex.v.glsl", "shaders/palette.f.glsl");
+      renderer::Shader vertex(GL_VERTEX_SHADER, fileIO::readText(util::getPath(
+                                                    "shaders/vertex.v.glsl")));
+      renderer::Shader fragment(
+          GL_FRAGMENT_SHADER,
+          fileIO::readText(util::getPath("shaders/palette.f.glsl")));
+      shader_palette =
+          std::make_unique<renderer::ShaderProgram>(vertex, fragment);
     }
-#endif
-#endif
 
-    // Remove garbage data
-    glClear(GL_COLOR_BUFFER_BIT);
+    renderer::ShaderProgram::unuse();
+
+#endif // !__APPLE__
+#endif // !SPRTOOL
   }
 
   void deinit() {
@@ -255,29 +276,32 @@ namespace graphics {
     glBindTexture(GL_TEXTURE_2D, palette);
     glActiveTexture(GL_TEXTURE0);
 
-    shader_palette.use();
+    shader_palette->use();
 
-    shader_palette.setInt("texture", 0);
-    shader_palette.setInt("palette", 1);
+    int u_texture[1] = {0};
+    shader_palette->setUniform1iv("texture", u_texture);
+    int u_palette[1] = {1};
+    shader_palette->setUniform1iv("palette", u_palette);
 
+    float u_shift[1] = {0.0f};
     if (Stage::stage == 3 && FIGHT->round >= 2) {
-      shader_palette.setFloat("shift", shift / 256.0f);
+      u_shift[0] = shift / 256.0f;
     }
-    else {
-      shader_palette.setFloat("shift", 0.0f);
-    }
+    shader_palette->setUniform1fv("shift", u_shift);
 
-    shader_palette.setVec3("color", r, g, b);
-    shader_palette.setFloat("pct", pct);
+    float u_color[3] = {r, g, b};
+    shader_palette->setUniform3fv("color", u_color);
+    float u_pct[1] = {pct};
+    shader_palette->setUniform1fv("pct", u_pct);
 
-    shader_palette.setFloat("alpha", alpha);
+    float u_alpha[1] = {alpha};
+    shader_palette->setUniform1fv("alpha", u_alpha);
 
+    int u_pixel[1] = {1};
     if (Stage::stage == 3) {
-      shader_palette.setInt("pixel", pixel);
+      u_pixel[0] = pixel;
     }
-    else {
-      shader_palette.setInt("pixel", 1);
-    }
+    shader_palette->setUniform1iv("pixel", u_pixel);
   }
 #endif
 } // namespace graphics
