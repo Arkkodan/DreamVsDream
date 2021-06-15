@@ -60,7 +60,7 @@ namespace game {
     palettes.clear();
 
     // Sprites
-    Parser parser("chars/" + name + "/sprites.ubu");
+    Parser parser(util::getPath("chars/" + name + "/sprites.ubu"));
 
     // First pass
     nSprites = 0;

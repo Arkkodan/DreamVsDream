@@ -4,6 +4,7 @@
 #include "sys.h"
 #ifdef SPRTOOL
 #include "input.h"
+#include "shader_renderer/texture2D_renderer.h"
 #endif // SPRTOOL
 #ifndef COMPILER
 #include "shader_renderer/fighter_renderer.h"
@@ -185,7 +186,7 @@ namespace sprite {
 #ifdef GAME
     atlas->drawSprite(atlas_sprite, _x, _y, mirror);
 #else
-    img.drawSprite<renderer::FighterRenderer>(_x, _y, mirror);
+    img.drawSprite<renderer::Texture2DRenderer>(_x, _y, mirror);
     for (int i = 0; i < hitBoxes.size; i++) {
       hitBoxes.boxes[i].draw(x2, y2, false,
                              input::selectAll ||
