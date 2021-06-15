@@ -4,47 +4,47 @@
 #include "ubu.h"
 
 namespace ubu {
-	class Character : public UBU {
-	public:
-		Character(const std::string& file);
+  class Character : public UBU {
+  public:
+    Character(const std::string &file);
 
-		virtual bool parse() override final;
-	};
+    virtual bool parse() override final;
+  };
 
-	class Sprites : public UBU {
-	public:
-		Sprites(const std::string& file);
+  class Sprites : public UBU {
+  public:
+    Sprites(const std::string &file);
 
-		virtual bool parse() override final;
-	};
+    virtual bool parse() override final;
+  };
 
-	class Sounds : public UBU {
-	public:
-		Sounds(const std::string& file);
+  class Sounds : public UBU {
+  public:
+    Sounds(const std::string &file);
 
-		virtual bool parse() override final;
-	};
+    virtual bool parse() override final;
+  };
 
-	class Voices : public UBU {
-	public:
-		Voices(const std::string& file);
+  class Voices : public UBU {
+  public:
+    Voices(const std::string &file);
 
-		virtual bool parse() override final;
-	};
+    virtual bool parse() override final;
+  };
 
-	class States : public UBU {
-	public:
-		States(const std::string& file);
+  class States : public UBU {
+  public:
+    States(const std::string &file);
 
-		virtual bool parse() override final;
-	};
+    virtual bool parse() override final;
+  };
 
-	class Commands : public UBU {
-	public:
-		Commands(const std::string& file);
+  class Commands : public UBU {
+  public:
+    Commands(const std::string &file);
 
-		virtual bool parse() override final;
-	};
-}
+    virtual bool parse() override final;
+  };
+} // namespace ubu
 
 #endif // UBU2JSON_CHARS_H

@@ -4,16 +4,16 @@
 #include <string>
 
 namespace app {
-	extern std::string szConfigPath;
+  extern std::string szConfigPath;
 
-	extern bool disable_shaders;
-	extern bool disable_sound;
-	extern int max_texture_size;
-	extern bool versus;
-	extern bool fullscreen;
-	extern int input_delay;
+  extern bool disable_shaders;
+  extern bool disable_sound;
+  extern int max_texture_size;
+  extern bool versus;
+  extern bool fullscreen;
+  extern int input_delay;
 
-	void run();
-}
+  void run();
+} // namespace app
 
 #endif // DVD_APP_H

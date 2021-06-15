@@ -6,50 +6,51 @@
 #include <memory>
 
 #define SCENE (scene::getScene())
-#define FIGHT (reinterpret_cast<scene::Fight*>(scene::scenes[scene::SCENE_FIGHT].get()))
+#define FIGHT \
+  (reinterpret_cast<scene::Fight *>(scene::scenes[scene::SCENE_FIGHT].get()))
 
 namespace scene {
-	enum {
-		SCENE_FIGHT,
+  enum {
+    SCENE_FIGHT,
 
-		SCENE_INTRO,
+    SCENE_INTRO,
 
-		SCENE_TITLE,
-		SCENE_SELECT,
-		SCENE_VERSUS,
+    SCENE_TITLE,
+    SCENE_SELECT,
+    SCENE_VERSUS,
 
-		SCENE_OPTIONS,
+    SCENE_OPTIONS,
 
 #ifndef NO_NETWORK
-		SCENE_NETPLAY,
+    SCENE_NETPLAY,
 #endif
 
-		SCENE_CREDITS,
+    SCENE_CREDITS,
 
-		SCENE_MAX,
+    SCENE_MAX,
 
-		SCENE_QUIT, // Dummy scene for quitting
-	};
+    SCENE_QUIT, // Dummy scene for quitting
+  };
 
-	extern std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
-	extern int scene;
-	extern int sceneNew;
+  extern std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
+  extern int scene;
+  extern int sceneNew;
 
-	extern Image imgLoading;
+  extern Image imgLoading;
 
-	extern float fade;
-	extern bool fadeIn;
-	void drawFade();
+  extern float fade;
+  extern bool fadeIn;
+  void drawFade();
 
-	void setScene(int _scene);
+  void setScene(int _scene);
 
-	bool input(uint16_t in);
+  bool input(uint16_t in);
 
-	//Init/deinit
-	void ginit();
-	void deinit();
+  // Init/deinit
+  void ginit();
+  void deinit();
 
-	Scene* getScene();
-}
+  Scene *getScene();
+} // namespace scene
 
 #endif // DVD_SCENE_SCENE_H
