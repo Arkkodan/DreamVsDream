@@ -4,6 +4,7 @@
 #include "../util/fileIO.h"
 #include "error.h"
 
+#include <algorithm>
 #include <cstring>
 
 ParserLine::ParserLine() : argv() {
@@ -18,6 +19,13 @@ bool Parser::open(std::string szFileName) {
   iLine = -1;
 
   szLines = fileIO::readTextAsLines(szFileName);
+  // Hack: Check for comment delimiter and remove comments
+  szLines.erase(std::remove_if(szLines.begin(), szLines.end(),
+                               [](const std::string &line) {
+                                 return line.substr(0, 2) == "//";
+                               }),
+                szLines.cend());
+
   nLines = szLines.size();
 
   if (!szLines.empty()) {

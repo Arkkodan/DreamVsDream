@@ -166,7 +166,7 @@ namespace game {
     name = name_;
 
     // General definition file
-    Parser parser("chars/" + name + "/character.ubu");
+    Parser parser(util::getPath("chars/" + name + "/character.ubu"));
 
     // Load stuff
     while (parser.parseLine()) {
@@ -223,7 +223,7 @@ namespace game {
     }
 
     // Sprites
-    parser.open("chars/" + name + "/sprites.ubu");
+    parser.open(util::getPath("chars/" + name + "/sprites.ubu"));
 
     // First pass
     nSprites = 0;
@@ -288,7 +288,7 @@ namespace game {
     }
 
     // Sounds
-    parser.open("chars/" + name + "/sounds.ubu");
+    parser.open(util::getPath("chars/" + name + "/sounds.ubu"));
 
     // First pass (count sound groups)
     nSounds = 0;
@@ -334,7 +334,7 @@ namespace game {
     }
 
     // Voices
-    parser.open("chars/" + name + "/voices.ubu");
+    parser.open(util::getPath("chars/" + name + "/voices.ubu"));
 
     // First pass (count voice groups)
     nVoices = 0;
@@ -381,7 +381,7 @@ namespace game {
     }
 
     // States (oh boy)
-    parser.open("chars/" + name + "/states.ubu");
+    parser.open(util::getPath("chars/" + name + "/states.ubu"));
 
     // First pass (count states)
     nStates = 0;
@@ -599,7 +599,7 @@ namespace game {
     }
 
     // Commands
-    parser.open("chars/" + name + "/commands.ubu");
+    parser.open(util::getPath("chars/" + name + "/commands.ubu"));
 
     // First pass (count commands)
     nCommands = 0;
