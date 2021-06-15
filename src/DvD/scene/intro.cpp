@@ -6,6 +6,7 @@
 #include "../graphics.h"
 #include "../player.h"
 #include "../resource_manager.h"
+#include "../shader_renderer/texture2D_renderer.h"
 #include "../sys.h"
 
 scene::Intro::Intro() : Scene("intro") {
@@ -51,22 +52,22 @@ void scene::Intro::draw() const {
   if (state % 2 == 0) {
     _alpha = 1.0 - _alpha;
   }
-  graphics::setColor(255, 255, 255, _alpha);
+  renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
   if (state < 2) {
-    graphics::setColor(255, 255, 255, _alpha);
-    instructions.draw(0, 0);
+    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
+    instructions.draw<renderer::Texture2DRenderer>(0, 0);
   }
   else if (state < 4) {
-    graphics::setColor(255, 255, 255, _alpha);
-    disclaimer_en.draw(0, 0);
+    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
+    disclaimer_en.draw<renderer::Texture2DRenderer>(0, 0);
   }
   else if (state < 6) {
-    graphics::setColor(255, 255, 255, _alpha);
-    disclaimer_ja.draw(0, 0);
+    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
+    disclaimer_ja.draw<renderer::Texture2DRenderer>(0, 0);
   }
   else if (state < 8 && !graphics::shader_support) {
-    graphics::setColor(255, 255, 255, _alpha);
-    shader_error.draw(0, 0);
+    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
+    shader_error.draw<renderer::Texture2DRenderer>(0, 0);
   }
 }
 

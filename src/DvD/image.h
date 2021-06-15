@@ -4,6 +4,9 @@
 #ifdef GAME
 #include "file.h"
 #endif
+#ifndef COMPILER
+#include "../renderer/texture2D.h"
+#endif // COMPILER
 
 #include <cstdint>
 #include <string>
@@ -41,13 +44,19 @@ public:
   int xpad;
   int ypad;
 #else
-  std::vector<unsigned int> textures;
+  std::vector<renderer::Texture2D> textures;
   unsigned int w_textures;
   unsigned int h_textures;
   unsigned int w_subtexture;
   unsigned int h_subtexture;
 
-  void draw(int x, int y, bool mirror = false) const;
+  /// @brief Draw image on screen
+  /// @typeparam T Specify shader_renderer
+  template <typename T> void draw(int x, int y, bool mirror = false) const;
+
+  /// @brief Draw image in relation to camera
+  /// @typeparam T Specify shader_renderer
+  template <typename T>
   void drawSprite(int x, int y, bool mirror = false) const;
 #endif
 

@@ -7,10 +7,10 @@
 #include "../graphics.h"
 #include "../network.h"
 #include "../resource_manager.h"
+#include "../shader_renderer/primitive_renderer.h"
+#include "../shader_renderer/texture2D_renderer.h"
 
 #include <cstring>
-
-#include <glad/glad.h>
 
 // NETPLAY
 #ifndef NO_NETWORK
@@ -398,9 +398,9 @@ void scene::Netplay::draw() const {
     }
 
     graphics::setScale(NET_SCALE * xscale, NET_SCALE);
-    imgLogo.draw(sys::WINDOW_WIDTH / 2 - imgLogo.w * NET_SCALE * xscale / 2,
-                 sys::WINDOW_HEIGHT / 4 - imgLogo.h * NET_SCALE / 2 +
-                     drawShake);
+    imgLogo.draw<renderer::Texture2DRenderer>(
+        sys::WINDOW_WIDTH / 2 - imgLogo.w * NET_SCALE * xscale / 2,
+        sys::WINDOW_HEIGHT / 4 - imgLogo.h * NET_SCALE / 2 + drawShake);
 
     // Main menu
     switch (mode) {
@@ -416,8 +416,9 @@ void scene::Netplay::draw() const {
             sys::WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, "Client");
       }
       graphics::setScale(xscale, NET_SCALE);
-      imgCursor.draw(sys::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE * xscale / 2),
-                     sys::WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
+      imgCursor.draw<renderer::Texture2DRenderer>(
+          sys::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE * xscale / 2),
+          sys::WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
     } break;
 
     case net::MODE_SERVER: {
@@ -463,9 +464,9 @@ void scene::Netplay::draw() const {
           }
           if (!digit) {
             graphics::setScale(xscale, NET_SCALE);
-            imgCursor.draw(sys::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2),
-                           sys::WINDOW_HEIGHT / 3 * 2 + 32 * choice +
-                               drawShake);
+            imgCursor.draw<renderer::Texture2DRenderer>(
+                sys::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2),
+                sys::WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
           }
         }
       }
@@ -538,9 +539,9 @@ void scene::Netplay::draw() const {
           }
           if (!digit) {
             graphics::setScale(xscale, NET_SCALE);
-            imgCursor.draw(sys::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2),
-                           sys::WINDOW_HEIGHT / 3 * 2 + 32 * choice +
-                               drawShake);
+            imgCursor.draw<renderer::Texture2DRenderer>(
+                sys::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2),
+                sys::WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
           }
           Font::setScale(NET_SCALE);
           menuFont->drawText(sys::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE / 2),
@@ -551,21 +552,25 @@ void scene::Netplay::draw() const {
     } break;
     }
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBegin(GL_QUADS);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
-    glVertex3f(sys::WINDOW_WIDTH, barPos, 0);
-    glVertex3f(0, barPos, 0);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
-    glVertex3f(0, barPos + NET_BAR_SIZE, 0);
-    glVertex3f(sys::WINDOW_WIDTH, barPos + NET_BAR_SIZE, 0);
-    glEnd();
+    renderer::PrimitiveRenderer::setColor(1.0f, 1.0f, 1.0f, 0.1f);
+    renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
+                                            barPos + NET_BAR_SIZE, barPos);
+    // TODO: Replace with a renderer that can do gradients:
+    // glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
+    // glVertex3f(sys::WINDOW_WIDTH, barPos, 0);
+    // glVertex3f(0, barPos, 0);
+    // glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
+    // glVertex3f(0, barPos + NET_BAR_SIZE, 0);
+    // glVertex3f(sys::WINDOW_WIDTH, barPos + NET_BAR_SIZE, 0);
+    renderer::PrimitiveRenderer::draw();
+
+    renderer::ShaderProgram::unuse();
 
     graphics::setRender(Image::Render::ADDITIVE);
-    imgStatic.draw(-util::roll(sys::WINDOW_WIDTH),
-                   -util::roll(sys::WINDOW_HEIGHT));
+    imgStatic.draw<renderer::Texture2DRenderer>(
+        -util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
     graphics::setRender(Image::Render::MULTIPLY);
-    imgScanlines.draw(0, 0);
+    imgScanlines.draw<renderer::Texture2DRenderer>(0, 0);
   }
 
   if (flashDir) {
@@ -583,14 +588,12 @@ void scene::Netplay::draw() const {
                          (float)(NET_FADE_TIME / speed);
     }
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glColor4f(1, 1, 1, alpha);
-    glBegin(GL_QUADS);
-    glVertex3f(sys::WINDOW_WIDTH / 2 - xoff, sys::WINDOW_HEIGHT / 2 - yoff, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 - xoff, sys::WINDOW_HEIGHT / 2 + yoff, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 + xoff, sys::WINDOW_HEIGHT / 2 + yoff, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 + xoff, sys::WINDOW_HEIGHT / 2 - yoff, 0);
-    glEnd();
+    renderer::PrimitiveRenderer::setColor(1.0f, 1.0f, 1.0f, alpha);
+    renderer::PrimitiveRenderer::setPosRect(
+        sys::WINDOW_WIDTH / 2 - xoff, sys::WINDOW_WIDTH / 2 + xoff,
+        sys::WINDOW_HEIGHT / 2 + yoff, sys::WINDOW_HEIGHT / 2 - yoff);
+    renderer::PrimitiveRenderer::draw();
+    renderer::ShaderProgram::unuse();
   }
 }
 

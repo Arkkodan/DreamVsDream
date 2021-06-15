@@ -4,6 +4,7 @@
 #include "error.h"
 #include "graphics.h"
 #include "resource_manager.h"
+#include "shader_renderer/texture2D_renderer.h"
 #include "sys.h"
 
 #include <algorithm>
@@ -154,9 +155,9 @@ namespace effect {
 
     graphics::setRender(Image::Render::ADDITIVE);
     if (moveWithCamera)
-      frame->drawSprite(x1, y1, mirror);
+      frame->drawSprite<renderer::Texture2DRenderer>(x1, y1, mirror);
     else
-      frame->draw(x1, y1, mirror);
+      frame->draw<renderer::Texture2DRenderer>(x1, y1, mirror);
   }
 
   // MISC FUNCS

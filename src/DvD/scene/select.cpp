@@ -7,12 +7,12 @@
 #include "../graphics.h"
 #include "../network.h"
 #include "../resource_manager.h"
+#include "../shader_renderer/primitive_renderer.h"
+#include "../shader_renderer/texture2D_renderer.h"
 #include "../stage.h"
 #include "../sys.h"
 
 #include <algorithm>
-
-#include <glad/glad.h>
 
 namespace {
   static constexpr auto STAGES_PER_ROW = 10;
@@ -431,40 +431,48 @@ void scene::Select::draw() const {
       FIGHT->gametype == Fight::GAMETYPE_VERSUS) {
     if (cursors[1].timerPortrait) {
       if (gridFighters[cursors[1].posOld] >= 0) {
-        graphics::setColor(255, 255, 255,
-                           (float)(cursors[1].timerPortrait) / PORTRAIT_FADE);
-        fighters[gridFighters[cursors[1].posOld]]->portrait.draw(
-            sys::WINDOW_WIDTH -
-                fighters[gridFighters[cursors[1].posOld]]->portrait.w +
-                (PORTRAIT_FADE - cursors[1].timerPortrait),
-            0, true);
+        renderer::Texture2DRenderer::setColor(
+            1.0f, 1.0f, 1.0f,
+            static_cast<float>(cursors[1].timerPortrait) / PORTRAIT_FADE);
+        fighters[gridFighters[cursors[1].posOld]]
+            ->portrait.draw<renderer::Texture2DRenderer>(
+                sys::WINDOW_WIDTH -
+                    fighters[gridFighters[cursors[1].posOld]]->portrait.w +
+                    (PORTRAIT_FADE - cursors[1].timerPortrait),
+                0, true);
       }
     }
     if (gridFighters[cursors[1].pos] >= 0) {
-      graphics::setColor(255, 255, 255,
-                         (float)(PORTRAIT_FADE - cursors[1].timerPortrait) /
-                             PORTRAIT_FADE);
-      fighters[gridFighters[cursors[1].pos]]->portrait.draw(
-          sys::WINDOW_WIDTH -
-              fighters[gridFighters[cursors[1].pos]]->portrait.w +
-              cursors[1].timerPortrait,
-          0, true);
+      renderer::Texture2DRenderer::setColor(
+          1.0f, 1.0f, 1.0f,
+          static_cast<float>(PORTRAIT_FADE - cursors[1].timerPortrait) /
+              PORTRAIT_FADE);
+      fighters[gridFighters[cursors[1].pos]]
+          ->portrait.draw<renderer::Texture2DRenderer>(
+              sys::WINDOW_WIDTH -
+                  fighters[gridFighters[cursors[1].pos]]->portrait.w +
+                  cursors[1].timerPortrait,
+              0, true);
     }
   }
   if (cursors[0].timerPortrait) {
     if (gridFighters[cursors[0].posOld] >= 0) {
-      graphics::setColor(255, 255, 255,
-                         (float)(cursors[0].timerPortrait) / PORTRAIT_FADE);
-      fighters[gridFighters[cursors[0].posOld]]->portrait.draw(
-          0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
+      renderer::Texture2DRenderer::setColor(
+          1.0f, 1.0f, 1.0f,
+          static_cast<float>(cursors[0].timerPortrait) / PORTRAIT_FADE);
+      fighters[gridFighters[cursors[0].posOld]]
+          ->portrait.draw<renderer::Texture2DRenderer>(
+              0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
     }
   }
   if (gridFighters[cursors[0].pos] >= 0) {
-    graphics::setColor(255, 255, 255,
-                       (float)(PORTRAIT_FADE - cursors[0].timerPortrait) /
-                           PORTRAIT_FADE);
-    fighters[gridFighters[cursors[0].pos]]->portrait.draw(
-        0 - cursors[0].timerPortrait, 0);
+    renderer::Texture2DRenderer::setColor(
+        1.0f, 1.0f, 1.0f,
+        static_cast<float>(PORTRAIT_FADE - cursors[0].timerPortrait) /
+            PORTRAIT_FADE);
+    fighters[gridFighters[cursors[0].pos]]
+        ->portrait.draw<renderer::Texture2DRenderer>(
+            0 - cursors[0].timerPortrait, 0);
   }
 
   // Now the GUI
@@ -483,7 +491,7 @@ void scene::Select::draw() const {
       fighter->sprites[0].atlas->draw(
           spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w,
           sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
-      glUseProgram(0);
+      renderer::ShaderProgram::unuse();
     }
   }
   if (cursors[0].lockState >= Cursor::CURSOR_COLORSWAP) {
@@ -498,14 +506,15 @@ void scene::Select::draw() const {
       fighter->sprites[0].atlas->draw(
           spr.atlas_sprite, 50 - spr.x,
           sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
-      glUseProgram(0);
+      renderer::ShaderProgram::unuse();
     }
   }
 
   // Draw the select sprites
   for (int i = 0; i < gridC; i++) {
     if (gridFighters[i] >= 0) {
-      fighters[gridFighters[i]]->select.draw(grid[i].x, grid[i].y);
+      fighters[gridFighters[i]]->select.draw<renderer::Texture2DRenderer>(
+          grid[i].x, grid[i].y);
     }
   }
 
@@ -522,10 +531,13 @@ void scene::Select::draw() const {
       ;
 
       if (cursors[i].lockState == Cursor::CURSOR_UNLOCKED) {
-        graphics::setColor(cursors[i].r, cursors[i].g, cursors[i].b);
+        renderer::Texture2DRenderer::setColor(cursors[i].r / 255.0f,
+                                              cursors[i].g / 255.0f,
+                                              cursors[i].b / 255.0f, 1.0f);
       }
-      curData[group].img.draw(grid[cursors[i].pos].x + curData[group].off.x,
-                              grid[cursors[i].pos].y + curData[group].off.y);
+      curData[group].img.draw<renderer::Texture2DRenderer>(
+          grid[cursors[i].pos].x + curData[group].off.x,
+          grid[cursors[i].pos].y + curData[group].off.y);
 
       // Draw the effects
       drawEffect(i, group, grid[cursors[i].pos].x, grid[cursors[i].pos].y);
@@ -536,14 +548,11 @@ void scene::Select::draw() const {
   if (cursors[0].lockState == Cursor::CURSOR_LOCKED &&
       cursors[1].lockState == Cursor::CURSOR_LOCKED) {
     // Darken background
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
-    glBegin(GL_QUADS);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glVertex3f(0.0f, sys::WINDOW_HEIGHT, 0.0f);
-    glVertex3f(sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0.0f);
-    glVertex3f(sys::WINDOW_WIDTH, 0.0f, 0.0f);
-    glEnd();
+    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, 0.7f);
+    renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
+                                            sys::WINDOW_HEIGHT, 0.0f);
+    renderer::PrimitiveRenderer::draw();
+    renderer::ShaderProgram::unuse();
 
     // Draw the stage list
     constexpr auto STAGE_ICON_PADDING = 8;
@@ -558,11 +567,11 @@ void scene::Select::draw() const {
         if (!stage->thumbnail.isPlaying())
           stage->thumbnail.setPlaying(true);
         if (cursor_stage == i) {
-          graphics::setColor(255, 255, 255, 1.0f);
+          renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f);
           stage->thumbnail.draw(x, y);
         }
         else {
-          graphics::setColor(127, 127, 127, 1.0f);
+          renderer::Texture2DRenderer::setColor(0.5f, 0.5f, 0.5f, 1.0f);
           stage->thumbnail.draw(x, y);
         }
       }
@@ -592,16 +601,17 @@ void scene::Select::drawEffect(int player, int group, int _x, int _y,
     int x = (cursors[player].frame - 1) % (curData[group].imgSelect.h / 96);
 
     graphics::setRect(0, x * 96, 96, 96);
-    graphics::setColor(255, 255, 255, alpha);
+    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, alpha);
 
     if (spr) {
       graphics::setScale(scale * 2);
-      curData[group].imgSelect.drawSprite(_x - (96 * scale), _y - (96 * scale));
+      curData[group].imgSelect.drawSprite<renderer::Texture2DRenderer>(
+          _x - (96 * scale), _y - (96 * scale));
     }
     else {
       graphics::setScale(scale);
-      curData[group].imgSelect.draw(_x - (96 / 2 * scale) + 26 / 2,
-                                    _y - (96 / 2 * scale) + 29 / 2);
+      curData[group].imgSelect.draw<renderer::Texture2DRenderer>(
+          _x - (96 / 2 * scale) + 26 / 2, _y - (96 / 2 * scale) + 29 / 2);
     }
 
     if (++cursors[player].timer > curData[group].speed) {

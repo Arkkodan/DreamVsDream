@@ -4,6 +4,7 @@
 
 #include "../graphics.h"
 #include "../player.h"
+#include "../shader_renderer/texture2D_renderer.h"
 #include "../sys.h"
 
 // Scene Versus
@@ -74,24 +75,25 @@ void scene::Versus::draw() const {
   Scene::draw();
 
   if (portraits[1]) {
-    graphics::setColor(
-        255, 255, 255,
-        0.5f); // MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f));
+    renderer::Texture2DRenderer::setColor(
+        1.0f, 1.0f, 1.0f,
+        0.5f); // MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f))
     graphics::setScale(2.0f);
-    portraits[1]->draw(sys::WINDOW_WIDTH - portraits[1]->w * 1.5 - timer2 +
-                           timerF,
-                       -120, true);
-    portraits[1]->draw(sys::WINDOW_WIDTH - portraits[1]->w + timer4 - timerF, 0,
-                       true);
+    portraits[1]->draw<renderer::Texture2DRenderer>(
+        sys::WINDOW_WIDTH - portraits[1]->w * 1.5 - timer2 + timerF, -120,
+        true);
+    portraits[1]->draw<renderer::Texture2DRenderer>(
+        sys::WINDOW_WIDTH - portraits[1]->w + timer4 - timerF, 0, true);
   }
 
   if (portraits[0]) {
-    graphics::setColor(
-        255, 255, 255,
+    renderer::Texture2DRenderer::setColor(
+        1.0f, 1.0f, 1.0f,
         0.5f); // MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f));
     graphics::setScale(2.0f);
-    portraits[0]->draw(portraits[0]->w * -0.5 + timer2 - timerF, -120);
-    portraits[0]->draw(0 - timer4 + timerF, 0);
+    portraits[0]->draw<renderer::Texture2DRenderer>(
+        portraits[0]->w * -0.5 + timer2 - timerF, -120);
+    portraits[0]->draw<renderer::Texture2DRenderer>(0 - timer4 + timerF, 0);
   }
 }
 

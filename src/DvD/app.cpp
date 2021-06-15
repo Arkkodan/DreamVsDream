@@ -11,6 +11,7 @@
 #include "scene/fight.h"
 #include "scene/options.h"
 #include "scene/scene.h"
+#include "shader_renderer/texture2D_renderer.h"
 #include "sound.h"
 #include "stage.h"
 #include "sys.h"
@@ -146,7 +147,7 @@ static void app::init() {
   sys::init();
   graphics::init(disable_shaders, max_texture_size);
   scene::imgLoading.createFromFile("scenes/loading.png");
-  scene::imgLoading.draw(0, 0);
+  scene::imgLoading.draw<renderer::Texture2DRenderer>(0, 0);
   scene::scene = scene::SCENE_INTRO;
   sys::refresh();
 

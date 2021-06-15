@@ -1,6 +1,7 @@
 #include "atlas.h"
 
 #include "graphics.h"
+#include "shader_renderer/fighter_renderer.h"
 
 // #define TEXTURE_SIZE 2048
 // #define TEXTURE_SIZE_SQ (TEXTURE_SIZE*TEXTURE_SIZE)
@@ -58,13 +59,15 @@ bool Atlas::create(File &file, const uint8_t *palette) {
 void Atlas::draw(int sprite_, int x_, int y_, bool mirror_) const {
   graphics::setRect(sprites[sprite_].x, sprites[sprite_].y, sprites[sprite_].w,
                     sprites[sprite_].h);
-  images[sprites[sprite_].atlas].draw(x_, y_, mirror_);
+  images[sprites[sprite_].atlas].draw<renderer::FighterRenderer>(x_, y_,
+                                                                 mirror_);
 }
 
 void Atlas::drawSprite(int sprite_, int x_, int y_, bool mirror_) const {
   graphics::setRect(sprites[sprite_].x, sprites[sprite_].y, sprites[sprite_].w,
                     sprites[sprite_].h);
-  images[sprites[sprite_].atlas].drawSprite(x_, y_, mirror_);
+  images[sprites[sprite_].atlas].drawSprite<renderer::FighterRenderer>(x_, y_,
+                                                                       mirror_);
 }
 
 AtlasSprite Atlas::getSprite(int sprite_) const {

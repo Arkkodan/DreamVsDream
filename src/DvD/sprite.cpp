@@ -5,12 +5,12 @@
 #ifdef SPRTOOL
 #include "input.h"
 #endif // SPRTOOL
+#ifndef COMPILER
+#include "shader_renderer/fighter_renderer.h"
+#include "shader_renderer/primitive_renderer.h"
+#endif // COMPILER
 
 #include <algorithm>
-
-#ifndef COMPILER
-#include <glad/glad.h>
-#endif
 
 namespace sprite {
 
@@ -35,24 +35,19 @@ namespace sprite {
   }
 
   void drwbx(int x, int y, int w, int h) {
-    glBegin(GL_QUADS);
-    glVertex3f(x, y - h, 0);
-    glVertex3f(x, y, 0);
-    glVertex3f(x + w, y, 0);
-    glVertex3f(x + w, y - h, 0);
-    glEnd();
+    renderer::PrimitiveRenderer::setPosRect(x, x + w, y, y - h);
+    renderer::PrimitiveRenderer::draw();
   }
 
   void HitBox::draw(int _x, int _y, bool attack, bool selected) const {
     _x += sys::WINDOW_WIDTH / 2;
     _y = sys::FLIP(_y);
 
-    glBindTexture(GL_TEXTURE_2D, 0);
     if (attack) {
-      glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor(1.0f, 0.0f, 0.0f, 1.0f);
     }
     else {
-      glColor4f(0.5f, 0.5f, 1.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor(0.5f, 0.5f, 1.0f, 1.0f);
     }
 
     drwbx(_x + pos.x, _y - pos.y, size.x, 1);              // Bottom
@@ -61,15 +56,15 @@ namespace sprite {
     drwbx(_x + pos.x + size.x - 1, _y - pos.y, 1, size.y); // Right
     if (selected) {
       if (attack) {
-        glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
+        renderer::PrimitiveRenderer::setColor(1.0f, 0.0f, 0.0f, 0.5f);
       }
       else {
-        glColor4f(0.5f, 0.5f, 1.0f, 0.5f);
+        renderer::PrimitiveRenderer::setColor(0.5f, 0.5f, 1.0f, 0.5f);
       }
       drwbx(_x + pos.x, _y - pos.y, size.x, size.y);
     }
 
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    renderer::ShaderProgram::unuse();
   }
 
   bool HitBox::collideOther(HitBox *other, util::Vector *colpos,
@@ -190,7 +185,7 @@ namespace sprite {
 #ifdef GAME
     atlas->drawSprite(atlas_sprite, _x, _y, mirror);
 #else
-    img.drawSprite(_x, _y, mirror);
+    img.drawSprite<renderer::FighterRenderer>(_x, _y, mirror);
     for (int i = 0; i < hitBoxes.size; i++) {
       hitBoxes.boxes[i].draw(x2, y2, false,
                              input::selectAll ||
@@ -214,8 +209,8 @@ namespace sprite {
     else {
       _x -= x * scale;
     }
-
-    graphics::setColor(0, 0, 0, 0.5f);
+    renderer::FighterRenderer::setColor(0.0f, 0.0f, 0.0f);
+    renderer::FighterRenderer::setAlpha(0.5f);
     graphics::setScale(scale, 0.2f * scale);
     atlas->drawSprite(atlas_sprite, _x, 0, mirror);
   }

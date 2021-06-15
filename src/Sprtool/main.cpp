@@ -15,10 +15,9 @@
 #include "../DvD/fighter.h"
 #include "../DvD/graphics.h"
 #include "../DvD/parser.h"
+#include "../DvD/shader_renderer/primitive_renderer.h"
 #include "../DvD/sys.h"
 #include "../util/fileIO.h"
-
-#include <glad/glad.h>
 
 game::Fighter fighter;
 int frame = 0;
@@ -196,26 +195,21 @@ int main(int argc, char **argv)
     sys::refresh();
 
     // Draw a crosshair
-    glBindTexture(GL_TEXTURE_2D, 0);
     if (input::blackBG) {
-      glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
     else {
-      glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, 1.0f);
     }
-    glBegin(GL_QUADS);
-    glVertex3f(sys::WINDOW_WIDTH / 2 - 100, sys::FLIP(sys::EDIT_OFFSET), 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 - 100, sys::FLIP(sys::EDIT_OFFSET) + 1, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 + 99, sys::FLIP(sys::EDIT_OFFSET) + 1, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 + 99, sys::FLIP(sys::EDIT_OFFSET), 0);
-    glEnd();
-    glBegin(GL_QUADS);
-    glVertex3f(sys::WINDOW_WIDTH / 2 + 1, sys::FLIP(sys::EDIT_OFFSET) - 4, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 - 1, sys::FLIP(sys::EDIT_OFFSET) - 4, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 - 1, sys::FLIP(sys::EDIT_OFFSET) + 5, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 + 1, sys::FLIP(sys::EDIT_OFFSET) + 5, 0);
-    glEnd();
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    renderer::PrimitiveRenderer::setPosRect(
+        sys::WINDOW_WIDTH / 2 - 100, sys::WINDOW_WIDTH / 2 + 99,
+        sys::FLIP(sys::EDIT_OFFSET) + 1, sys::FLIP(sys::EDIT_OFFSET));
+    renderer::PrimitiveRenderer::draw();
+    renderer::PrimitiveRenderer::setPosRect(
+        sys::WINDOW_WIDTH / 2 - 1, sys::WINDOW_WIDTH / 2 + 1,
+        sys::FLIP(sys::EDIT_OFFSET) + 5, sys::FLIP(sys::EDIT_OFFSET) - 4);
+    renderer::PrimitiveRenderer::draw();
+    renderer::ShaderProgram::unuse();
 
     fighter.sprites[frame].draw(0, sys::EDIT_OFFSET, false, 1.0f);
   }

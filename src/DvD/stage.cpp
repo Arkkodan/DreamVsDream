@@ -8,6 +8,7 @@
 #include "image.h"
 #include "parser.h"
 #include "resource_manager.h"
+#include "shader_renderer/texture2D_renderer.h"
 
 #include <algorithm>
 
@@ -73,7 +74,7 @@ void Stage::think() {
 
 void Stage::draw(bool _above) const {
   if (_above) {
-    graphics::setColor(255, 255, 255, 0.5f);
+    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, 0.5f);
     std::for_each(imagesAbove.cbegin(), imagesAbove.cend(),
                   [](const scene::SceneImage &si) { si.draw(true); });
   }

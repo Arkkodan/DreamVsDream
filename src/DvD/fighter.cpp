@@ -6,8 +6,7 @@
 #include "file.h"
 #include "graphics.h"
 #include "resource_manager.h"
-
-#include <glad/glad.h>
+#include "shader_renderer/fighter_renderer.h"
 #endif // GAME
 
 namespace game {
@@ -70,7 +69,6 @@ namespace game {
     // Read palettes
     if (graphics::shader_support) {
       palettes.resize(nPalettes * 2);
-      glGenTextures(nPalettes * 2, palettes.data());
     }
     else {
       palettes.clear();
@@ -109,11 +107,7 @@ namespace game {
 
       // Make data a palette
       if (graphics::shader_support) {
-        glBindTexture(GL_TEXTURE_2D, palettes[i]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 256, 1, 0, GL_RGB,
-                     GL_UNSIGNED_BYTE, pal);
+        palettes[i].bindData(256, 1, GL_RGB, GL_UNSIGNED_BYTE, pal);
       }
     }
 
@@ -222,7 +216,7 @@ namespace game {
   Fighter::~Fighter() {
 #ifdef GAME
     if (graphics::shader_support) {
-      glDeleteTextures(nPalettes, palettes.data());
+      palettes.clear();
     }
 #endif
   }
@@ -235,14 +229,17 @@ namespace game {
     if (graphics::shader_support) {
       graphics::setPalette(palettes[palette], alpha, r, g, b, pct);
       sprites[sprite].draw(x, y, mirror, scale);
-      glUseProgram(0);
+      renderer::ShaderProgram::unuse();
     }
     else {
       if (palette) {
-        graphics::setColor(150, 150, 150, alpha);
+        renderer::FighterRenderer::setColor(150 / 255.0f, 150 / 255.0f,
+                                            150 / 255.0f);
+        renderer::FighterRenderer::setAlpha(alpha);
       }
       else {
-        graphics::setColor(255, 255, 255, alpha);
+        renderer::FighterRenderer::setColor(1.0f, 1.0f, 1.0f);
+        renderer::FighterRenderer::setAlpha(alpha);
       }
       sprites[sprite].draw(x, y, mirror, scale);
     }
@@ -250,12 +247,13 @@ namespace game {
 
   void Fighter::drawShadow(int sprite, int x, bool mirror, float scale) const {
     if (graphics::shader_support) {
-      graphics::setPalette(0, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f);
+      graphics::setPalette(palettes.front(), 0.5f, 0.0f, 0.0f, 0.0f, 1.0f);
       sprites[sprite].drawShadow(x, mirror, scale);
-      glUseProgram(0);
+      renderer::ShaderProgram::unuse();
     }
     else {
-      graphics::setColor(0.0f, 0.0f, 0.0f, 0.5f);
+      renderer::FighterRenderer::setColor(0.0f, 0.0f, 0.0f);
+      renderer::FighterRenderer::setAlpha(0.5f);
       sprites[sprite].drawShadow(x, mirror, scale);
     }
   }

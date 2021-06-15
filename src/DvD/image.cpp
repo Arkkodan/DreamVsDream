@@ -1,8 +1,11 @@
 #include "image.h"
 
+#include "../renderer/gl_loader.h"
 #include "../util/fileIO.h"
 #include "error.h"
 #include "graphics.h"
+#include "shader_renderer/fighter_renderer.h"
+#include "shader_renderer/texture2D_renderer.h"
 #include "sys.h"
 #ifdef GAME
 #include "scene/fight.h"
@@ -12,7 +15,6 @@
 #include <cstdlib>
 #include <cstring>
 
-#include <glad/glad.h>
 #include <png.h>
 
 Image::Image()
@@ -66,7 +68,7 @@ Image::~Image() {
   free(data);
 #else
   if (!textures.empty()) {
-    glDeleteTextures(w_textures * h_textures, textures.data());
+    textures.clear();
   }
 #endif
 }
@@ -372,11 +374,11 @@ void Image::createFromMemory(const uint8_t *data_, unsigned int width_,
   switch (format_) {
   case COLORTYPE_INDEXED:
   case COLORTYPE_GRAYSCALE:
-    _format = GL_LUMINANCE;
+    _format = GL_LUMINANCE; // TODO: Replace with GL_R and swizzle mask
     _channels = 1;
     break;
   case COLORTYPE_GRAYSCALE_ALPHA:
-    _format = GL_LUMINANCE_ALPHA;
+    _format = GL_LUMINANCE_ALPHA; // TODO: Replace with GL_RG and swizzle mask
     _channels = 2;
     break;
   case COLORTYPE_RGB:
@@ -433,7 +435,6 @@ void Image::createFromMemory(const uint8_t *data_, unsigned int width_,
 
   // Create the buffer for the texture IDs and fill it
   textures.resize(sizeof(unsigned int *) * (w_textures * h_textures));
-  glGenTextures(w_textures * h_textures, textures.data());
 
   // Loop through each element and create a new texture
   std::vector<uint8_t> _b_texture(w_subtexture * h_subtexture * _channels);
@@ -454,16 +455,14 @@ void Image::createFromMemory(const uint8_t *data_, unsigned int width_,
       }
 
       // Create an OpenGL texture
-      glBindTexture(GL_TEXTURE_2D, textures[v * w_textures + u]);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexImage2D(GL_TEXTURE_2D, 0, _format, w_subtexture, h_subtexture, 0,
-                   _format, GL_UNSIGNED_BYTE, _b_texture.data());
+      textures[v * w_textures + u].bindData(w_subtexture, h_subtexture, _format,
+                                            GL_UNSIGNED_BYTE,
+                                            _b_texture.data());
     }
   }
 }
 
-void Image::draw(int x, int y, bool mirror) const {
+template <typename T> void Image::draw(int x, int y, bool mirror) const {
   if (!graphics::srcW || !graphics::srcH) {
     graphics::srcW = w;
     graphics::srcH = h;
@@ -497,7 +496,7 @@ void Image::draw(int x, int y, bool mirror) const {
 
   for (int v = _y1_tex; v <= _y2_tex; v++) {
     for (int u = _x1_tex; u <= _x2_tex; u++) {
-      glBindTexture(GL_TEXTURE_2D, textures[v * w_textures + u]);
+      T::setTexture2D(textures[v * w_textures + u], 0);
 
       if (u == _x1_tex) {
         u1 = (float)(graphics::srcX % w_subtexture) / (float)w_subtexture;
@@ -579,51 +578,44 @@ void Image::draw(int x, int y, bool mirror) const {
         x2 = x1 + _width;
       }
 
-      glBegin(GL_TRIANGLE_STRIP);
+      T::setPosRect(x1, x2, y1, y2);
+      T::setTexRect(u1, u2, v1, v2);
 
-      // Top Left
-      glTexCoord2f(u1, v1);
-      glVertex3f(x1, y1, 0);
-
-      // Bottom Left
-      glTexCoord2f(u1, v2);
-      glVertex3f(x1, y2, 0);
-
-      // Top Right
-      glTexCoord2f(u2, v1);
-      glVertex3f(x2, y1, 0);
-
-      // Bottom Right
-      glTexCoord2f(u2, v2);
-      glVertex3f(x2, y2, 0);
-
-      glEnd();
+      T::draw();
     }
   }
 
   // Reset stuff
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+  T::resetColor();
   graphics::srcX = graphics::srcY = graphics::srcW = graphics::srcH = 0;
   graphics::xscale = graphics::yscale = 1.0f;
   graphics::render = Render::NORMAL;
 }
+template void Image::draw<renderer::Texture2DRenderer>(int x, int y,
+                                                       bool mirror) const;
+template void Image::draw<renderer::FighterRenderer>(int x, int y,
+                                                     bool mirror) const;
 
-void Image::drawSprite(int x, int y, bool mirror) const {
+template <typename T> void Image::drawSprite(int x, int y, bool mirror) const {
   if (!graphics::srcW || !graphics::srcH) {
     graphics::srcW = w;
     graphics::srcH = h;
   }
 #ifdef SPRTOOL
-  draw(x + sys::WINDOW_WIDTH / 2,
-       sys::FLIP(y) - graphics::srcH * graphics::yscale, mirror);
-#else
-  draw(x + sys::WINDOW_WIDTH / 2 - scene::Fight::cameraPos.x,
-       sys::FLIP(y) - graphics::srcH * graphics::yscale - STAGE->height +
-           scene::Fight::cameraPos.y,
-       mirror);
-#endif
+  draw<T>(x + sys::WINDOW_WIDTH / 2,
+          sys::FLIP(y) - graphics::srcH * graphics::yscale, mirror);
+#else  // !SPRTOOL
+  draw<T>(x + sys::WINDOW_WIDTH / 2 - scene::Fight::cameraPos.x,
+          sys::FLIP(y) - graphics::srcH * graphics::yscale - STAGE->height +
+              scene::Fight::cameraPos.y,
+          mirror);
+#endif // SPRTOOL
 }
+template void Image::drawSprite<renderer::Texture2DRenderer>(int x, int y,
+                                                             bool mirror) const;
+template void Image::drawSprite<renderer::FighterRenderer>(int x, int y,
+                                                           bool mirror) const;
 #endif
 
 bool Image::exists() const {
