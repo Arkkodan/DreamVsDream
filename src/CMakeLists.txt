@@ -208,6 +208,7 @@ target_compile_definitions(Fontbuild
 
 add_executable(Sprtool
   ${SPRTOOL_FILES}
+  ${RENDERER_MODULES}
   DvD/error.cpp
   DvD/fighter.cpp
   DvD/graphics.cpp
@@ -215,8 +216,8 @@ add_executable(Sprtool
   DvD/parser.cpp
   DvD/sprite.cpp
   DvD/sys.cpp
+  ${DVD_SHADER_RENDERER_FILES}
   fileIO/text.cpp
-  renderer/renderer.cpp
   util/fileIO.cpp
   util/vec2.cpp
 )

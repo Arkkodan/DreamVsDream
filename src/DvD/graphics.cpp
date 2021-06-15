@@ -4,6 +4,9 @@
 #include "../util/fileIO.h"
 #include "error.h"
 #include "input.h"
+#include "shader_renderer/fighter_renderer.h"
+#include "shader_renderer/primitive_renderer.h"
+#include "shader_renderer/texture2D_renderer.h"
 #include "sys.h"
 #ifdef GAME
 #include "../fileIO/text.h"
@@ -13,9 +16,6 @@
 #include "scene/fight.h"
 #include "scene/options.h"
 #include "scene/scene.h"
-#include "shader_renderer/fighter_renderer.h"
-#include "shader_renderer/primitive_renderer.h"
-#include "shader_renderer/texture2D_renderer.h"
 #include "stage.h"
 
 #include <memory>
