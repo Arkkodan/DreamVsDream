@@ -6,12 +6,11 @@
 #include "scene/fight.h"
 #include "scene/options.h"
 #include "scene/scene.h"
+#include "shader_renderer/primitive_renderer.h"
 #include "stage.h"
 #include "sys.h"
 
 #include <cmath>
-
-#include <glad/glad.h>
 
 namespace game {
   constexpr auto HITSTUN = 14;
@@ -1307,15 +1306,12 @@ namespace game {
           1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF)) * 0.5 - 0.5;
     }
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glColor4f(0.0f, 0.0f, 0.0f, alpha);
-    glBegin(GL_QUADS);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glVertex3f(0.0f, sys::WINDOW_HEIGHT, 0.0f);
-    glVertex3f(sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0.0f);
-    glVertex3f(sys::WINDOW_WIDTH, 0.0f, 0.0f);
-    glEnd();
-    glColor4f(1, 1, 1, 1);
+    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, alpha);
+    renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
+                                            sys::WINDOW_HEIGHT, 0.0f);
+    renderer::PrimitiveRenderer::draw();
+
+    renderer::ShaderProgram::unuse();
 
     if (special > 2200 * sys::SPF) {
       float scalar = (special - 2200 * sys::SPF) / (300 * sys::SPF);

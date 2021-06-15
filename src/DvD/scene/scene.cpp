@@ -9,7 +9,7 @@
 #include "title.h"
 #include "versus.h"
 
-#include <glad/glad.h>
+#include "../shader_renderer/primitive_renderer.h"
 
 namespace scene {
   std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
@@ -67,18 +67,14 @@ bool scene::input(uint16_t in) {
 
 void scene::drawFade() {
   // Draw fade!
-  glBindTexture(GL_TEXTURE_2D, 0);
   if (fadeIn) {
-    glColor4f(0.0f, 0.0f, 0.0f, fade);
+    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, fade);
   }
   else {
-    glColor4f(0.0f, 0.0f, 0.0f, 1.0f - fade);
+    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, 1.0f - fade);
   }
-  glBegin(GL_QUADS);
-  glVertex3f(0.0f, 0.0f, 0.0f);
-  glVertex3f(0.0f, sys::WINDOW_HEIGHT, 0.0f);
-  glVertex3f(sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0.0f);
-  glVertex3f(sys::WINDOW_WIDTH, 0.0f, 0.0f);
-  glEnd();
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+  renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
+                                          sys::WINDOW_HEIGHT, 0.0f);
+  renderer::PrimitiveRenderer::draw();
+  renderer::ShaderProgram::unuse();
 }

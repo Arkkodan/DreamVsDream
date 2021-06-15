@@ -13,8 +13,6 @@
 
 #include <algorithm>
 
-#include <glad/glad.h>
-
 // SCENES
 scene::Scene::Scene(std::string name_) {
   // Copy the name.

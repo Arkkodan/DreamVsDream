@@ -9,10 +9,10 @@
 #include "../resource_manager.h"
 #include "../stage.h"
 #include "../sys.h"
+#include "../shader_renderer/primitive_renderer.h"
 
 #include <algorithm>
 
-#include <glad/glad.h>
 
 namespace {
   static constexpr auto STAGES_PER_ROW = 10;
@@ -483,7 +483,7 @@ void scene::Select::draw() const {
       fighter->sprites[0].atlas->draw(
           spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w,
           sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
-      glUseProgram(0);
+      renderer::ShaderProgram::unuse();
     }
   }
   if (cursors[0].lockState >= Cursor::CURSOR_COLORSWAP) {
@@ -498,7 +498,7 @@ void scene::Select::draw() const {
       fighter->sprites[0].atlas->draw(
           spr.atlas_sprite, 50 - spr.x,
           sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
-      glUseProgram(0);
+      renderer::ShaderProgram::unuse();
     }
   }
 
@@ -536,14 +536,11 @@ void scene::Select::draw() const {
   if (cursors[0].lockState == Cursor::CURSOR_LOCKED &&
       cursors[1].lockState == Cursor::CURSOR_LOCKED) {
     // Darken background
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
-    glBegin(GL_QUADS);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glVertex3f(0.0f, sys::WINDOW_HEIGHT, 0.0f);
-    glVertex3f(sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0.0f);
-    glVertex3f(sys::WINDOW_WIDTH, 0.0f, 0.0f);
-    glEnd();
+    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, 0.7f);
+    renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
+                                            sys::WINDOW_HEIGHT, 0.0f);
+    renderer::PrimitiveRenderer::draw();
+    renderer::ShaderProgram::unuse();
 
     // Draw the stage list
     constexpr auto STAGE_ICON_PADDING = 8;

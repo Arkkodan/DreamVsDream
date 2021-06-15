@@ -7,10 +7,9 @@
 #include "../graphics.h"
 #include "../network.h"
 #include "../resource_manager.h"
+#include "../shader_renderer/primitive_renderer.h"
 
 #include <cstring>
-
-#include <glad/glad.h>
 
 // NETPLAY
 #ifndef NO_NETWORK
@@ -551,15 +550,19 @@ void scene::Netplay::draw() const {
     } break;
     }
 
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glBegin(GL_QUADS);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
-    glVertex3f(sys::WINDOW_WIDTH, barPos, 0);
-    glVertex3f(0, barPos, 0);
-    glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
-    glVertex3f(0, barPos + NET_BAR_SIZE, 0);
-    glVertex3f(sys::WINDOW_WIDTH, barPos + NET_BAR_SIZE, 0);
-    glEnd();
+    renderer::PrimitiveRenderer::setColor(1.0f, 1.0f, 1.0f, 0.1f);
+    renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
+                                            barPos + NET_BAR_SIZE, barPos);
+    // TODO: Replace with a renderer that can do gradients:
+    // glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
+    // glVertex3f(sys::WINDOW_WIDTH, barPos, 0);
+    // glVertex3f(0, barPos, 0);
+    // glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
+    // glVertex3f(0, barPos + NET_BAR_SIZE, 0);
+    // glVertex3f(sys::WINDOW_WIDTH, barPos + NET_BAR_SIZE, 0);
+    renderer::PrimitiveRenderer::draw();
+
+    renderer::ShaderProgram::unuse();
 
     graphics::setRender(Image::Render::ADDITIVE);
     imgStatic.draw(-util::roll(sys::WINDOW_WIDTH),
@@ -583,14 +586,12 @@ void scene::Netplay::draw() const {
                          (float)(NET_FADE_TIME / speed);
     }
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glColor4f(1, 1, 1, alpha);
-    glBegin(GL_QUADS);
-    glVertex3f(sys::WINDOW_WIDTH / 2 - xoff, sys::WINDOW_HEIGHT / 2 - yoff, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 - xoff, sys::WINDOW_HEIGHT / 2 + yoff, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 + xoff, sys::WINDOW_HEIGHT / 2 + yoff, 0);
-    glVertex3f(sys::WINDOW_WIDTH / 2 + xoff, sys::WINDOW_HEIGHT / 2 - yoff, 0);
-    glEnd();
+    renderer::PrimitiveRenderer::setColor(1.0f, 1.0f, 1.0f, alpha);
+    renderer::PrimitiveRenderer::setPosRect(
+        sys::WINDOW_WIDTH / 2 - xoff, sys::WINDOW_WIDTH / 2 + xoff,
+        sys::WINDOW_HEIGHT / 2 + yoff, sys::WINDOW_HEIGHT / 2 - yoff);
+    renderer::PrimitiveRenderer::draw();
+    renderer::ShaderProgram::unuse();
   }
 }
 
