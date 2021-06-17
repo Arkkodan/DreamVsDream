@@ -11,6 +11,9 @@
 /// @details Uses Dream vs. Dream's font format
 class Font {
 public:
+  static void setScale(float xscale, float yscale = 0.0f);
+
+public:
   Font();
   // Font(std::string filename);
   ~Font();
@@ -27,16 +30,19 @@ public:
   void createFromFile(std::string filename);
   bool exists() const;
 
+  const Image *getcImage() const;
+
+private:
+  static float xscale;
+  static float yscale;
+
+private:
   Image img;
   std::array<uint16_t, 256> pos;
   std::array<char, 256> width;
 
   int mono;       // Size of monospace characters; 0 is variable width
   bool sensitive; // Case sensitive?
-
-  static float xscale;
-  static float yscale;
-  static void setScale(float xscale, float yscale = 0.0f);
 };
 
 #endif // DVD_FONT_H

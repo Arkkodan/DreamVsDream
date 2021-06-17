@@ -234,7 +234,7 @@ void scene::Title::draw() const {
         }
       }
 
-      unsigned int fontH = menuFont->img.getH();
+      unsigned int fontH = menuFont->getcImage()->getH();
       if (i == choice) {
         menuFont->drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer),
                            menuY + fontH * i, menuChoices[submenu]->at(i),

@@ -160,3 +160,5 @@ void Font::setScale(float _xscale, float _yscale) {
   xscale = _xscale;
   yscale = _yscale;
 }
+
+const Image *Font::getcImage() const { return &img; }

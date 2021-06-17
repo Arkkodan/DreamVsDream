@@ -52,7 +52,7 @@ void scene::Credits::draw() const {
   Scene::draw();
 
   if (!timer_start) {
-    unsigned int fontH = font->img.getH();
+    unsigned int fontH = font->getcImage()->getH();
     unsigned int logoH = logo.getH();
     if (done) {
       static std::string _sz = "Secret character unlocked!";
