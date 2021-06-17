@@ -19,8 +19,8 @@ namespace audio {
   public:
     Sound();
     ~Sound();
-    void play();
-    void play(float freq);
+    void play() const;
+    void play(float freq) const;
     void stop() const;
 
     bool playing() const;
@@ -30,6 +30,12 @@ namespace audio {
     bool exists() const;
     void destroy();
 
+    const std::vector<float> &getcrSamples() const;
+    unsigned int getSampleCount() const;
+    unsigned int getSampleRate() const;
+    int getChannelCount() const;
+
+  private:
     std::vector<float> samples;
     unsigned int c_samples;
     unsigned int sample_rate;
@@ -41,18 +47,23 @@ namespace audio {
   /// @brief Music wrapper class around Sound
   class Music {
   public:
+    static void stop();
+
+  public:
     Music();
     ~Music();
 
-    void play();
-
-    static void stop();
+    void play() const;
 
     void createFromFile(const std::string &szIntro, const std::string &szLoop);
     bool exists() const;
 
     bool isPlaying() const;
 
+    const Sound *getIntro() const;
+    const Sound *getLoop() const;
+
+  private:
     Sound intro;
     Sound loop;
   };

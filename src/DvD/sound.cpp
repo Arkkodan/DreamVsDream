@@ -26,13 +26,12 @@ namespace audio {
   static SDL_AudioSpec audioSpec;
   static bool enabled = false;
 
-  static Music *music = nullptr;
+  static const Music *music = nullptr;
 
 #ifndef NO_SOUND
 
-  class SoundSource {
-  public:
-    Sound *sound;
+  struct SoundSource {
+    const Sound *sound;
     double i_sample;
     float frequency;
 
@@ -43,29 +42,28 @@ namespace audio {
     }
   };
 
-  class SpeakerSource : public SoundSource {
-  public:
+  struct SpeakerSource : public SoundSource {
     Speaker *speaker;
 
     SpeakerSource() : SoundSource() { speaker = nullptr; }
   };
 
 #if 0
-	class MusicStream {
-	public:
-		SNDFILE* stream;
+  class MusicStream {
+  public:
+    SNDFILE *stream;
 
-		unsigned int c_samples;
-		unsigned int sample_rate;
-		int channels;
+    unsigned int c_samples;
+    unsigned int sample_rate;
+    int channels;
 
-		MusicStream() {
-			stream = nullptr;
-			c_samples = 0;
-			sample_rate = 0;
-			channels = 0;
-		}
-	};
+    MusicStream() {
+      stream = nullptr;
+      c_samples = 0;
+      sample_rate = 0;
+      channels = 0;
+    }
+  };
 #endif
 
   static SoundSource sound_sources[SOUND_SOURCE_MAX];
@@ -99,27 +97,29 @@ namespace audio {
       out[1] = 0.0f;
 
       if (music) {
-        Sound *sound;
+        const Sound *sound;
         if (music_is_loop) {
-          sound = &music->loop;
+          sound = music->getLoop();
         }
         else {
-          sound = &music->intro;
+          sound = music->getIntro();
         }
 
-        if (sound->channels == 1) {
-          out[0] = sound->samples[(int)i_music_sample] * music_volume;
-          out[1] = sound->samples[(int)i_music_sample] * music_volume;
+        int channels = sound->getChannelCount();
+        const auto &samples = sound->getcrSamples();
+        if (channels == 1) {
+          out[0] = samples[(int)i_music_sample] * music_volume;
+          out[1] = samples[(int)i_music_sample] * music_volume;
         }
-        else if (sound->channels == 2) {
-          out[0] = sound->samples[((int)i_music_sample) * 2] * music_volume;
-          out[1] = sound->samples[((int)i_music_sample) * 2 + 1] * music_volume;
+        else if (channels == 2) {
+          out[0] = samples[((int)i_music_sample) * 2] * music_volume;
+          out[1] = samples[((int)i_music_sample) * 2 + 1] * music_volume;
         }
 
         i_music_sample +=
-            (static_cast<double>(sound->sample_rate) / (float)SAMPLE_RATE) *
+            (static_cast<double>(sound->getSampleRate()) / (float)SAMPLE_RATE) *
             music_frequency;
-        if (i_music_sample >= sound->c_samples) {
+        if (i_music_sample >= sound->getSampleCount()) {
           if (sceneIndex == scene::SCENE_VERSUS) {
             music = nullptr;
           }
@@ -132,95 +132,91 @@ namespace audio {
 
       int stage = Stage::getStageIndex();
       for (int j = 0; j < SOUND_SOURCE_MAX; j++) {
-        Sound *sound = sound_sources[j].sound;
+        const Sound *sound = sound_sources[j].sound;
         if (sound) {
+          int channels = sound->getChannelCount();
+          const auto &samples = sound->getcrSamples();
           if (sceneIndex == scene::SCENE_FIGHT && stage == 3) {
-            if (sound->channels == 1) {
-              out[0] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] *
+            if (channels == 1) {
+              out[0] += samples[(int)sound_sources[j].i_sample / 8 * 8] *
                         sound_volume;
-              out[1] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] *
+              out[1] += samples[(int)sound_sources[j].i_sample / 8 * 8] *
                         sound_volume;
             }
-            else if (sound->channels == 2) {
-              out[0] +=
-                  sound->samples[((int)sound_sources[j].i_sample) / 8 * 8 * 2] *
-                  sound_volume;
+            else if (channels == 2) {
+              out[0] += samples[((int)sound_sources[j].i_sample) / 8 * 8 * 2] *
+                        sound_volume;
               out[1] +=
-                  sound->samples[((int)sound_sources[j].i_sample) / 8 * 8 * 2 +
-                                 1] *
+                  samples[((int)sound_sources[j].i_sample) / 8 * 8 * 2 + 1] *
                   sound_volume;
             }
           }
           else {
-            if (sound->channels == 1) {
-              out[0] +=
-                  sound->samples[(int)sound_sources[j].i_sample] * sound_volume;
-              out[1] +=
-                  sound->samples[(int)sound_sources[j].i_sample] * sound_volume;
+            if (channels == 1) {
+              out[0] += samples[(int)sound_sources[j].i_sample] * sound_volume;
+              out[1] += samples[(int)sound_sources[j].i_sample] * sound_volume;
             }
-            else if (sound->channels == 2) {
-              out[0] += sound->samples[((int)sound_sources[j].i_sample) * 2] *
+            else if (channels == 2) {
+              out[0] +=
+                  samples[((int)sound_sources[j].i_sample) * 2] * sound_volume;
+              out[1] += samples[((int)sound_sources[j].i_sample) * 2 + 1] *
                         sound_volume;
-              out[1] +=
-                  sound->samples[((int)sound_sources[j].i_sample) * 2 + 1] *
-                  sound_volume;
             }
           }
 
           // Increase sound buffer counters
           sound_sources[j].i_sample +=
-              (static_cast<double>(sound->sample_rate) / (float)SAMPLE_RATE) *
+              (static_cast<double>(sound->getSampleRate()) /
+               (float)SAMPLE_RATE) *
               sound_sources[j].frequency;
-          if (sound_sources[j].i_sample >= sound->c_samples) {
+          if (sound_sources[j].i_sample >= sound->getSampleCount()) {
             sound_sources[j].sound = nullptr;
           }
         }
       }
 
       for (int j = 0; j < SPEAKER_SOURCE_MAX; j++) {
-        Sound *sound = speaker_sources[j].sound;
+        const Sound *sound = speaker_sources[j].sound;
         if (sound) {
+          int channels = sound->getChannelCount();
+          const auto &samples = sound->getcrSamples();
           if (sceneIndex == scene::SCENE_FIGHT && stage == 3) {
-            if (sound->channels == 1) {
-              out[0] +=
-                  sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] *
-                  voice_volume;
-              out[1] +=
-                  sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] *
-                  voice_volume;
-            }
-            else if (sound->channels == 2) {
-              out[0] += sound->samples[((int)speaker_sources[j].i_sample) / 8 *
-                                       8 * 2] *
+            if (channels == 1) {
+              out[0] += samples[(int)speaker_sources[j].i_sample / 8 * 8] *
                         voice_volume;
+              out[1] += samples[(int)speaker_sources[j].i_sample / 8 * 8] *
+                        voice_volume;
+            }
+            else if (channels == 2) {
+              out[0] +=
+                  samples[((int)speaker_sources[j].i_sample) / 8 * 8 * 2] *
+                  voice_volume;
               out[1] +=
-                  sound
-                      ->samples[((int)speaker_sources[j].i_sample) / 8 * 8 * 2 +
-                                1] *
+                  samples[((int)speaker_sources[j].i_sample) / 8 * 8 * 2 + 1] *
                   voice_volume;
             }
           }
           else {
-            if (sound->channels == 1) {
-              out[0] += sound->samples[(int)speaker_sources[j].i_sample] *
-                        voice_volume;
-              out[1] += sound->samples[(int)speaker_sources[j].i_sample] *
-                        voice_volume;
-            }
-            else if (sound->channels == 2) {
-              out[0] += sound->samples[((int)speaker_sources[j].i_sample) * 2] *
-                        voice_volume;
+            if (channels == 1) {
+              out[0] +=
+                  samples[(int)speaker_sources[j].i_sample] * voice_volume;
               out[1] +=
-                  sound->samples[((int)speaker_sources[j].i_sample) * 2 + 1] *
-                  voice_volume;
+                  samples[(int)speaker_sources[j].i_sample] * voice_volume;
+            }
+            else if (channels == 2) {
+              out[0] += samples[((int)speaker_sources[j].i_sample) * 2] *
+                        voice_volume;
+              out[1] += samples[((int)speaker_sources[j].i_sample) * 2 + 1] *
+                        voice_volume;
             }
           }
 
           // Increase sound buffer counters
           speaker_sources[j].i_sample +=
-              (static_cast<double>(sound->sample_rate) / (float)SAMPLE_RATE) *
+              (static_cast<double>(sound->getSampleRate()) /
+               (float)SAMPLE_RATE) *
               speaker_sources[j].frequency;
-          if (speaker_sources[j].i_sample >= sound->c_samples) {
+          if (speaker_sources[j].i_sample >= sound->getSampleCount()) {
             speaker_sources[j].sound = nullptr;
           }
         }
@@ -282,9 +278,9 @@ namespace audio {
 
   Sound::~Sound() {}
 
-  void Sound::play() { play(1.0f); }
+  void Sound::play() const { play(1.0f); }
 
-  void Sound::play(float freq) {
+  void Sound::play(float freq) const {
 #ifndef NO_SOUND
     for (int i = 0; i < SOUND_SOURCE_MAX; i++) {
       if (!sound_sources[i].sound) {
@@ -371,6 +367,11 @@ namespace audio {
     }
 #endif
   }
+
+  const std::vector<float> &Sound::getcrSamples() const { return samples; }
+  unsigned int Sound::getSampleCount() const { return c_samples; }
+  unsigned int Sound::getSampleRate() const { return sample_rate; }
+  int Sound::getChannelCount() const { return channels; }
 
   /*
    * CREATE FROM EMBED
@@ -483,52 +484,54 @@ namespace audio {
 
   Music::~Music() {}
 
-  void Music::play() {
+  void Music::play() const {
 #ifndef NO_SOUND
     music = nullptr;
     if (enabled) {
 #if 0
-			if(stream_intro.stream) {
-				sf_close(stream_intro.stream);
-				stream_intro.stream = nullptr;
-			}
-			if(stream_loop.stream) {
-				sf_close(stream_loop.stream);
-				stream_loop.stream = nullptr;
-			}
+      if (stream_intro.stream) {
+        sf_close(stream_intro.stream);
+        stream_intro.stream = nullptr;
+      }
+      if (stream_loop.stream) {
+        sf_close(stream_loop.stream);
+        stream_loop.stream = nullptr;
+      }
 
-			music_loop = true;
-			music_end = false;
+      music_loop = true;
+      music_end = false;
 
-			//Open stream
-			SF_INFO _info;
-			//memset(&_info, 0, sizeof(_info));
+      // Open stream
+      SF_INFO _info;
+      // memset(&_info, 0, sizeof(_info));
 
-			if(fileExists(intro)) {
-				FILE* _fp = FOPEN(intro, "rb");
-				if(_fp) {
-					stream_intro.stream = sf_open_fd(fileno(_fp), SFM_READ, &_info, SF_TRUE);
-					if(stream_intro.stream) {
-						stream_intro.c_samples = _info.frames;
-						stream_intro.sample_rate = _info.samplerate;
-						stream_intro.channels = _info.channels;
+      if (fileExists(intro)) {
+        FILE *_fp = FOPEN(intro, "rb");
+        if (_fp) {
+          stream_intro.stream =
+              sf_open_fd(fileno(_fp), SFM_READ, &_info, SF_TRUE);
+          if (stream_intro.stream) {
+            stream_intro.c_samples = _info.frames;
+            stream_intro.sample_rate = _info.samplerate;
+            stream_intro.channels = _info.channels;
 
-						music_loop = false;
-					}
-				}
-			}
+            music_loop = false;
+          }
+        }
+      }
 
-			if(fileExists(loop)) {
-				FILE* _fp = FOPEN(loop, "rb");
-				if(_fp) {
-					stream_loop.stream = sf_open_fd(fileno(_fp), SFM_READ, &_info, SF_TRUE);
-					if(stream_loop.stream) {
-						stream_loop.c_samples = _info.frames;
-						stream_loop.sample_rate = _info.samplerate;
-						stream_loop.channels = _info.channels;
-					}
-				}
-			}
+      if (fileExists(loop)) {
+        FILE *_fp = FOPEN(loop, "rb");
+        if (_fp) {
+          stream_loop.stream =
+              sf_open_fd(fileno(_fp), SFM_READ, &_info, SF_TRUE);
+          if (stream_loop.stream) {
+            stream_loop.c_samples = _info.frames;
+            stream_loop.sample_rate = _info.samplerate;
+            stream_loop.channels = _info.channels;
+          }
+        }
+      }
 #endif
 
       music_is_loop = true;
@@ -569,21 +572,20 @@ namespace audio {
 
   bool Music::isPlaying() const { return music == this; }
 
+  const Sound *Music::getIntro() const { return &intro; }
+  const Sound *Music::getLoop() const { return &loop; }
+
   // Voice
 #if 0
-	Voice::Voice() {
-	}
+  Voice::Voice() {}
 
-	Voice::~Voice() {
-	}
+  Voice::~Voice() {}
 
-	void Voice::createFromFile(const char* filename) {
-		sound.createFromFile(filename);
-	}
+  void Voice::createFromFile(const char *filename) {
+    sound.createFromFile(filename);
+  }
 
-	bool Voice::exists() {
-		return sound.exists();
-	}
+  bool Voice::exists() { return sound.exists(); }
 #endif
 
   // Speaker
