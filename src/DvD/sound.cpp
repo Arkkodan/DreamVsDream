@@ -99,10 +99,10 @@ namespace audio {
       if (music) {
         const Sound *sound;
         if (music_is_loop) {
-          sound = music->getLoop();
+          sound = music->getcLoop();
         }
         else {
-          sound = music->getIntro();
+          sound = music->getcIntro();
         }
 
         int channels = sound->getChannelCount();
@@ -572,8 +572,8 @@ namespace audio {
 
   bool Music::isPlaying() const { return music == this; }
 
-  const Sound *Music::getIntro() const { return &intro; }
-  const Sound *Music::getLoop() const { return &loop; }
+  const Sound *Music::getcIntro() const { return &intro; }
+  const Sound *Music::getcLoop() const { return &loop; }
 
   // Voice
 #if 0

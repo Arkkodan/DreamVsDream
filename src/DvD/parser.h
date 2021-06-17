@@ -9,9 +9,6 @@
 struct ParserLine {
   static constexpr auto ARGV_SIZE = 32;
 
-  ParserLine();
-  ~ParserLine();
-
   bool group;
   int argc;
   std::array<std::string, ARGV_SIZE> argv;

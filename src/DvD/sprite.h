@@ -43,9 +43,6 @@ namespace sprite {
     int size;
     std::vector<HitBox> boxes;
 
-    HitBoxGroup();
-    ~HitBoxGroup();
-
     void init(int size);
 
 #ifdef SPRTOOL

@@ -303,13 +303,6 @@ namespace sprite {
   const HitBoxGroup &Sprite::getcrAHitBoxes() const { return aHitBoxes; }
   HitBoxGroup &Sprite::getrAHitBoxes() { return aHitBoxes; }
 
-  HitBoxGroup::HitBoxGroup() {
-    size = 0;
-    boxes.clear();
-  }
-
-  HitBoxGroup::~HitBoxGroup() {}
-
   void HitBoxGroup::init(int size) {
     this->size = size;
     if (size) {

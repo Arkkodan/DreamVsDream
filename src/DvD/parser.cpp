@@ -7,13 +7,6 @@
 #include <algorithm>
 #include <cstring>
 
-ParserLine::ParserLine() : argv() {
-  group = false;
-  argc = 0;
-}
-
-ParserLine::~ParserLine() {}
-
 bool Parser::open(std::string szFileName) {
   lines.clear();
   iLine = -1;

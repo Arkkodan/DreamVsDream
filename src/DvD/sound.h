@@ -60,8 +60,8 @@ namespace audio {
 
     bool isPlaying() const;
 
-    const Sound *getIntro() const;
-    const Sound *getLoop() const;
+    const Sound *getcIntro() const;
+    const Sound *getcLoop() const;
 
   private:
     Sound intro;
