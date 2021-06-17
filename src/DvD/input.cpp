@@ -79,15 +79,15 @@ namespace input {
 
         if (key_config[i] == key) {
           if (isConnected) {
-            net::getMyPlayer()->frameInput |= (1 << i);
+            net::getMyPlayer()->setFrameInputOR(1 << i);
           }
           else {
             if (i < static_cast<int>(KEY_1_MAX)) {
-              scene::Fight::madotsuki.frameInput |= (1 << i);
+              scene::Fight::madotsuki.setFrameInputOR(1 << i);
             }
             else {
-              scene::Fight::poniko.frameInput |=
-                  (1 << (i - static_cast<int>(KEY_1_MAX)));
+              scene::Fight::poniko.setFrameInputOR(
+                  1 << (i - static_cast<int>(KEY_1_MAX)));
             }
           }
           return;
@@ -116,17 +116,17 @@ namespace input {
 
         if (key_config[i] == key) {
           if (isConnected) {
-            net::getMyPlayer()->frameInput |= (1 << i << game::INPUT_RELSHIFT);
+            net::getMyPlayer()->setFrameInputOR(1 << i << game::INPUT_RELSHIFT);
           }
           else {
             if (i < static_cast<int>(KEY_1_MAX)) {
-              scene::Fight::madotsuki.frameInput |=
-                  (1 << i << game::INPUT_RELSHIFT);
+              scene::Fight::madotsuki.setFrameInputOR(
+                  1 << i << game::INPUT_RELSHIFT);
             }
             else {
-              scene::Fight::poniko.frameInput |=
-                  (1 << (i - static_cast<int>(KEY_1_MAX))
-                     << game::INPUT_RELSHIFT);
+              scene::Fight::poniko.setFrameInputOR(
+                  1 << (i - static_cast<int>(KEY_1_MAX))
+                    << game::INPUT_RELSHIFT);
             }
           }
           return;

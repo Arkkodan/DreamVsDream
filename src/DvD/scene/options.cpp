@@ -213,20 +213,22 @@ void scene::Options::think() {
         }
         break;
 
-      case OPTION_VOICE_VOLUME:
+      case OPTION_VOICE_VOLUME: {
+        const audio::Speaker &speaker = Fight::madotsuki.getcrSpeaker();
         if (input(game::INPUT_LEFT)) {
           if (optionVoiceVolume > 0) {
             optionVoiceVolume -= 10;
           }
-          Fight::madotsuki.speaker.play(dame);
+          speaker.play(dame);
         }
         else {
           if (optionVoiceVolume < 100) {
             optionVoiceVolume += 10;
           }
-          Fight::madotsuki.speaker.play(muri);
+          speaker.play(muri);
         }
         break;
+      }
 
       case OPTION_EPILEPSY:
         if (input(game::INPUT_LEFT | game::INPUT_RIGHT)) {

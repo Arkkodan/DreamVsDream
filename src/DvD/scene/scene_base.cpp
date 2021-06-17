@@ -134,7 +134,7 @@ void scene::Scene::think() {
     }
 
     // Always disable controls during fades
-    Fight::madotsuki.frameInput = 0;
+    Fight::madotsuki.setFrameInput(0);
     //}
   }
 }

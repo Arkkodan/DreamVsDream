@@ -75,6 +75,49 @@ namespace game {
   /// @details Extended by Player
   class Projectile {
   public:
+    Projectile();
+
+    // Virtual
+    virtual void think();
+    virtual void interact(Projectile *other);
+    virtual void advanceFrame();
+    virtual void handleFrame(uint8_t command = 0);
+    virtual void shootProjectile();
+    virtual void draw() const;
+
+    // Non-virtual
+    void setState(int state);
+    void setStandardState(unsigned int sstate);
+    void playSound(int id) const;
+    void say(int id) const;
+
+    // Read from step memory
+    int8_t readByte();
+    int16_t readWord();
+    int32_t readDword();
+    float readFloat();
+    std::string readString();
+
+    bool isMirrored() const;
+
+    bool inStandardState(unsigned int sstate) const;
+    virtual bool isPlayer() const;
+
+    int getPalette() const;
+    void setPalette(int palette);
+    const Fighter *getcFighter() const;
+    void setFighter(Fighter *fighter);
+    const util::Vectorf &getcrPos() const;
+    void setPos(float x, float y);
+    void setVel(float x, float y);
+    void setDirection(char dir);
+    uint32_t getFlags() const;
+    void setFlags(uint32_t flags);
+    unsigned int getState() const;
+    unsigned int getDrawPriorityFrame() const;
+    void setFlash(float flash);
+
+  protected:
     int palette;
     Fighter *fighter;
 
@@ -115,34 +158,6 @@ namespace game {
 
     // Flash intensity
     float flash;
-
-    Projectile();
-
-    // Virtual
-    virtual void think();
-    virtual void interact(Projectile *other);
-    virtual void advanceFrame();
-    virtual void handleFrame(uint8_t command = 0);
-    virtual void shootProjectile();
-    virtual void draw() const;
-
-    // Non-virtual
-    void setState(int state);
-    void setStandardState(unsigned int sstate);
-    void playSound(int id) const;
-    void say(int id) const;
-
-    // Read from step memory
-    int8_t readByte();
-    int16_t readWord();
-    int32_t readDword();
-    float readFloat();
-    std::string readString();
-
-    bool isMirrored() const;
-
-    bool inStandardState(unsigned int sstate) const;
-    virtual bool isPlayer() const;
   };
 
   constexpr auto MAX_PROJECTILES = 128;
@@ -151,6 +166,72 @@ namespace game {
   /// @details Do not confuse with Fighter
   class Player : public Projectile {
   public:
+    Player();
+    ~Player();
+
+    void reset(); // Resets back to beginning-of-round state
+
+    void think() override final;
+    void advanceFrame() override final;
+    void handleFrame(uint8_t command = 0) override final;
+    void shootProjectile() override final;
+    void applyInput();
+    void handleInput();
+    void draw(bool shadow) const;
+    void drawSpecial() const;
+
+    void takeDamage(float damage);
+
+    bool executeCommand(int cmd);
+    // void executeFrame(StateFrame* sf, bool mine);
+
+    void becomeIdle();
+
+    bool isAttacking() const;
+    bool isDashing() const;
+    bool isIdle() const;
+    bool isBeingHit() const;
+    bool isInBlock() const;
+    bool isKnockedBack() const;
+    bool isKnockedProne() const;
+    bool isKnocked() const;
+
+    bool isStanding() const;
+    bool isCrouching() const;
+    bool isJumping() const;
+    bool isBlocking() const;
+
+    int getMaxHp() const;
+
+    void setStateByInput(int state);
+    void setStandardStateByInput(unsigned int sstate);
+
+    bool isPlayer() const override final;
+
+    static bool keycmp(uint16_t key1, uint16_t key2, bool generic);
+    static uint16_t flipInput(uint16_t in);
+
+    void setPlayerNumber(char playerNum);
+    const audio::Speaker &getcrSpeaker() const;
+    audio::Speaker &getrSpeaker();
+    int getComboCounter() const;
+    void setComboCounter(int comboCounter);
+    uint16_t getFrameInput() const;
+    void setFrameInput(uint16_t frameInput);
+    void setFrameInputOR(uint16_t input);
+    InputBuff *getNetBufferAt(int index);
+    int getNetBufferCounter() const;
+    void setNetBufferCounter(int netBuffCounter);
+    float getJuggle() const;
+    void setJuggle(float juggle);
+    void setHitStun(int hitstun);
+    void setPauseStun(int pausestun);
+    void setCancelCount(int nCancels);
+    int getHp() const;
+    int getSuper() const;
+    Projectile *getProjectileAt(int index);
+
+  private:
     char playerNum;
 
     audio::Speaker speaker;
@@ -189,52 +270,6 @@ namespace game {
     // Projectiles
     std::array<Projectile, MAX_PROJECTILES> projectiles;
     int projectileId;
-
-    Player();
-    ~Player();
-
-    void reset(); // Resets back to beginning-of-round state
-
-    void think();
-    void advanceFrame();
-    void handleFrame(uint8_t command = 0);
-    void shootProjectile();
-    void applyInput();
-    void handleInput();
-    void draw(bool shadow) const;
-    void drawSpecial() const;
-
-    void takeDamage(float damage);
-
-    bool executeCommand(int cmd);
-    // void executeFrame(StateFrame* sf, bool mine);
-
-    void becomeIdle();
-
-    bool isAttacking() const;
-    bool isDashing() const;
-    bool isIdle() const;
-    bool isBeingHit() const;
-    bool isInBlock() const;
-    bool isKnockedBack() const;
-    bool isKnockedProne() const;
-    bool isKnocked() const;
-
-    bool isStanding() const;
-    bool isCrouching() const;
-    bool isJumping() const;
-    bool isBlocking() const;
-
-    int getMaxHp() const;
-
-    void setDir(char _dir);
-
-    void setStateByInput(int state);
-    void setStandardStateByInput(unsigned int sstate);
-
-    static bool keycmp(uint16_t key1, uint16_t key2, bool generic);
-    static uint16_t flipInput(uint16_t in);
-    bool isPlayer() const;
   };
 #endif // COMPILER
 } // namespace game

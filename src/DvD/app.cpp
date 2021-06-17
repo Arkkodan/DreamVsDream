@@ -47,11 +47,11 @@ namespace app {
 void app::run() {
   app::init();
 
-  scene::Fight::madotsuki.playerNum = 0;
-  scene::Fight::madotsuki.speaker.init();
+  scene::Fight::madotsuki.setPlayerNumber(0);
+  scene::Fight::madotsuki.getrSpeaker().init();
 
-  scene::Fight::poniko.playerNum = 1;
-  scene::Fight::poniko.speaker.init();
+  scene::Fight::poniko.setPlayerNumber(1);
+  scene::Fight::poniko.getrSpeaker().init();
 
   for (;;) {
     sys::refresh();

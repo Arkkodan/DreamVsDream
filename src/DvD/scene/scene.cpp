@@ -74,7 +74,8 @@ void scene::setScene(int _scene) {
 }
 
 bool scene::input(uint16_t in) {
-  return (Fight::madotsuki.frameInput & in) || (Fight::poniko.frameInput & in);
+  return (Fight::madotsuki.getFrameInput() & in) ||
+         (Fight::poniko.getFrameInput() & in);
 }
 
 void scene::drawFade() {

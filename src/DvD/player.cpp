@@ -303,7 +303,7 @@ namespace game {
     if (isPlayer()) {
       flags |= F_GRAVITY;
       flags &= ~F_MIRROR;
-      ((Player *)this)->nCancels = 0;
+      dynamic_cast<Player *>(this)->setCancelCount(0);
     }
 
     // Advance frame
@@ -341,7 +341,7 @@ namespace game {
     // Randomize on < 50% chance
     const VoiceGroup *vg = fighter->getcVoiceGroupAt(id);
     if (util::roll(100) < vg->pct) {
-      p->speaker.play(
+      p->getcrSpeaker().play(
           &vg->voices[util::roll(vg->size)] /*, fighter->voices[id].pct < 30*/);
     }
   }
@@ -351,6 +351,28 @@ namespace game {
   }
 
   bool Projectile::isPlayer() const { return false; }
+
+  int Projectile::getPalette() const { return palette; }
+  void Projectile::setPalette(int palette) { this->palette = palette; }
+  const Fighter *Projectile::getcFighter() const { return fighter; }
+  void Projectile::setFighter(Fighter *fighter) { this->fighter = fighter; }
+  const util::Vectorf &Projectile::getcrPos() const { return pos; }
+  void Projectile::setPos(float x, float y) {
+    pos.x = x;
+    pos.y = y;
+  }
+  void Projectile::setVel(float x, float y) {
+    vel.x = x;
+    vel.y = y;
+  }
+  void Projectile::setDirection(char dir) { this->dir = dir; }
+  uint32_t Projectile::getFlags() const { return flags; }
+  void Projectile::setFlags(uint32_t flags) { this->flags = flags; }
+  unsigned int Projectile::getState() const { return state; }
+  unsigned int Projectile::getDrawPriorityFrame() const {
+    return drawPriorityFrame;
+  }
+  void Projectile::setFlash(float flash) { this->flash = flash; }
 
   Player::Player()
       : Projectile(), playerNum(0), nInputs(0), frameInput(0), input(0),
@@ -807,7 +829,7 @@ namespace game {
 
       // Think projectiles
       for (int i = 0; i < MAX_PROJECTILES; i++) {
-        if (projectiles[i].state != STATE_NONE) {
+        if (projectiles[i].getState() != STATE_NONE) {
           projectiles[i].think();
         }
       }
@@ -990,15 +1012,14 @@ namespace game {
       hotspot.x = hitBoxes.boxes[0].pos.x + hitBoxes.boxes[0].size.x / 2;
       hotspot.y = hitBoxes.boxes[0].pos.y + hitBoxes.boxes[0].size.y / 2;
 
-      projectiles[projectileId].palette = palette;
-      projectiles[projectileId].fighter = fighter;
-      projectiles[projectileId].vel.x = shoot.force.x * mirror2;
-      projectiles[projectileId].vel.y = shoot.force.y;
-      projectiles[projectileId].pos.x = pos.x + hotspot.x * mirror1;
-      projectiles[projectileId].pos.y = pos.y + hotspot.y;
-      projectiles[projectileId].flags = F_VISIBLE;
-      projectiles[projectileId].dir = dir;
-      projectiles[projectileId].flash = 0.0f;
+      projectiles[projectileId].setPalette(palette);
+      projectiles[projectileId].setFighter(fighter);
+      projectiles[projectileId].setVel(shoot.force.x * mirror2, shoot.force.y);
+      projectiles[projectileId].setPos(pos.x + hotspot.x * mirror1,
+                                       pos.y + hotspot.y);
+      projectiles[projectileId].setFlags(F_VISIBLE);
+      projectiles[projectileId].setDirection(dir);
+      projectiles[projectileId].setFlash(0.0f);
       projectiles[projectileId].setState(shoot.state);
       if (++projectileId >= MAX_PROJECTILES) {
         projectileId = 0;
@@ -1110,16 +1131,16 @@ namespace game {
                 pother->setStandardState(STATE_BLOCK);
               }
 
-              pother->hitstun = BLOCKSTUN;
+              pother->setHitStun(BLOCKSTUN);
 
               pother->takeDamage(attack.damage * CHIP_DAMAGE_SCALAR);
             }
             else {
               if (pself) {
-                pself->comboCounter++;
+                pself->setComboCounter(pself->getComboCounter() + 1);
               }
 
-              pother->pausestun = 0;
+              pother->setPauseStun(0);
 
               if (spark != "none")
                 effect::newEffect(spark, colpos.x, colpos.y, true, dir == LEFT,
@@ -1135,13 +1156,14 @@ namespace game {
                 pother->flags |= F_KNOCKDOWN;
               }
 
+              float o_juggle = pother->getJuggle();
               if ((!(pother->flags & F_ON_GROUND) ||
                    (pother->flags & (F_OTG | F_DEAD))) &&
                   attack.vY == 0) {
-                pother->vel.y = (attack.vY + JUGGLE) * pother->juggle;
+                pother->vel.y = (attack.vY + JUGGLE) * o_juggle;
               }
               else if (attack.vY > 0) {
-                pother->vel.y = attack.vY * pother->juggle;
+                pother->vel.y = attack.vY * o_juggle;
               }
               else {
                 pother->vel.y = attack.vY;
@@ -1191,17 +1213,17 @@ namespace game {
               }
 
               if (stunOther) {
-                pother->pausestun = stunOther;
+                pother->setPauseStun(stunOther);
               }
               if (pother->flags & F_ON_GROUND) {
-                pother->hitstun = HITSTUN;
+                pother->setHitStun(HITSTUN);
               }
               else {
-                pother->hitstun = JHITSTUN;
-                if (pother->juggle > JUGGLE_MIN) {
-                  pother->juggle -= JUGGLE_DEC;
-                  if (pother->juggle < JUGGLE_MIN) {
-                    pother->juggle = JUGGLE_MIN;
+                pother->setHitStun(JHITSTUN);
+                if (pother->getJuggle() > JUGGLE_MIN) {
+                  pother->setJuggle(pother->getJuggle() - JUGGLE_DEC);
+                  if (pother->getJuggle() < JUGGLE_MIN) {
+                    pother->setJuggle(JUGGLE_MIN);
                   }
                 }
               }
@@ -1306,7 +1328,7 @@ namespace game {
 
       // Check combo counter
       if (!pother->isBeingHit()) {
-        pself->comboCounter = 0;
+        pself->setComboCounter(0);
       }
     }
   }
@@ -1692,12 +1714,6 @@ namespace game {
     return dir == LEFT;
   }
 
-  void Player::setDir(char _dir) {
-    if (dir != _dir) {
-      dir = _dir;
-    }
-  }
-
   void Player::setStateByInput(int state) {
     if (Player::isAttacking()) {
       // Only set the state if this is on the list of cancels
@@ -1754,4 +1770,30 @@ namespace game {
   }
 
   bool Player::isPlayer() const { return true; }
+
+  void Player::setPlayerNumber(char playerNum) { this->playerNum = playerNum; }
+  const audio::Speaker &Player::getcrSpeaker() const { return speaker; }
+  audio::Speaker &Player::getrSpeaker() { return speaker; }
+  int Player::getComboCounter() const { return comboCounter; }
+  void Player::setComboCounter(int comboCounter) {
+    this->comboCounter = comboCounter;
+  }
+  uint16_t Player::getFrameInput() const { return frameInput; }
+  void Player::setFrameInput(uint16_t frameInput) {
+    this->frameInput = frameInput;
+  }
+  void Player::setFrameInputOR(uint16_t input) { this->frameInput |= input; }
+  InputBuff *Player::getNetBufferAt(int index) { return &netBuff[index]; }
+  int Player::getNetBufferCounter() const { return netBuffCounter; }
+  void Player::setNetBufferCounter(int netBuffCounter) {
+    this->netBuffCounter = netBuffCounter;
+  }
+  float Player::getJuggle() const { return juggle; }
+  void Player::setJuggle(float juggle) { this->juggle = juggle; }
+  void Player::setHitStun(int hitstun) { this->hitstun = hitstun; }
+  void Player::setPauseStun(int pausestun) { this->pausestun = pausestun; }
+  void Player::setCancelCount(int nCancels) { this->nCancels = nCancels; }
+  int Player::getHp() const { return hp; }
+  int Player::getSuper() const { return super; }
+  Projectile *Player::getProjectileAt(int index) { return &projectiles[index]; }
 } // namespace game

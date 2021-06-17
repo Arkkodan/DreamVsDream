@@ -149,8 +149,9 @@ namespace effect {
     int y1 = y - frame->getH() / 2;
 
     if (parent) {
-      x1 += parent->pos.x;
-      y1 += parent->pos.y;
+      const util::Vectorf &pos = parent->getcrPos();
+      x1 += pos.x;
+      y1 += pos.y;
     }
 
     graphics::setRender(Image::Render::ADDITIVE);

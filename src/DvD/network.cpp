@@ -227,11 +227,13 @@ namespace net {
               if (i * 16 + 32 >= size) {
                 break;
               }
-              p->netBuff[p->netBuffCounter].frame = netframe - i;
-              p->netBuff[p->netBuffCounter].input =
-                  *(uint16_t *)(buff + 32 + i * 16);
-              if (++p->netBuffCounter >= game::NETBUFF_SIZE) {
-                p->netBuffCounter = 0;
+              int netBuffCounter = p->getNetBufferCounter();
+              game::InputBuff *netBuff = p->getNetBufferAt(netBuffCounter);
+              netBuff->frame = netframe - i;
+              netBuff->input = *(uint16_t *)(buff + 32 + i * 16);
+              p->setNetBufferCounter(++netBuffCounter);
+              if (netBuffCounter >= game::NETBUFF_SIZE) {
+                p->setNetBufferCounter(0);
               }
             }
             netMutex.unlock();
@@ -250,14 +252,15 @@ namespace net {
 
             netMutex.lock();
             for (int i = 0; i < game::NETBUFF_SIZE; i++) {
-              if (p->netBuff[i].frame == netframe) {
+              const game::InputBuff *netBuff = p->getNetBufferAt(i);
+              if (netBuff->frame == netframe) {
                 // Send this guy back
                 uint8_t buffer2[256];
                 *buffer2 = PACKET_UPDATE;
                 uint8_t *buff2 = buffer2 + 1;
 
                 *(uint32_t *)buff2 = netframe;
-                *(uint16_t *)(buff2 + 32) = p->netBuff[i].input;
+                *(uint16_t *)(buff2 + 32) = netBuff->input;
                 send(buffer2, 32 + 16 + 1);
               }
             }
@@ -302,8 +305,9 @@ namespace net {
       // First, load this input up into our net buffer
       game::Player *p = getMyPlayer();
       game::Player *py = getYourPlayer();
-      game::InputBuff *nb = &p->netBuff[p->netBuffCounter];
-      nb->input = p->frameInput;
+      int p_netBuffCounter = p->getNetBufferCounter();
+      game::InputBuff *nb = p->getNetBufferAt(p_netBuffCounter);
+      nb->input = p->getFrameInput();
       nb->frame = frame + inputDelay;
 
       // Construct and send a packet with the last inputDelay inputs
@@ -313,30 +317,34 @@ namespace net {
       *(uint32_t *)buff = frame + inputDelay;
 
       int i = 0;
-      int j = p->netBuffCounter;
+      int j = p_netBuffCounter;
       for (; i < INPUT_SEND_COUNT; i++) {
-        if (!p->netBuff[j].frame) {
+        const game::InputBuff *netBuff = p->getNetBufferAt(j);
+        if (!netBuff->frame) {
           break;
         }
-        *(uint16_t *)(buff + 32 + i * 16) = p->netBuff[j].input;
+        *(uint16_t *)(buff + 32 + i * 16) = netBuff->input;
         if (--j < 0) {
           j = game::NETBUFF_SIZE - 1;
         }
       }
       send(buffer, 32 + 16 * i + 1);
 
-      if (++p->netBuffCounter >= game::NETBUFF_SIZE) {
-        p->netBuffCounter = 0;
+      p->setNetBufferCounter(++p_netBuffCounter);
+      if (p_netBuffCounter >= game::NETBUFF_SIZE) {
+        p->setNetBufferCounter(0);
+        p_netBuffCounter = 0;
       }
 
       // Clear out the buffers
-      p->frameInput = 0;
-      py->frameInput = 0;
+      p->setFrameInput(0);
+      py->setFrameInput(0);
 
       // Get inputs for current frame
       for (i = 0; i < game::NETBUFF_SIZE; i++) {
-        if (p->netBuff[i].frame == frame) {
-          p->frameInput = p->netBuff[i].input;
+        const game::InputBuff *netBuff = p->getNetBufferAt(i);
+        if (netBuff->frame == frame) {
+          p->setFrameInput(netBuff->input);
         }
       }
 
@@ -348,9 +356,10 @@ namespace net {
       timer = timeout = sys::getTime();
       while (!haveInput && frame > 20) {
         for (i = 0; i < game::NETBUFF_SIZE; i++) {
-          if (py->netBuff[i].frame == frame) {
+          const game::InputBuff *netBuff = py->getNetBufferAt(i);
+          if (netBuff->frame == frame) {
             haveInput = true;
-            py->frameInput = py->netBuff[i].input;
+            py->setFrameInput(netBuff->input);
           }
         }
         // If we don't have input, send a request for it every half second.
