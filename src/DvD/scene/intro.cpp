@@ -34,7 +34,7 @@ void scene::Intro::think() {
     if (!timer && state % 2 == 1) {
       timer = sys::FPS / 2;
       state++;
-      if (state == 6 && graphics::shader_support) {
+      if (state == 6 && graphics::hasShaderSupport()) {
         timer = 0;
         setScene(SCENE_TITLE);
       }
@@ -65,7 +65,7 @@ void scene::Intro::draw() const {
     renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
     disclaimer_ja.draw<renderer::Texture2DRenderer>(0, 0);
   }
-  else if (state < 8 && !graphics::shader_support) {
+  else if (state < 8 && !graphics::hasShaderSupport()) {
     renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
     shader_error.draw<renderer::Texture2DRenderer>(0, 0);
   }

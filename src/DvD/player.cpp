@@ -3,6 +3,7 @@
 #include "../util/rng.h"
 #include "effect.h"
 #include "graphics.h"
+#include "resource_manager.h"
 #include "scene/fight.h"
 #include "scene/options.h"
 #include "scene/scene.h"
@@ -14,28 +15,61 @@
 #include <cmath>
 
 namespace game {
-  constexpr auto HITSTUN = 14;
-  constexpr auto JHITSTUN = 26;
-  constexpr auto BLOCKSTUN = 14;
-  constexpr auto TECHSTUN = 14;
+  static constexpr auto HITSTUN = 14;
+  static constexpr auto JHITSTUN = 26;
+  static constexpr auto BLOCKSTUN = 14;
+  static constexpr auto TECHSTUN = 14;
 
-  constexpr auto CHIP_DAMAGE_SCALAR = 0.1f;
-  constexpr auto JUGGLE = 10;
-  constexpr auto JUGGLE_MIN = 0.1f;
-  constexpr auto JUGGLE_DEC = 0.05f;
-  constexpr auto GRAVITY = 1.0f;
+  static constexpr auto CHIP_DAMAGE_SCALAR = 0.1f;
+  static constexpr auto JUGGLE = 10;
+  static constexpr auto JUGGLE_MIN = 0.1f;
+  static constexpr auto JUGGLE_DEC = 0.05f;
+  static constexpr auto GRAVITY = 1.0f;
 
-  constexpr auto FRICTION = 1.0f;
-  constexpr auto PAUSE_AMPLITUDE = 2;
-  constexpr auto BOUNCE_VELOCITY = 5;
-  constexpr auto FORCE_GROUND_CAP = 10;
+  static constexpr auto FRICTION = 1.0f;
+  static constexpr auto PAUSE_AMPLITUDE = 2;
+  static constexpr auto BOUNCE_VELOCITY = 5;
+  static constexpr auto FORCE_GROUND_CAP = 10;
 
-  constexpr auto TECH_FORCE_X = 2;
-  constexpr auto TECH_FORCE_Y = 5;
-  constexpr auto TECH_GROUND_FORCE_X = 5;
-  constexpr auto TECH_GROUND_FORCE_Y = 10;
+  static constexpr auto TECH_FORCE_X = 2;
+  static constexpr auto TECH_FORCE_Y = 5;
+  static constexpr auto TECH_GROUND_FORCE_X = 5;
+  static constexpr auto TECH_GROUND_FORCE_Y = 10;
 
-  constexpr auto STAGE_BUFFER = 10;
+  static constexpr auto STAGE_BUFFER = 10;
+
+  static audio::Sound *sndTransformYn = nullptr;
+  static audio::Sound *sndTransform2kki = nullptr;
+  static audio::Sound *sndTransformFlow = nullptr;
+
+  static std::vector<audio::Sound *> deleteSoundVector;
+
+  void initTransformSounds() {
+    if (!(sndTransformYn = resource_manager::getResource<audio::Sound>(
+              "Transform_yn.wav"))) {
+      sndTransformYn = new audio::Sound;
+      sndTransformYn->createFromFile("effects/Transform_yn.wav");
+      deleteSoundVector.push_back(sndTransformYn);
+    }
+    if (!(sndTransform2kki = resource_manager::getResource<audio::Sound>(
+              "Transform_2kki.wav"))) {
+      sndTransform2kki = new audio::Sound;
+      sndTransform2kki->createFromFile("effects/Transform_2kki.wav");
+      deleteSoundVector.push_back(sndTransform2kki);
+    }
+    if (!(sndTransformFlow = resource_manager::getResource<audio::Sound>(
+              "Transform_flow.wav"))) {
+      sndTransformFlow = new audio::Sound;
+      sndTransformFlow->createFromFile("effects/Transform_flow.wav");
+      deleteSoundVector.push_back(sndTransformFlow);
+    }
+  }
+
+  void deinitTransformSounds() {
+    for (const auto *item : deleteSoundVector) {
+      delete item;
+    }
+  }
 
   Projectile::Projectile()
       : palette(0), fighter(nullptr), pos(0, 0), vel(0, 0), dir(RIGHT),
@@ -121,7 +155,7 @@ namespace game {
       type = readByte();
       if (type == 'A') {
         // Set the draw priority frame
-        drawPriorityFrame = sys::frame;
+        drawPriorityFrame = sys::getFrame();
       }
       movetype = readByte();
       // if(type == 'A')
@@ -384,13 +418,13 @@ namespace game {
     input &= ~((frameInput & INPUT_RELMASK) >> INPUT_RELSHIFT);
 
     // Adjust buffered input
-    if (dir == LEFT && scene::scene == scene::SCENE_FIGHT) {
+    if (dir == LEFT && scene::getSceneIndex() == scene::SCENE_FIGHT) {
       frameInput = flipInput(frameInput);
     }
 
     if (frameInput) {
       inputs[nInputs].input = frameInput;
-      inputs[nInputs].frame = sys::frame;
+      inputs[nInputs].frame = sys::getFrame();
       // Adjust queue if necessary
       if (++nInputs >= INBUFF_SIZE) {
         // Move the input queue back one, then add it
@@ -409,13 +443,18 @@ namespace game {
       input = flipInput(this->input);
     }
 
-    if (scene::scene == scene::SCENE_FIGHT) {
+    if (scene::getSceneIndex() == scene::SCENE_FIGHT && FIGHT) {
       if (FIGHT->timer_round_in || FIGHT->timer_round_out || FIGHT->timer_ko ||
           FIGHT->ko_player) {
         return;
       }
     }
 
+    if (!fighter) {
+      return;
+    }
+
+    unsigned int sysFrame = sys::getFrame();
     if (flags & F_CTRL) {
       // PROCESS COMMANDS
       bool executed = false;
@@ -504,7 +543,7 @@ namespace game {
                 if (keycmp(inputs[j].input, fighter->commands[i].combo[c],
                            fighter->commands[i].generic & (1 << c))) {
                   if (!c) {
-                    if (sys::frame - inputs[j].frame < 15) {
+                    if (sysFrame - inputs[j].frame < 15) {
                       equal = true;
                     }
                     break;
@@ -556,8 +595,7 @@ namespace game {
     // See if a key was pressed within the last 3 frames
     bool press = false;
     for (int i = 0; i < nInputs; i++) {
-      if (sys::frame - inputs[i].frame <= 3 &&
-          inputs[i].input & INPUT_KEYMASK) {
+      if (sysFrame - inputs[i].frame <= 3 && inputs[i].input & INPUT_KEYMASK) {
         press = true;
         break;
       }
@@ -986,7 +1024,7 @@ namespace game {
 
         if (hit == sprite::HIT_HIT) {
           // Automatically reset draw priority
-          drawPriorityFrame = sys::frame;
+          drawPriorityFrame = sys::getFrame();
 
           frameHit = true;
           if (attack.cancel && pself) {
@@ -1274,7 +1312,7 @@ namespace game {
         pct = 0.5f;
       }
       else {
-        if (sys::frame % 3 == 0) {
+        if (sys::getFrame() % 3 == 0) {
           pct = 0.9f;
         }
       }

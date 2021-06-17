@@ -57,9 +57,8 @@ namespace sys {
   uint64_t getHiResTime();
   uint64_t getHiResFrequency();
 
-  extern unsigned int frame;
-
-  extern SDL_Window *window;
+  unsigned int getFrame();
+  SDL_Window *getWindow();
 #endif // COMPILER
 } // namespace sys
 

@@ -46,7 +46,7 @@ namespace scene {
   private:
     static std::vector<std::string> menuChoicesMain;
     static std::vector<std::string> menuChoicesVersus;
-    static std::array<std::vector<std::string> *, TM_MAX> menuChoices;
+    static const std::array<std::vector<std::string> *, TM_MAX> menuChoices;
     static const std::array<int, TM_MAX> menuChoicesMax;
 
   public:

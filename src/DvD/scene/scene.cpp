@@ -12,18 +12,30 @@
 #include "../shader_renderer/primitive_renderer.h"
 
 namespace scene {
-  std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
-  int scene;
-  int sceneNew;
+  static std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
+  static int scene;
+  static int sceneNew;
 
-  Image imgLoading;
+  static Image imgLoading;
 
   // Static stuff
-  float fade = 1.0f;
-  bool fadeIn = true;
+  static float fade = 1.0f;
+  static bool fadeIn = true;
 } // namespace scene
 
 scene::Scene *scene::getScene() { return scenes[scene].get(); }
+int scene::getSceneIndex() { return scene; }
+void scene::setIMSceneIndex(int index) { scene = index; }
+int scene::getSceneNewIndex() { return sceneNew; }
+scene::Scene *scene::getSceneFromIndex(int index) {
+  return scenes[index].get();
+}
+
+Image *scene::getLoadingImage() { return &imgLoading; }
+
+float &scene::getrFade() { return fade; }
+bool scene::isFadeIn() { return fadeIn; }
+void scene::setFadeIn(bool fi) { fadeIn = fi; }
 
 void scene::ginit() {
   scenes[SCENE_INTRO] = std::make_unique<Intro>();

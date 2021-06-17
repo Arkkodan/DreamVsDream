@@ -27,16 +27,16 @@
 #endif
 
 namespace app {
-  constexpr auto OPTIONS_VERSION = 0;
+  static constexpr auto OPTIONS_VERSION = 0;
 
-  std::string szConfigPath;
+  static std::string szConfigPath;
 
-  bool disable_shaders = false;
-  bool disable_sound = false;
-  int max_texture_size = 0;
-  bool versus = false;
-  bool fullscreen = false;
-  int input_delay = 0;
+  static bool disable_shaders = false;
+  static bool disable_sound = false;
+  static int max_texture_size = 0;
+  static bool versus = false;
+  static bool fullscreen = false;
+  static int input_delay = 0;
 
   static void optionsLoad();
   static void optionsSave();
@@ -146,9 +146,10 @@ static void app::init() {
 
   sys::init();
   graphics::init(disable_shaders, max_texture_size);
-  scene::imgLoading.createFromFile("scenes/loading.png");
-  scene::imgLoading.draw<renderer::Texture2DRenderer>(0, 0);
-  scene::scene = scene::SCENE_INTRO;
+  Image *imgLoading = scene::getLoadingImage();
+  imgLoading->createFromFile("scenes/loading.png");
+  imgLoading->draw<renderer::Texture2DRenderer>(0, 0);
+  scene::setIMSceneIndex(scene::SCENE_INTRO);
   sys::refresh();
 
   input::init();
@@ -167,7 +168,7 @@ static void app::init() {
   // if(fullscreen)
   // OS::toggleFullscreen();
 
-  if (scene::scene == scene::SCENE_FIGHT && Stage::stage == -1) {
+  if (scene::getSceneIndex() == scene::SCENE_FIGHT && Stage::stage == -1) {
     Stage::stage = 0;
   }
 }
@@ -186,3 +187,5 @@ static void app::deinit() {
 
   optionsSave();
 }
+
+std::string app::getConfigPath() { return szConfigPath; }

@@ -28,36 +28,39 @@ namespace net {
     NETSTATE_LISTEN,
   };
 
-  constexpr auto PACKET_BUFF_SIZE = 256;
+  static constexpr auto PACKET_BUFF_SIZE = 256;
 
-  volatile bool enabled = false;
-  volatile bool running = false;
-  volatile bool connected = false;
-  volatile bool halt = false;
+  static volatile bool enabled = false;
+  static volatile bool running = false;
+  static volatile bool connected = false;
+  static volatile bool halt = false;
+
+  volatile bool isRunning() { return running; }
+  volatile bool isConnected() { return connected; }
 
 #ifndef NO_NETWORK
-  Thread netThread;
-  Mutex netMutex;
+  static Thread netThread;
+  static Mutex netMutex;
 
   // File descriptors
-  int sock = 0;
+  static int sock = 0;
 #ifndef _WIN32
-  fd_set sock_set;
-  int sock_pipe[2];
+  static fd_set sock_set;
+  static int sock_pipe[2];
 #endif
 
-  socklen_t slen = sizeof(sockaddr_in);
-  volatile char mode = MODE_NONE;
-  uint32_t cl_ip = 0;
-  uint16_t port = DEFAULT_PORT;
+  static socklen_t slen = sizeof(sockaddr_in);
+  static volatile char mode = MODE_NONE;
+  static uint32_t cl_ip = 0;
+  static uint16_t port = DEFAULT_PORT;
 
-  int inputDelay = 0;
-  int force_input_delay = 0;
-  volatile uint32_t frame = 0;
+  static int inputDelay = 0;
+  static int force_input_delay = 0;
+  static volatile uint32_t frame = 0;
 
-  sockaddr_in me, you, temp;
+  static sockaddr_in me, you, temp;
 
-  std::string neterror = "";
+  static std::string neterror = "";
 
 #define th_return \
   {               \
@@ -213,8 +216,8 @@ namespace net {
           // Update input information
           case PACKET_UPDATE: {
             // Copy every input into the netbuff. There will be redundancy, but
-            // that's not too bad considering the problems this will prevent from
-            // packet loss.
+            // that's not too bad considering the problems this will prevent
+            // from packet loss.
             uint32_t netframe = *((uint32_t *)buff);
             netMutex.lock();
             for (int i = 0; i < INPUT_SEND_COUNT; i++) {

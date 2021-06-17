@@ -31,16 +31,18 @@ namespace graphics {
   void setPalette(const renderer::Texture2D &palette, float alpha, float r,
                   float g, float b, float pct);
 
-  // Immutable stuff
-  extern unsigned int max_texture_size;
-  // extern bool force_POT;
-  extern bool shader_support;
+  Image::Render getRender();
 
-  extern Image::Render render;
-  extern int srcX, srcY, srcW, srcH;
-  extern float xscale, yscale;
-  extern unsigned int shader;
-  extern unsigned int palette;
+  int &getrSourceX();
+  int &getrSourceY();
+  int &getrSourceW();
+  int &getrSourceH();
+
+  float &getrXScale();
+  float &getrYScale();
+
+  unsigned int getMaxTextureSize();
+  bool hasShaderSupport();
 } // namespace graphics
 
 #endif // COMPILER

@@ -11,8 +11,8 @@ extern int frame;
 extern int anim;
 
 namespace input {
-  util::Vector screenOffset;
-  util::Vector screenSize;
+  static util::Vector screenOffset;
+  static util::Vector screenSize;
 
   void resize(int w, int h) {
     if (h == 0) {
@@ -43,18 +43,25 @@ namespace input {
     glMatrixMode(GL_MODELVIEW);
   }
 
-  bool blackBG = true;
+  static bool blackBG = true;
 
-  util::Vector mousePos;
-  bool mouse1Down = false;
-  sprite::HitBox *selectBox = nullptr;
-  bool selectBoxAttack = false;
-  util::Vector selectBoxOffset;
+  static util::Vector mousePos;
+  static bool mouse1Down = false;
+  static sprite::HitBox *selectBox = nullptr;
+  static bool selectBoxAttack = false;
+  static util::Vector selectBoxOffset;
 
-  bool selectAll = false;
+  static bool selectAll = false;
 
-  bool copyBoxes = false;
-  int copyFrame = -1;
+  static bool copyBoxes = false;
+  static int copyFrame = -1;
+
+  bool isBlackBG() { return blackBG; }
+
+  sprite::HitBox *getSelectBox() { return selectBox; }
+  bool isSelectBoxAttack() { return selectBoxAttack; }
+
+  bool isSelectAll() { return selectAll; }
 
   void moveAll(int x, int y) {
     for (int i = 0; i < fighter.sprites[frame].hitBoxes.size; i++) {

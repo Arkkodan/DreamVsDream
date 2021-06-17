@@ -18,15 +18,15 @@
 #endif
 
 namespace audio {
-  constexpr auto SAMPLE_RATE = 44100;
+  static constexpr auto SAMPLE_RATE = 44100;
 
-  constexpr auto SOUND_SOURCE_MAX = 64;
-  constexpr auto SPEAKER_SOURCE_MAX = 8;
+  static constexpr auto SOUND_SOURCE_MAX = 64;
+  static constexpr auto SPEAKER_SOURCE_MAX = 8;
 
-  SDL_AudioSpec audioSpec;
-  bool enabled = false;
+  static SDL_AudioSpec audioSpec;
+  static bool enabled = false;
 
-  Music *music = nullptr;
+  static Music *music = nullptr;
 
 #ifndef NO_SOUND
 
@@ -76,7 +76,7 @@ namespace audio {
   // static float music_samples[MUSIC_BUFFER_SIZE];
   static double i_music_sample = 0;
   static bool music_is_loop = false;
-  float music_frequency = 1.0f;
+  static float music_frequency = 1.0f;
   // static bool music_end = false;
 
   // static MusicStream stream_intro;
@@ -91,6 +91,8 @@ namespace audio {
 
     float *out = (float *)stream;
     unsigned int size = _size / 4 / audioSpec.channels;
+
+    int sceneIndex = scene::getSceneIndex();
 
     for (unsigned int i = 0; i < size; i++) {
       out[0] = 0.0f;
@@ -118,7 +120,7 @@ namespace audio {
             (static_cast<double>(sound->sample_rate) / (float)SAMPLE_RATE) *
             music_frequency;
         if (i_music_sample >= sound->c_samples) {
-          if (scene::scene == scene::SCENE_VERSUS) {
+          if (sceneIndex == scene::SCENE_VERSUS) {
             music = nullptr;
           }
           else {
@@ -131,7 +133,7 @@ namespace audio {
       for (int j = 0; j < SOUND_SOURCE_MAX; j++) {
         Sound *sound = sound_sources[j].sound;
         if (sound) {
-          if (scene::scene == scene::SCENE_FIGHT && Stage::stage == 3) {
+          if (sceneIndex == scene::SCENE_FIGHT && Stage::stage == 3) {
             if (sound->channels == 1) {
               out[0] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] *
                         sound_volume;
@@ -177,7 +179,7 @@ namespace audio {
       for (int j = 0; j < SPEAKER_SOURCE_MAX; j++) {
         Sound *sound = speaker_sources[j].sound;
         if (sound) {
-          if (scene::scene == scene::SCENE_FIGHT && Stage::stage == 3) {
+          if (sceneIndex == scene::SCENE_FIGHT && Stage::stage == 3) {
             if (sound->channels == 1) {
               out[0] +=
                   sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] *
@@ -259,7 +261,7 @@ namespace audio {
 
   void refresh() {
 #ifndef NO_SOUND
-    if (scene::scene == scene::SCENE_FIGHT && Stage::stage == 3) {
+    if (scene::getSceneIndex() == scene::SCENE_FIGHT && Stage::stage == 3) {
       float amplitude = FIGHT->round * 0.1;
       music_frequency = 1.0f + util::rollf() * amplitude - amplitude / 2;
     }

@@ -21,7 +21,7 @@ std::vector<std::string> scene::Title::menuChoicesVersus = {
     "Versus Player", "Versus CPU", "Tag Team", "2v2 Team", "Return",
 };
 
-std::array<std::vector<std::string> *, scene::Title::TM_MAX>
+const std::array<std::vector<std::string> *, scene::Title::TM_MAX>
     scene::Title::menuChoices = {
         &menuChoicesMain,
         &menuChoicesVersus,

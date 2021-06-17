@@ -5,48 +5,22 @@
 #include "error.h"
 #include "file.h"
 #include "graphics.h"
-#include "resource_manager.h"
+#include "player.h"
 #include "shader_renderer/fighter_renderer.h"
 #endif // GAME
 
 namespace game {
 
 #ifdef GAME
-  audio::Sound *sndTransformYn = nullptr;
-  audio::Sound *sndTransform2kki = nullptr;
-  audio::Sound *sndTransformFlow = nullptr;
 
-  static std::vector<audio::Sound *> deleteSoundVector;
+  void init() { initTransformSounds(); }
 
-  void init() {
-    if (!(sndTransformYn = resource_manager::getResource<audio::Sound>(
-              "Transform_yn.wav"))) {
-      sndTransformYn = new audio::Sound;
-      sndTransformYn->createFromFile("effects/Transform_yn.wav");
-      deleteSoundVector.push_back(sndTransformYn);
-    }
-    if (!(sndTransform2kki = resource_manager::getResource<audio::Sound>(
-              "Transform_2kki.wav"))) {
-      sndTransform2kki = new audio::Sound;
-      sndTransform2kki->createFromFile("effects/Transform_2kki.wav");
-      deleteSoundVector.push_back(sndTransform2kki);
-    }
-    if (!(sndTransformFlow = resource_manager::getResource<audio::Sound>(
-              "Transform_flow.wav"))) {
-      sndTransformFlow = new audio::Sound;
-      sndTransformFlow->createFromFile("effects/Transform_flow.wav");
-      deleteSoundVector.push_back(sndTransformFlow);
-    }
-  }
-
-  void deinit() {
-    for (const auto *item : deleteSoundVector) {
-      delete item;
-    }
-  }
+  void deinit() { deinitTransformSounds(); }
 
   // Load/create a fighter
   void Fighter::create(std::string name_) {
+    bool shader_support = graphics::hasShaderSupport();
+
     name = std::move(name_);
 
     // Get that file opened
@@ -67,7 +41,7 @@ namespace game {
     nPalettes = file.readByte();
 
     // Read palettes
-    if (graphics::shader_support) {
+    if (shader_support) {
       palettes.resize(nPalettes * 2);
     }
     else {
@@ -106,7 +80,7 @@ namespace game {
       file.read(pal + 3, 255 * 3);
 
       // Make data a palette
-      if (graphics::shader_support) {
+      if (shader_support) {
         palettes[i].bindData(256, 1, GL_RGB, GL_UNSIGNED_BYTE, pal);
       }
     }
@@ -135,8 +109,7 @@ namespace game {
         sprites[i].aHitBoxes.boxes[j].size.y = file.readWord();
       }
     }
-    atlas_sprites.create(file,
-                         graphics::shader_support ? nullptr : palette_first);
+    atlas_sprites.create(file, shader_support ? nullptr : palette_first);
 
     // Read sounds
     nSounds = file.readWord();
@@ -197,8 +170,7 @@ namespace game {
     portrait.createFromEmbed(file, nullptr);
     special.createFromEmbed(file, nullptr);
     ender.createFromEmbed(file, nullptr);
-    portrait_ui.createFromEmbed(file, graphics::shader_support ? nullptr
-                                                               : palette_first);
+    portrait_ui.createFromEmbed(file, shader_support ? nullptr : palette_first);
   }
 #endif
 
@@ -215,7 +187,7 @@ namespace game {
 
   Fighter::~Fighter() {
 #ifdef GAME
-    if (graphics::shader_support) {
+    if (graphics::hasShaderSupport()) {
       palettes.clear();
     }
 #endif
@@ -226,7 +198,7 @@ namespace game {
   void Fighter::draw(int sprite, int x, int y, bool mirror, float scale,
                      unsigned int palette, float alpha, float r, float g,
                      float b, float pct) const {
-    if (graphics::shader_support) {
+    if (graphics::hasShaderSupport()) {
       graphics::setPalette(palettes[palette], alpha, r, g, b, pct);
       sprites[sprite].draw(x, y, mirror, scale);
       renderer::ShaderProgram::unuse();
@@ -246,7 +218,7 @@ namespace game {
   }
 
   void Fighter::drawShadow(int sprite, int x, bool mirror, float scale) const {
-    if (graphics::shader_support) {
+    if (graphics::hasShaderSupport()) {
       graphics::setPalette(palettes.front(), 0.5f, 0.0f, 0.0f, 0.0f, 1.0f);
       sprites[sprite].drawShadow(x, mirror, scale);
       renderer::ShaderProgram::unuse();

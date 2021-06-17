@@ -62,6 +62,9 @@ namespace game {
   constexpr auto SUPER_MAX = 1000;
   constexpr auto SUPER_DEFAULT = SUPER_MAX * 0.20;
 
+  void initTransformSounds();
+  void deinitTransformSounds();
+
   /// @brief Data structure containing information about an input
   class InputBuff {
   public:

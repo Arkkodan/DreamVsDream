@@ -397,13 +397,14 @@ void Image::createFromMemory(const uint8_t *data_, unsigned int width_,
 
   // Is the image smaller than the greatest texture size? Find the minimum size
   // that we need to resize it to.
-  if (width_ < graphics::max_texture_size) {
+  unsigned int max_texture_size = graphics::getMaxTextureSize();
+  if (width_ < max_texture_size) {
     width_ = 1;
     while (width_ < w) {
       width_ *= 2;
     }
   }
-  if (height_ < graphics::max_texture_size) {
+  if (height_ < max_texture_size) {
     height_ = 1;
     while (height_ < h) {
       height_ *= 2;
@@ -411,12 +412,12 @@ void Image::createFromMemory(const uint8_t *data_, unsigned int width_,
   }
 
   // What's the number of textures we need horizontally and vertically?
-  w_textures = width_ / graphics::max_texture_size;
-  h_textures = height_ / graphics::max_texture_size;
-  if (width_ % graphics::max_texture_size) {
+  w_textures = width_ / max_texture_size;
+  h_textures = height_ / max_texture_size;
+  if (width_ % max_texture_size) {
     w_textures++;
   }
-  if (height_ % graphics::max_texture_size) {
+  if (height_ % max_texture_size) {
     h_textures++;
   }
 
@@ -424,13 +425,13 @@ void Image::createFromMemory(const uint8_t *data_, unsigned int width_,
     w_subtexture = width_;
   }
   else {
-    w_subtexture = graphics::max_texture_size;
+    w_subtexture = max_texture_size;
   }
   if (h_textures == 1) {
     h_subtexture = height_;
   }
   else {
-    h_subtexture = graphics::max_texture_size;
+    h_subtexture = max_texture_size;
   }
 
   // Create the buffer for the texture IDs and fill it
@@ -463,63 +464,70 @@ void Image::createFromMemory(const uint8_t *data_, unsigned int width_,
 }
 
 template <typename T> void Image::draw(int x, int y, bool mirror) const {
-  if (!graphics::srcW || !graphics::srcH) {
-    graphics::srcW = w;
-    graphics::srcH = h;
+  int &srcX = graphics::getrSourceX();
+  int &srcY = graphics::getrSourceY();
+  int &srcW = graphics::getrSourceW();
+  int &srcH = graphics::getrSourceH();
+  if (!srcW || !srcH) {
+    srcW = w;
+    srcH = h;
   }
 
   // Set correct render mode
-  if (graphics::render == Render::ADDITIVE ||
-      graphics::render == Render::SUBTRACTIVE) {
+  Image::Render render = graphics::getRender();
+  if (render == Render::ADDITIVE || render == Render::SUBTRACTIVE) {
     glBlendFunc(GL_ONE, GL_ONE);
-    if (graphics::render == Render::ADDITIVE) {
+    if (render == Render::ADDITIVE) {
       glBlendEquation(GL_FUNC_ADD);
     }
-    else if (graphics::render == Render::SUBTRACTIVE) {
+    else if (render == Render::SUBTRACTIVE) {
       glBlendEquation(GL_FUNC_SUBTRACT);
     }
   }
-  else if (graphics::render == Render::MULTIPLY) {
+  else if (render == Render::MULTIPLY) {
     glBlendFunc(GL_ZERO, GL_SRC_COLOR);
   }
 
   // How many textures does this thing span?
-  int _x1_tex = graphics::srcX / w_subtexture;
-  int _y1_tex = graphics::srcY / h_subtexture;
-  int _x2_tex = (graphics::srcX + graphics::srcW - 1) / w_subtexture;
-  int _y2_tex = (graphics::srcY + graphics::srcH - 1) / h_subtexture;
+  int _x1_tex = srcX / w_subtexture;
+  int _y1_tex = srcY / h_subtexture;
+  int _x2_tex = (srcX + srcW - 1) / w_subtexture;
+  int _y2_tex = (srcY + srcH - 1) / h_subtexture;
 
   float u1, v1, u2, v2, x1, y1, x2, y2;
 
-  int _x_offset = w_subtexture - graphics::srcX % w_subtexture;
-  int _y_offset = h_subtexture - graphics::srcY % h_subtexture;
+  int _x_offset = w_subtexture - srcX % w_subtexture;
+  int _y_offset = h_subtexture - srcY % h_subtexture;
+
+  float &xscale = graphics::getrXScale();
+  float &yscale = graphics::getrYScale();
 
   for (int v = _y1_tex; v <= _y2_tex; v++) {
     for (int u = _x1_tex; u <= _x2_tex; u++) {
       T::setTexture2D(textures[v * w_textures + u], 0);
 
       if (u == _x1_tex) {
-        u1 = (float)(graphics::srcX % w_subtexture) / (float)w_subtexture;
+        u1 = (float)(srcX % w_subtexture) / (float)w_subtexture;
       }
       else {
         u1 = 0.0f;
       }
       if (v == _y1_tex) {
-        v1 = (float)(graphics::srcY % h_subtexture) / (float)h_subtexture;
+        v1 = (float)(srcY % h_subtexture) / (float)h_subtexture;
       }
       else {
         v1 = 0.0f;
       }
       if (u == _x2_tex) {
-        u2 = (float)((graphics::srcX + graphics::srcW - 1) % w_subtexture + 1) /
-             (float)w_subtexture;
+        u2 =
+            (float)((srcX + srcW - 1) % w_subtexture + 1) / (float)w_subtexture;
       }
       else {
         u2 = 1.0f;
       }
       if (v == _y2_tex) {
-        v2 = (float)((graphics::srcY + graphics::srcH - 1) % h_subtexture + 1) /
-             (float)h_subtexture;
+        v2 =
+            (float)((srcY + srcH - 1) % h_subtexture + 1) / (float)h_subtexture;
       }
       else {
         v2 = 1.0f;
@@ -534,8 +542,7 @@ template <typename T> void Image::draw(int x, int y, bool mirror) const {
 
       // X1
       if (u > _x1_tex) {
-        x1 = x +
-             (_x_offset + (u - _x1_tex - 1) * w_subtexture) * graphics::xscale;
+        x1 = x + (_x_offset + (u - _x1_tex - 1) * w_subtexture) * xscale;
       }
       else {
         x1 = x;
@@ -543,8 +550,7 @@ template <typename T> void Image::draw(int x, int y, bool mirror) const {
 
       // Y1
       if (v > _y1_tex) {
-        y1 = y +
-             (_y_offset + (v - _y1_tex - 1) * h_subtexture) * graphics::yscale;
+        y1 = y + (_y_offset + (v - _y1_tex - 1) * h_subtexture) * yscale;
       }
       else {
         y1 = y;
@@ -552,29 +558,29 @@ template <typename T> void Image::draw(int x, int y, bool mirror) const {
 
       // X2
       if (u == _x2_tex) {
-        x2 = x + graphics::srcW * graphics::xscale;
+        x2 = x + srcW * xscale;
       }
       else if (u == _x1_tex) {
-        x2 = x + _x_offset * graphics::xscale;
+        x2 = x + _x_offset * xscale;
       }
       else {
-        x2 = x1 + w_subtexture * graphics::xscale;
+        x2 = x1 + w_subtexture * xscale;
       }
 
       // Y2
       if (v == _y2_tex) {
-        y2 = y + graphics::srcH * graphics::yscale;
+        y2 = y + srcH * yscale;
       }
       else if (v == _y1_tex) {
-        y2 = y + _y_offset * graphics::yscale;
+        y2 = y + _y_offset * yscale;
       }
       else {
-        y2 = y1 + h_subtexture * graphics::yscale;
+        y2 = y1 + h_subtexture * yscale;
       }
 
       if (mirror) {
         float _width = x2 - x1;
-        x1 = x + graphics::srcW * graphics::xscale - (x1 - x) - _width;
+        x1 = x + srcW * xscale - (x1 - x) - _width;
         x2 = x1 + _width;
       }
 
@@ -588,9 +594,9 @@ template <typename T> void Image::draw(int x, int y, bool mirror) const {
   // Reset stuff
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   T::resetColor();
-  graphics::srcX = graphics::srcY = graphics::srcW = graphics::srcH = 0;
-  graphics::xscale = graphics::yscale = 1.0f;
-  graphics::render = Render::NORMAL;
+  srcX = srcY = srcW = srcH = 0;
+  xscale = yscale = 1.0f;
+  graphics::setRender(Render::NORMAL);
 }
 template void Image::draw<renderer::Texture2DRenderer>(int x, int y,
                                                        bool mirror) const;
@@ -598,16 +604,18 @@ template void Image::draw<renderer::FighterRenderer>(int x, int y,
                                                      bool mirror) const;
 
 template <typename T> void Image::drawSprite(int x, int y, bool mirror) const {
-  if (!graphics::srcW || !graphics::srcH) {
-    graphics::srcW = w;
-    graphics::srcH = h;
+  int &srcW = graphics::getrSourceW();
+  int &srcH = graphics::getrSourceH();
+  float &yscale = graphics::getrYScale();
+  if (!srcW || !srcH) {
+    srcW = w;
+    srcH = h;
   }
 #ifdef SPRTOOL
-  draw<T>(x + sys::WINDOW_WIDTH / 2,
-          sys::FLIP(y) - graphics::srcH * graphics::yscale, mirror);
+  draw<T>(x + sys::WINDOW_WIDTH / 2, sys::FLIP(y) - srcH * yscale, mirror);
 #else  // !SPRTOOL
   draw<T>(x + sys::WINDOW_WIDTH / 2 - scene::Fight::cameraPos.x,
-          sys::FLIP(y) - graphics::srcH * graphics::yscale - STAGE->height +
+          sys::FLIP(y) - srcH * yscale - STAGE->height +
               scene::Fight::cameraPos.y,
           mirror);
 #endif // SPRTOOL

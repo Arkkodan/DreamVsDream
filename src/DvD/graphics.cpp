@@ -32,23 +32,35 @@
 #endif // SHOW_FPS
 
 namespace graphics {
-  constexpr auto FPS_BUFFER = 2;
+  static constexpr auto FPS_BUFFER = 2;
 
   // State options
-  Image::Render render = Image::Render::NORMAL;
+  static Image::Render render = Image::Render::NORMAL;
 
-  int srcX = 0;
-  int srcY = 0;
-  int srcW = 0;
-  int srcH = 0;
+  static int srcX = 0;
+  static int srcY = 0;
+  static int srcW = 0;
+  static int srcH = 0;
 
-  float xscale = 1.0f;
-  float yscale = 1.0f;
+  static float xscale = 1.0f;
+  static float yscale = 1.0f;
 
   // Immutable stuff
-  unsigned int max_texture_size = 0;
-  bool force_POT = false;
-  bool shader_support = false;
+  static unsigned int max_texture_size = 0;
+  static bool shader_support = false;
+
+  Image::Render getRender() { return render; }
+
+  int &getrSourceX() { return srcX; }
+  int &getrSourceY() { return srcY; }
+  int &getrSourceW() { return srcW; }
+  int &getrSourceH() { return srcH; }
+
+  float &getrXScale() { return xscale; }
+  float &getrYScale() { return yscale; }
+
+  unsigned int getMaxTextureSize() { return max_texture_size; }
+  bool hasShaderSupport() { return shader_support; }
 
 #ifdef EXACT_60_FPS
 #define timer_t uint64_t
@@ -56,13 +68,13 @@ namespace graphics {
 #define timer_t unsigned long
 #endif // EXACT_60_FPS
   // Timer stuff
-  timer_t time = 0;
+  static timer_t time = 0;
 
 #ifdef SHOW_FPS
-  constexpr auto FPS_COUNTER_SIZE = 64;
-  timer_t tickValues[FPS_COUNTER_SIZE] = {0};
-  timer_t tickSum = 0;
-  unsigned int tickIndex = 0;
+  static constexpr auto FPS_COUNTER_SIZE = 64;
+  static timer_t tickValues[FPS_COUNTER_SIZE] = {0};
+  static timer_t tickSum = 0;
+  static unsigned int tickIndex = 0;
 #endif // SHOW_FPS
 #undef timer_t
 
@@ -142,8 +154,8 @@ namespace graphics {
 #endif
   }
 
-  int pixel = 2;
-  int shift = 0;
+  static int pixel = 2;
+  static int shift = 0;
 
   void refresh() {
 #ifdef GAME

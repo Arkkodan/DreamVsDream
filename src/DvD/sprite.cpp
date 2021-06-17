@@ -187,17 +187,18 @@ namespace sprite {
     atlas->drawSprite(atlas_sprite, _x, _y, mirror);
 #else
     img.drawSprite<renderer::Texture2DRenderer>(_x, _y, mirror);
+    bool selectAll = input::isSelectAll();
+    const auto *selectBox = input::getSelectBox();
+    bool selectBoxAttack = input::isSelectBoxAttack();
     for (int i = 0; i < hitBoxes.size; i++) {
-      hitBoxes.boxes[i].draw(x2, y2, false,
-                             input::selectAll ||
-                                 ((&hitBoxes.boxes[i] == input::selectBox) &&
-                                  !input::selectBoxAttack));
+      hitBoxes.boxes[i].draw(
+          x2, y2, false,
+          selectAll || ((&hitBoxes.boxes[i] == selectBox) && !selectBoxAttack));
     }
     for (int i = 0; i < aHitBoxes.size; i++) {
-      aHitBoxes.boxes[i].draw(x2, y2, true,
-                              input::selectAll ||
-                                  ((&aHitBoxes.boxes[i] == input::selectBox) &&
-                                   input::selectBoxAttack));
+      aHitBoxes.boxes[i].draw(
+          x2, y2, true,
+          selectAll || ((&aHitBoxes.boxes[i] == selectBox) && selectBoxAttack));
     }
 #endif
   }

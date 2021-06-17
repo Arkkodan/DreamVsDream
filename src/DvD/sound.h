@@ -14,8 +14,6 @@ namespace audio {
   /// @brief Apply audio effects with the game
   void refresh();
 
-  extern bool enabled;
-
   /// @brief Sound class containing sample data and interacting with mixer
   class Sound {
   public:

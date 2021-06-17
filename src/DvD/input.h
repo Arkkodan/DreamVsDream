@@ -22,10 +22,11 @@ namespace input {
   void keyPress(int key, bool press);
 
 #ifdef SPRTOOL
-  extern bool selectBoxAttack;
-  extern bool selectAll;
-  extern sprite::HitBox *selectBox;
-#endif // SPRTOOL
+  bool isBlackBG();
+  sprite::HitBox *getSelectBox();
+  bool isSelectBoxAttack();
+  bool isSelectAll();
+#endif
 } // namespace input
 
 #endif // DVD_INPUT_H

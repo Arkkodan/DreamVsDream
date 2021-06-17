@@ -256,7 +256,7 @@ void scene::Select::think() {
             }
           }
           else {
-            if (!net::connected) {
+            if (!net::isConnected()) {
               sndBack->play();
               setScene(SCENE_TITLE);
             }
@@ -384,11 +384,10 @@ void scene::Select::think() {
         Fight::madotsuki.fighter = fighters[gridFighters[cursors[0].pos]];
         Fight::poniko.fighter = fighters[gridFighters[cursors[1].pos]];
 
-        (reinterpret_cast<Versus *>(scenes[SCENE_VERSUS].get()))->portraits[0] =
-            &Fight::madotsuki.fighter->portrait;
-
-        (reinterpret_cast<Versus *>(scenes[SCENE_VERSUS].get()))->portraits[1] =
-            &Fight::poniko.fighter->portrait;
+        Versus *versus =
+            reinterpret_cast<Versus *>(getSceneFromIndex(SCENE_VERSUS));
+        versus->portraits[0] = &Fight::madotsuki.fighter->portrait;
+        versus->portraits[1] = &Fight::poniko.fighter->portrait;
 
         Stage::stage = cursor_stage;
         setScene(SCENE_VERSUS);

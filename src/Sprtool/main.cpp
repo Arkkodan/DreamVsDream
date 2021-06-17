@@ -14,6 +14,7 @@
 #include "../DvD/error.h"
 #include "../DvD/fighter.h"
 #include "../DvD/graphics.h"
+#include "../DvD/input.h"
 #include "../DvD/parser.h"
 #include "../DvD/shader_renderer/primitive_renderer.h"
 #include "../DvD/sys.h"
@@ -22,10 +23,6 @@
 game::Fighter fighter;
 int frame = 0;
 int anim = 0;
-
-namespace input {
-  extern bool blackBG;
-}
 
 namespace init {
   extern void init();
@@ -195,7 +192,7 @@ int main(int argc, char **argv)
     sys::refresh();
 
     // Draw a crosshair
-    if (input::blackBG) {
+    if (input::isBlackBG()) {
       renderer::PrimitiveRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f);
     }
     else {

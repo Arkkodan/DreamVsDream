@@ -72,11 +72,12 @@ void scene::Scene::think() {
     init();
   }
 
+  int sceneIndex = getSceneIndex();
   if (!bgmPlaying &&
 #ifndef NO_NETWORK
-      scene != SCENE_NETPLAY &&
+      sceneIndex != SCENE_NETPLAY &&
 #endif
-      scene != SCENE_FIGHT) {
+      sceneIndex != SCENE_FIGHT) {
     if (bgm.exists()) {
       bgm.play();
     }
@@ -87,41 +88,44 @@ void scene::Scene::think() {
   // if(video) video->think();
 
   // Fade timer
+  float &fade = getrFade();
   if (fade) {
     // if(fadeIn && scene == SCENE_VERSUS) {
     //	fade = 0.0f;
     //} else {
-    if (scene == SCENE_FIGHT) {
+    if (sceneIndex == SCENE_FIGHT) {
       fade -= 0.02;
     }
     else {
       fade -= 0.1f;
     }
     if (fade <= 0.0f) {
-      if (fadeIn) {
+      if (isFadeIn()) {
         fade = 0.0f;
       }
       else {
         fade = 1.0f;
-        fadeIn = true;
+        setFadeIn(true);
 
         // Are we quitting?
+        int sceneNew = getSceneNewIndex();
         if (sceneNew == SCENE_QUIT) {
           exit(0);
         }
-        scene = sceneNew;
+        setIMSceneIndex(sceneNew);
 
         audio::Music::stop();
 
+        const Image *imgLoading = getLoadingImage();
         if (!SCENE->initialized) {
           // Loading graphic
-          imgLoading.draw<renderer::Texture2DRenderer>(0, 0);
+          imgLoading->draw<renderer::Texture2DRenderer>(0, 0);
           sys::refresh();
           SCENE->init();
         }
-        if (scene == SCENE_FIGHT && !STAGE->initialized) {
+        if (getSceneIndex() == SCENE_FIGHT && !STAGE->initialized) {
           // Loading graphic
-          imgLoading.draw<renderer::Texture2DRenderer>(0, 0);
+          imgLoading->draw<renderer::Texture2DRenderer>(0, 0);
           sys::refresh();
           STAGE->init();
         }

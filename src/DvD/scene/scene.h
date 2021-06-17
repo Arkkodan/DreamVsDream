@@ -6,8 +6,9 @@
 #include <memory>
 
 #define SCENE (scene::getScene())
-#define FIGHT \
-  (reinterpret_cast<scene::Fight *>(scene::scenes[scene::SCENE_FIGHT].get()))
+#define FIGHT                        \
+  (reinterpret_cast<scene::Fight *>( \
+      scene::getSceneFromIndex(scene::SCENE_FIGHT)))
 
 namespace scene {
   enum {
@@ -32,14 +33,6 @@ namespace scene {
     SCENE_QUIT, // Dummy scene for quitting
   };
 
-  extern std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
-  extern int scene;
-  extern int sceneNew;
-
-  extern Image imgLoading;
-
-  extern float fade;
-  extern bool fadeIn;
   void drawFade();
 
   void setScene(int _scene);
@@ -51,6 +44,16 @@ namespace scene {
   void deinit();
 
   Scene *getScene();
+  int getSceneIndex();
+  void setIMSceneIndex(int index);
+  int getSceneNewIndex();
+  Scene *getSceneFromIndex(int index);
+
+  Image *getLoadingImage();
+
+  float &getrFade();
+  bool isFadeIn();
+  void setFadeIn(bool fi);
 } // namespace scene
 
 #endif // DVD_SCENE_SCENE_H
