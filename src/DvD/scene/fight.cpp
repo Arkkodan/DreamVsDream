@@ -351,18 +351,20 @@ void scene::Fight::think() {
   idealCameraPos.x = (madotsuki.pos.x + poniko.pos.x) / 2;
   idealCameraPos.y = (madotsuki.pos.y + poniko.pos.y) / 3 - 30;
 
+  int heightAbs = STAGE->getCamHeight();
+  int widthAbs = STAGE->getCamWidth();
   if (idealCameraPos.y < 0) {
     idealCameraPos.y = 0;
   }
-  if (idealCameraPos.y > STAGE->heightAbs - sys::WINDOW_HEIGHT) {
-    idealCameraPos.y = STAGE->heightAbs - sys::WINDOW_HEIGHT;
+  if (idealCameraPos.y > heightAbs - sys::WINDOW_HEIGHT) {
+    idealCameraPos.y = heightAbs - sys::WINDOW_HEIGHT;
   }
 
-  if (idealCameraPos.x < STAGE->widthAbs / -2 + sys::WINDOW_WIDTH / 2) {
-    idealCameraPos.x = STAGE->widthAbs / -2 + sys::WINDOW_WIDTH / 2;
+  if (idealCameraPos.x < widthAbs / -2 + sys::WINDOW_WIDTH / 2) {
+    idealCameraPos.x = widthAbs / -2 + sys::WINDOW_WIDTH / 2;
   }
-  else if (idealCameraPos.x > STAGE->widthAbs / 2 - sys::WINDOW_WIDTH / 2) {
-    idealCameraPos.x = STAGE->widthAbs / 2 - sys::WINDOW_WIDTH / 2;
+  else if (idealCameraPos.x > widthAbs / 2 - sys::WINDOW_WIDTH / 2) {
+    idealCameraPos.x = widthAbs / 2 - sys::WINDOW_WIDTH / 2;
   }
 
   cameraPos.x = (cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
@@ -689,7 +691,7 @@ void scene::Fight::draw() const {
   madotsuki.drawSpecial();
   poniko.drawSpecial();
 
-  if (Stage::stage != 3) {
+  if (Stage::getStageIndex() != 3) {
     madotsuki.draw(true);
     poniko.draw(true);
   }

@@ -130,10 +130,11 @@ namespace audio {
         }
       }
 
+      int stage = Stage::getStageIndex();
       for (int j = 0; j < SOUND_SOURCE_MAX; j++) {
         Sound *sound = sound_sources[j].sound;
         if (sound) {
-          if (sceneIndex == scene::SCENE_FIGHT && Stage::stage == 3) {
+          if (sceneIndex == scene::SCENE_FIGHT && stage == 3) {
             if (sound->channels == 1) {
               out[0] += sound->samples[(int)sound_sources[j].i_sample / 8 * 8] *
                         sound_volume;
@@ -179,7 +180,7 @@ namespace audio {
       for (int j = 0; j < SPEAKER_SOURCE_MAX; j++) {
         Sound *sound = speaker_sources[j].sound;
         if (sound) {
-          if (sceneIndex == scene::SCENE_FIGHT && Stage::stage == 3) {
+          if (sceneIndex == scene::SCENE_FIGHT && stage == 3) {
             if (sound->channels == 1) {
               out[0] +=
                   sound->samples[(int)speaker_sources[j].i_sample / 8 * 8] *
@@ -261,7 +262,8 @@ namespace audio {
 
   void refresh() {
 #ifndef NO_SOUND
-    if (scene::getSceneIndex() == scene::SCENE_FIGHT && Stage::stage == 3) {
+    if (scene::getSceneIndex() == scene::SCENE_FIGHT &&
+        Stage::getStageIndex() == 3) {
       float amplitude = FIGHT->round * 0.1;
       music_frequency = 1.0f + util::rollf() * amplitude - amplitude / 2;
     }

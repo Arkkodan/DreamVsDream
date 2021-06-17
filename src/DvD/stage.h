@@ -8,31 +8,15 @@
 #include <string>
 #include <vector>
 
-#define STAGE Stage::stages[Stage::stage]
+#define STAGE Stage::getStage()
 
 /// @brief Stage class including creation, logic, and drawing
 class Stage {
-public:
+private:
   static int stage;
   static std::vector<Stage *> stages;
 
 public:
-  std::string name;
-  std::list<scene::SceneImage> imagesAbove;
-  std::list<scene::SceneImage> imagesBelow;
-  audio::Music bgm;
-  audio::Music bgm2;
-
-  Animation thumbnail;
-
-  bool exists;
-  bool initialized;
-
-  int width;
-  int height;
-  int widthAbs;
-  int heightAbs;
-
   Stage();
   // Stage(const char* name);
   ~Stage();
@@ -55,10 +39,40 @@ public:
   std::string getResource(const std::string &szFileName,
                           const std::string &extension) const;
 
-  bool isExists() const;
+  Animation *getThumbnail();
 
+  bool isExists() const;
+  bool isInitialized() const;
+
+  int getEntWidth() const;
+  int getEntHeight() const;
+  int getCamWidth() const;
+  int getCamHeight() const;
+
+public:
   static void ginit();
   static void deinit();
+  static int getStageIndex();
+  static void setStageIndex(int index);
+  static Stage *getStage();
+  static const std::vector<Stage *> &getcrStages();
+
+private:
+  std::string name;
+  std::list<scene::SceneImage> imagesAbove;
+  std::list<scene::SceneImage> imagesBelow;
+  audio::Music bgm;
+  audio::Music bgm2;
+
+  Animation thumbnail;
+
+  bool exists;
+  bool initialized;
+
+  int width;
+  int height;
+  int widthAbs;
+  int heightAbs;
 };
 
 #endif // DVD_STAGE_H

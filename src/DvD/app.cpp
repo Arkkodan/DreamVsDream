@@ -168,8 +168,9 @@ static void app::init() {
   // if(fullscreen)
   // OS::toggleFullscreen();
 
-  if (scene::getSceneIndex() == scene::SCENE_FIGHT && Stage::stage == -1) {
-    Stage::stage = 0;
+  if (scene::getSceneIndex() == scene::SCENE_FIGHT &&
+      Stage::getStageIndex() == -1) {
+    Stage::setStageIndex(0);
   }
 }
 

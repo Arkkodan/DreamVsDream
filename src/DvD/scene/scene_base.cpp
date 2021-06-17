@@ -123,7 +123,7 @@ void scene::Scene::think() {
           sys::refresh();
           SCENE->init();
         }
-        if (getSceneIndex() == SCENE_FIGHT && !STAGE->initialized) {
+        if (getSceneIndex() == SCENE_FIGHT && !STAGE->isInitialized()) {
           // Loading graphic
           imgLoading->draw<renderer::Texture2DRenderer>(0, 0);
           sys::refresh();

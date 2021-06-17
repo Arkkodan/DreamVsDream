@@ -22,11 +22,26 @@ void Stage::ginit() {
 
 void Stage::deinit() {}
 
+int Stage::getStageIndex() { return stage; }
+void Stage::setStageIndex(int index) { stage = index; }
+Stage *Stage::getStage() { return stages[stage]; }
+const std::vector<Stage *> &Stage::getcrStages() { return stages; }
+
 Stage::Stage() {
   exists = initialized = false;
 
   width = height = widthAbs = heightAbs = 0;
 }
+
+Animation *Stage::getThumbnail() { return &thumbnail; }
+
+bool Stage::isExists() const { return exists; }
+bool Stage::isInitialized() const { return initialized; }
+
+int Stage::getEntWidth() const { return width; }
+int Stage::getEntHeight() const { return height; }
+int Stage::getCamWidth() const { return widthAbs; }
+int Stage::getCamHeight() const { return heightAbs; }
 
 /*Stage::Stage(const char* _name)
 {
@@ -277,5 +292,3 @@ void Stage::bgmPlay() {
     }
   }
 }
-
-bool Stage::isExists() const { return exists; }

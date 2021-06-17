@@ -654,15 +654,16 @@ namespace game {
         pos.x += vel.x;
 
         int w = (dir == RIGHT ? fighter->widthRight : fighter->widthLeft);
-        if (pos.x + w + STAGE_BUFFER > STAGE->width) {
+        int stageEWidth = STAGE->getEntWidth();
+        if (pos.x + w + STAGE_BUFFER > stageEWidth) {
           // vel.x = 0.0f;
-          pos.x = STAGE->width - fighter->widthRight - STAGE_BUFFER;
+          pos.x = stageEWidth - fighter->widthRight - STAGE_BUFFER;
         }
 
         w = (dir == LEFT ? fighter->widthRight : fighter->widthLeft);
-        if (pos.x - w - STAGE_BUFFER < -STAGE->width) {
+        if (pos.x - w - STAGE_BUFFER < -stageEWidth) {
           // vel.x = 0.0f;
-          pos.x = -STAGE->width + fighter->widthLeft + STAGE_BUFFER;
+          pos.x = -stageEWidth + fighter->widthLeft + STAGE_BUFFER;
         }
 
         if (!(flags & F_ON_GROUND)) {
@@ -1059,6 +1060,7 @@ namespace game {
               }
             }
 
+            int stageEWidth = STAGE->getEntWidth();
             if (blocked) {
               effect::newEffect("BlockHit", colpos.x, colpos.y, true,
                                 dir == LEFT, 1, 1, nullptr);
@@ -1077,9 +1079,9 @@ namespace game {
 
               if (_force > 0 && (flags & F_ON_GROUND)) {
                 if (pother->pos.x + pother->fighter->widthLeft + STAGE_BUFFER >=
-                        STAGE->width ||
+                        stageEWidth ||
                     pother->pos.x - pother->fighter->widthLeft - STAGE_BUFFER <=
-                        -STAGE->width) {
+                        -stageEWidth) {
                   vel.x = _force * -mirror;
                 }
                 else {
@@ -1156,9 +1158,9 @@ namespace game {
 
               if (_force > 0 && (flags & F_ON_GROUND)) {
                 if (pother->pos.x + pother->fighter->widthLeft + STAGE_BUFFER >=
-                        STAGE->width ||
+                        stageEWidth ||
                     pother->pos.x - pother->fighter->widthLeft - STAGE_BUFFER <=
-                        -STAGE->width) {
+                        -stageEWidth) {
                   vel.x = _force * -mirror;
                 }
                 else {

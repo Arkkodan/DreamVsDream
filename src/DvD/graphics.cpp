@@ -159,7 +159,7 @@ namespace graphics {
 
   void refresh() {
 #ifdef GAME
-    if (Stage::stage == 3) {
+    if (Stage::getStageIndex() == 3) {
       // Update pixel value
       if (pixel > 2) {
         pixel--;
@@ -260,12 +260,13 @@ namespace graphics {
 #ifdef GAME
   void setPalette(const renderer::Texture2D &palette, float alpha, float r,
                   float g, float b, float pct) {
+    int stageIndex = Stage::getStageIndex();
 
     // u_texture set in image.cpp
     renderer::FighterRenderer::setPalette(palette, 1);
 
     float u_shift = 0.0f;
-    if (Stage::stage == 3 && FIGHT->round >= 2) {
+    if (stageIndex == 3 && FIGHT->round >= 2) {
       u_shift = shift / 256.0f;
     }
     renderer::FighterRenderer::setShift(u_shift);
@@ -276,7 +277,7 @@ namespace graphics {
     renderer::FighterRenderer::setAlpha(alpha);
 
     int u_pixel = 1;
-    if (Stage::stage == 3) {
+    if (stageIndex == 3) {
       u_pixel = pixel;
     }
     renderer::FighterRenderer::setPixelSize(u_pixel);

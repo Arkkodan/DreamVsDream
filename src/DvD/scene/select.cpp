@@ -275,9 +275,10 @@ void scene::Select::think() {
       cursor_stage_offset = 0.0f;
     }
 
-    int size = Stage::stages.size();
+    const auto &stages = Stage::getcrStages();
+    int size = stages.size();
     int exists =
-        std::count_if(Stage::stages.cbegin(), Stage::stages.cend(),
+        std::count_if(stages.cbegin(), stages.cend(),
                       [](const Stage *stage) { return stage->isExists(); });
     if (size > 0 && exists > 0) {
       int dx = (input(game::INPUT_LEFT) ? -1 : 0) +
@@ -298,8 +299,7 @@ void scene::Select::think() {
             cursor_stage--;
             cursor_stage_offset -= STAGE_ICON_WIDTH;
           }
-        } while (cursor_stage >= size ||
-                 !Stage::stages[cursor_stage]->isExists());
+        } while (cursor_stage >= size || !stages[cursor_stage]->isExists());
         break;
       case 1: // Right
         sndMenu->play();
@@ -313,8 +313,7 @@ void scene::Select::think() {
             cursor_stage++;
             cursor_stage_offset += STAGE_ICON_WIDTH;
           }
-        } while (cursor_stage >= size ||
-                 !Stage::stages[cursor_stage]->isExists());
+        } while (cursor_stage >= size || !stages[cursor_stage]->isExists());
         break;
       }
 
@@ -333,8 +332,7 @@ void scene::Select::think() {
           else {
             cursor_stage -= STAGES_PER_ROW;
           }
-        } while (cursor_stage >= size ||
-                 !Stage::stages[cursor_stage]->isExists());
+        } while (cursor_stage >= size || !stages[cursor_stage]->isExists());
         break;
       case 1: // Down
         sndMenu->play();
@@ -344,8 +342,7 @@ void scene::Select::think() {
             // Wrap-around, into first row
             cursor_stage %= STAGES_PER_ROW;
           }
-        } while (cursor_stage >= size ||
-                 !Stage::stages[cursor_stage]->isExists());
+        } while (cursor_stage >= size || !stages[cursor_stage]->isExists());
         break;
       }
     }
@@ -379,7 +376,7 @@ void scene::Select::think() {
     }
 
     if (input(game::INPUT_A)) {
-      if (cursor_stage < size && Stage::stages[cursor_stage]->isExists()) {
+      if (cursor_stage < size && stages[cursor_stage]->isExists()) {
         // Start game!
         Fight::madotsuki.fighter = fighters[gridFighters[cursors[0].pos]];
         Fight::poniko.fighter = fighters[gridFighters[cursors[1].pos]];
@@ -389,7 +386,7 @@ void scene::Select::think() {
         versus->portraits[0] = &Fight::madotsuki.fighter->portrait;
         versus->portraits[1] = &Fight::poniko.fighter->portrait;
 
-        Stage::stage = cursor_stage;
+        Stage::setStageIndex(cursor_stage);
         setScene(SCENE_VERSUS);
         sndSelect->play();
       }
@@ -414,7 +411,7 @@ void scene::Select::reset() {
 
   cursor_stage = 0;
   // Find the first stage that exists
-  for (const auto &stage : Stage::stages) {
+  for (const auto &stage : Stage::getcrStages()) {
     if (stage->isExists()) {
       break;
     }
@@ -555,23 +552,25 @@ void scene::Select::draw() const {
 
     // Draw the stage list
     constexpr auto STAGE_ICON_PADDING = 8;
-    for (int i = 0, size = Stage::stages.size(); i < size; i++) {
+    const auto &stages = Stage::getcrStages();
+    for (int i = 0, size = stages.size(); i < size; i++) {
       int x = static_cast<int>(
           (STAGE_ICON_WIDTH + STAGE_ICON_PADDING) *
               (i % STAGES_PER_ROW + 3 - cursor_stage % STAGES_PER_ROW) +
           STAGE_ICON_WIDTH / 2 + cursor_stage_offset);
       int y = 150 + (STAGE_ICON_PADDING + 50) * (i / STAGES_PER_ROW);
-      auto *stage = Stage::stages[i];
+      auto *stage = stages[i];
       if (stage->isExists()) {
-        if (!stage->thumbnail.isPlaying())
-          stage->thumbnail.setPlaying(true);
+        Animation *thumbnail = stage->getThumbnail();
+        if (!thumbnail->isPlaying())
+          thumbnail->setPlaying(true);
         if (cursor_stage == i) {
           renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f);
-          stage->thumbnail.draw(x, y);
+          thumbnail->draw(x, y);
         }
         else {
           renderer::Texture2DRenderer::setColor(0.5f, 0.5f, 0.5f, 1.0f);
-          stage->thumbnail.draw(x, y);
+          thumbnail->draw(x, y);
         }
       }
     }
