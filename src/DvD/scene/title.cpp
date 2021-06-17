@@ -234,19 +234,19 @@ void scene::Title::draw() const {
         }
       }
 
+      unsigned int fontH = menuFont->img.getH();
       if (i == choice) {
         menuFont->drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer),
-                           menuY + menuFont->img.h * i,
-                           menuChoices[submenu]->at(i), aR / gray, aG / gray,
-                           aB / gray, 1.0f);
+                           menuY + fontH * i, menuChoices[submenu]->at(i),
+                           aR / gray, aG / gray, aB / gray, 1.0f);
       }
       else if (i == choiceLast) {
-        menuFont->drawText(
-            menuX + i * menuXOffset + choiceTimer, menuY + menuFont->img.h * i,
-            menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 1.0f);
+        menuFont->drawText(menuX + i * menuXOffset + choiceTimer,
+                           menuY + fontH * i, menuChoices[submenu]->at(i),
+                           iR / gray, iG / gray, iB / gray, 1.0f);
       }
       else {
-        menuFont->drawText(menuX + i * menuXOffset, menuY + menuFont->img.h * i,
+        menuFont->drawText(menuX + i * menuXOffset, menuY + fontH * i,
                            menuChoices[submenu]->at(i), iR / gray, iG / gray,
                            iB / gray, 1.0f);
       }

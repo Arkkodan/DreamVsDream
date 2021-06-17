@@ -337,17 +337,19 @@ scene::SceneImage::SceneImage(Image &image_, float x_, float y_,
   round = round_;
 
   if (wrap) {
-    while (x < 0.0f - image.w) {
-      x += image.w;
+    unsigned int imageW = image.getW();
+    unsigned int imageH = image.getH();
+    while (x < 0.0f - imageW) {
+      x += imageW;
     }
-    while (y < 0.0f - image.h) {
-      y += image.h;
+    while (y < 0.0f - imageH) {
+      y += imageH;
     }
     while (x >= 0.0f) {
-      x -= image.w;
+      x -= imageW;
     }
     while (y >= 0.0f) {
-      y -= image.h;
+      y -= imageH;
     }
   }
 }
@@ -360,17 +362,19 @@ void scene::SceneImage::think() {
 
   // Wrap the wrapping images
   if (wrap) {
-    while (x < 0.0f - image.w) {
-      x += image.w;
+    unsigned int imageW = image.getW();
+    unsigned int imageH = image.getH();
+    while (x < 0.0f - imageW) {
+      x += imageW;
     }
-    while (y < 0.0f - image.h) {
-      y += image.h;
+    while (y < 0.0f - imageH) {
+      y += imageH;
     }
     while (x >= 0.0f) {
-      x -= image.w;
+      x -= imageW;
     }
     while (y >= 0.0f) {
-      y -= image.h;
+      y -= imageH;
     }
   }
 }
@@ -381,18 +385,20 @@ void scene::SceneImage::reset() {
 }
 
 void scene::SceneImage::draw(bool _stage) const {
+  unsigned int imageW = image.getW();
+  unsigned int imageH = image.getH();
   if (image.exists()) {
     // Draw the image differently if wrapping
     if (wrap) {
       // How many of these are needed to fill the screen?
-      int xCount = sys::WINDOW_WIDTH / image.w + 2;
-      int yCount = sys::WINDOW_HEIGHT / image.h + 2;
+      int xCount = sys::WINDOW_WIDTH / imageW + 2;
+      int yCount = sys::WINDOW_HEIGHT / imageH + 2;
 
       for (int i = 0; i < xCount; i++) {
         for (int j = 0; j < yCount; j++) {
           graphics::setRender(render);
-          image.draw<renderer::Texture2DRenderer>((int)x + i * image.w,
-                                                  (int)y + j * image.h);
+          image.draw<renderer::Texture2DRenderer>((int)x + i * imageW,
+                                                  (int)y + j * imageH);
         }
       }
     }
@@ -401,9 +407,9 @@ void scene::SceneImage::draw(bool _stage) const {
       if (_stage) {
         if (!round || round - 1 == FIGHT->round) {
           image.draw<renderer::Texture2DRenderer>(
-              x - image.w / 2 + sys::WINDOW_WIDTH / 2 -
+              x - imageW / 2 + sys::WINDOW_WIDTH / 2 -
                   Fight::cameraPos.x * parallax,
-              (sys::WINDOW_HEIGHT - y) - image.h +
+              (sys::WINDOW_HEIGHT - y) - imageH +
                   Fight::cameraPos.y * parallax);
         }
       }

@@ -433,7 +433,7 @@ void scene::Select::draw() const {
         fighters[gridFighters[cursors[1].posOld]]
             ->portrait.draw<renderer::Texture2DRenderer>(
                 sys::WINDOW_WIDTH -
-                    fighters[gridFighters[cursors[1].posOld]]->portrait.w +
+                    fighters[gridFighters[cursors[1].posOld]]->portrait.getW() +
                     (PORTRAIT_FADE - cursors[1].timerPortrait),
                 0, true);
       }
@@ -446,7 +446,7 @@ void scene::Select::draw() const {
       fighters[gridFighters[cursors[1].pos]]
           ->portrait.draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH -
-                  fighters[gridFighters[cursors[1].pos]]->portrait.w +
+                  fighters[gridFighters[cursors[1].pos]]->portrait.getW() +
                   cursors[1].timerPortrait,
               0, true);
     }
@@ -597,7 +597,8 @@ void scene::Select::drawEffect(int player, int group, int _x, int _y,
     if (curData[group].grow) {
       scale += (cursors[player].frame - 1) * 0.1f;
     }
-    int x = (cursors[player].frame - 1) % (curData[group].imgSelect.h / 96);
+    int x =
+        (cursors[player].frame - 1) % (curData[group].imgSelect.getH() / 96);
 
     graphics::setRect(0, x * 96, 96, 96);
     renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, alpha);

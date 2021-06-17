@@ -52,16 +52,19 @@ void scene::Credits::draw() const {
   Scene::draw();
 
   if (!timer_start) {
+    unsigned int fontH = font->img.getH();
+    unsigned int logoH = logo.getH();
     if (done) {
       static std::string _sz = "Secret character unlocked!";
-      font->drawText(
-          sys::WINDOW_WIDTH - font->getTextWidth(_sz) - CREDITS_OFFSET,
-          sys::FLIP(font->img.h * 2), _sz, 255, 255, 255, secret_alpha);
+      font->drawText(sys::WINDOW_WIDTH - font->getTextWidth(_sz) -
+                         CREDITS_OFFSET,
+                     sys::FLIP(fontH * 2), _sz, 255, 255, 255, secret_alpha);
     }
     else {
-      int y = (sys::WINDOW_HEIGHT - logo.h) / 4 - oy;
-      if (y + (int)logo.h >= 0) {
-        logo.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - logo.w, y);
+      int y = (sys::WINDOW_HEIGHT - logoH) / 4 - oy;
+      if (y + (int)logoH >= 0) {
+        logo.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - logo.getW(),
+                                               y);
       }
 
       int oy_title = 0;
@@ -72,7 +75,7 @@ void scene::Credits::draw() const {
           oy_title++;
         }
 
-        y = sys::WINDOW_HEIGHT + (font->img.h * (i + oy_title)) - oy;
+        y = sys::WINDOW_HEIGHT + (fontH * (i + oy_title)) - oy;
 
         if (y + 32 < 0) {
           if (i == c_lines - 1) {

@@ -633,3 +633,6 @@ bool Image::exists() const {
   return !textures.empty();
 #endif
 }
+
+unsigned int Image::getW() const { return w; }
+unsigned int Image::getH() const { return h; }

@@ -165,7 +165,7 @@ namespace sprite {
     int y2 = _y;
 
     if (mirror) {
-      _x -= (img.w - x) * scale;
+      _x -= (img.getW() - x) * scale;
     }
     else {
       _x -= x * scale;

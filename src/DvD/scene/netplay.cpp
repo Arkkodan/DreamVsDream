@@ -400,8 +400,8 @@ void scene::Netplay::draw() const {
 
     graphics::setScale(NET_SCALE * xscale, NET_SCALE);
     imgLogo.draw<renderer::Texture2DRenderer>(
-        sys::WINDOW_WIDTH / 2 - imgLogo.w * NET_SCALE * xscale / 2,
-        sys::WINDOW_HEIGHT / 4 - imgLogo.h * NET_SCALE / 2 + drawShake);
+        sys::WINDOW_WIDTH / 2 - imgLogo.getW() * NET_SCALE * xscale / 2,
+        sys::WINDOW_HEIGHT / 4 - imgLogo.getH() * NET_SCALE / 2 + drawShake);
 
     // Main menu
     volatile bool isConnected = net::isConnected();

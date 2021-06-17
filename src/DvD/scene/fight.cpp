@@ -34,27 +34,29 @@ scene::SceneMeter::~SceneMeter() {}
 
 void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
   if (pct > 0) {
+    unsigned int imgW = img.getW();
+    unsigned int imgH = img.getH();
     if (flip) {
-      graphics::setRect(0, 0, img.w * pct, img.h);
+      graphics::setRect(0, 0, imgW * pct, imgH);
     }
     else {
-      graphics::setRect(img.w * (1 - pct), 0, img.w * pct + 1, img.h);
+      graphics::setRect(imgW * (1 - pct), 0, imgW * pct + 1, imgH);
     }
 
     if (mirror) {
       if (flip) {
         img.draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH - img.w - pos.x + img.w * (1 - pct), pos.y, true);
+            sys::WINDOW_WIDTH - imgW - pos.x + imgW * (1 - pct), pos.y, true);
       }
       else {
         // Hack
         if (pct == 1.0f) {
           img.draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH - img.w - pos.x, pos.y, true);
+              sys::WINDOW_WIDTH - imgW - pos.x, pos.y, true);
         }
         else {
           img.draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH - img.w - pos.x + 1, pos.y, true);
+              sys::WINDOW_WIDTH - imgW - pos.x + 1, pos.y, true);
         }
       }
     }
@@ -63,7 +65,7 @@ void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
         img.draw<renderer::Texture2DRenderer>(pos.x, pos.y);
       }
       else {
-        img.draw<renderer::Texture2DRenderer>(pos.x + img.w * (1 - pct), pos.y);
+        img.draw<renderer::Texture2DRenderer>(pos.x + imgW * (1 - pct), pos.y);
       }
     }
   }
@@ -498,11 +500,12 @@ void scene::Fight::think() {
 
     if (comboLeftTimer) {
       comboLeftTimer--;
-      if (comboLeftOff < comboLeft.w) {
+      unsigned int comboLeftW = comboLeft.getW();
+      if (comboLeftOff < comboLeftW) {
         comboLeftOff += 16;
       }
-      if (comboLeftOff > comboLeft.w) {
-        comboLeftOff = comboLeft.w;
+      if (comboLeftOff > comboLeftW) {
+        comboLeftOff = comboLeftW;
       }
     }
     else if (comboLeftOff && (madotsuki.comboCounter < 2 || ko_player)) {
@@ -529,11 +532,12 @@ void scene::Fight::think() {
 
     if (comboRightTimer) {
       comboRightTimer--;
-      if (comboRightOff < comboRight.w) {
+      unsigned int comboRightW = comboRight.getW();
+      if (comboRightOff < comboRightW) {
         comboRightOff += 16;
       }
-      if (comboRightOff > comboRight.w) {
-        comboRightOff = comboRight.w;
+      if (comboRightOff > comboRightW) {
+        comboRightOff = comboRightW;
       }
     }
     else if (comboRightOff && (poniko.comboCounter < 2 || ko_player)) {
@@ -736,7 +740,8 @@ void scene::Fight::draw() const {
   }
   else {
     hud.draw<renderer::Texture2DRenderer>(0, 0);
-    hud.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - hud.w, 0, true);
+    hud.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - hud.getW(), 0,
+                                          true);
 
     // DRAW METERS
 
@@ -758,8 +763,9 @@ void scene::Fight::draw() const {
     meterDpm.draw(1, false, false);
     meterDpm.draw(1, true, false);
 
+    unsigned int shineW = shine.getW();
     portraits.draw<renderer::Texture2DRenderer>(0, 0);
-    portraits.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shine.w, 0,
+    portraits.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shineW, 0,
                                                 true);
 
     timer.draw<renderer::Texture2DRenderer>(0, 0);
@@ -810,7 +816,7 @@ void scene::Fight::draw() const {
     }
 
     shine.draw<renderer::Texture2DRenderer>(0, 0);
-    shine.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shine.w, 0,
+    shine.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shineW, 0,
                                             true);
 
     round_hud[round].draw<renderer::Texture2DRenderer>(x_round_hud,
@@ -819,8 +825,8 @@ void scene::Fight::draw() const {
     // Draw combo counters
     // LEFT
     if (comboLeftOff) {
-      comboLeft.draw<renderer::Texture2DRenderer>(comboLeftOff - comboLeft.w,
-                                                  131);
+      comboLeft.draw<renderer::Texture2DRenderer>(
+          comboLeftOff - comboLeft.getW(), 131);
       char buff[8];
       sprintf(buff, "%d", comboLeftLast);
       int w = combo->getTextWidth(buff);
@@ -856,7 +862,7 @@ void scene::Fight::draw() const {
       renderer::FighterRenderer::setAlpha(1.0f);
     }
     poniko.fighter->portrait_ui.draw<renderer::FighterRenderer>(
-        sys::WINDOW_WIDTH - portraitPos.x - poniko.fighter->portrait_ui.w,
+        sys::WINDOW_WIDTH - portraitPos.x - poniko.fighter->portrait_ui.getW(),
         portraitPos.y, true);
     if (shader_support) {
       renderer::ShaderProgram::unuse();
@@ -895,72 +901,69 @@ void scene::Fight::draw() const {
       }
 
       if (timer_round_in <= 1.4 * sys::FPS) {
+        unsigned int splashW = round_splash[round].getW();
+        unsigned int splashH = round_splash[round].getH();
         if (timer_round_in > 1.3 * sys::FPS) {
           float scalar =
               (timer_round_in - 1.3 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
           graphics::setScale(scalar);
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - round_splash[round].w * scalar / 2 -
-                  util::roll(10, 30),
-              sys::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 -
+              sys::WINDOW_WIDTH / 2 - splashW * scalar / 2 - util::roll(10, 30),
+              sys::WINDOW_HEIGHT / 2 - splashH * scalar / 2 -
                   util::roll(10, 30));
         }
         else if (timer_round_in < 0.1 * sys::FPS) {
           float scalar = timer_round_in / (0.1 * sys::FPS);
           renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - round_splash[round].w / 2,
-              sys::WINDOW_HEIGHT / 2 - round_splash[round].h / 2);
+              sys::WINDOW_WIDTH / 2 - splashW / 2,
+              sys::WINDOW_HEIGHT / 2 - splashH / 2);
           renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
           scalar = 1.0f - scalar + 1.0f;
           float xscalar = 1 / scalar;
           graphics::setScale(xscalar, scalar);
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - round_splash[round].w * xscalar / 2 -
+              sys::WINDOW_WIDTH / 2 - splashW * xscalar / 2 -
                   util::roll(10, 30),
-              sys::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 -
+              sys::WINDOW_HEIGHT / 2 - splashH * scalar / 2 -
                   util::roll(10, 30));
         }
         else {
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - round_splash[round].w / 2 -
-                  util::roll(5, 15),
-              sys::WINDOW_HEIGHT / 2 - round_splash[round].h / 2 -
-                  util::roll(5, 15));
+              sys::WINDOW_WIDTH / 2 - splashW / 2 - util::roll(5, 15),
+              sys::WINDOW_HEIGHT / 2 - splashH / 2 - util::roll(5, 15));
         }
       }
     }
 
     if (timer_ko) {
+      unsigned int koImgW = ko[ko_type].getW();
+      unsigned int koImgH = ko[ko_type].getH();
       if (timer_ko > 0.8 * sys::FPS) {
         float scalar = (timer_ko - 0.8 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
         graphics::setScale(scalar);
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - ko[ko_type].w * scalar / 2 -
-                util::roll(10, 30),
-            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 -
-                util::roll(10, 30));
+            sys::WINDOW_WIDTH / 2 - koImgW * scalar / 2 - util::roll(10, 30),
+            sys::WINDOW_HEIGHT / 2 - koImgH * scalar / 2 - util::roll(10, 30));
       }
       else if (timer_ko < 0.1 * sys::FPS) {
         float scalar = timer_ko / (0.1 * sys::FPS);
         renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - ko[ko_type].w / 2,
-            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2);
+            sys::WINDOW_WIDTH / 2 - koImgW / 2,
+            sys::WINDOW_HEIGHT / 2 - koImgH / 2);
         renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
         scalar = 1.0f - scalar + 1.0f;
         float xscalar = 1 / scalar;
         graphics::setScale(xscalar, scalar);
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - ko[ko_type].w * xscalar / 2 -
-                util::roll(10, 30),
-            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 -
-                util::roll(10, 30));
+            sys::WINDOW_WIDTH / 2 - koImgW * xscalar / 2 - util::roll(10, 30),
+            sys::WINDOW_HEIGHT / 2 - koImgH * scalar / 2 - util::roll(10, 30));
       }
       else {
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - ko[ko_type].w / 2 - util::roll(5, 15),
-            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2 - util::roll(5, 15));
+            sys::WINDOW_WIDTH / 2 - koImgW / 2 - util::roll(5, 15),
+            sys::WINDOW_HEIGHT / 2 - koImgH / 2 - util::roll(5, 15));
       }
     }
   }

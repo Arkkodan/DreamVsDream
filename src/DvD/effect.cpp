@@ -145,8 +145,8 @@ namespace effect {
 
     Image *frame = anim->getFrame((sys::getFrame() - frameStart) / speed);
 
-    int x1 = x - frame->w / 2;
-    int y1 = y - frame->h / 2;
+    int x1 = x - frame->getW() / 2;
+    int y1 = y - frame->getH() / 2;
 
     if (parent) {
       x1 += parent->pos.x;
