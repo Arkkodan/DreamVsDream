@@ -42,21 +42,14 @@ namespace game {
   };
 
   /// @brief Data structure containing a command target
-  class CommandTarget {
-  public:
-    CommandTarget();
-
+  struct CommandTarget {
     int state;
     int conditionC;
     uint8_t conditions[16];
   };
 
   /// @brief Data structure containing a command
-  class Command {
-  public:
-    Command();
-    ~Command();
-
+  struct Command {
     int comboC;
     uint16_t combo[16];
     uint16_t generic;
@@ -66,11 +59,7 @@ namespace game {
 
 #ifndef SPRTOOL
   /// @brief Data structure containing a group of sounds
-  class SoundGroup {
-  public:
-    SoundGroup();
-    ~SoundGroup();
-
+  struct SoundGroup {
     void init(int _size);
 
     int size;
@@ -83,11 +72,7 @@ namespace game {
   };
 
   /// @brief Data structure containing a group of voice sounds
-  class VoiceGroup {
-  public:
-    VoiceGroup();
-    ~VoiceGroup();
-
+  struct VoiceGroup {
     void init(int _size);
 
     int size;
@@ -102,11 +87,7 @@ namespace game {
 #endif
 
   /// @brief Data structure containing a state
-  class State {
-  public:
-    State();
-    ~State();
-
+  struct State {
 #ifdef COMPILER
     std::string name;
 #endif
@@ -120,12 +101,9 @@ namespace game {
   constexpr auto SVT_VAR = 1;
   constexpr auto SVT_GLOBAL = 2;
   /// @brief Unused
-  class StepVar {
-  public:
+  struct StepVar {
     int8_t type;
     float value;
-
-    float getValue();
   };
 
   enum {

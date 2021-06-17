@@ -8,10 +8,7 @@
 #include <vector>
 
 /// @brief Data structure representing a sprite in an atlas
-class AtlasSprite {
-public:
-  AtlasSprite();
-
+struct AtlasSprite {
   int atlas;
   int x, y, w, h;
 };

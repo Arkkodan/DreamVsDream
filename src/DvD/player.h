@@ -66,12 +66,9 @@ namespace game {
   void deinitTransformSounds();
 
   /// @brief Data structure containing information about an input
-  class InputBuff {
-  public:
+  struct InputBuff {
     uint32_t frame;
     uint16_t input;
-
-    InputBuff();
   };
 
   /// @brief In-game interactable object

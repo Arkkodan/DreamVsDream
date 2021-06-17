@@ -408,11 +408,6 @@ namespace game {
     }
   }
 
-  InputBuff::InputBuff() {
-    frame = 0;
-    input = 0;
-  }
-
   void Player::applyInput() {
     input |= frameInput & INPUT_PRESSMASK;
     input &= ~((frameInput & INPUT_RELMASK) >> INPUT_RELSHIFT);

@@ -235,20 +235,12 @@ namespace game {
 #endif
 
 #ifndef SPRTOOL
-  SoundGroup::SoundGroup() { size = 0; }
-
-  SoundGroup::~SoundGroup() {}
-
   void SoundGroup::init(int size_) {
     size = size_;
     if (size) {
       sounds.resize(size);
     }
   }
-
-  VoiceGroup::VoiceGroup() : size(0), pct(100), voices() {}
-
-  VoiceGroup::~VoiceGroup() {}
 
   void VoiceGroup::init(int _size) {
     size = _size;
@@ -257,19 +249,6 @@ namespace game {
     }
   }
 #endif
-
-  Command::Command() : comboC(0), generic(0), targetC(0), targets(), combo() {}
-
-  Command::~Command() {}
-
-  CommandTarget::CommandTarget() : conditions() {
-    state = 0;
-    conditionC = 0;
-  }
-
-  State::State() : size(0), steps() {}
-
-  State::~State() {}
 
   void setBool(bool &dst, char src) {
     if (src == SBOOL_UNDEFINED) {
