@@ -89,24 +89,26 @@ namespace game {
     nSprites = file.readWord();
     sprites.resize(nSprites);
     for (int i = 0; i < nSprites; i++) {
-      sprites[i].atlas = &atlas_sprites;
-      sprites[i].atlas_sprite = file.readWord();
-      sprites[i].x = file.readWord();
-      sprites[i].y = file.readWord();
+      sprites[i].setAtlas(&atlas_sprites);
+      sprites[i].setAtlasSprite(file.readWord());
+      sprites[i].getrX() = file.readWord();
+      sprites[i].getrY() = file.readWord();
 
-      sprites[i].hitBoxes.init(file.readByte());
-      for (int j = 0; j < sprites[i].hitBoxes.size; j++) {
-        sprites[i].hitBoxes.boxes[j].pos.x = file.readWord();
-        sprites[i].hitBoxes.boxes[j].pos.y = file.readWord();
-        sprites[i].hitBoxes.boxes[j].size.x = file.readWord();
-        sprites[i].hitBoxes.boxes[j].size.y = file.readWord();
+      sprite::HitBoxGroup &hurtBoxes = sprites[i].getrDHurtBoxes();
+      hurtBoxes.init(file.readByte());
+      for (int j = 0; j < hurtBoxes.size; j++) {
+        hurtBoxes.boxes[j].pos.x = file.readWord();
+        hurtBoxes.boxes[j].pos.y = file.readWord();
+        hurtBoxes.boxes[j].size.x = file.readWord();
+        hurtBoxes.boxes[j].size.y = file.readWord();
       }
-      sprites[i].aHitBoxes.init(file.readByte());
-      for (int j = 0; j < sprites[i].aHitBoxes.size; j++) {
-        sprites[i].aHitBoxes.boxes[j].pos.x = file.readWord();
-        sprites[i].aHitBoxes.boxes[j].pos.y = file.readWord();
-        sprites[i].aHitBoxes.boxes[j].size.x = file.readWord();
-        sprites[i].aHitBoxes.boxes[j].size.y = file.readWord();
+      sprite::HitBoxGroup &hitBoxes = sprites[i].getrAHitBoxes();
+      hitBoxes.init(file.readByte());
+      for (int j = 0; j < hitBoxes.size; j++) {
+        hitBoxes.boxes[j].pos.x = file.readWord();
+        hitBoxes.boxes[j].pos.y = file.readWord();
+        hitBoxes.boxes[j].size.x = file.readWord();
+        hitBoxes.boxes[j].size.y = file.readWord();
       }
     }
     atlas_sprites.create(file, shader_support ? nullptr : palette_first);

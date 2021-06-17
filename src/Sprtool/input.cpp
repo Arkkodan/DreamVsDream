@@ -64,13 +64,15 @@ namespace input {
   bool isSelectAll() { return selectAll; }
 
   void moveAll(int x, int y) {
-    for (int i = 0; i < fighter.sprites[frame].hitBoxes.size; i++) {
-      fighter.sprites[frame].hitBoxes.boxes[i].pos.x += x;
-      fighter.sprites[frame].hitBoxes.boxes[i].pos.y += y;
+    sprite::HitBoxGroup &hurtBoxes = fighter.sprites[frame].getrDHurtBoxes();
+    for (int i = 0; i < hurtBoxes.size; i++) {
+      hurtBoxes.boxes[i].pos.x += x;
+      hurtBoxes.boxes[i].pos.y += y;
     }
-    for (int i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++) {
-      fighter.sprites[frame].aHitBoxes.boxes[i].pos.x += x;
-      fighter.sprites[frame].aHitBoxes.boxes[i].pos.y += y;
+    sprite::HitBoxGroup &hitBoxes = fighter.sprites[frame].getrAHitBoxes();
+    for (int i = 0; i < hitBoxes.size; i++) {
+      hitBoxes.boxes[i].pos.x += x;
+      hitBoxes.boxes[i].pos.y += y;
     }
   }
 
@@ -78,7 +80,11 @@ namespace input {
     static int shift = 0;
     static int ctrl = 0;
 
-    if (press)
+    if (press) {
+      sprite::HitBoxGroup &hurtBoxes = fighter.sprites[frame].getrDHurtBoxes();
+      sprite::HitBoxGroup &hitBoxes = fighter.sprites[frame].getrAHitBoxes();
+      int &currentX = fighter.sprites[frame].getrX();
+      int &currentY = fighter.sprites[frame].getrY();
       switch (key) {
       // Invert screen colors
       case SDLK_q:
@@ -112,25 +118,25 @@ namespace input {
 
           // Copy everything
           if (copyBoxes) {
-            fighter.sprites[frame].hitBoxes.boxes.clear();
-            fighter.sprites[frame].aHitBoxes.boxes.clear();
-            fighter.sprites[frame].hitBoxes.init(
-                fighter.sprites[copyFrame].hitBoxes.size);
-            fighter.sprites[frame].aHitBoxes.init(
-                fighter.sprites[copyFrame].aHitBoxes.size);
+            const sprite::HitBoxGroup &copyHurtBoxes =
+                fighter.sprites[copyFrame].getrDHurtBoxes();
+            const sprite::HitBoxGroup &copyHitBoxes =
+                fighter.sprites[copyFrame].getrAHitBoxes();
+            hurtBoxes.boxes.clear();
+            hitBoxes.boxes.clear();
+            hurtBoxes.init(copyHurtBoxes.size);
+            hitBoxes.init(copyHitBoxes.size);
 
-            for (int i = 0; i < fighter.sprites[frame].hitBoxes.size; i++) {
-              fighter.sprites[frame].hitBoxes.boxes[i] =
-                  fighter.sprites[copyFrame].hitBoxes.boxes[i];
+            for (int i = 0; i < hurtBoxes.size; i++) {
+              hurtBoxes.boxes[i] = copyHurtBoxes.boxes[i];
             }
-            for (int i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++) {
-              fighter.sprites[frame].aHitBoxes.boxes[i] =
-                  fighter.sprites[copyFrame].aHitBoxes.boxes[i];
+            for (int i = 0; i < hitBoxes.size; i++) {
+              hitBoxes.boxes[i] = copyHitBoxes.boxes[i];
             }
           }
           else {
-            fighter.sprites[frame].x = fighter.sprites[copyFrame].x;
-            fighter.sprites[frame].y = fighter.sprites[copyFrame].y;
+            currentX = fighter.sprites[copyFrame].getrX();
+            currentY = fighter.sprites[copyFrame].getrY();
           }
         }
         break;
@@ -141,7 +147,7 @@ namespace input {
           fighter.saveSpr();
         }
         else {
-          selectBox = fighter.sprites[frame].hitBoxes.newHitbox();
+          selectBox = hurtBoxes.newHitbox();
           selectBoxAttack = false;
         }
         break;
@@ -153,7 +159,7 @@ namespace input {
           selectAll = !selectAll;
         }
         else {
-          selectBox = fighter.sprites[frame].aHitBoxes.newHitbox();
+          selectBox = hitBoxes.newHitbox();
           selectBoxAttack = true;
         }
         break;
@@ -161,10 +167,10 @@ namespace input {
       // Delete hitbox
       case SDLK_x:
         if (selectBoxAttack) {
-          fighter.sprites[frame].aHitBoxes.deleteHitbox(selectBox);
+          hitBoxes.deleteHitbox(selectBox);
         }
         else {
-          fighter.sprites[frame].hitBoxes.deleteHitbox(selectBox);
+          hurtBoxes.deleteHitbox(selectBox);
         }
         selectBox = nullptr;
         break;
@@ -179,48 +185,48 @@ namespace input {
         selectAll = false;
         if (selectBox) {
           int i = 0;
-          for (; i < fighter.sprites[frame].hitBoxes.size; i++)
-            if (&fighter.sprites[frame].hitBoxes.boxes[i] == selectBox) {
+          for (; i < hurtBoxes.size; i++)
+            if (&hurtBoxes.boxes[i] == selectBox) {
               if (i == 0) {
-                if (fighter.sprites[frame].aHitBoxes.size) {
-                  selectBox = &fighter.sprites[frame].aHitBoxes.boxes.back();
+                if (hitBoxes.size) {
+                  selectBox = &hitBoxes.boxes.back();
                   selectBoxAttack = true;
                 }
                 else {
-                  selectBox = &fighter.sprites[frame].hitBoxes.boxes.back();
+                  selectBox = &hurtBoxes.boxes.back();
                 }
               }
               else {
-                selectBox = &fighter.sprites[frame].hitBoxes.boxes[i - 1];
+                selectBox = &hurtBoxes.boxes[i - 1];
               }
               break;
             }
-          if (i == fighter.sprites[frame].hitBoxes.size) {
-            for (i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++)
-              if (&fighter.sprites[frame].aHitBoxes.boxes[i] == selectBox) {
+          if (i == hurtBoxes.size) {
+            for (i = 0; i < hitBoxes.size; i++)
+              if (&hitBoxes.boxes[i] == selectBox) {
                 if (i == 0) {
-                  if (fighter.sprites[frame].hitBoxes.size) {
-                    selectBox = &fighter.sprites[frame].hitBoxes.boxes.back();
+                  if (hurtBoxes.size) {
+                    selectBox = &hurtBoxes.boxes.back();
                     selectBoxAttack = false;
                   }
                   else {
-                    selectBox = &fighter.sprites[frame].aHitBoxes.boxes.back();
+                    selectBox = &hitBoxes.boxes.back();
                   }
                 }
                 else {
-                  selectBox = &fighter.sprites[frame].aHitBoxes.boxes[i - 1];
+                  selectBox = &hitBoxes.boxes[i - 1];
                 }
                 break;
               }
           }
         }
         else {
-          if (fighter.sprites[frame].hitBoxes.size) {
-            selectBox = &fighter.sprites[frame].hitBoxes.boxes.front();
+          if (hurtBoxes.size) {
+            selectBox = &hurtBoxes.boxes.front();
             selectBoxAttack = false;
           }
-          else if (fighter.sprites[frame].aHitBoxes.size) {
-            selectBox = &fighter.sprites[frame].aHitBoxes.boxes.front();
+          else if (hitBoxes.size) {
+            selectBox = &hitBoxes.boxes.front();
             selectBoxAttack = true;
           }
         }
@@ -231,48 +237,48 @@ namespace input {
         selectAll = false;
         if (selectBox) {
           int i = 0;
-          for (; i < fighter.sprites[frame].hitBoxes.size; i++)
-            if (&fighter.sprites[frame].hitBoxes.boxes[i] == selectBox) {
-              if (i == fighter.sprites[frame].hitBoxes.size - 1) {
-                if (fighter.sprites[frame].aHitBoxes.size) {
-                  selectBox = &fighter.sprites[frame].aHitBoxes.boxes.front();
+          for (; i < hurtBoxes.size; i++)
+            if (&hurtBoxes.boxes[i] == selectBox) {
+              if (i == hurtBoxes.size - 1) {
+                if (hitBoxes.size) {
+                  selectBox = &hitBoxes.boxes.front();
                   selectBoxAttack = true;
                 }
                 else {
-                  selectBox = &fighter.sprites[frame].hitBoxes.boxes.front();
+                  selectBox = &hurtBoxes.boxes.front();
                 }
               }
               else {
-                selectBox = &fighter.sprites[frame].hitBoxes.boxes[i + 1];
+                selectBox = &hurtBoxes.boxes[i + 1];
               }
               break;
             }
-          if (i == fighter.sprites[frame].hitBoxes.size) {
-            for (i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++)
-              if (&fighter.sprites[frame].aHitBoxes.boxes[i] == selectBox) {
-                if (i == fighter.sprites[frame].aHitBoxes.size - 1) {
-                  if (fighter.sprites[frame].hitBoxes.size) {
-                    selectBox = &fighter.sprites[frame].hitBoxes.boxes.front();
+          if (i == hurtBoxes.size) {
+            for (i = 0; i < hitBoxes.size; i++)
+              if (&hitBoxes.boxes[i] == selectBox) {
+                if (i == hitBoxes.size - 1) {
+                  if (hurtBoxes.size) {
+                    selectBox = &hurtBoxes.boxes.front();
                     selectBoxAttack = false;
                   }
                   else {
-                    selectBox = &fighter.sprites[frame].aHitBoxes.boxes.front();
+                    selectBox = &hitBoxes.boxes.front();
                   }
                 }
                 else {
-                  selectBox = &fighter.sprites[frame].aHitBoxes.boxes[i + 1];
+                  selectBox = &hitBoxes.boxes[i + 1];
                 }
                 break;
               }
           }
         }
         else {
-          if (fighter.sprites[frame].hitBoxes.size) {
-            selectBox = &fighter.sprites[frame].hitBoxes.boxes.front();
+          if (hurtBoxes.size) {
+            selectBox = &hurtBoxes.boxes.front();
             selectBoxAttack = false;
           }
-          else if (fighter.sprites[frame].aHitBoxes.size) {
-            selectBox = &fighter.sprites[frame].aHitBoxes.boxes.front();
+          else if (hitBoxes.size) {
+            selectBox = &hitBoxes.boxes.front();
             selectBoxAttack = true;
           }
         }
@@ -313,10 +319,10 @@ namespace input {
         }
         else {
           if (ctrl) {
-            fighter.sprites[frame].x += 10;
+            currentX += 10;
           }
           else {
-            fighter.sprites[frame].x++;
+            currentX++;
           }
         }
         break;
@@ -353,10 +359,10 @@ namespace input {
         }
         else {
           if (ctrl) {
-            fighter.sprites[frame].x -= 10;
+            currentX -= 10;
           }
           else {
-            fighter.sprites[frame].x--;
+            currentX--;
           }
         }
         break;
@@ -393,10 +399,10 @@ namespace input {
         }
         else {
           if (ctrl) {
-            fighter.sprites[frame].y -= 10;
+            currentY -= 10;
           }
           else {
-            fighter.sprites[frame].y--;
+            currentY--;
           }
         }
         break;
@@ -436,10 +442,10 @@ namespace input {
         }
         else {
           if (ctrl) {
-            fighter.sprites[frame].y += 10;
+            currentY += 10;
           }
           else {
-            fighter.sprites[frame].y++;
+            currentY++;
           }
         }
         break;
@@ -494,7 +500,8 @@ namespace input {
         ctrl |= 2;
         break;
       }
-    else
+    }
+    else {
       switch (key) {
       case SDLK_LSHIFT:
         shift &= ~1;
@@ -512,6 +519,7 @@ namespace input {
         ctrl &= ~2;
         break;
       }
+    }
   }
 
   void mouseMove(int x, int y) {
@@ -549,35 +557,38 @@ namespace input {
     if (press)
       switch (key) {
       case 0: {
+        sprite::HitBoxGroup &hurtBoxes =
+            fighter.sprites[frame].getrDHurtBoxes();
+        sprite::HitBoxGroup &hitBoxes = fighter.sprites[frame].getrAHitBoxes();
         mouse1Down = true;
         int i = 0;
-        for (; i < fighter.sprites[frame].hitBoxes.size; i++)
-          if (fighter.sprites[frame].hitBoxes.boxes[i].collidePoint(
-                  mousePos.x - sys::WINDOW_WIDTH / 2,
-                  mousePos.y + sys::EDIT_OFFSET)) {
+        for (; i < hurtBoxes.size; i++)
+          if (hurtBoxes.boxes[i].collidePoint(mousePos.x -
+                                                  sys::WINDOW_WIDTH / 2,
+                                              mousePos.y + sys::EDIT_OFFSET)) {
             selectAll = false; // TODO fix this
-            selectBox = &fighter.sprites[frame].hitBoxes.boxes[i];
+            selectBox = &hurtBoxes.boxes[i];
             selectBoxAttack = false;
             selectBoxOffset.x = selectBox->pos.x - mousePos.x;
             selectBoxOffset.y = selectBox->pos.y - sys::FLIP(mousePos.y);
             break;
           }
-        if (i == fighter.sprites[frame].hitBoxes.size) {
+        if (i == hurtBoxes.size) {
           selectBox = nullptr;
         }
         if (!selectBox) {
-          for (i = 0; i < fighter.sprites[frame].aHitBoxes.size; i++)
-            if (fighter.sprites[frame].aHitBoxes.boxes[i].collidePoint(
-                    mousePos.x - sys::WINDOW_WIDTH / 2,
-                    mousePos.y + sys::EDIT_OFFSET)) {
+          for (i = 0; i < hitBoxes.size; i++)
+            if (hitBoxes.boxes[i].collidePoint(mousePos.x -
+                                                   sys::WINDOW_WIDTH / 2,
+                                               mousePos.y + sys::EDIT_OFFSET)) {
               selectAll = false; // TODO fix this
-              selectBox = &fighter.sprites[frame].aHitBoxes.boxes[i];
+              selectBox = &hitBoxes.boxes[i];
               selectBoxAttack = true;
               selectBoxOffset.x = selectBox->pos.x - mousePos.x;
               selectBoxOffset.y = selectBox->pos.y - sys::FLIP(mousePos.y);
               break;
             }
-          if (i == fighter.sprites[frame].aHitBoxes.size) {
+          if (i == hitBoxes.size) {
             selectBox = nullptr;
             selectAll = false;
           }

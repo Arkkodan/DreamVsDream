@@ -276,6 +276,27 @@ namespace sprite {
     return *this;
   }
 
+  int &Sprite::getrX() { return x; }
+  int &Sprite::getrY() { return y; }
+
+#ifdef SPRTOOL
+  Image *Sprite::getImage() { return &img; }
+#endif // SPRTOOL
+
+#ifdef GAME
+  Atlas *Sprite::getAtlas() { return atlas; }
+  void Sprite::setAtlas(Atlas *atlas) { this->atlas = atlas; }
+  int Sprite::getAtlasSprite() const { return atlas_sprite; }
+  void Sprite::setAtlasSprite(int atlas_sprite) {
+    this->atlas_sprite = atlas_sprite;
+  }
+#else // !GAME
+  std::string &Sprite::getrName() { return name; }
+#endif
+
+  HitBoxGroup &Sprite::getrDHurtBoxes() { return hitBoxes; }
+  HitBoxGroup &Sprite::getrAHitBoxes() { return aHitBoxes; }
+
   HitBoxGroup::HitBoxGroup() {
     size = 0;
     boxes.clear();

@@ -970,7 +970,9 @@ namespace game {
 
   void Player::shootProjectile() {
     // Calculate hotspot
-    if (fighter->sprites[sprite].aHitBoxes.size && shoot.state != STATE_NONE) {
+    const sprite::HitBoxGroup &hitBoxes =
+        fighter->sprites[sprite].getrAHitBoxes();
+    if (hitBoxes.size && shoot.state != STATE_NONE) {
       int mirror1 = 1;
       int mirror2 = 1;
       if (isMirrored()) {
@@ -981,10 +983,8 @@ namespace game {
       }
 
       util::Vector hotspot;
-      hotspot.x = fighter->sprites[sprite].aHitBoxes.boxes[0].pos.x +
-                  fighter->sprites[sprite].aHitBoxes.boxes[0].size.x / 2;
-      hotspot.y = fighter->sprites[sprite].aHitBoxes.boxes[0].pos.y +
-                  fighter->sprites[sprite].aHitBoxes.boxes[0].size.y / 2;
+      hotspot.x = hitBoxes.boxes[0].pos.x + hitBoxes.boxes[0].size.x / 2;
+      hotspot.y = hitBoxes.boxes[0].pos.y + hitBoxes.boxes[0].size.y / 2;
 
       projectiles[projectileId].palette = palette;
       projectiles[projectileId].fighter = fighter;
@@ -1014,7 +1014,7 @@ namespace game {
     if (isPlayer()) {
       pself = (Player *)this;
     }
-    if (fighter->sprites[sprite].aHitBoxes.size &&
+    if (fighter->sprites[sprite].getrAHitBoxes().size &&
         !(other->flags & F_INVINCIBLE)) {
       if (!frameHit && (attack.damage || stunOther)) {
         util::Vector colpos;

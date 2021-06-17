@@ -22,8 +22,7 @@ namespace sprite {
 
   /// @brief Data structure containing a hitbox with some methods
   /// @details A hitbox is either an attacking hitbox or a defending hurtbox
-  class HitBox {
-  public:
+  struct HitBox {
     util::Vector pos;
     util::Vector size;
 
@@ -40,8 +39,7 @@ namespace sprite {
   };
 
   /// @brief Data structure containing a group of hitboxes
-  class HitBoxGroup {
-  public:
+  struct HitBoxGroup {
     int size;
     std::vector<HitBox> boxes;
 
@@ -83,6 +81,26 @@ namespace sprite {
                 float scale2, Sprite *other, util::Vector *colpos,
                 bool allowOutOfBounds) const;
 
+    int &getrX();
+    int &getrY();
+
+#ifdef SPRTOOL
+    Image *getImage();
+#endif // SPRTOOL
+
+#ifdef GAME
+    Atlas *getAtlas();
+    void setAtlas(Atlas *atlas);
+    int getAtlasSprite() const;
+    void setAtlasSprite(int atlas_sprite);
+#else // !GAME
+    std::string &getrName();
+#endif
+
+    HitBoxGroup &getrDHurtBoxes();
+    HitBoxGroup &getrAHitBoxes();
+
+  private:
     int x;
     int y;
 
@@ -94,7 +112,7 @@ namespace sprite {
 #ifdef GAME
     Atlas *atlas;
     int atlas_sprite;
-#else
+#else // !GAME
     std::string name;
 #endif
     // Image img;

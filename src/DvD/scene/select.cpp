@@ -479,14 +479,15 @@ void scene::Select::draw() const {
     if (gridFighters[cursors[1].pos] >= 0) {
       game::Fighter *fighter = fighters[gridFighters[cursors[1].pos]];
       sprite::Sprite &spr = fighter->sprites[0];
-      AtlasSprite sprAtlas =
-          fighter->sprites[0].atlas->getSprite(spr.atlas_sprite);
+      int atlas_sprite = spr.getAtlasSprite();
+      const Atlas *atlas = spr.getAtlas();
+      AtlasSprite sprAtlas = atlas->getSprite(atlas_sprite);
 
       graphics::setPalette(fighter->palettes[Fight::poniko.palette], 1.0f, 1.0f,
                            1.0f, 1.0f, 0.0f);
-      fighter->sprites[0].atlas->draw(
-          spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w,
-          sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
+      atlas->draw(atlas_sprite,
+                  sys::WINDOW_WIDTH - 50 + spr.getrX() - sprAtlas.w,
+                  sys::WINDOW_HEIGHT - 40 - spr.getrY() - sprAtlas.h, true);
       renderer::ShaderProgram::unuse();
     }
   }
@@ -494,14 +495,14 @@ void scene::Select::draw() const {
     if (gridFighters[cursors[0].pos] >= 0) {
       game::Fighter *fighter = fighters[gridFighters[cursors[0].pos]];
       sprite::Sprite &spr = fighter->sprites[0];
-      AtlasSprite sprAtlas =
-          fighter->sprites[0].atlas->getSprite(spr.atlas_sprite);
+      int atlas_sprite = spr.getAtlasSprite();
+      const Atlas *atlas = spr.getAtlas();
+      AtlasSprite sprAtlas = atlas->getSprite(atlas_sprite);
 
       graphics::setPalette(fighter->palettes[Fight::madotsuki.palette], 1.0f,
                            1.0f, 1.0f, 1.0f, 0.0f);
-      fighter->sprites[0].atlas->draw(
-          spr.atlas_sprite, 50 - spr.x,
-          sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
+      atlas->draw(atlas_sprite, 50 - spr.getrX(),
+                  sys::WINDOW_HEIGHT - 40 - spr.getrY() - sprAtlas.h, false);
       renderer::ShaderProgram::unuse();
     }
   }

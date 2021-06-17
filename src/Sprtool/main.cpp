@@ -83,43 +83,47 @@ namespace game {
         hitboxCounter = 0;
         attackCounter = 0;
 
-        sprites[i].name = parser.getArg(0);
+        sprites[i].getrName() = parser.getArg(0);
+        int &x = sprites[i].getrX();
+        int &y = sprites[i].getrY();
+        sprite::HitBoxGroup &hurtBoxes = sprites[i].getrDHurtBoxes();
+        sprite::HitBoxGroup &hitBoxes = sprites[i].getrAHitBoxes();
         if (argc == 5) {
-          sprites[i].x = parser.getArgInt(1);
-          sprites[i].y = parser.getArgInt(2);
+          x = parser.getArgInt(1);
+          y = parser.getArgInt(2);
 
-          sprites[i].hitBoxes.init(parser.getArgInt(3));
-          sprites[i].aHitBoxes.init(parser.getArgInt(4));
+          hurtBoxes.init(parser.getArgInt(3));
+          hitBoxes.init(parser.getArgInt(4));
         }
         else {
-          sprites[i].x = 0;
-          sprites[i].y = 0;
+          x = 0;
+          y = 0;
 
-          sprites[i].hitBoxes.init(0);
-          sprites[i].aHitBoxes.init(0);
+          hurtBoxes.init(0);
+          hitBoxes.init(0);
         }
 
         // The image. Load it.
-        sprites[i].img.createFromFile("chars/" + name + "/sprites/" +
-                                      parser.getArg(0) + ".png");
+        sprites[i].getImage()->createFromFile("chars/" + name + "/sprites/" +
+                                              parser.getArg(0) + ".png");
         continue;
       }
 
       if (argc == 4) {
-        if (hitboxCounter < sprites[i].hitBoxes.size) {
-          sprites[i].hitBoxes.boxes[hitboxCounter].pos.x = parser.getArgInt(0);
-          sprites[i].hitBoxes.boxes[hitboxCounter].pos.y = parser.getArgInt(1);
-          sprites[i].hitBoxes.boxes[hitboxCounter].size.x = parser.getArgInt(2);
-          sprites[i].hitBoxes.boxes[hitboxCounter].size.y = parser.getArgInt(3);
+        sprite::HitBoxGroup &hurtBoxes = sprites[i].getrDHurtBoxes();
+        sprite::HitBoxGroup &hitBoxes = sprites[i].getrAHitBoxes();
+        if (hitboxCounter < hurtBoxes.size) {
+          hurtBoxes.boxes[hitboxCounter].pos.x = parser.getArgInt(0);
+          hurtBoxes.boxes[hitboxCounter].pos.y = parser.getArgInt(1);
+          hurtBoxes.boxes[hitboxCounter].size.x = parser.getArgInt(2);
+          hurtBoxes.boxes[hitboxCounter].size.y = parser.getArgInt(3);
           hitboxCounter++;
         }
-        else if (attackCounter < sprites[i].aHitBoxes.size) {
-          sprites[i].aHitBoxes.boxes[attackCounter].pos.x = parser.getArgInt(0);
-          sprites[i].aHitBoxes.boxes[attackCounter].pos.y = parser.getArgInt(1);
-          sprites[i].aHitBoxes.boxes[attackCounter].size.x =
-              parser.getArgInt(2);
-          sprites[i].aHitBoxes.boxes[attackCounter].size.y =
-              parser.getArgInt(3);
+        else if (attackCounter < hitBoxes.size) {
+          hitBoxes.boxes[attackCounter].pos.x = parser.getArgInt(0);
+          hitBoxes.boxes[attackCounter].pos.y = parser.getArgInt(1);
+          hitBoxes.boxes[attackCounter].size.x = parser.getArgInt(2);
+          hitBoxes.boxes[attackCounter].size.y = parser.getArgInt(3);
           attackCounter++;
         }
       }
@@ -138,20 +142,20 @@ namespace game {
     }
 
     for (int i = 0; i < nSprites; i++) {
-      fprintf(out, "\r\n[%s %d, %d, %d, %d]\r\n", sprites[i].name.c_str(),
-              sprites[i].x, sprites[i].y, sprites[i].hitBoxes.size,
-              sprites[i].aHitBoxes.size);
-      for (int j = 0; j < sprites[i].hitBoxes.size; j++) {
-        fprintf(out, "%d, %d, %d, %d\r\n", sprites[i].hitBoxes.boxes[j].pos.x,
-                sprites[i].hitBoxes.boxes[j].pos.y,
-                sprites[i].hitBoxes.boxes[j].size.x,
-                sprites[i].hitBoxes.boxes[j].size.y);
+      const sprite::HitBoxGroup &hurtBoxes = sprites[i].getrDHurtBoxes();
+      const sprite::HitBoxGroup &hitBoxes = sprites[i].getrAHitBoxes();
+      fprintf(out, "\r\n[%s %d, %d, %d, %d]\r\n", sprites[i].getrName().c_str(),
+              sprites[i].getrX(), sprites[i].getrY(), hurtBoxes.size,
+              hitBoxes.size);
+      for (int j = 0; j < hurtBoxes.size; j++) {
+        fprintf(out, "%d, %d, %d, %d\r\n", hurtBoxes.boxes[j].pos.x,
+                hurtBoxes.boxes[j].pos.y, hurtBoxes.boxes[j].size.x,
+                hurtBoxes.boxes[j].size.y);
       }
-      for (int j = 0; j < sprites[i].aHitBoxes.size; j++) {
-        fprintf(out, "%d, %d, %d, %d\r\n", sprites[i].aHitBoxes.boxes[j].pos.x,
-                sprites[i].aHitBoxes.boxes[j].pos.y,
-                sprites[i].aHitBoxes.boxes[j].size.x,
-                sprites[i].aHitBoxes.boxes[j].size.y);
+      for (int j = 0; j < hitBoxes.size; j++) {
+        fprintf(out, "%d, %d, %d, %d\r\n", hitBoxes.boxes[j].pos.x,
+                hitBoxes.boxes[j].pos.y, hitBoxes.boxes[j].size.x,
+                hitBoxes.boxes[j].size.y);
       }
     }
     fclose(out);
