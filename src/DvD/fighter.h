@@ -227,6 +227,63 @@ namespace game {
   /// @details Do not confuse with Projectile or Player
   class Fighter {
   public:
+    Fighter();
+    ~Fighter();
+
+    Fighter(Fighter &&other) noexcept = default;
+    Fighter &operator=(Fighter &&other) noexcept = default;
+
+    void create(std::string name);
+
+#ifdef SPRTOOL
+    void saveSpr();
+#endif
+
+#ifndef COMPILER
+    void draw(int sprite, int x, int y, bool mirror, float scale,
+              unsigned int palette, float alpha, float r, float g, float b,
+              float pct) const;
+    void drawShadow(int sprite, int x, bool mirror, float scale) const;
+#endif
+
+    std::string getDataName() const;
+    std::string getDisplayName() const;
+    int getGroup() const;
+    float getDefense() const;
+    int getHeight() const;
+    int getWidthLeft() const;
+    int getWidthRight() const;
+    float getGravity() const;
+    int getPaletteCount() const;
+#ifdef COMPILER
+    const std::vector<uint8_t> &getcrPalettes() const;
+#else  // !COMPILER
+    const std::vector<renderer::Texture2D> &getcrPalettes() const;
+#endif // !COMPILER
+    int getSpriteCount() const;
+    const sprite::Sprite *getcSpriteAt(int index) const;
+    sprite::Sprite *getSpriteAt(int index);
+#ifndef SPRTOOL
+    int getSoundGroupCount() const;
+    const SoundGroup *getcSoundGroupAt(int index) const;
+    int getVoiceGroupCount() const;
+    const VoiceGroup *getcVoiceGroupAt(int index) const;
+    int getCommandCount() const;
+    const Command *getcCommandAt(int index) const;
+    int getStateCount() const;
+    const State *getcStateAt(int index) const;
+    unsigned int getStateStandardAt(int index) const;
+#endif // !SPRTOOL
+#ifdef GAME
+    // Portraits
+    const Image *getcImageSelect() const;
+    const Image *getcImagePortrait() const;
+    const Image *getcImageSpecial() const;
+    const Image *getcImageEnder() const;
+    const Image *getcImagePortraitUI() const;
+#endif // GAME
+
+  private:
     // General fighter stuff
     std::string name;  // Data name
     std::string dname; // Display name
@@ -279,27 +336,6 @@ namespace game {
     Image ender;
     Image portrait_ui;
 #endif
-
-    Fighter();
-    ~Fighter();
-
-    Fighter(Fighter &&other) noexcept = default;
-    Fighter &operator=(Fighter &&other) noexcept = default;
-
-    void create(std::string name);
-
-#ifdef SPRTOOL
-    void saveSpr();
-#endif
-
-#ifndef COMPILER
-    void draw(int sprite, int x, int y, bool mirror, float scale,
-              unsigned int palette, float alpha, float r, float g, float b,
-              float pct) const;
-    void drawShadow(int sprite, int x, bool mirror, float scale) const;
-#endif
-
-  protected:
   };
 
   /// @brief Set a boolean output parameter based on an enum input parameter

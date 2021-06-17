@@ -101,18 +101,19 @@ namespace game {
 
   void Projectile::advanceFrame() {
     timer++;
+    const State *currentState = fighter->getcStateAt(state);
     if (timer >= wait) {
       wait = 0;
       timer = 0;
 
-      if (step < fighter->states[state].size) {
+      if (step < currentState->size) {
         frameHit = false;
 
         while (!wait) {
           if (state == STATE_NONE) {
             return;
           }
-          if (step < fighter->states[state].size) {
+          if (step < currentState->size) {
             handleFrame();
           }
           else {
@@ -122,7 +123,7 @@ namespace game {
       }
     }
 
-    if (!isPlayer() && step >= fighter->states[state].size && !wait) {
+    if (!isPlayer() && step >= currentState->size && !wait) {
       step = 0;
     }
   }
@@ -284,7 +285,7 @@ namespace game {
   }
 
   void Projectile::setState(int state_) {
-    if (state_ < 0 || state_ >= fighter->nStates) {
+    if (state_ < 0 || state_ >= fighter->getStateCount()) {
       return;
     }
 
@@ -314,15 +315,16 @@ namespace game {
       return;
     }
 
-    setState(fighter->statesStandard[sstate]);
+    setState(fighter->getStateStandardAt(sstate));
   }
 
   void Projectile::playSound(int id) const {
     // Play a random sound
-    if (id < 0 || id >= fighter->nSounds) {
+    if (id < 0 || id >= fighter->getSoundGroupCount()) {
       return;
     }
-    fighter->sounds[id].sounds[util::roll(fighter->sounds[id].size)].play();
+    const SoundGroup *sg = fighter->getcSoundGroupAt(id);
+    sg->sounds[util::roll(sg->size)].play();
   }
 
   void Projectile::say(int id) const {
@@ -333,18 +335,19 @@ namespace game {
     Player *p = (Player *)this;
 
     // Play a random sound
-    if (id < 0 || id >= fighter->nVoices) {
+    if (id < 0 || id >= fighter->getVoiceGroupCount()) {
       return;
     }
     // Randomize on < 50% chance
-    if (util::roll(100) < fighter->voices[id].pct) {
-      p->speaker.play(&fighter->voices[id].voices[util::roll(
-          fighter->voices[id].size)] /*, fighter->voices[id].pct < 30*/);
+    const VoiceGroup *vg = fighter->getcVoiceGroupAt(id);
+    if (util::roll(100) < vg->pct) {
+      p->speaker.play(
+          &vg->voices[util::roll(vg->size)] /*, fighter->voices[id].pct < 30*/);
     }
   }
 
   bool Projectile::inStandardState(unsigned int sstate) const {
-    return fighter->statesStandard[sstate] == state;
+    return fighter->getStateStandardAt(sstate) == state;
   }
 
   bool Projectile::isPlayer() const { return false; }
@@ -525,18 +528,20 @@ namespace game {
         }
       }
 
+      int nCommands = fighter->getCommandCount();
       // First, do multi-step commands.
       // if(!executed)
       {
-        for (int i = 0; i < fighter->nCommands; i++) {
-          if (fighter->commands[i].comboC > 1) {
-            if (fighter->commands[i].comboC <= nInputs) {
+        for (int i = 0; i < nCommands; i++) {
+          const Command *command = fighter->getcCommandAt(i);
+          if (command->comboC > 1) {
+            if (command->comboC <= nInputs) {
               // Directional keys first
               bool equal = false;
-              int c = fighter->commands[i].comboC - 1;
+              int c = command->comboC - 1;
               for (int j = nInputs - 1; j >= 0; j--) {
-                if (keycmp(inputs[j].input, fighter->commands[i].combo[c],
-                           fighter->commands[i].generic & (1 << c))) {
+                if (keycmp(inputs[j].input, command->combo[c],
+                           command->generic & (1 << c))) {
                   if (!c) {
                     if (sysFrame - inputs[j].frame < 15) {
                       equal = true;
@@ -563,16 +568,16 @@ namespace game {
 
       if (!executed) {
         // Now do single-step commands
-        for (int i = 0; i < fighter->nCommands; i++) {
-          if (fighter->commands[i].comboC == 1) {
+        for (int i = 0; i < nCommands; i++) {
+          const Command *command = fighter->getcCommandAt(i);
+          if (command->comboC == 1) {
             uint16_t cmp = input;
-            if (!(fighter->commands[i].combo[0] & INPUT_DIRMASK)) {
+            if (!(command->combo[0] & INPUT_DIRMASK)) {
               cmp &= INPUT_KEYMASK;
             }
-            if (keycmp(cmp, fighter->commands[i].combo[0],
-                       fighter->commands[i].generic & 1)) {
+            if (keycmp(cmp, command->combo[0], command->generic & 1)) {
               // Clear out the UP bit if the command used it
-              if (fighter->commands[i].combo[0] & INPUT_UP) {
+              if (command->combo[0] & INPUT_UP) {
                 this->input &= ~INPUT_UP;
               }
               if (executeCommand(i)) {
@@ -647,18 +652,20 @@ namespace game {
       else {
         advanceFrame();
         pos.x += vel.x;
+        int widthLeft = fighter->getWidthLeft();
+        int widthRight = fighter->getWidthRight();
 
-        int w = (dir == RIGHT ? fighter->widthRight : fighter->widthLeft);
+        int w = (dir == RIGHT ? widthRight : widthLeft);
         int stageEWidth = STAGE->getEntWidth();
         if (pos.x + w + STAGE_BUFFER > stageEWidth) {
           // vel.x = 0.0f;
-          pos.x = stageEWidth - fighter->widthRight - STAGE_BUFFER;
+          pos.x = stageEWidth - widthRight - STAGE_BUFFER;
         }
 
-        w = (dir == LEFT ? fighter->widthRight : fighter->widthLeft);
+        w = (dir == LEFT ? widthRight : widthLeft);
         if (pos.x - w - STAGE_BUFFER < -stageEWidth) {
           // vel.x = 0.0f;
-          pos.x = -stageEWidth + fighter->widthLeft + STAGE_BUFFER;
+          pos.x = -stageEWidth + widthLeft + STAGE_BUFFER;
         }
 
         if (!(flags & F_ON_GROUND)) {
@@ -666,7 +673,7 @@ namespace game {
 
           float oldvel = vel.y;
           if (flags & F_GRAVITY) {
-            vel.y -= fighter->gravity;
+            vel.y -= fighter->getGravity();
           }
           if (oldvel > 0 && vel.y < 0) {
             if (!isAttacking() && !isBeingHit()) {
@@ -828,7 +835,7 @@ namespace game {
   void Player::advanceFrame() {
     Projectile::advanceFrame();
 
-    if (step >= fighter->states[state].size && !wait) {
+    if (step >= fighter->getcStateAt(state)->size && !wait) {
       // End attacks/land/stop recoiling
       if (isBeingHit() || isInBlock()) {
         if ((inStandardState(STATE_HIT_MID) ||
@@ -920,30 +927,32 @@ namespace game {
       break;
     case STEP_Super:
       break;
-    case STEP_Special:
+    case STEP_Special: {
       special = 2500 * sys::SPF;
       scene::Fight::pause(2500 * sys::SPF);
       effect::newEffect("Actionlines", sys::WINDOW_WIDTH / 2,
                         sys::WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
-      switch (fighter->group) {
+      int height = fighter->getHeight();
+      switch (fighter->getGroup()) {
       case 0:
         sndTransformYn->play();
-        effect::newEffect("Transform_yn", 0, fighter->height / 2, true,
-                          dir == LEFT, 1, 1, this);
+        effect::newEffect("Transform_yn", 0, height / 2, true, dir == LEFT, 1,
+                          1, this);
         break;
       case 1:
         sndTransform2kki->play();
-        effect::newEffect("Transform_2kki", 0, fighter->height, true,
-                          dir == LEFT, 1, 1, this);
+        effect::newEffect("Transform_2kki", 0, height, true, dir == LEFT, 1, 1,
+                          this);
         break;
       case 2:
         sndTransformFlow->play();
-        effect::newEffect("Transform_flow", 0, fighter->height / 2, true,
-                          dir == LEFT, 1, 1, this);
+        effect::newEffect("Transform_flow", 0, height / 2, true, dir == LEFT, 1,
+                          1, this);
         break;
       }
       flash = 1.0f;
       break;
+    }
     case STEP_Shoot:
       shoot.state = readWord();
       shoot.force.x = readFloat();
@@ -966,7 +975,7 @@ namespace game {
   void Player::shootProjectile() {
     // Calculate hotspot
     const sprite::HitBoxGroup &hitBoxes =
-        fighter->sprites[sprite].getrAHitBoxes();
+        fighter->getcSpriteAt(sprite)->getcrAHitBoxes();
     if (hitBoxes.size && shoot.state != STATE_NONE) {
       int mirror1 = 1;
       int mirror2 = 1;
@@ -1009,14 +1018,16 @@ namespace game {
     if (isPlayer()) {
       pself = (Player *)this;
     }
-    if (fighter->sprites[sprite].getrAHitBoxes().size &&
-        !(other->flags & F_INVINCIBLE)) {
+    const sprite::Sprite *s_sprite = fighter->getcSpriteAt(sprite);
+    const sprite::Sprite *o_sprite =
+        other->fighter->getcSpriteAt(other->sprite);
+    if (s_sprite->getcrAHitBoxes().size && !(other->flags & F_INVINCIBLE)) {
       if (!frameHit && (attack.damage || stunOther)) {
         util::Vector colpos;
-        int hit = fighter->sprites[sprite].collide(
-            (int)pos.x, (int)pos.y, (int)other->pos.x, (int)other->pos.y,
-            isMirrored(), other->isMirrored(), scale, other->scale,
-            &other->fighter->sprites[other->sprite], &colpos, false);
+        int hit = s_sprite->collide((int)pos.x, (int)pos.y, (int)other->pos.x,
+                                    (int)other->pos.y, isMirrored(),
+                                    other->isMirrored(), scale, other->scale,
+                                    o_sprite, &colpos, false);
 
         if (hit == sprite::HIT_HIT) {
           // Automatically reset draw priority
@@ -1056,6 +1067,7 @@ namespace game {
             }
 
             int stageEWidth = STAGE->getEntWidth();
+            int o_widthLeft = pother->fighter->getWidthLeft();
             if (blocked) {
               effect::newEffect("BlockHit", colpos.x, colpos.y, true,
                                 dir == LEFT, 1, 1, nullptr);
@@ -1073,9 +1085,8 @@ namespace game {
               }
 
               if (_force > 0 && (flags & F_ON_GROUND)) {
-                if (pother->pos.x + pother->fighter->widthLeft + STAGE_BUFFER >=
-                        stageEWidth ||
-                    pother->pos.x - pother->fighter->widthLeft - STAGE_BUFFER <=
+                if (pother->pos.x + o_widthLeft + STAGE_BUFFER >= stageEWidth ||
+                    pother->pos.x - o_widthLeft - STAGE_BUFFER <=
                         -stageEWidth) {
                   vel.x = _force * -mirror;
                 }
@@ -1152,9 +1163,8 @@ namespace game {
               }
 
               if (_force > 0 && (flags & F_ON_GROUND)) {
-                if (pother->pos.x + pother->fighter->widthLeft + STAGE_BUFFER >=
-                        stageEWidth ||
-                    pother->pos.x - pother->fighter->widthLeft - STAGE_BUFFER <=
+                if (pother->pos.x + o_widthLeft + STAGE_BUFFER >= stageEWidth ||
+                    pother->pos.x - o_widthLeft - STAGE_BUFFER <=
                         -stageEWidth) {
                   vel.x = _force * -mirror;
                 }
@@ -1219,27 +1229,33 @@ namespace game {
 
     // Check for character collisions
     if (pother && pself) {
+      int m_widthLeft = fighter->getWidthLeft();
+      int m_widthRight = fighter->getWidthRight();
+      int m_height = fighter->getHeight();
       sprite::HitBox me;
-      me.size.x = fighter->widthLeft + fighter->widthRight;
+      me.size.x = m_widthLeft + m_widthRight;
       me.pos.y = pos.y;
-      me.size.y = fighter->height;
+      me.size.y = m_height;
 
       if (dir == RIGHT) {
-        me.pos.x = pos.x - fighter->widthLeft;
+        me.pos.x = pos.x - m_widthLeft;
       }
       else {
-        me.pos.x = pos.x - fighter->widthRight;
+        me.pos.x = pos.x - m_widthRight;
       }
 
+      int y_widthLeft = other->fighter->getWidthLeft();
+      int y_widthRight = other->fighter->getWidthRight();
+      int y_height = other->fighter->getHeight();
       sprite::HitBox you;
-      you.size.x = other->fighter->widthLeft + other->fighter->widthRight;
+      you.size.x = y_widthLeft + y_widthRight;
       you.pos.y = other->pos.y;
-      you.size.y = other->fighter->height;
+      you.size.y = y_height;
       if (other->dir == RIGHT) {
-        you.pos.x = other->pos.x - other->fighter->widthLeft;
+        you.pos.x = other->pos.x - y_widthLeft;
       }
       else {
-        you.pos.x = other->pos.x - other->fighter->widthRight;
+        you.pos.x = other->pos.x - y_widthRight;
       }
 
       util::Vector c;
@@ -1248,26 +1264,26 @@ namespace game {
         if (me.pos.x < you.pos.x) {
           // pos.x = other->pos.x - other->fighter->widthLeft * 2 -
           // fighter->widthRight * 2;
-          pos.x = c.x - fighter->widthRight;
-          other->pos.x = c.x + fighter->widthLeft;
+          pos.x = c.x - m_widthRight;
+          other->pos.x = c.x + m_widthLeft;
         }
         else if (me.pos.x > you.pos.x) {
           // pos.x = other->pos.x + other->fighter->widthRight * 2 +
           // fighter->widthLeft * 2;
-          pos.x = c.x + fighter->widthLeft;
-          other->pos.x = c.x - fighter->widthRight;
+          pos.x = c.x + m_widthLeft;
+          other->pos.x = c.x - m_widthRight;
         }
         else {
           // UGLY HACK
           // Whomever is higher gets precedence
           if (me.pos.y > you.pos.y) {
             if (dir == LEFT) {
-              pos.x = c.x - fighter->widthRight;
-              other->pos.x = c.x + fighter->widthLeft;
+              pos.x = c.x - m_widthRight;
+              other->pos.x = c.x + m_widthLeft;
             }
             else {
-              pos.x = c.x + fighter->widthLeft;
-              other->pos.x = c.x - fighter->widthRight;
+              pos.x = c.x + m_widthLeft;
+              other->pos.x = c.x - m_widthRight;
             }
           }
         }
@@ -1349,34 +1365,36 @@ namespace game {
 
     renderer::ShaderProgram::unuse();
 
-    unsigned int enderW = fighter->ender.getW();
-    unsigned int enderH = fighter->ender.getH();
-    unsigned int specialW = fighter->special.getW();
-    unsigned int specialH = fighter->special.getH();
+    const Image *enderImg = fighter->getcImageEnder();
+    const Image *specialImg = fighter->getcImageSpecial();
+    unsigned int enderW = enderImg->getW();
+    unsigned int enderH = enderImg->getH();
+    unsigned int specialW = specialImg->getW();
+    unsigned int specialH = specialImg->getH();
     if (special > 2200 * sys::SPF) {
       float scalar = (special - 2200 * sys::SPF) / (300 * sys::SPF);
       renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f - scalar);
       graphics::setScale(1.0 + scalar * 0.5);
       if (ender) {
         if (dir == RIGHT) {
-          fighter->ender.draw<renderer::Texture2DRenderer>(
+          enderImg->draw<renderer::Texture2DRenderer>(
               40 - (enderW * scalar) / 4,
               sys::FLIP(46) - enderH - (enderH * scalar) / 4);
         }
         else {
-          fighter->ender.draw<renderer::Texture2DRenderer>(
+          enderImg->draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH - enderW - (40 - (enderW * scalar) / 4),
               sys::FLIP(46) - enderH - (enderH * scalar) / 4, true);
         }
       }
       else {
         if (dir == RIGHT) {
-          fighter->special.draw<renderer::Texture2DRenderer>(
+          specialImg->draw<renderer::Texture2DRenderer>(
               40 - (specialW * scalar) / 4,
               sys::FLIP(46) - specialH - (specialH * scalar) / 4);
         }
         else {
-          fighter->special.draw<renderer::Texture2DRenderer>(
+          specialImg->draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH - specialW - (40 - (specialW * scalar) / 4),
               sys::FLIP(46) - specialH - (specialH * scalar) / 4, true);
         }
@@ -1385,21 +1403,21 @@ namespace game {
     else if (special > 1000 * sys::SPF) {
       if (ender) {
         if (dir == RIGHT) {
-          fighter->ender.draw<renderer::Texture2DRenderer>(40, sys::FLIP(46) -
-                                                                   enderH);
+          enderImg->draw<renderer::Texture2DRenderer>(40,
+                                                      sys::FLIP(46) - enderH);
         }
         else {
-          fighter->ender.draw<renderer::Texture2DRenderer>(
+          enderImg->draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH - enderW - 40, sys::FLIP(46) - enderH, true);
         }
       }
       else {
         if (dir == RIGHT) {
-          fighter->special.draw<renderer::Texture2DRenderer>(40, sys::FLIP(46) -
-                                                                     specialH);
+          specialImg->draw<renderer::Texture2DRenderer>(40, sys::FLIP(46) -
+                                                                specialH);
         }
         else {
-          fighter->special.draw<renderer::Texture2DRenderer>(
+          specialImg->draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH - specialW - 40, sys::FLIP(46) - specialH,
               true);
         }
@@ -1410,11 +1428,11 @@ namespace game {
       renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
       if (ender) {
         if (dir == RIGHT) {
-          fighter->ender.draw<renderer::Texture2DRenderer>(
+          enderImg->draw<renderer::Texture2DRenderer>(
               40 + (1000 * sys::SPF - special) * 30, sys::FLIP(46) - enderH);
         }
         else {
-          fighter->ender.draw<renderer::Texture2DRenderer>(
+          enderImg->draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH - enderW -
                   (40 + (1000 * sys::SPF - special) * 30),
               sys::FLIP(46) - enderH, true);
@@ -1422,11 +1440,11 @@ namespace game {
       }
       else {
         if (dir == RIGHT) {
-          fighter->special.draw<renderer::Texture2DRenderer>(
+          specialImg->draw<renderer::Texture2DRenderer>(
               40 + (1000 * sys::SPF - special) * 30, sys::FLIP(46) - specialH);
         }
         else {
-          fighter->special.draw<renderer::Texture2DRenderer>(
+          specialImg->draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH - specialW -
                   (40 + (1000 * sys::SPF - special) * 30),
               sys::FLIP(46) - specialH, true);
@@ -1464,10 +1482,11 @@ namespace game {
   }
 
   bool Player::executeCommand(int cmd) {
-    for (int i = 0; i < fighter->commands[cmd].targetC; i++) {
+    const Command *command = fighter->getcCommandAt(cmd);
+    for (int i = 0; i < command->targetC; i++) {
       bool cndTrue = false;
-      for (int j = 0; j < fighter->commands[cmd].targets[i].conditionC; j++) {
-        uint8_t cnd = fighter->commands[cmd].targets[i].conditions[j];
+      for (int j = 0; j < command->targets[i].conditionC; j++) {
+        uint8_t cnd = command->targets[i].conditions[j];
 
         // Check the conditions
         bool cndNot = false;
@@ -1511,7 +1530,7 @@ namespace game {
       // If the conditions were all true, then this is a valid state to enter
       // Make sure the hitlevel's good
       if (cndTrue) {
-        setStateByInput(fighter->commands[cmd].targets[i].state);
+        setStateByInput(command->targets[i].state);
         return true;
       }
     }
@@ -1626,35 +1645,41 @@ namespace game {
     return false;
   }
 
-  int Player::getMaxHp() const { return DEFAULT_HP_MAX * fighter->defense; }
+  int Player::getMaxHp() const {
+    return DEFAULT_HP_MAX * fighter->getDefense();
+  }
 
   int8_t Projectile::readByte() {
-    int8_t value = *((int8_t *)((char *)&fighter->states[state].steps[step]));
+    int8_t value =
+        *((int8_t *)((char *)&fighter->getcStateAt(state)->steps[step]));
     step += 1;
     return value;
   }
 
   int16_t Projectile::readWord() {
-    int16_t value = *((int16_t *)((char *)&fighter->states[state].steps[step]));
+    int16_t value =
+        *((int16_t *)((char *)&fighter->getcStateAt(state)->steps[step]));
     step += 2;
     return value;
   }
 
   int32_t Projectile::readDword() {
-    int32_t value = *((int32_t *)((char *)&fighter->states[state].steps[step]));
+    int32_t value =
+        *((int32_t *)((char *)&fighter->getcStateAt(state)->steps[step]));
     step += 4;
     return value;
   }
 
   float Projectile::readFloat() {
-    int32_t value = *((int32_t *)((char *)&fighter->states[state].steps[step]));
+    int32_t value =
+        *((int32_t *)((char *)&fighter->getcStateAt(state)->steps[step]));
     step += 4;
     return value / (float)sys::FLOAT_ACCURACY;
   }
 
   std::string Projectile::readString() {
     uint8_t size = readByte();
-    char *ptr = (char *)&fighter->states[state].steps[step];
+    char *ptr = (char *)&fighter->getcStateAt(state)->steps[step];
     std::string str = std::string(ptr, ptr + size);
     step += size;
     return str;
@@ -1692,7 +1717,7 @@ namespace game {
       return;
     }
 
-    setStateByInput(fighter->statesStandard[sstate]);
+    setStateByInput(fighter->getStateStandardAt(sstate));
   }
 
   bool Player::keycmp(uint16_t key1, uint16_t key2, bool generic) {

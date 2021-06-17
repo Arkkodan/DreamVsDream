@@ -91,8 +91,8 @@ namespace game {
     for (int i = 0; i < nSprites; i++) {
       sprites[i].setAtlas(&atlas_sprites);
       sprites[i].setAtlasSprite(file.readWord());
-      sprites[i].getrX() = file.readWord();
-      sprites[i].getrY() = file.readWord();
+      sprites[i].setX(file.readWord());
+      sprites[i].setY(file.readWord());
 
       sprite::HitBoxGroup &hurtBoxes = sprites[i].getrDHurtBoxes();
       hurtBoxes.init(file.readByte());
@@ -232,7 +232,58 @@ namespace game {
     }
   }
 
+#endif // GAME
+
+  std::string Fighter::getDataName() const { return name; }
+  std::string Fighter::getDisplayName() const { return dname; }
+  int Fighter::getGroup() const { return group; }
+  float Fighter::getDefense() const { return defense; }
+  int Fighter::getHeight() const { return height; }
+  int Fighter::getWidthLeft() const { return widthLeft; }
+  int Fighter::getWidthRight() const { return widthRight; }
+  float Fighter::getGravity() const { return gravity; }
+  int Fighter::getPaletteCount() const { return nPalettes; }
+#ifdef COMPILER
+  const std::vector<uint8_t> &Fighter::getcrPalettes() const {
+    return palettes;
+  }
+#else
+  const std::vector<renderer::Texture2D> &Fighter::getcrPalettes() const {
+    return palettes;
+  }
 #endif
+  int Fighter::getSpriteCount() const { return nSprites; }
+  const sprite::Sprite *Fighter::getcSpriteAt(int index) const {
+    return &sprites[index];
+  }
+  sprite::Sprite *Fighter::getSpriteAt(int index) { return &sprites[index]; }
+#ifndef SPRTOOL
+  int Fighter::getSoundGroupCount() const { return nSounds; }
+  const SoundGroup *Fighter::getcSoundGroupAt(int index) const {
+    return &sounds[index];
+  }
+  int Fighter::getVoiceGroupCount() const { return nVoices; }
+  const VoiceGroup *Fighter::getcVoiceGroupAt(int index) const {
+    return &voices[index];
+  }
+  int Fighter::getCommandCount() const { return nCommands; }
+  const Command *Fighter::getcCommandAt(int index) const {
+    return &commands[index];
+  }
+  int Fighter::getStateCount() const { return nStates; }
+  const State *Fighter::getcStateAt(int index) const { return &states[index]; }
+  unsigned int Fighter::getStateStandardAt(int index) const {
+    return statesStandard[index];
+  }
+#endif // !SPRTOOL
+#ifdef GAME
+  // Portraits
+  const Image *Fighter::getcImageSelect() const { return &select; }
+  const Image *Fighter::getcImagePortrait() const { return &portrait; }
+  const Image *Fighter::getcImageSpecial() const { return &special; }
+  const Image *Fighter::getcImageEnder() const { return &ender; }
+  const Image *Fighter::getcImagePortraitUI() const { return &portrait_ui; }
+#endif // GAME
 
 #ifndef SPRTOOL
   void SoundGroup::init(int size_) {

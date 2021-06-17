@@ -64,12 +64,13 @@ namespace input {
   bool isSelectAll() { return selectAll; }
 
   void moveAll(int x, int y) {
-    sprite::HitBoxGroup &hurtBoxes = fighter.sprites[frame].getrDHurtBoxes();
+    sprite::Sprite *sprite = fighter.getSpriteAt(frame);
+    sprite::HitBoxGroup &hurtBoxes = sprite->getrDHurtBoxes();
     for (int i = 0; i < hurtBoxes.size; i++) {
       hurtBoxes.boxes[i].pos.x += x;
       hurtBoxes.boxes[i].pos.y += y;
     }
-    sprite::HitBoxGroup &hitBoxes = fighter.sprites[frame].getrAHitBoxes();
+    sprite::HitBoxGroup &hitBoxes = sprite->getrAHitBoxes();
     for (int i = 0; i < hitBoxes.size; i++) {
       hitBoxes.boxes[i].pos.x += x;
       hitBoxes.boxes[i].pos.y += y;
@@ -81,10 +82,9 @@ namespace input {
     static int ctrl = 0;
 
     if (press) {
-      sprite::HitBoxGroup &hurtBoxes = fighter.sprites[frame].getrDHurtBoxes();
-      sprite::HitBoxGroup &hitBoxes = fighter.sprites[frame].getrAHitBoxes();
-      int &currentX = fighter.sprites[frame].getrX();
-      int &currentY = fighter.sprites[frame].getrY();
+      sprite::Sprite *currentSprite = fighter.getSpriteAt(frame);
+      sprite::HitBoxGroup &hurtBoxes = currentSprite->getrDHurtBoxes();
+      sprite::HitBoxGroup &hitBoxes = currentSprite->getrAHitBoxes();
       switch (key) {
       // Invert screen colors
       case SDLK_q:
@@ -117,11 +117,12 @@ namespace input {
           }
 
           // Copy everything
+          const sprite::Sprite *copySprite = fighter.getcSpriteAt(copyFrame);
           if (copyBoxes) {
             const sprite::HitBoxGroup &copyHurtBoxes =
-                fighter.sprites[copyFrame].getrDHurtBoxes();
+                copySprite->getcrDHurtBoxes();
             const sprite::HitBoxGroup &copyHitBoxes =
-                fighter.sprites[copyFrame].getrAHitBoxes();
+                copySprite->getcrAHitBoxes();
             hurtBoxes.boxes.clear();
             hitBoxes.boxes.clear();
             hurtBoxes.init(copyHurtBoxes.size);
@@ -135,8 +136,8 @@ namespace input {
             }
           }
           else {
-            currentX = fighter.sprites[copyFrame].getrX();
-            currentY = fighter.sprites[copyFrame].getrY();
+            currentSprite->setX(copySprite->getX());
+            currentSprite->setY(copySprite->getY());
           }
         }
         break;
@@ -319,10 +320,10 @@ namespace input {
         }
         else {
           if (ctrl) {
-            currentX += 10;
+            currentSprite->setX(currentSprite->getX() + 10);
           }
           else {
-            currentX++;
+            currentSprite->setX(currentSprite->getX() + 1);
           }
         }
         break;
@@ -359,10 +360,10 @@ namespace input {
         }
         else {
           if (ctrl) {
-            currentX -= 10;
+            currentSprite->setX(currentSprite->getX() - 10);
           }
           else {
-            currentX--;
+            currentSprite->setX(currentSprite->getX() - 1);
           }
         }
         break;
@@ -399,10 +400,10 @@ namespace input {
         }
         else {
           if (ctrl) {
-            currentY -= 10;
+            currentSprite->setY(currentSprite->getY() - 10);
           }
           else {
-            currentY--;
+            currentSprite->setY(currentSprite->getY() - 1);
           }
         }
         break;
@@ -442,30 +443,32 @@ namespace input {
         }
         else {
           if (ctrl) {
-            currentY += 10;
+            currentSprite->setY(currentSprite->getY() + 10);
           }
           else {
-            currentY++;
+            currentSprite->setY(currentSprite->getY() + 1);
           }
         }
         break;
 
-      case SDLK_o:
+      case SDLK_o: {
         // case SDLK_PageUp:
         selectBox = nullptr;
         selectAll = false;
+        int nSprites = fighter.getSpriteCount();
         if (ctrl) {
-          if (frame <= fighter.nSprites - 1 - 10) {
+          if (frame <= nSprites - 1 - 10) {
             frame += 10;
           }
           else {
-            frame = fighter.nSprites - 1;
+            frame = nSprites - 1;
           }
         }
-        else if (frame < fighter.nSprites - 1) {
+        else if (frame < nSprites - 1) {
           frame++;
         }
         break;
+      }
 
       case SDLK_i:
         // case SDLK_PageDown:
@@ -557,9 +560,9 @@ namespace input {
     if (press)
       switch (key) {
       case 0: {
-        sprite::HitBoxGroup &hurtBoxes =
-            fighter.sprites[frame].getrDHurtBoxes();
-        sprite::HitBoxGroup &hitBoxes = fighter.sprites[frame].getrAHitBoxes();
+        sprite::Sprite *sprite = fighter.getSpriteAt(frame);
+        sprite::HitBoxGroup &hurtBoxes = sprite->getrDHurtBoxes();
+        sprite::HitBoxGroup &hitBoxes = sprite->getrAHitBoxes();
         mouse1Down = true;
         int i = 0;
         for (; i < hurtBoxes.size; i++)

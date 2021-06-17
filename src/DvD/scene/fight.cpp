@@ -847,23 +847,25 @@ void scene::Fight::draw() const {
     // Draw character portraits
     bool shader_support = graphics::hasShaderSupport();
     if (shader_support) {
-      graphics::setPalette(madotsuki.fighter->palettes[madotsuki.palette], 1.0f,
-                           0.0f, 0.0f, 0.0f, 0.0f);
+      graphics::setPalette(
+          madotsuki.fighter->getcrPalettes()[madotsuki.palette], 1.0f, 0.0f,
+          0.0f, 0.0f, 0.0f);
     }
-    madotsuki.fighter->portrait_ui.draw<renderer::FighterRenderer>(
+    madotsuki.fighter->getcImagePortraitUI()->draw<renderer::FighterRenderer>(
         portraitPos.x, portraitPos.y);
     if (shader_support) {
-      graphics::setPalette(poniko.fighter->palettes[poniko.palette], 1.0f, 0.0f,
-                           0.0f, 0.0f, 0.0f);
+      graphics::setPalette(poniko.fighter->getcrPalettes()[poniko.palette],
+                           1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
     }
     else {
       renderer::FighterRenderer::setColor(150 / 255.0f, 150 / 255.0f,
                                           150 / 255.0f);
       renderer::FighterRenderer::setAlpha(1.0f);
     }
-    poniko.fighter->portrait_ui.draw<renderer::FighterRenderer>(
-        sys::WINDOW_WIDTH - portraitPos.x - poniko.fighter->portrait_ui.getW(),
-        portraitPos.y, true);
+    const Image *p_portraitUI = poniko.fighter->getcImagePortraitUI();
+    p_portraitUI->draw<renderer::FighterRenderer>(
+        sys::WINDOW_WIDTH - portraitPos.x - p_portraitUI->getW(), portraitPos.y,
+        true);
     if (shader_support) {
       renderer::ShaderProgram::unuse();
     }
@@ -970,8 +972,8 @@ void scene::Fight::draw() const {
 
   // From main.cpp
   reinterpret_cast<Select *>(getSceneFromIndex(SCENE_SELECT))
-      ->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x,
-                   madotsuki.pos.y + madotsuki.fighter->height, true);
+      ->drawEffect(0, madotsuki.fighter->getGroup(), madotsuki.pos.x,
+                   madotsuki.pos.y + madotsuki.fighter->getHeight(), true);
 }
 
 void scene::Fight::reset() {

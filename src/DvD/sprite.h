@@ -78,26 +78,30 @@ namespace sprite {
 #endif
 
     int collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1,
-                float scale2, Sprite *other, util::Vector *colpos,
+                float scale2, const Sprite *other, util::Vector *colpos,
                 bool allowOutOfBounds) const;
 
-    int &getrX();
-    int &getrY();
+    int getX() const;
+    void setX(int x);
+    int getY() const;
+    void setY(int y);
 
 #ifdef SPRTOOL
     Image *getImage();
 #endif // SPRTOOL
 
 #ifdef GAME
-    Atlas *getAtlas();
+    const Atlas *getcAtlas() const;
     void setAtlas(Atlas *atlas);
     int getAtlasSprite() const;
     void setAtlasSprite(int atlas_sprite);
-#else // !GAME
-    std::string &getrName();
-#endif
+#endif // GAME
+    std::string getName() const;
+    void setName(const std::string &name);
 
+    const HitBoxGroup &getcrDHurtBoxes() const;
     HitBoxGroup &getrDHurtBoxes();
+    const HitBoxGroup &getcrAHitBoxes() const;
     HitBoxGroup &getrAHitBoxes();
 
   private:
@@ -117,7 +121,7 @@ namespace sprite {
 #endif
     // Image img;
 
-    HitBoxGroup hitBoxes;
+    HitBoxGroup hurtBoxes;
     HitBoxGroup aHitBoxes;
   };
 } // namespace sprite

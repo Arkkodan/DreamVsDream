@@ -91,7 +91,7 @@ namespace audio {
     ~Speaker();
 
     void init();
-    void play(Voice *voice) const;
+    void play(const Voice *voice) const;
     void stop() const;
   };
 } // namespace audio

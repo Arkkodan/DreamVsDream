@@ -604,7 +604,7 @@ namespace audio {
 #endif
   }
 
-  void Speaker::play(Voice *voice) const {
+  void Speaker::play(const Voice *voice) const {
 #ifndef NO_SOUND
     for (int i = 0; i < SPEAKER_SOURCE_MAX; i++) {
       if (speaker_sources[i].speaker == this) {

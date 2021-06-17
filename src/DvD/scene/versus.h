@@ -14,7 +14,7 @@ namespace scene {
     void init() override final;
 
     // Members
-    std::array<Image *, 2> portraits;
+    std::array<const Image *, 2> portraits;
     int timer1;
     int timer2;
     int timer3;

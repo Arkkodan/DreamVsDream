@@ -83,21 +83,19 @@ namespace game {
         hitboxCounter = 0;
         attackCounter = 0;
 
-        sprites[i].getrName() = parser.getArg(0);
-        int &x = sprites[i].getrX();
-        int &y = sprites[i].getrY();
+        sprites[i].setName(parser.getArg(0));
         sprite::HitBoxGroup &hurtBoxes = sprites[i].getrDHurtBoxes();
         sprite::HitBoxGroup &hitBoxes = sprites[i].getrAHitBoxes();
         if (argc == 5) {
-          x = parser.getArgInt(1);
-          y = parser.getArgInt(2);
+          sprites[i].setX(parser.getArgInt(1));
+          sprites[i].setY(parser.getArgInt(2));
 
           hurtBoxes.init(parser.getArgInt(3));
           hitBoxes.init(parser.getArgInt(4));
         }
         else {
-          x = 0;
-          y = 0;
+          sprites[i].setX(0);
+          sprites[i].setY(0);
 
           hurtBoxes.init(0);
           hitBoxes.init(0);
@@ -144,8 +142,8 @@ namespace game {
     for (int i = 0; i < nSprites; i++) {
       const sprite::HitBoxGroup &hurtBoxes = sprites[i].getrDHurtBoxes();
       const sprite::HitBoxGroup &hitBoxes = sprites[i].getrAHitBoxes();
-      fprintf(out, "\r\n[%s %d, %d, %d, %d]\r\n", sprites[i].getrName().c_str(),
-              sprites[i].getrX(), sprites[i].getrY(), hurtBoxes.size,
+      fprintf(out, "\r\n[%s %d, %d, %d, %d]\r\n", sprites[i].getName().c_str(),
+              sprites[i].getX(), sprites[i].getY(), hurtBoxes.size,
               hitBoxes.size);
       for (int j = 0; j < hurtBoxes.size; j++) {
         fprintf(out, "%d, %d, %d, %d\r\n", hurtBoxes.boxes[j].pos.x,
@@ -212,7 +210,7 @@ int main(int argc, char **argv)
     renderer::PrimitiveRenderer::draw();
     renderer::ShaderProgram::unuse();
 
-    fighter.sprites[frame].draw(0, sys::EDIT_OFFSET, false, 1.0f);
+    fighter.getSpriteAt(frame)->draw(0, sys::EDIT_OFFSET, false, 1.0f);
   }
 
   return 0;

@@ -135,7 +135,7 @@ namespace sprite {
   }
 
   int Sprite::collide(int x1, int y1, int x2, int y2, bool m1, bool m2,
-                      float scale1, float scale2, Sprite *other,
+                      float scale1, float scale2, const Sprite *other,
                       util::Vector *colpos, bool allowOutOfBounds) const {
     // Check for attack hitbox collision with other sprite
     for (int i = 0; i < aHitBoxes.size; i++) {
@@ -149,8 +149,8 @@ namespace sprite {
         }
       }
       // Now, normal enemy hitboxes
-      for (int j = 0; j < other->hitBoxes.size; j++) {
-        HitBox you = other->hitBoxes.boxes[j].adjust(x2, y2, m2, scale2);
+      for (int j = 0; j < other->hurtBoxes.size; j++) {
+        HitBox you = other->hurtBoxes.boxes[j].adjust(x2, y2, m2, scale2);
         if (me.collideOther(&you, colpos, allowOutOfBounds)) {
           return HIT_HIT;
         }
@@ -190,10 +190,11 @@ namespace sprite {
     bool selectAll = input::isSelectAll();
     const auto *selectBox = input::getSelectBox();
     bool selectBoxAttack = input::isSelectBoxAttack();
-    for (int i = 0; i < hitBoxes.size; i++) {
-      hitBoxes.boxes[i].draw(
+    for (int i = 0; i < hurtBoxes.size; i++) {
+      hurtBoxes.boxes[i].draw(
           x2, y2, false,
-          selectAll || ((&hitBoxes.boxes[i] == selectBox) && !selectBoxAttack));
+          selectAll ||
+              ((&hurtBoxes.boxes[i] == selectBox) && !selectBoxAttack));
     }
     for (int i = 0; i < aHitBoxes.size; i++) {
       aHitBoxes.boxes[i].draw(
@@ -233,7 +234,7 @@ namespace sprite {
         name()
 #endif
         ,
-        hitBoxes(), aHitBoxes() {
+        hurtBoxes(), aHitBoxes() {
   }
 
   Sprite::~Sprite() {}
@@ -252,7 +253,7 @@ namespace sprite {
         name(std::move(other.name))
 #endif
         ,
-        hitBoxes(other.hitBoxes), aHitBoxes(other.aHitBoxes) {
+        hurtBoxes(other.hurtBoxes), aHitBoxes(other.aHitBoxes) {
 #ifdef GAME
     other.atlas = nullptr;
 #endif
@@ -270,31 +271,36 @@ namespace sprite {
 #else
     name = std::move(other.name);
 #endif
-    hitBoxes = std::move(other.hitBoxes);
+    hurtBoxes = std::move(other.hurtBoxes);
     aHitBoxes = std::move(other.aHitBoxes);
 
     return *this;
   }
 
-  int &Sprite::getrX() { return x; }
-  int &Sprite::getrY() { return y; }
+  int Sprite::getX() const { return x; }
+  void Sprite::setX(int x) { this->x = x; }
+  int Sprite::getY() const { return y; }
+  void Sprite::setY(int y) { this->y = y; }
 
 #ifdef SPRTOOL
   Image *Sprite::getImage() { return &img; }
 #endif // SPRTOOL
 
 #ifdef GAME
-  Atlas *Sprite::getAtlas() { return atlas; }
+  const Atlas *Sprite::getcAtlas() const { return atlas; }
   void Sprite::setAtlas(Atlas *atlas) { this->atlas = atlas; }
   int Sprite::getAtlasSprite() const { return atlas_sprite; }
   void Sprite::setAtlasSprite(int atlas_sprite) {
     this->atlas_sprite = atlas_sprite;
   }
 #else // !GAME
-  std::string &Sprite::getrName() { return name; }
+  std::string Sprite::getName() const { return name; }
+  void Sprite::setName(const std::string &name) { this->name = name; }
 #endif
 
-  HitBoxGroup &Sprite::getrDHurtBoxes() { return hitBoxes; }
+  const HitBoxGroup &Sprite::getcrDHurtBoxes() const { return hurtBoxes; }
+  HitBoxGroup &Sprite::getrDHurtBoxes() { return hurtBoxes; }
+  const HitBoxGroup &Sprite::getcrAHitBoxes() const { return aHitBoxes; }
   HitBoxGroup &Sprite::getrAHitBoxes() { return aHitBoxes; }
 
   HitBoxGroup::HitBoxGroup() {
