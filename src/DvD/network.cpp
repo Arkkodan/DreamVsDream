@@ -121,8 +121,8 @@ namespace net {
                 !(buff.flags & NetHeader::NETF_ACK)) {
               buff.flags = NetHeader::NETF_SYN | NetHeader::NETF_ACK;
 
-              buff.option1 = scene::Options::optionWins;
-              buff.option2 = scene::Options::optionTime;
+              buff.option1 = scene::Options::getWins();
+              buff.option2 = scene::Options::getTime();
               if (send(&buff, sizeof(buff))) {
                 unsigned long _timer = sys::getTime(); // Latency calculation
                 if (recv(&buff, sizeof(buff))) {
@@ -179,8 +179,8 @@ namespace net {
 
               if (buff.flags & (NetHeader::NETF_SYN | NetHeader::NETF_ACK)) {
                 // Save options
-                scene::Options::optionWins = buff.option1;
-                scene::Options::optionTime = buff.option2;
+                scene::Options::setWins(buff.option1);
+                scene::Options::setTime(buff.option2);
 
                 // Send an ACK. We've got a connection!
                 buff.flags = NetHeader::NETF_ACK;
@@ -568,10 +568,10 @@ namespace net {
   game::Player *getMyPlayer() {
 #ifndef NO_NETWORK
     if (mode == MODE_SERVER) {
-      return &scene::Fight::madotsuki;
+      return &scene::Fight::getrPlayerAt(0);
     }
     else if (mode == MODE_CLIENT) {
-      return &scene::Fight::poniko;
+      return &scene::Fight::getrPlayerAt(1);
     }
 #endif
     return nullptr;
@@ -580,10 +580,10 @@ namespace net {
   game::Player *getYourPlayer() {
 #ifndef NO_NETWORK
     if (mode == MODE_SERVER) {
-      return &scene::Fight::poniko;
+      return &scene::Fight::getrPlayerAt(1);
     }
     else if (mode == MODE_CLIENT) {
-      return &scene::Fight::madotsuki;
+      return &scene::Fight::getrPlayerAt(0);
     }
 #endif
     return nullptr;

@@ -11,6 +11,13 @@ namespace scene {
     Intro();
     ~Intro();
 
+    void think() override final;
+    void draw() const override final;
+
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
+
+  private:
     audio::Sound *sfx;
     Image instructions;
     Image disclaimer_en;
@@ -19,13 +26,6 @@ namespace scene {
 
     int timer;
     int state;
-
-  public:
-    void think() override final;
-    void draw() const override final;
-
-    void parseLine(Parser &parser) override final;
-    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
   };
 } // namespace scene
 

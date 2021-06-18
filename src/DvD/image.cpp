@@ -614,9 +614,9 @@ template <typename T> void Image::drawSprite(int x, int y, bool mirror) const {
 #ifdef SPRTOOL
   draw<T>(x + sys::WINDOW_WIDTH / 2, sys::FLIP(y) - srcH * yscale, mirror);
 #else  // !SPRTOOL
-  draw<T>(x + sys::WINDOW_WIDTH / 2 - scene::Fight::cameraPos.x,
-          sys::FLIP(y) - srcH * yscale - STAGE->getEntHeight() +
-              scene::Fight::cameraPos.y,
+  const util::Vector &cameraPos = scene::Fight::getrCameraPos();
+  draw<T>(x + sys::WINDOW_WIDTH / 2 - cameraPos.x,
+          sys::FLIP(y) - srcH * yscale - STAGE->getEntHeight() + cameraPos.y,
           mirror);
 #endif // SPRTOOL
 }

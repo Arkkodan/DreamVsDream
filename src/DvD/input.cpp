@@ -61,16 +61,20 @@ namespace input {
   }
 
   void refresh() {
-    scene::Fight::madotsuki.applyInput();
-    scene::Fight::poniko.applyInput();
+    game::Player &p0 = scene::Fight::getrPlayerAt(0);
+    game::Player &p1 = scene::Fight::getrPlayerAt(1);
+    p0.applyInput();
+    p1.applyInput();
     if (scene::getSceneIndex() == scene::SCENE_FIGHT) {
-      scene::Fight::madotsuki.handleInput();
-      scene::Fight::poniko.handleInput();
+      p0.handleInput();
+      p1.handleInput();
     }
   }
 
   void keyPress(int key, bool press) {
     volatile bool isConnected = net::isConnected();
+    game::Player &p0 = scene::Fight::getrPlayerAt(0);
+    game::Player &p1 = scene::Fight::getrPlayerAt(1);
     if (press) {
       for (int i = 0; i < static_cast<int>(Key::KEY_MAX); i++) {
         if (isConnected && i >= static_cast<int>(KEY_1_MAX)) {
@@ -83,11 +87,10 @@ namespace input {
           }
           else {
             if (i < static_cast<int>(KEY_1_MAX)) {
-              scene::Fight::madotsuki.setFrameInputOR(1 << i);
+              p0.setFrameInputOR(1 << i);
             }
             else {
-              scene::Fight::poniko.setFrameInputOR(
-                  1 << (i - static_cast<int>(KEY_1_MAX)));
+              p1.setFrameInputOR(1 << (i - static_cast<int>(KEY_1_MAX)));
             }
           }
           return;
@@ -120,13 +123,11 @@ namespace input {
           }
           else {
             if (i < static_cast<int>(KEY_1_MAX)) {
-              scene::Fight::madotsuki.setFrameInputOR(
-                  1 << i << game::INPUT_RELSHIFT);
+              p0.setFrameInputOR(1 << i << game::INPUT_RELSHIFT);
             }
             else {
-              scene::Fight::poniko.setFrameInputOR(
-                  1 << (i - static_cast<int>(KEY_1_MAX))
-                    << game::INPUT_RELSHIFT);
+              p1.setFrameInputOR(1 << (i - static_cast<int>(KEY_1_MAX))
+                                   << game::INPUT_RELSHIFT);
             }
           }
           return;

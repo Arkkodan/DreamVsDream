@@ -99,3 +99,7 @@ void scene::Versus::draw() const {
 }
 
 void scene::Versus::parseLine(Parser &parser) { Scene::parseLine(parser); }
+
+void scene::Versus::setPortraitAt(int index, const Image *portrait) {
+  portraits[index] = portrait;
+}

@@ -141,7 +141,7 @@ void scene::Title::think() {
         break;
       case CHOICE_TRAINING:
         sndSelect->play();
-        FIGHT->gametype = Fight::GAMETYPE_TRAINING;
+        FIGHT->setGameType(Fight::GAMETYPE_TRAINING);
         setScene(SCENE_SELECT);
         break;
       default:
@@ -169,7 +169,7 @@ void scene::Title::think() {
       switch (choice) {
       case CHOICE_VS_PLR:
         sndSelect->play();
-        FIGHT->gametype = Fight::GAMETYPE_VERSUS;
+        FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
         setScene(SCENE_SELECT);
         break;
       default:

@@ -464,8 +464,8 @@ namespace game {
     }
 
     if (scene::getSceneIndex() == scene::SCENE_FIGHT && FIGHT) {
-      if (FIGHT->timer_round_in || FIGHT->timer_round_out || FIGHT->timer_ko ||
-          FIGHT->ko_player) {
+      if (FIGHT->getTimerRoundIn() || FIGHT->getTimerRoundOut() ||
+          FIGHT->getTimerKO() || FIGHT->getKOPlayer()) {
         return;
       }
     }
@@ -625,7 +625,7 @@ namespace game {
 
     if (!(flags & (F_DEAD | F_ON_GROUND)) && isBeingHit() &&
         (press || (playerNum == 1 &&
-                   FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING))) {
+                   FIGHT->getGameType() == scene::Fight::GAMETYPE_TRAINING))) {
       if (pos.y + vel.y <= 0.0f && bounce.force.x == 0 && bounce.force.y == 0 &&
           !(flags & F_KNOCKDOWN)) {
         // We're about to hit the ground, so do a ground tech
@@ -667,7 +667,7 @@ namespace game {
   }
 
   void Player::think() {
-    if (!scene::Fight::framePauseTimer) {
+    if (!scene::Fight::getFramePauseTimer()) {
       if (pausestun) {
         pausestun--;
       }
@@ -820,8 +820,8 @@ namespace game {
         }
       }
 
-      if (FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING && !isBeingHit() &&
-          !isKnocked()) {
+      if (FIGHT->getGameType() == scene::Fight::GAMETYPE_TRAINING &&
+          !isBeingHit() && !isKnocked()) {
         hp = getMaxHp();
       }
 
@@ -1343,7 +1343,7 @@ namespace game {
       r = 1.0f;
       g = 1.0f;
       b = 1.0f;
-      if (scene::Options::optionEpilepsy) {
+      if (scene::Options::isEpilepsy()) {
         pct = 0.5f;
       }
       else {

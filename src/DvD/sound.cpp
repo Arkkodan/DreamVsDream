@@ -83,9 +83,9 @@ namespace audio {
   static void audioCallback(void *udata, unsigned char *stream, int _size) {
     (void)udata;
 
-    float music_volume = scene::Options::optionMusVolume / (float)200;
-    float sound_volume = scene::Options::optionSfxVolume / (float)100;
-    float voice_volume = scene::Options::optionVoiceVolume / (float)100;
+    float music_volume = scene::Options::getMusVolume() / (float)200;
+    float sound_volume = scene::Options::getSfxVolume() / (float)100;
+    float voice_volume = scene::Options::getVoiceVolume() / (float)100;
 
     float *out = (float *)stream;
     unsigned int size = _size / 4 / audioSpec.channels;
@@ -260,7 +260,7 @@ namespace audio {
 #ifndef NO_SOUND
     if (scene::getSceneIndex() == scene::SCENE_FIGHT &&
         Stage::getStageIndex() == 3) {
-      float amplitude = FIGHT->round * 0.1;
+      float amplitude = FIGHT->getRound() * 0.1;
       music_frequency = 1.0f + util::rollf() * amplitude - amplitude / 2;
     }
     else {

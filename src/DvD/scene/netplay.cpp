@@ -72,7 +72,7 @@ void scene::Netplay::think() {
         if (input(game::INPUT_A)) {
           if (isConnected) {
             sndSelect->play();
-            FIGHT->gametype = Fight::GAMETYPE_VERSUS;
+            FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
             setScene(SCENE_SELECT);
           }
         }
@@ -151,7 +151,7 @@ void scene::Netplay::think() {
         if (input(game::INPUT_A)) {
           if (isConnected) {
             sndSelect->play();
-            FIGHT->gametype = Fight::GAMETYPE_VERSUS;
+            FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
             setScene(SCENE_SELECT);
           }
         }

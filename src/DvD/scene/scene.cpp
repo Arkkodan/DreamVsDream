@@ -61,12 +61,14 @@ void scene::setScene(int _scene) {
     return;
   }
   if (_scene == SCENE_FIGHT) {
-    Fight::madotsuki.reset();
-    Fight::poniko.reset();
-    Fight::cameraPos.x = 0;
-    Fight::cameraPos.y = 0;
-    Fight::idealCameraPos.x = 0;
-    Fight::idealCameraPos.y = 0;
+    Fight::getrPlayerAt(0).reset();
+    Fight::getrPlayerAt(1).reset();
+    util::Vector &cameraPos = Fight::getrCameraPos();
+    cameraPos.x = 0;
+    cameraPos.y = 0;
+    util::Vector &idealCameraPos = Fight::getrIdealCameraPos();
+    idealCameraPos.x = 0;
+    idealCameraPos.y = 0;
   }
   sceneNew = _scene;
   fade = 1.0f;
@@ -74,8 +76,8 @@ void scene::setScene(int _scene) {
 }
 
 bool scene::input(uint16_t in) {
-  return (Fight::madotsuki.getFrameInput() & in) ||
-         (Fight::poniko.getFrameInput() & in);
+  return (Fight::getrPlayerAt(0).getFrameInput() & in) ||
+         (Fight::getrPlayerAt(1).getFrameInput() & in);
 }
 
 void scene::drawFade() {

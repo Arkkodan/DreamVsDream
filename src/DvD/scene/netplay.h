@@ -12,6 +12,21 @@ namespace scene {
 
   /// @brief Scene for navigating netplay and connections
   class Netplay : public Scene {
+  public:
+    Netplay();
+    ~Netplay();
+
+    // void init();
+
+    void updatePort(bool toint);
+    void updateIp(bool toint);
+
+    void think() override final;
+    void draw() const override final;
+    void reset() override final;
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
+
   private:
     static constexpr auto NET_FLASH_TIME = sys::FPS / 2;
     static constexpr auto NET_FLASH_HOLD_TIME = sys::FPS / 2;
@@ -19,10 +34,7 @@ namespace scene {
     static constexpr auto NET_SCALE = 2;
     static constexpr auto NET_BAR_SIZE = 120;
 
-  public:
-    Netplay();
-    ~Netplay();
-
+  private:
     int choice;
     int mode;
     int digit;
@@ -52,18 +64,6 @@ namespace scene {
     audio::Sound *sndConSuccess;
 
     audio::Music bgmWait;
-
-  public:
-    // void init();
-
-    void updatePort(bool toint);
-    void updateIp(bool toint);
-
-    void think() override final;
-    void draw() const override final;
-    void reset() override final;
-    void parseLine(Parser &parser) override final;
-    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
   };
 } // namespace scene
 

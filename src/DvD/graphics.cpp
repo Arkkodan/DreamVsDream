@@ -165,15 +165,17 @@ namespace graphics {
         pixel--;
       }
 
-      if (FIGHT->round >= 1) {
+      int round = FIGHT->getRound();
+
+      if (round >= 1) {
         if (!util::roll(64)) {
-          pixel = 2 + 2 * FIGHT->round;
+          pixel = 2 + 2 * round;
         }
       }
       shift = 0;
 
-      if (!scene::Options::optionEpilepsy) {
-        if (FIGHT->round >= 2) {
+      if (!scene::Options::isEpilepsy()) {
+        if (round >= 2) {
           if (!util::roll(64)) {
             shift = util::roll(1, 2);
           }
@@ -266,7 +268,7 @@ namespace graphics {
     renderer::FighterRenderer::setPalette(palette, 1);
 
     float u_shift = 0.0f;
-    if (stageIndex == 3 && FIGHT->round >= 2) {
+    if (stageIndex == 3 && FIGHT->getRound() >= 2) {
       u_shift = shift / 256.0f;
     }
     renderer::FighterRenderer::setShift(u_shift);

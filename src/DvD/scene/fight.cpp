@@ -28,9 +28,19 @@ void scene::Fight::pause(int frames) { framePauseTimer += frames; }
 
 void scene::Fight::shake(int frames) { frameShakeTimer += frames; }
 
-scene::SceneMeter::SceneMeter() {}
-
-scene::SceneMeter::~SceneMeter() {}
+game::Player &scene::Fight::getrPlayerAt(int index) {
+  switch (index) {
+  case 0:
+    return madotsuki;
+  case 1:
+    return poniko;
+  default:
+    throw std::out_of_range("invalid Player index: " + std::to_string(index));
+  }
+}
+util::Vector &scene::Fight::getrCameraPos() { return cameraPos; }
+util::Vector &scene::Fight::getrIdealCameraPos() { return idealCameraPos; }
+int scene::Fight::getFramePauseTimer() { return framePauseTimer; }
 
 void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
   if (pct > 0) {
@@ -560,7 +570,7 @@ void scene::Fight::think() {
     }
 
     // ROUND INTROS
-    if (!Options::optionEpilepsy && (timer_round_out || timer_round_in)) {
+    if (!Options::isEpilepsy() && (timer_round_out || timer_round_in)) {
       if (!timer_flash && !util::roll(64)) {
         staticSnd->play();
         timer_flash = 5;
@@ -628,7 +638,8 @@ void scene::Fight::think() {
       }
       else if (!timer_round_out) {
         // See if someone's won
-        if (wins[0] >= Options::optionWins || wins[1] >= Options::optionWins) {
+        int winReq = Options::getWins();
+        if (wins[0] >= winReq || wins[1] >= winReq) {
           // Count up the wins
           int wins_p1 = 0;
           int wins_p2 = 0;
@@ -657,7 +668,7 @@ void scene::Fight::think() {
         }
         timer_round_in = 4.0 * sys::FPS;
         ko_player = 0;
-        game_timer = Options::optionTime * sys::FPS - 1;
+        game_timer = Options::getTime() * sys::FPS - 1;
         if (game_timer < 0) {
           game_timer = 0;
         }
@@ -788,7 +799,7 @@ void scene::Fight::draw() const {
 
     if (FIGHT->gametype != GAMETYPE_TRAINING) {
       // Round orbs
-      for (int i = 0; i < Options::optionWins; i++) {
+      for (int i = 0; i < Options::getWins(); i++) {
         int x = orb_pos.x - i * 18;
         if (i < wins[0]) {
           if (win_types[0][i]) {
@@ -1010,7 +1021,7 @@ void scene::Fight::reset() {
   comboLeftLast = comboRightLast = 0;
   comboLeftTimer = comboRightTimer = 0;
 
-  game_timer = Options::optionTime * sys::FPS - 1;
+  game_timer = Options::getTime() * sys::FPS - 1;
   if (game_timer < 0) {
     game_timer = 0;
   }
@@ -1043,3 +1054,11 @@ void scene::Fight::knockout(int player) {
     }
   }
 }
+
+int scene::Fight::getTimerRoundIn() const { return timer_round_in; }
+int scene::Fight::getTimerRoundOut() const { return timer_round_out; }
+int scene::Fight::getTimerKO() const { return timer_ko; }
+int scene::Fight::getKOPlayer() const { return ko_player; }
+int scene::Fight::getRound() const { return round; }
+int scene::Fight::getGameType() const { return gametype; }
+void scene::Fight::setGameType(int gametype) { this->gametype = gametype; }

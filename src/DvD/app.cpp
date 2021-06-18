@@ -47,11 +47,13 @@ namespace app {
 void app::run() {
   app::init();
 
-  scene::Fight::madotsuki.setPlayerNumber(0);
-  scene::Fight::madotsuki.getrSpeaker().init();
+  game::Player &p0 = scene::Fight::getrPlayerAt(0);
+  p0.setPlayerNumber(0);
+  p0.getrSpeaker().init();
 
-  scene::Fight::poniko.setPlayerNumber(1);
-  scene::Fight::poniko.getrSpeaker().init();
+  game::Player &p1 = scene::Fight::getrPlayerAt(1);
+  p1.setPlayerNumber(1);
+  p1.getrSpeaker().init();
 
   for (;;) {
     sys::refresh();
@@ -73,13 +75,13 @@ static void app::optionsLoad() {
     return;
   }
 
-  scene::Options::optionDifficulty = file.readByte();
-  scene::Options::optionWins = file.readByte();
-  scene::Options::optionTime = file.readByte();
-  scene::Options::optionSfxVolume = file.readByte();
-  scene::Options::optionMusVolume = file.readByte();
-  scene::Options::optionVoiceVolume = file.readByte();
-  scene::Options::optionEpilepsy = file.readByte();
+  scene::Options::setDifficulty(file.readByte());
+  scene::Options::setWins(file.readByte());
+  scene::Options::setTime(file.readByte());
+  scene::Options::setSfxVolume(file.readByte());
+  scene::Options::setMusVolume(file.readByte());
+  scene::Options::setVoiceVolume(file.readByte());
+  scene::Options::setEpilepsy(file.readByte());
 }
 
 static void app::optionsSave() {
@@ -89,13 +91,13 @@ static void app::optionsSave() {
   }
 
   file.writeByte(OPTIONS_VERSION);
-  file.writeByte(scene::Options::optionDifficulty);
-  file.writeByte(scene::Options::optionWins);
-  file.writeByte(scene::Options::optionTime);
-  file.writeByte(scene::Options::optionSfxVolume);
-  file.writeByte(scene::Options::optionMusVolume);
-  file.writeByte(scene::Options::optionVoiceVolume);
-  file.writeByte(scene::Options::optionEpilepsy);
+  file.writeByte(scene::Options::getDifficulty());
+  file.writeByte(scene::Options::getWins());
+  file.writeByte(scene::Options::getTime());
+  file.writeByte(scene::Options::getSfxVolume());
+  file.writeByte(scene::Options::getMusVolume());
+  file.writeByte(scene::Options::getVoiceVolume());
+  file.writeByte(scene::Options::isEpilepsy());
 }
 
 static void app::init() {
@@ -163,7 +165,7 @@ static void app::init() {
   effect::init();
 
   if (versus) {
-    FIGHT->gametype = scene::Fight::GAMETYPE_VERSUS;
+    FIGHT->setGameType(scene::Fight::GAMETYPE_VERSUS);
   }
   // if(fullscreen)
   // OS::toggleFullscreen();

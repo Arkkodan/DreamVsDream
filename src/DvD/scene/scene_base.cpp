@@ -134,7 +134,7 @@ void scene::Scene::think() {
     }
 
     // Always disable controls during fades
-    Fight::madotsuki.setFrameInput(0);
+    Fight::getrPlayerAt(0).setFrameInput(0);
     //}
   }
 }
@@ -405,12 +405,11 @@ void scene::SceneImage::draw(bool _stage) const {
     else {
       graphics::setRender(render);
       if (_stage) {
-        if (!round || round - 1 == FIGHT->round) {
+        if (!round || round - 1 == FIGHT->getRound()) {
+          const util::Vector &cameraPos = Fight::getrCameraPos();
           image.draw<renderer::Texture2DRenderer>(
-              x - imageW / 2 + sys::WINDOW_WIDTH / 2 -
-                  Fight::cameraPos.x * parallax,
-              (sys::WINDOW_HEIGHT - y) - imageH +
-                  Fight::cameraPos.y * parallax);
+              x - imageW / 2 + sys::WINDOW_WIDTH / 2 - cameraPos.x * parallax,
+              (sys::WINDOW_HEIGHT - y) - imageH + cameraPos.y * parallax);
         }
       }
       else {
