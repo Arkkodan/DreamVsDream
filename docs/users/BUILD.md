@@ -122,7 +122,10 @@ If you don't specify the configuration type, your generator will probably select
 ## End of Build instructions
 
 You are technically done with build instructions.
-However, if you want to use the Dream vs. Dream binaries in any meaningful way, you still need to make your .char files in order to play DvD. Continue to step 4.
+In the cache directory of this repo, there are .char files already generated. Simply copy the .char files into the data/chars directory.
+However, they may be incompatible with your DvD executable.
+
+If you want to or need to make your .char files in order to play DvD, continue to step 4.
 
 * * *
 

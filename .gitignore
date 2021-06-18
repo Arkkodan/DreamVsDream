@@ -27,7 +27,6 @@ COMPILE/chars/*/atlas/
 
 #Generated files
 *.atlas.*
-*.char
 *.bak
 
 #OSX/Windows binaries
