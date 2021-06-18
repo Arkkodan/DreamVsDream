@@ -53,11 +53,14 @@ set(COMPILER_FILES
 
 # DvD
 set(DVD_MENU_FILES
+  DvD/menu/menu_interface.cpp
   DvD/menu/menu_interface.h
   DvD/menu/submenu.cpp
   DvD/menu/submenu.h
   DvD/menu/button.cpp
   DvD/menu/button.h
+  DvD/menu/selector.cpp
+  DvD/menu/selector.h
 )
 set(DVD_SCENE_FILES
   DvD/scene/scene.cpp
