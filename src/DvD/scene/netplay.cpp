@@ -38,11 +38,12 @@ scene::Netplay::~Netplay() {}
 void scene::Netplay::think() {
   Scene::think();
 
-  if (sys::frame % 2) {
+  if (sys::getFrame() % 2) {
     drawShake = !drawShake;
   }
 
   if (!flashDir) {
+    volatile bool isConnected = net::isConnected();
     switch (mode) {
     case net::MODE_NONE: {
       if (input(game::INPUT_A)) {
@@ -69,14 +70,14 @@ void scene::Netplay::think() {
     case net::MODE_SERVER: {
       if (waiting) {
         if (input(game::INPUT_A)) {
-          if (net::connected) {
+          if (isConnected) {
             sndSelect->play();
-            FIGHT->gametype = Fight::GAMETYPE_VERSUS;
+            FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
             setScene(SCENE_SELECT);
           }
         }
         else if (input(game::INPUT_B)) {
-          if (!net::connected) {
+          if (!isConnected) {
             sndBack->play();
             bgm.play();
             waiting = false;
@@ -148,14 +149,14 @@ void scene::Netplay::think() {
     case net::MODE_CLIENT: {
       if (waiting) {
         if (input(game::INPUT_A)) {
-          if (net::connected) {
+          if (isConnected) {
             sndSelect->play();
-            FIGHT->gametype = Fight::GAMETYPE_VERSUS;
+            FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
             setScene(SCENE_SELECT);
           }
         }
         else if (input(game::INPUT_B)) {
-          if (!net::connected) {
+          if (!isConnected) {
             sndBack->play();
             bgm.play();
             waiting = false;
@@ -399,10 +400,12 @@ void scene::Netplay::draw() const {
 
     graphics::setScale(NET_SCALE * xscale, NET_SCALE);
     imgLogo.draw<renderer::Texture2DRenderer>(
-        sys::WINDOW_WIDTH / 2 - imgLogo.w * NET_SCALE * xscale / 2,
-        sys::WINDOW_HEIGHT / 4 - imgLogo.h * NET_SCALE / 2 + drawShake);
+        sys::WINDOW_WIDTH / 2 - imgLogo.getW() * NET_SCALE * xscale / 2,
+        sys::WINDOW_HEIGHT / 4 - imgLogo.getH() * NET_SCALE / 2 + drawShake);
 
     // Main menu
+    volatile bool isConnected = net::isConnected();
+    volatile bool isRunning = net::isRunning();
     switch (mode) {
     case net::MODE_NONE: {
       if (menuFont->exists()) {
@@ -425,13 +428,13 @@ void scene::Netplay::draw() const {
       if (waiting) {
         if (menuFont->exists()) {
           Font::setScale(NET_SCALE);
-          if (net::connected) {
+          if (isConnected) {
             menuFont->drawText(sys::WINDOW_WIDTH / 2 - (23 * 8 * NET_SCALE / 2),
                                sys::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 +
                                    drawShake,
                                "Connection established!");
           }
-          else if (net::running) {
+          else if (isRunning) {
             menuFont->drawText(sys::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE / 2),
                                sys::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 +
                                    drawShake,
@@ -476,13 +479,13 @@ void scene::Netplay::draw() const {
       if (waiting) {
         if (menuFont->exists()) {
           Font::setScale(NET_SCALE);
-          if (net::connected) {
+          if (isConnected) {
             menuFont->drawText(sys::WINDOW_WIDTH / 2 - (23 * 8 * NET_SCALE / 2),
                                sys::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 +
                                    drawShake,
                                "Connection established!");
           }
-          else if (net::running) {
+          else if (isRunning) {
             menuFont->drawText(sys::WINDOW_WIDTH / 2 - (13 * 8 * NET_SCALE / 2),
                                sys::WINDOW_HEIGHT / 3 * 2 - 8 * NET_SCALE / 2 +
                                    drawShake,

@@ -38,18 +38,7 @@ public:
   Image(const Image &other) = delete;
   Image &operator=(Image &other) = delete;
 
-  unsigned int w, h;
-#ifdef COMPILER
-  uint8_t *data;
-  int xpad;
-  int ypad;
-#else
-  std::vector<renderer::Texture2D> textures;
-  unsigned int w_textures;
-  unsigned int h_textures;
-  unsigned int w_subtexture;
-  unsigned int h_subtexture;
-
+#ifndef COMPILER
   /// @brief Draw image on screen
   /// @typeparam T Specify shader_renderer
   template <typename T> void draw(int x, int y, bool mirror = false) const;
@@ -71,12 +60,24 @@ public:
                         unsigned int height, int format,
                         const uint8_t *palette);
 #endif
-
   bool exists() const;
 
-  static void setShake(bool _shake);
+  unsigned int getW() const;
+  unsigned int getH() const;
 
-  static bool shake;
+private:
+  unsigned int w, h;
+#ifdef COMPILER
+  uint8_t *data;
+  int xpad;
+  int ypad;
+#else  // !COMPILER
+  std::vector<renderer::Texture2D> textures;
+  unsigned int w_textures;
+  unsigned int h_textures;
+  unsigned int w_subtexture;
+  unsigned int h_subtexture;
+#endif // !COMPILER
 };
 
 #endif // DVD_IMAGE_H

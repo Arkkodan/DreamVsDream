@@ -10,6 +10,20 @@ namespace scene {
   /// @brief Scene for the title menu
   class Title : public Scene {
   public:
+    Title();
+    ~Title();
+
+    void init() override final;
+
+    // Functions
+    void think() override final;
+    void reset() override final;
+    void draw() const override final;
+
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
+
+  private:
     enum {
       TM_MAIN,
       TM_VERSUS,
@@ -46,15 +60,10 @@ namespace scene {
   private:
     static std::vector<std::string> menuChoicesMain;
     static std::vector<std::string> menuChoicesVersus;
-    static std::array<std::vector<std::string> *, TM_MAX> menuChoices;
+    static const std::array<std::vector<std::string> *, TM_MAX> menuChoices;
     static const std::array<int, TM_MAX> menuChoicesMax;
 
-  public:
-    Title();
-    ~Title();
-
-    void init() override final;
-
+  private:
     std::vector<std::string> themes;
     int nThemes;
 
@@ -70,14 +79,6 @@ namespace scene {
     uint8_t choiceLast;
     uint8_t choice;
     uint8_t submenu;
-
-    // Functions
-    void think() override final;
-    void reset() override final;
-    void draw() const override final;
-
-    void parseLine(Parser &parser) override final;
-    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
   };
 } // namespace scene
 

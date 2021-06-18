@@ -72,11 +72,12 @@ void scene::Scene::think() {
     init();
   }
 
+  int sceneIndex = getSceneIndex();
   if (!bgmPlaying &&
 #ifndef NO_NETWORK
-      scene != SCENE_NETPLAY &&
+      sceneIndex != SCENE_NETPLAY &&
 #endif
-      scene != SCENE_FIGHT) {
+      sceneIndex != SCENE_FIGHT) {
     if (bgm.exists()) {
       bgm.play();
     }
@@ -87,41 +88,44 @@ void scene::Scene::think() {
   // if(video) video->think();
 
   // Fade timer
+  float &fade = getrFade();
   if (fade) {
     // if(fadeIn && scene == SCENE_VERSUS) {
     //	fade = 0.0f;
     //} else {
-    if (scene == SCENE_FIGHT) {
+    if (sceneIndex == SCENE_FIGHT) {
       fade -= 0.02;
     }
     else {
       fade -= 0.1f;
     }
     if (fade <= 0.0f) {
-      if (fadeIn) {
+      if (isFadeIn()) {
         fade = 0.0f;
       }
       else {
         fade = 1.0f;
-        fadeIn = true;
+        setFadeIn(true);
 
         // Are we quitting?
+        int sceneNew = getSceneNewIndex();
         if (sceneNew == SCENE_QUIT) {
           exit(0);
         }
-        scene = sceneNew;
+        setIMSceneIndex(sceneNew);
 
         audio::Music::stop();
 
+        const Image *imgLoading = getLoadingImage();
         if (!SCENE->initialized) {
           // Loading graphic
-          imgLoading.draw<renderer::Texture2DRenderer>(0, 0);
+          imgLoading->draw<renderer::Texture2DRenderer>(0, 0);
           sys::refresh();
           SCENE->init();
         }
-        if (scene == SCENE_FIGHT && !STAGE->initialized) {
+        if (getSceneIndex() == SCENE_FIGHT && !STAGE->isInitialized()) {
           // Loading graphic
-          imgLoading.draw<renderer::Texture2DRenderer>(0, 0);
+          imgLoading->draw<renderer::Texture2DRenderer>(0, 0);
           sys::refresh();
           STAGE->init();
         }
@@ -130,7 +134,7 @@ void scene::Scene::think() {
     }
 
     // Always disable controls during fades
-    Fight::madotsuki.frameInput = 0;
+    Fight::getrPlayerAt(0).setFrameInput(0);
     //}
   }
 }
@@ -333,17 +337,19 @@ scene::SceneImage::SceneImage(Image &image_, float x_, float y_,
   round = round_;
 
   if (wrap) {
-    while (x < 0.0f - image.w) {
-      x += image.w;
+    unsigned int imageW = image.getW();
+    unsigned int imageH = image.getH();
+    while (x < 0.0f - imageW) {
+      x += imageW;
     }
-    while (y < 0.0f - image.h) {
-      y += image.h;
+    while (y < 0.0f - imageH) {
+      y += imageH;
     }
     while (x >= 0.0f) {
-      x -= image.w;
+      x -= imageW;
     }
     while (y >= 0.0f) {
-      y -= image.h;
+      y -= imageH;
     }
   }
 }
@@ -356,17 +362,19 @@ void scene::SceneImage::think() {
 
   // Wrap the wrapping images
   if (wrap) {
-    while (x < 0.0f - image.w) {
-      x += image.w;
+    unsigned int imageW = image.getW();
+    unsigned int imageH = image.getH();
+    while (x < 0.0f - imageW) {
+      x += imageW;
     }
-    while (y < 0.0f - image.h) {
-      y += image.h;
+    while (y < 0.0f - imageH) {
+      y += imageH;
     }
     while (x >= 0.0f) {
-      x -= image.w;
+      x -= imageW;
     }
     while (y >= 0.0f) {
-      y -= image.h;
+      y -= imageH;
     }
   }
 }
@@ -377,30 +385,31 @@ void scene::SceneImage::reset() {
 }
 
 void scene::SceneImage::draw(bool _stage) const {
+  unsigned int imageW = image.getW();
+  unsigned int imageH = image.getH();
   if (image.exists()) {
     // Draw the image differently if wrapping
     if (wrap) {
       // How many of these are needed to fill the screen?
-      int xCount = sys::WINDOW_WIDTH / image.w + 2;
-      int yCount = sys::WINDOW_HEIGHT / image.h + 2;
+      int xCount = sys::WINDOW_WIDTH / imageW + 2;
+      int yCount = sys::WINDOW_HEIGHT / imageH + 2;
 
       for (int i = 0; i < xCount; i++) {
         for (int j = 0; j < yCount; j++) {
           graphics::setRender(render);
-          image.draw<renderer::Texture2DRenderer>((int)x + i * image.w,
-                                                  (int)y + j * image.h);
+          image.draw<renderer::Texture2DRenderer>((int)x + i * imageW,
+                                                  (int)y + j * imageH);
         }
       }
     }
     else {
       graphics::setRender(render);
       if (_stage) {
-        if (!round || round - 1 == FIGHT->round) {
+        if (!round || round - 1 == FIGHT->getRound()) {
+          const util::Vector &cameraPos = Fight::getrCameraPos();
           image.draw<renderer::Texture2DRenderer>(
-              x - image.w / 2 + sys::WINDOW_WIDTH / 2 -
-                  Fight::cameraPos.x * parallax,
-              (sys::WINDOW_HEIGHT - y) - image.h +
-                  Fight::cameraPos.y * parallax);
+              x - imageW / 2 + sys::WINDOW_WIDTH / 2 - cameraPos.x * parallax,
+              (sys::WINDOW_HEIGHT - y) - imageH + cameraPos.y * parallax);
         }
       }
       else {

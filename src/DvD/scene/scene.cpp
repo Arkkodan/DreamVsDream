@@ -12,18 +12,30 @@
 #include "../shader_renderer/primitive_renderer.h"
 
 namespace scene {
-  std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
-  int scene;
-  int sceneNew;
+  static std::array<std::unique_ptr<Scene>, SCENE_MAX> scenes;
+  static int scene;
+  static int sceneNew;
 
-  Image imgLoading;
+  static Image imgLoading;
 
   // Static stuff
-  float fade = 1.0f;
-  bool fadeIn = true;
+  static float fade = 1.0f;
+  static bool fadeIn = true;
 } // namespace scene
 
 scene::Scene *scene::getScene() { return scenes[scene].get(); }
+int scene::getSceneIndex() { return scene; }
+void scene::setIMSceneIndex(int index) { scene = index; }
+int scene::getSceneNewIndex() { return sceneNew; }
+scene::Scene *scene::getSceneFromIndex(int index) {
+  return scenes[index].get();
+}
+
+Image *scene::getLoadingImage() { return &imgLoading; }
+
+float &scene::getrFade() { return fade; }
+bool scene::isFadeIn() { return fadeIn; }
+void scene::setFadeIn(bool fi) { fadeIn = fi; }
 
 void scene::ginit() {
   scenes[SCENE_INTRO] = std::make_unique<Intro>();
@@ -49,12 +61,14 @@ void scene::setScene(int _scene) {
     return;
   }
   if (_scene == SCENE_FIGHT) {
-    Fight::madotsuki.reset();
-    Fight::poniko.reset();
-    Fight::cameraPos.x = 0;
-    Fight::cameraPos.y = 0;
-    Fight::idealCameraPos.x = 0;
-    Fight::idealCameraPos.y = 0;
+    Fight::getrPlayerAt(0).reset();
+    Fight::getrPlayerAt(1).reset();
+    util::Vector &cameraPos = Fight::getrCameraPos();
+    cameraPos.x = 0;
+    cameraPos.y = 0;
+    util::Vector &idealCameraPos = Fight::getrIdealCameraPos();
+    idealCameraPos.x = 0;
+    idealCameraPos.y = 0;
   }
   sceneNew = _scene;
   fade = 1.0f;
@@ -62,7 +76,8 @@ void scene::setScene(int _scene) {
 }
 
 bool scene::input(uint16_t in) {
-  return (Fight::madotsuki.frameInput & in) || (Fight::poniko.frameInput & in);
+  return (Fight::getrPlayerAt(0).getFrameInput() & in) ||
+         (Fight::getrPlayerAt(1).getFrameInput() & in);
 }
 
 void scene::drawFade() {

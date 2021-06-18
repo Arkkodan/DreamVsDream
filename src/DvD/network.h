@@ -39,12 +39,6 @@ namespace net {
 #ifdef _WIN32
   typedef int socklen_t;
 #endif
-  extern volatile bool enabled;
-  extern volatile bool running;
-  extern volatile bool connected;
-
-  extern int inputDelay;
-  extern volatile uint32_t frame;
 
   /// @brief Unused
   /// @details There exists a used overload of this function
@@ -77,6 +71,9 @@ namespace net {
   void init(int input_delay);
   /// @brief Deinitialize network framework
   void deinit();
+
+  volatile bool isRunning();
+  volatile bool isConnected();
 } // namespace net
 
 #endif // DVD_NETWORK_H

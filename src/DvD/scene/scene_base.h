@@ -24,6 +24,11 @@ namespace scene {
                int round);
     ~SceneImage();
 
+    void think();
+    void reset();
+    void draw(bool _stage) const;
+
+  private:
     Image image;
     float x, y;
     float parallax; // for stages
@@ -32,10 +37,6 @@ namespace scene {
     Image::Render render;
     bool wrap;
     int round;
-
-    void think();
-    void reset();
-    void draw(bool _stage) const;
   };
 
   /// @brief Scene base class
@@ -44,6 +45,25 @@ namespace scene {
     Scene(std::string name_);
     virtual ~Scene();
 
+    // Functions
+    virtual void init();
+
+    virtual void think();
+    virtual void reset();
+    virtual void draw() const;
+
+    void parseFile(std::string szFileName);
+    virtual void parseLine(Parser &parser);
+
+    virtual void parseJSON(const nlohmann::ordered_json &j_obj);
+
+    std::string getResource(std::string szFileName,
+                            std::string extension) const;
+
+    /// @brief Template version of getResource
+    template <typename T> T *getResourceT(const std::string &resource);
+
+  protected:
     // Members
     std::string name;
     std::list<SceneImage> images;
@@ -66,25 +86,6 @@ namespace scene {
     std::unordered_map<std::string, std::string> ext2dir;
     std::vector<Font *> deleteFontVector;
     std::vector<audio::Sound *> deleteSoundVector;
-
-  public:
-    // Functions
-    virtual void init();
-
-    virtual void think();
-    virtual void reset();
-    virtual void draw() const;
-
-    void parseFile(std::string szFileName);
-    virtual void parseLine(Parser &parser);
-
-    virtual void parseJSON(const nlohmann::ordered_json &j_obj);
-
-    std::string getResource(std::string szFileName,
-                            std::string extension) const;
-
-    /// @brief Template version of getResource
-    template <typename T> T *getResourceT(const std::string &resource);
   };
 } // namespace scene
 

@@ -5,48 +5,22 @@
 #include "error.h"
 #include "file.h"
 #include "graphics.h"
-#include "resource_manager.h"
+#include "player.h"
 #include "shader_renderer/fighter_renderer.h"
 #endif // GAME
 
 namespace game {
 
 #ifdef GAME
-  audio::Sound *sndTransformYn = nullptr;
-  audio::Sound *sndTransform2kki = nullptr;
-  audio::Sound *sndTransformFlow = nullptr;
 
-  static std::vector<audio::Sound *> deleteSoundVector;
+  void init() { initTransformSounds(); }
 
-  void init() {
-    if (!(sndTransformYn = resource_manager::getResource<audio::Sound>(
-              "Transform_yn.wav"))) {
-      sndTransformYn = new audio::Sound;
-      sndTransformYn->createFromFile("effects/Transform_yn.wav");
-      deleteSoundVector.push_back(sndTransformYn);
-    }
-    if (!(sndTransform2kki = resource_manager::getResource<audio::Sound>(
-              "Transform_2kki.wav"))) {
-      sndTransform2kki = new audio::Sound;
-      sndTransform2kki->createFromFile("effects/Transform_2kki.wav");
-      deleteSoundVector.push_back(sndTransform2kki);
-    }
-    if (!(sndTransformFlow = resource_manager::getResource<audio::Sound>(
-              "Transform_flow.wav"))) {
-      sndTransformFlow = new audio::Sound;
-      sndTransformFlow->createFromFile("effects/Transform_flow.wav");
-      deleteSoundVector.push_back(sndTransformFlow);
-    }
-  }
-
-  void deinit() {
-    for (const auto *item : deleteSoundVector) {
-      delete item;
-    }
-  }
+  void deinit() { deinitTransformSounds(); }
 
   // Load/create a fighter
   void Fighter::create(std::string name_) {
+    bool shader_support = graphics::hasShaderSupport();
+
     name = std::move(name_);
 
     // Get that file opened
@@ -67,7 +41,7 @@ namespace game {
     nPalettes = file.readByte();
 
     // Read palettes
-    if (graphics::shader_support) {
+    if (shader_support) {
       palettes.resize(nPalettes * 2);
     }
     else {
@@ -106,7 +80,7 @@ namespace game {
       file.read(pal + 3, 255 * 3);
 
       // Make data a palette
-      if (graphics::shader_support) {
+      if (shader_support) {
         palettes[i].bindData(256, 1, GL_RGB, GL_UNSIGNED_BYTE, pal);
       }
     }
@@ -115,28 +89,29 @@ namespace game {
     nSprites = file.readWord();
     sprites.resize(nSprites);
     for (int i = 0; i < nSprites; i++) {
-      sprites[i].atlas = &atlas_sprites;
-      sprites[i].atlas_sprite = file.readWord();
-      sprites[i].x = file.readWord();
-      sprites[i].y = file.readWord();
+      sprites[i].setAtlas(&atlas_sprites);
+      sprites[i].setAtlasSprite(file.readWord());
+      sprites[i].setX(file.readWord());
+      sprites[i].setY(file.readWord());
 
-      sprites[i].hitBoxes.init(file.readByte());
-      for (int j = 0; j < sprites[i].hitBoxes.size; j++) {
-        sprites[i].hitBoxes.boxes[j].pos.x = file.readWord();
-        sprites[i].hitBoxes.boxes[j].pos.y = file.readWord();
-        sprites[i].hitBoxes.boxes[j].size.x = file.readWord();
-        sprites[i].hitBoxes.boxes[j].size.y = file.readWord();
+      sprite::HitBoxGroup &hurtBoxes = sprites[i].getrDHurtBoxes();
+      hurtBoxes.init(file.readByte());
+      for (int j = 0; j < hurtBoxes.size; j++) {
+        hurtBoxes.boxes[j].pos.x = file.readWord();
+        hurtBoxes.boxes[j].pos.y = file.readWord();
+        hurtBoxes.boxes[j].size.x = file.readWord();
+        hurtBoxes.boxes[j].size.y = file.readWord();
       }
-      sprites[i].aHitBoxes.init(file.readByte());
-      for (int j = 0; j < sprites[i].aHitBoxes.size; j++) {
-        sprites[i].aHitBoxes.boxes[j].pos.x = file.readWord();
-        sprites[i].aHitBoxes.boxes[j].pos.y = file.readWord();
-        sprites[i].aHitBoxes.boxes[j].size.x = file.readWord();
-        sprites[i].aHitBoxes.boxes[j].size.y = file.readWord();
+      sprite::HitBoxGroup &hitBoxes = sprites[i].getrAHitBoxes();
+      hitBoxes.init(file.readByte());
+      for (int j = 0; j < hitBoxes.size; j++) {
+        hitBoxes.boxes[j].pos.x = file.readWord();
+        hitBoxes.boxes[j].pos.y = file.readWord();
+        hitBoxes.boxes[j].size.x = file.readWord();
+        hitBoxes.boxes[j].size.y = file.readWord();
       }
     }
-    atlas_sprites.create(file,
-                         graphics::shader_support ? nullptr : palette_first);
+    atlas_sprites.create(file, shader_support ? nullptr : palette_first);
 
     // Read sounds
     nSounds = file.readWord();
@@ -197,8 +172,7 @@ namespace game {
     portrait.createFromEmbed(file, nullptr);
     special.createFromEmbed(file, nullptr);
     ender.createFromEmbed(file, nullptr);
-    portrait_ui.createFromEmbed(file, graphics::shader_support ? nullptr
-                                                               : palette_first);
+    portrait_ui.createFromEmbed(file, shader_support ? nullptr : palette_first);
   }
 #endif
 
@@ -215,7 +189,7 @@ namespace game {
 
   Fighter::~Fighter() {
 #ifdef GAME
-    if (graphics::shader_support) {
+    if (graphics::hasShaderSupport()) {
       palettes.clear();
     }
 #endif
@@ -226,7 +200,7 @@ namespace game {
   void Fighter::draw(int sprite, int x, int y, bool mirror, float scale,
                      unsigned int palette, float alpha, float r, float g,
                      float b, float pct) const {
-    if (graphics::shader_support) {
+    if (graphics::hasShaderSupport()) {
       graphics::setPalette(palettes[palette], alpha, r, g, b, pct);
       sprites[sprite].draw(x, y, mirror, scale);
       renderer::ShaderProgram::unuse();
@@ -246,7 +220,7 @@ namespace game {
   }
 
   void Fighter::drawShadow(int sprite, int x, bool mirror, float scale) const {
-    if (graphics::shader_support) {
+    if (graphics::hasShaderSupport()) {
       graphics::setPalette(palettes.front(), 0.5f, 0.0f, 0.0f, 0.0f, 1.0f);
       sprites[sprite].drawShadow(x, mirror, scale);
       renderer::ShaderProgram::unuse();
@@ -258,23 +232,66 @@ namespace game {
     }
   }
 
+#endif // GAME
+
+  std::string Fighter::getDataName() const { return name; }
+  std::string Fighter::getDisplayName() const { return dname; }
+  int Fighter::getGroup() const { return group; }
+  float Fighter::getDefense() const { return defense; }
+  int Fighter::getHeight() const { return height; }
+  int Fighter::getWidthLeft() const { return widthLeft; }
+  int Fighter::getWidthRight() const { return widthRight; }
+  float Fighter::getGravity() const { return gravity; }
+  int Fighter::getPaletteCount() const { return nPalettes; }
+#ifdef COMPILER
+  const std::vector<uint8_t> &Fighter::getcrPalettes() const {
+    return palettes;
+  }
+#else
+  const std::vector<renderer::Texture2D> &Fighter::getcrPalettes() const {
+    return palettes;
+  }
 #endif
+  int Fighter::getSpriteCount() const { return nSprites; }
+  const sprite::Sprite *Fighter::getcSpriteAt(int index) const {
+    return &sprites[index];
+  }
+  sprite::Sprite *Fighter::getSpriteAt(int index) { return &sprites[index]; }
+#ifndef SPRTOOL
+  int Fighter::getSoundGroupCount() const { return nSounds; }
+  const SoundGroup *Fighter::getcSoundGroupAt(int index) const {
+    return &sounds[index];
+  }
+  int Fighter::getVoiceGroupCount() const { return nVoices; }
+  const VoiceGroup *Fighter::getcVoiceGroupAt(int index) const {
+    return &voices[index];
+  }
+  int Fighter::getCommandCount() const { return nCommands; }
+  const Command *Fighter::getcCommandAt(int index) const {
+    return &commands[index];
+  }
+  int Fighter::getStateCount() const { return nStates; }
+  const State *Fighter::getcStateAt(int index) const { return &states[index]; }
+  unsigned int Fighter::getStateStandardAt(int index) const {
+    return statesStandard[index];
+  }
+#endif // !SPRTOOL
+#ifdef GAME
+  // Portraits
+  const Image *Fighter::getcImageSelect() const { return &select; }
+  const Image *Fighter::getcImagePortrait() const { return &portrait; }
+  const Image *Fighter::getcImageSpecial() const { return &special; }
+  const Image *Fighter::getcImageEnder() const { return &ender; }
+  const Image *Fighter::getcImagePortraitUI() const { return &portrait_ui; }
+#endif // GAME
 
 #ifndef SPRTOOL
-  SoundGroup::SoundGroup() { size = 0; }
-
-  SoundGroup::~SoundGroup() {}
-
   void SoundGroup::init(int size_) {
     size = size_;
     if (size) {
       sounds.resize(size);
     }
   }
-
-  VoiceGroup::VoiceGroup() : size(0), pct(100), voices() {}
-
-  VoiceGroup::~VoiceGroup() {}
 
   void VoiceGroup::init(int _size) {
     size = _size;
@@ -283,19 +300,6 @@ namespace game {
     }
   }
 #endif
-
-  Command::Command() : comboC(0), generic(0), targetC(0), targets(), combo() {}
-
-  Command::~Command() {}
-
-  CommandTarget::CommandTarget() : conditions() {
-    state = 0;
-    conditionC = 0;
-  }
-
-  State::State() : size(0), steps() {}
-
-  State::~State() {}
 
   void setBool(bool &dst, char src) {
     if (src == SBOOL_UNDEFINED) {

@@ -9,6 +9,36 @@ namespace scene {
 
   /// @brief Scene for modifying options
   class Options : public Scene {
+  public:
+    static int getDifficulty();
+    static void setDifficulty(int difficulty);
+    static int getWins();
+    static void setWins(int wins);
+    static int getTime();
+    static void setTime(int time);
+    static int getSfxVolume();
+    static void setSfxVolume(int sfxVolume);
+    static int getMusVolume();
+    static void setMusVolume(int musVolume);
+    static int getVoiceVolume();
+    static void setVoiceVolume(int voiceVolume);
+    static bool isEpilepsy();
+    static void setEpilepsy(bool epilepsy);
+
+  public:
+    Options();
+    ~Options();
+
+    void init() override final;
+
+    // Functions
+    void think() override final;
+    void reset() override final;
+    void draw() const override final;
+
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
+
   private:
     enum {
       OPTION_DIFFICULTY,
@@ -23,7 +53,6 @@ namespace scene {
       OPTION_MAX,
     };
 
-  public:
     static int optionDifficulty;
     static int optionWins;
     static int optionTime;
@@ -32,12 +61,7 @@ namespace scene {
     static int optionVoiceVolume;
     static bool optionEpilepsy;
 
-  public:
-    Options();
-    ~Options();
-
-    void init() override final;
-
+  private:
     // Members
     Font *menuFont;
 
@@ -63,15 +87,6 @@ namespace scene {
 
     std::vector<std::string> themes;
     int nThemes;
-
-  public:
-    // Functions
-    void think() override final;
-    void reset() override final;
-    void draw() const override final;
-
-    void parseLine(Parser &parser) override final;
-    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
   };
 } // namespace scene
 

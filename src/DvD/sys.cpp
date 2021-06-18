@@ -14,10 +14,13 @@
 #include <glad/glad.h>
 
 namespace sys {
-  unsigned int frame = 0;
+  static unsigned int frame = 0;
 
-  SDL_Window *window = nullptr;
-  SDL_GLContext glcontext = nullptr;
+  static SDL_Window *window = nullptr;
+  static SDL_GLContext glcontext = nullptr;
+
+  unsigned int getFrame() { return frame; }
+  SDL_Window *getWindow() { return window; }
 
   void init() {
     // Initialize SDL
@@ -62,8 +65,8 @@ namespace sys {
 
   void refresh() {
 #ifdef GAME
-    scene::Fight::madotsuki.frameInput = 0;
-    scene::Fight::poniko.frameInput = 0;
+    scene::Fight::getrPlayerAt(0).setFrameInput(0);
+    scene::Fight::getrPlayerAt(1).setFrameInput(0);
 #endif
 
     SDL_GL_SwapWindow(window);

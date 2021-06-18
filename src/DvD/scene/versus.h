@@ -13,8 +13,18 @@ namespace scene {
 
     void init() override final;
 
+    // Functions
+    void think() override final;
+    void reset() override final;
+    void draw() const override final;
+
+    void parseLine(Parser &parser) override final;
+
+    void setPortraitAt(int index, const Image *portrait);
+
+  private:
     // Members
-    std::array<Image *, 2> portraits;
+    std::array<const Image *, 2> portraits;
     int timer1;
     int timer2;
     int timer3;
@@ -23,13 +33,6 @@ namespace scene {
     int timer6;
 
     float timerF;
-
-    // Functions
-    void think() override final;
-    void reset() override final;
-    void draw() const override final;
-
-    void parseLine(Parser &parser) override final;
   };
 } // namespace scene
 

@@ -22,6 +22,29 @@ int scene::Options::optionMusVolume = 100;
 int scene::Options::optionVoiceVolume = 100;
 bool scene::Options::optionEpilepsy = false;
 
+int scene::Options::getDifficulty() { return optionDifficulty; }
+void scene::Options::setDifficulty(int difficulty) {
+  optionDifficulty = difficulty;
+}
+int scene::Options::getWins() { return optionWins; }
+void scene::Options::setWins(int wins) { optionWins = wins; }
+int scene::Options::getTime() { return optionTime; }
+void scene::Options::setTime(int time) { optionTime = time; }
+int scene::Options::getSfxVolume() { return optionSfxVolume; }
+void scene::Options::setSfxVolume(int sfxVolume) {
+  optionSfxVolume = sfxVolume;
+}
+int scene::Options::getMusVolume() { return optionMusVolume; }
+void scene::Options::setMusVolume(int musVolume) {
+  optionMusVolume = musVolume;
+}
+int scene::Options::getVoiceVolume() { return optionVoiceVolume; }
+void scene::Options::setVoiceVolume(int voiceVolume) {
+  optionVoiceVolume = voiceVolume;
+}
+bool scene::Options::isEpilepsy() { return optionEpilepsy; }
+void scene::Options::setEpilepsy(bool epilepsy) { optionEpilepsy = epilepsy; }
+
 scene::Options::Options() : Scene("options") {
   cursor = cursorLast = cursorTimer = 0;
   madoPos = 0;
@@ -213,20 +236,22 @@ void scene::Options::think() {
         }
         break;
 
-      case OPTION_VOICE_VOLUME:
+      case OPTION_VOICE_VOLUME: {
+        const audio::Speaker &speaker = Fight::getrPlayerAt(0).getcrSpeaker();
         if (input(game::INPUT_LEFT)) {
           if (optionVoiceVolume > 0) {
             optionVoiceVolume -= 10;
           }
-          Fight::madotsuki.speaker.play(dame);
+          speaker.play(dame);
         }
         else {
           if (optionVoiceVolume < 100) {
             optionVoiceVolume += 10;
           }
-          Fight::madotsuki.speaker.play(muri);
+          speaker.play(muri);
         }
         break;
+      }
 
       case OPTION_EPILEPSY:
         if (input(game::INPUT_LEFT | game::INPUT_RIGHT)) {

@@ -249,39 +249,41 @@ namespace game {
         hitboxCounter = 0;
         attackCounter = 0;
 
-        sprites[i].name = parser.getArg(0);
+        sprites[i].getName() = parser.getArg(0);
+        sprite::HitBoxGroup &hurtBoxes = sprites[i].getrDHurtBoxes();
+        sprite::HitBoxGroup &hitBoxes = sprites[i].getrAHitBoxes();
         if (parser.getArgC() == 5) {
-          sprites[i].x = parser.getArgInt(1);
-          sprites[i].y = parser.getArgInt(2);
+          sprites[i].setX(parser.getArgInt(1));
+          sprites[i].setY(parser.getArgInt(2));
 
-          sprites[i].hitBoxes.init(parser.getArgInt(3));
-          sprites[i].aHitBoxes.init(parser.getArgInt(4));
+          hurtBoxes.init(parser.getArgInt(3));
+          hitBoxes.init(parser.getArgInt(4));
         }
         else {
-          sprites[i].x = 0;
-          sprites[i].y = 0;
+          sprites[i].setX(0);
+          sprites[i].setY(0);
 
-          sprites[i].hitBoxes.init(0);
-          sprites[i].aHitBoxes.init(0);
+          hurtBoxes.init(0);
+          hitBoxes.init(0);
         }
         continue;
       }
 
       if (argc == 4) {
-        if (hitboxCounter < sprites[i].hitBoxes.size) {
-          sprites[i].hitBoxes.boxes[hitboxCounter].pos.x = parser.getArgInt(0);
-          sprites[i].hitBoxes.boxes[hitboxCounter].pos.y = parser.getArgInt(1);
-          sprites[i].hitBoxes.boxes[hitboxCounter].size.x = parser.getArgInt(2);
-          sprites[i].hitBoxes.boxes[hitboxCounter].size.y = parser.getArgInt(3);
+        sprite::HitBoxGroup hurtBoxes = sprites[i].getrDHurtBoxes();
+        sprite::HitBoxGroup hitBoxes = sprites[i].getrAHitBoxes();
+        if (hitboxCounter < hurtBoxes.size) {
+          hurtBoxes.boxes[hitboxCounter].pos.x = parser.getArgInt(0);
+          hurtBoxes.boxes[hitboxCounter].pos.y = parser.getArgInt(1);
+          hurtBoxes.boxes[hitboxCounter].size.x = parser.getArgInt(2);
+          hurtBoxes.boxes[hitboxCounter].size.y = parser.getArgInt(3);
           hitboxCounter++;
         }
-        else if (attackCounter < sprites[i].aHitBoxes.size) {
-          sprites[i].aHitBoxes.boxes[attackCounter].pos.x = parser.getArgInt(0);
-          sprites[i].aHitBoxes.boxes[attackCounter].pos.y = parser.getArgInt(1);
-          sprites[i].aHitBoxes.boxes[attackCounter].size.x =
-              parser.getArgInt(2);
-          sprites[i].aHitBoxes.boxes[attackCounter].size.y =
-              parser.getArgInt(3);
+        else if (attackCounter < hitBoxes.size) {
+          hitBoxes.boxes[attackCounter].pos.x = parser.getArgInt(0);
+          hitBoxes.boxes[attackCounter].pos.y = parser.getArgInt(1);
+          hitBoxes.boxes[attackCounter].size.x = parser.getArgInt(2);
+          hitBoxes.boxes[attackCounter].size.y = parser.getArgInt(3);
           attackCounter++;
         }
       }
@@ -434,7 +436,7 @@ namespace game {
         int _i_sprite = 0;
         std::string sprite = parser.getArg(1);
         for (int i = 0; i < nSprites; i++) {
-          if (!sprites[i].name.compare(sprite)) {
+          if (!sprites[i].getName().compare(sprite)) {
             _i_sprite = i;
             break;
           }
@@ -834,28 +836,31 @@ int main(int argc, char **argv) {
 
   // Write Header
   std::cout << "Writing header..." << std::endl;
-  file.writeStr(fighter.dname);
-  file.writeByte(fighter.group);
-  file.writeFloat(fighter.defense);
-  file.writeWord(fighter.height);
-  file.writeWord(fighter.widthLeft);
-  file.writeWord(fighter.widthRight);
-  file.writeFloat(fighter.gravity);
-  file.writeByte(fighter.nPalettes);
+  file.writeStr(fighter.getDisplayName());
+  file.writeByte(fighter.getGroup());
+  file.writeFloat(fighter.getDefense());
+  file.writeWord(fighter.getHeight());
+  file.writeWord(fighter.getWidthLeft());
+  file.writeWord(fighter.getWidthRight());
+  file.writeFloat(fighter.getGravity());
+  int nPalettes = fighter.getPaletteCount();
+  file.writeByte(nPalettes);
 
   // Write palettes
   std::cout << "Writing palettes..." << std::endl;
-  file.write(fighter.palettes.data(), fighter.nPalettes * 255 * 3 * 2);
+  file.write(fighter.getcrPalettes().data(), nPalettes * 255 * 3 * 2);
 
   // Write Sprites
   std::cout << "Writing sprite information..." << std::endl;
-  file.writeWord(fighter.nSprites);
-  for (int i = 0; i < fighter.nSprites; i++) {
+  int nSprites = fighter.getSpriteCount();
+  file.writeWord(nSprites);
+  for (int i = 0; i < nSprites; i++) {
+    const sprite::Sprite *sprite_i = fighter.getcSpriteAt(i);
     int sprite_num = 0;
     int ox = 0;
     int oy = 0;
     for (int j = 0; j < atlas_list.nSprites; j++) {
-      if (!atlas_list.sprites[j].name.compare(fighter.sprites[i].name)) {
+      if (!atlas_list.sprites[j].name.compare(sprite_i->getName())) {
         ox = atlas_list.sprites[j].xShift;
         oy = atlas_list.sprites[j].yShift;
         sprite_num = j;
@@ -864,25 +869,27 @@ int main(int argc, char **argv) {
     }
 
     file.writeWord(sprite_num);
-    file.writeWord(fighter.sprites[i].x - ox);
-    file.writeWord(fighter.sprites[i].y - oy);
+    file.writeWord(sprite_i->getX() - ox);
+    file.writeWord(sprite_i->getY() - oy);
     /*file.writeWord(fighter.sprites[i].img.w);
     file.writeWord(fighter.sprites[i].img.h);
     file.write(fighter.sprites[i].img.data,
     fighter.sprites[i].img.w*fighter.sprites[i].img.h);*/
-    file.writeByte(fighter.sprites[i].hitBoxes.size);
-    for (int j = 0; j < fighter.sprites[i].hitBoxes.size; j++) {
-      file.writeWord(fighter.sprites[i].hitBoxes.boxes[j].pos.x);
-      file.writeWord(fighter.sprites[i].hitBoxes.boxes[j].pos.y);
-      file.writeWord(fighter.sprites[i].hitBoxes.boxes[j].size.x);
-      file.writeWord(fighter.sprites[i].hitBoxes.boxes[j].size.y);
+    const sprite::HitBoxGroup &hurtBoxes = sprite_i->getcrDHurtBoxes();
+    file.writeByte(hurtBoxes.size);
+    for (int j = 0; j < hurtBoxes.size; j++) {
+      file.writeWord(hurtBoxes.boxes[j].pos.x);
+      file.writeWord(hurtBoxes.boxes[j].pos.y);
+      file.writeWord(hurtBoxes.boxes[j].size.x);
+      file.writeWord(hurtBoxes.boxes[j].size.y);
     }
-    file.writeByte(fighter.sprites[i].aHitBoxes.size);
-    for (int j = 0; j < fighter.sprites[i].aHitBoxes.size; j++) {
-      file.writeWord(fighter.sprites[i].aHitBoxes.boxes[j].pos.x);
-      file.writeWord(fighter.sprites[i].aHitBoxes.boxes[j].pos.y);
-      file.writeWord(fighter.sprites[i].aHitBoxes.boxes[j].size.x);
-      file.writeWord(fighter.sprites[i].aHitBoxes.boxes[j].size.y);
+    const sprite::HitBoxGroup &hitBoxes = sprite_i->getcrAHitBoxes();
+    file.writeByte(hitBoxes.size);
+    for (int j = 0; j < hitBoxes.size; j++) {
+      file.writeWord(hitBoxes.boxes[j].pos.x);
+      file.writeWord(hitBoxes.boxes[j].pos.y);
+      file.writeWord(hitBoxes.boxes[j].size.x);
+      file.writeWord(hitBoxes.boxes[j].size.y);
     }
   }
 
@@ -927,52 +934,58 @@ int main(int argc, char **argv) {
 
   // Write sounds
   std::cout << "Writing sounds..." << std::endl;
-  file.writeWord(fighter.nSounds);
-  for (int i = 0; i < fighter.nSounds; i++) {
-    file.writeWord(fighter.sounds[i].size);
-    for (int j = 0; j < fighter.sounds[i].size; j++) {
+  int nSounds = fighter.getSoundGroupCount();
+  file.writeWord(nSounds);
+  for (int i = 0; i < nSounds; i++) {
+    const game::SoundGroup *sg = fighter.getcSoundGroupAt(i);
+    file.writeWord(sg->size);
+    for (int j = 0; j < sg->size; j++) {
       // file.writeStr(fighter.sounds[i].sounds[j]);
-      embedFile(file, fighterPrefix + "/sounds/" + fighter.sounds[i].sounds[j] +
-                          ".wav");
+      embedFile(file, fighterPrefix + "/sounds/" + sg->sounds[j] + ".wav");
     }
   }
 
   // Write voices
   std::cout << "Writing voices..." << std::endl;
-  file.writeWord(fighter.nVoices);
-  for (int i = 0; i < fighter.nVoices; i++) {
-    file.writeWord(fighter.voices[i].size);
-    file.writeByte(fighter.voices[i].pct);
-    for (int j = 0; j < fighter.voices[i].size; j++) {
+  int nVoices = fighter.getVoiceGroupCount();
+  file.writeWord(nVoices);
+  for (int i = 0; i < nVoices; i++) {
+    const game::VoiceGroup *vg = fighter.getcVoiceGroupAt(i);
+    file.writeWord(vg->size);
+    file.writeByte(vg->pct);
+    for (int j = 0; j < vg->size; j++) {
       // file.writeStr(fighter.voices[i].voices[j]);
-      embedFile(file, fighterPrefix + "/voices/" + fighter.voices[i].voices[j] +
-                          ".wav");
+      embedFile(file, fighterPrefix + "/voices/" + vg->voices[j] + ".wav");
     }
   }
 
   // Write states (gah)
   std::cout << "Writing states..." << std::endl;
-  file.writeWord(fighter.nStates);
-  for (int state = 0; state < fighter.nStates; state++) {
-    file.writeWord(fighter.states[state].size);
-    file.write(fighter.states[state].steps.data(), fighter.states[state].size);
+  int nStates = fighter.getStateCount();
+  file.writeWord(nStates);
+  for (int state = 0; state < nStates; state++) {
+    const game::State *state_i = fighter.getcStateAt(state);
+    file.writeWord(state_i->size);
+    file.write(state_i->steps.data(), state_i->size);
   }
 
   // Write commands
   std::cout << "Writing commands..." << std::endl;
-  file.writeWord(fighter.nCommands);
-  for (int i = 0; i < fighter.nCommands; i++) {
-    file.writeWord(fighter.commands[i].generic);
-    file.writeWord(fighter.commands[i].comboC);
-    for (int j = 0; j < fighter.commands[i].comboC; j++) {
-      file.writeWord(fighter.commands[i].combo[j]);
+  int nCommands = fighter.getCommandCount();
+  file.writeWord(nCommands);
+  for (int i = 0; i < nCommands; i++) {
+    const game::Command *command = fighter.getcCommandAt(i);
+    file.writeWord(command->generic);
+    file.writeWord(command->comboC);
+    for (int j = 0; j < command->comboC; j++) {
+      file.writeWord(command->combo[j]);
     }
-    file.writeWord(fighter.commands[i].targetC);
-    for (int j = 0; j < fighter.commands[i].targetC; j++) {
-      file.writeWord(fighter.commands[i].targets[j].state);
-      file.writeWord(fighter.commands[i].targets[j].conditionC);
-      for (int k = 0; k < fighter.commands[i].targets[j].conditionC; k++) {
-        file.writeWord(fighter.commands[i].targets[j].conditions[k]);
+    file.writeWord(command->targetC);
+    for (int j = 0; j < command->targetC; j++) {
+      file.writeWord(command->targets[j].state);
+      file.writeWord(command->targets[j].conditionC);
+      for (int k = 0; k < command->targets[j].conditionC; k++) {
+        file.writeWord(command->targets[j].conditions[k]);
       }
     }
   }
@@ -980,7 +993,7 @@ int main(int argc, char **argv) {
   // Write standard states
   std::cout << "Writing standard state index..." << std::endl;
   for (int i = 0; i < game::STATE_MAX; i++) {
-    file.writeWord(fighter.statesStandard[i]);
+    file.writeWord(fighter.getStateStandardAt(i));
   }
 
   // Write portraits

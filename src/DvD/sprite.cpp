@@ -135,7 +135,7 @@ namespace sprite {
   }
 
   int Sprite::collide(int x1, int y1, int x2, int y2, bool m1, bool m2,
-                      float scale1, float scale2, Sprite *other,
+                      float scale1, float scale2, const Sprite *other,
                       util::Vector *colpos, bool allowOutOfBounds) const {
     // Check for attack hitbox collision with other sprite
     for (int i = 0; i < aHitBoxes.size; i++) {
@@ -149,8 +149,8 @@ namespace sprite {
         }
       }
       // Now, normal enemy hitboxes
-      for (int j = 0; j < other->hitBoxes.size; j++) {
-        HitBox you = other->hitBoxes.boxes[j].adjust(x2, y2, m2, scale2);
+      for (int j = 0; j < other->hurtBoxes.size; j++) {
+        HitBox you = other->hurtBoxes.boxes[j].adjust(x2, y2, m2, scale2);
         if (me.collideOther(&you, colpos, allowOutOfBounds)) {
           return HIT_HIT;
         }
@@ -165,7 +165,7 @@ namespace sprite {
     int y2 = _y;
 
     if (mirror) {
-      _x -= (img.w - x) * scale;
+      _x -= (img.getW() - x) * scale;
     }
     else {
       _x -= x * scale;
@@ -187,17 +187,19 @@ namespace sprite {
     atlas->drawSprite(atlas_sprite, _x, _y, mirror);
 #else
     img.drawSprite<renderer::Texture2DRenderer>(_x, _y, mirror);
-    for (int i = 0; i < hitBoxes.size; i++) {
-      hitBoxes.boxes[i].draw(x2, y2, false,
-                             input::selectAll ||
-                                 ((&hitBoxes.boxes[i] == input::selectBox) &&
-                                  !input::selectBoxAttack));
+    bool selectAll = input::isSelectAll();
+    const auto *selectBox = input::getSelectBox();
+    bool selectBoxAttack = input::isSelectBoxAttack();
+    for (int i = 0; i < hurtBoxes.size; i++) {
+      hurtBoxes.boxes[i].draw(
+          x2, y2, false,
+          selectAll ||
+              ((&hurtBoxes.boxes[i] == selectBox) && !selectBoxAttack));
     }
     for (int i = 0; i < aHitBoxes.size; i++) {
-      aHitBoxes.boxes[i].draw(x2, y2, true,
-                              input::selectAll ||
-                                  ((&aHitBoxes.boxes[i] == input::selectBox) &&
-                                   input::selectBoxAttack));
+      aHitBoxes.boxes[i].draw(
+          x2, y2, true,
+          selectAll || ((&aHitBoxes.boxes[i] == selectBox) && selectBoxAttack));
     }
 #endif
   }
@@ -232,7 +234,7 @@ namespace sprite {
         name()
 #endif
         ,
-        hitBoxes(), aHitBoxes() {
+        hurtBoxes(), aHitBoxes() {
   }
 
   Sprite::~Sprite() {}
@@ -251,7 +253,7 @@ namespace sprite {
         name(std::move(other.name))
 #endif
         ,
-        hitBoxes(other.hitBoxes), aHitBoxes(other.aHitBoxes) {
+        hurtBoxes(other.hurtBoxes), aHitBoxes(other.aHitBoxes) {
 #ifdef GAME
     other.atlas = nullptr;
 #endif
@@ -269,18 +271,37 @@ namespace sprite {
 #else
     name = std::move(other.name);
 #endif
-    hitBoxes = std::move(other.hitBoxes);
+    hurtBoxes = std::move(other.hurtBoxes);
     aHitBoxes = std::move(other.aHitBoxes);
 
     return *this;
   }
 
-  HitBoxGroup::HitBoxGroup() {
-    size = 0;
-    boxes.clear();
-  }
+  int Sprite::getX() const { return x; }
+  void Sprite::setX(int x) { this->x = x; }
+  int Sprite::getY() const { return y; }
+  void Sprite::setY(int y) { this->y = y; }
 
-  HitBoxGroup::~HitBoxGroup() {}
+#ifdef SPRTOOL
+  Image *Sprite::getImage() { return &img; }
+#endif // SPRTOOL
+
+#ifdef GAME
+  const Atlas *Sprite::getcAtlas() const { return atlas; }
+  void Sprite::setAtlas(Atlas *atlas) { this->atlas = atlas; }
+  int Sprite::getAtlasSprite() const { return atlas_sprite; }
+  void Sprite::setAtlasSprite(int atlas_sprite) {
+    this->atlas_sprite = atlas_sprite;
+  }
+#else // !GAME
+  std::string Sprite::getName() const { return name; }
+  void Sprite::setName(const std::string &name) { this->name = name; }
+#endif
+
+  const HitBoxGroup &Sprite::getcrDHurtBoxes() const { return hurtBoxes; }
+  HitBoxGroup &Sprite::getrDHurtBoxes() { return hurtBoxes; }
+  const HitBoxGroup &Sprite::getcrAHitBoxes() const { return aHitBoxes; }
+  HitBoxGroup &Sprite::getrAHitBoxes() { return aHitBoxes; }
 
   void HitBoxGroup::init(int size) {
     this->size = size;

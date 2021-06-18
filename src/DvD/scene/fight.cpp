@@ -28,33 +28,45 @@ void scene::Fight::pause(int frames) { framePauseTimer += frames; }
 
 void scene::Fight::shake(int frames) { frameShakeTimer += frames; }
 
-scene::SceneMeter::SceneMeter() {}
-
-scene::SceneMeter::~SceneMeter() {}
+game::Player &scene::Fight::getrPlayerAt(int index) {
+  switch (index) {
+  case 0:
+    return madotsuki;
+  case 1:
+    return poniko;
+  default:
+    throw std::out_of_range("invalid Player index: " + std::to_string(index));
+  }
+}
+util::Vector &scene::Fight::getrCameraPos() { return cameraPos; }
+util::Vector &scene::Fight::getrIdealCameraPos() { return idealCameraPos; }
+int scene::Fight::getFramePauseTimer() { return framePauseTimer; }
 
 void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
   if (pct > 0) {
+    unsigned int imgW = img.getW();
+    unsigned int imgH = img.getH();
     if (flip) {
-      graphics::setRect(0, 0, img.w * pct, img.h);
+      graphics::setRect(0, 0, imgW * pct, imgH);
     }
     else {
-      graphics::setRect(img.w * (1 - pct), 0, img.w * pct + 1, img.h);
+      graphics::setRect(imgW * (1 - pct), 0, imgW * pct + 1, imgH);
     }
 
     if (mirror) {
       if (flip) {
         img.draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH - img.w - pos.x + img.w * (1 - pct), pos.y, true);
+            sys::WINDOW_WIDTH - imgW - pos.x + imgW * (1 - pct), pos.y, true);
       }
       else {
         // Hack
         if (pct == 1.0f) {
           img.draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH - img.w - pos.x, pos.y, true);
+              sys::WINDOW_WIDTH - imgW - pos.x, pos.y, true);
         }
         else {
           img.draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH - img.w - pos.x + 1, pos.y, true);
+              sys::WINDOW_WIDTH - imgW - pos.x + 1, pos.y, true);
         }
       }
     }
@@ -63,7 +75,7 @@ void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
         img.draw<renderer::Texture2DRenderer>(pos.x, pos.y);
       }
       else {
-        img.draw<renderer::Texture2DRenderer>(pos.x + img.w * (1 - pct), pos.y);
+        img.draw<renderer::Texture2DRenderer>(pos.x + imgW * (1 - pct), pos.y);
       }
     }
   }
@@ -339,6 +351,9 @@ void scene::Fight::parseJSON(const nlohmann::ordered_json &j_obj) {
 }
 
 void scene::Fight::think() {
+  const util::Vectorf &m_pos = madotsuki.getcrPos();
+  const util::Vectorf &p_pos = poniko.getcrPos();
+
   if (frameShakeTimer) {
     cameraShake.x = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
     cameraShake.y = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
@@ -348,21 +363,23 @@ void scene::Fight::think() {
     cameraShake.x = cameraShake.y = 0;
   }
 
-  idealCameraPos.x = (madotsuki.pos.x + poniko.pos.x) / 2;
-  idealCameraPos.y = (madotsuki.pos.y + poniko.pos.y) / 3 - 30;
+  idealCameraPos.x = (m_pos.x + p_pos.x) / 2;
+  idealCameraPos.y = (m_pos.y + p_pos.y) / 3 - 30;
 
+  int heightAbs = STAGE->getCamHeight();
+  int widthAbs = STAGE->getCamWidth();
   if (idealCameraPos.y < 0) {
     idealCameraPos.y = 0;
   }
-  if (idealCameraPos.y > STAGE->heightAbs - sys::WINDOW_HEIGHT) {
-    idealCameraPos.y = STAGE->heightAbs - sys::WINDOW_HEIGHT;
+  if (idealCameraPos.y > heightAbs - sys::WINDOW_HEIGHT) {
+    idealCameraPos.y = heightAbs - sys::WINDOW_HEIGHT;
   }
 
-  if (idealCameraPos.x < STAGE->widthAbs / -2 + sys::WINDOW_WIDTH / 2) {
-    idealCameraPos.x = STAGE->widthAbs / -2 + sys::WINDOW_WIDTH / 2;
+  if (idealCameraPos.x < widthAbs / -2 + sys::WINDOW_WIDTH / 2) {
+    idealCameraPos.x = widthAbs / -2 + sys::WINDOW_WIDTH / 2;
   }
-  else if (idealCameraPos.x > STAGE->widthAbs / 2 - sys::WINDOW_WIDTH / 2) {
-    idealCameraPos.x = STAGE->widthAbs / 2 - sys::WINDOW_WIDTH / 2;
+  else if (idealCameraPos.x > widthAbs / 2 - sys::WINDOW_WIDTH / 2) {
+    idealCameraPos.x = widthAbs / 2 - sys::WINDOW_WIDTH / 2;
   }
 
   cameraPos.x = (cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
@@ -371,24 +388,24 @@ void scene::Fight::think() {
   cameraPos.x += cameraShake.x;
   cameraPos.y += cameraShake.y;
 
-  if (madotsuki.pos.x < poniko.pos.x) {
+  if (m_pos.x < p_pos.x) {
     // if(madotsuki.inStandardState(STATE_STAND))
     if (madotsuki.isIdle()) {
-      madotsuki.setDir(game::RIGHT);
+      madotsuki.setDirection(game::RIGHT);
     }
     // if(poniko.inStandardState(STATE_STAND))
     if (poniko.isIdle()) {
-      poniko.setDir(game::LEFT);
+      poniko.setDirection(game::LEFT);
     }
   }
-  else if (madotsuki.pos.x > poniko.pos.x) {
+  else if (m_pos.x > p_pos.x) {
     // if(madotsuki.inStandardState(STATE_STAND))
     if (madotsuki.isIdle()) {
-      madotsuki.setDir(game::LEFT);
+      madotsuki.setDirection(game::LEFT);
     }
     // if(poniko.inStandardState(STATE_STAND))
     if (poniko.isIdle()) {
-      poniko.setDir(game::RIGHT);
+      poniko.setDirection(game::RIGHT);
     }
   }
 
@@ -403,11 +420,13 @@ void scene::Fight::think() {
     poniko.interact(&madotsuki);
 
     for (int i = 0; i < game::MAX_PROJECTILES; i++) {
-      if (madotsuki.projectiles[i].state != game::STATE_NONE) {
-        madotsuki.projectiles[i].interact(&poniko);
+      game::Projectile *m_proj = madotsuki.getProjectileAt(i);
+      if (m_proj->getState() != game::STATE_NONE) {
+        m_proj->interact(&poniko);
       }
-      if (poniko.projectiles[i].state != game::STATE_NONE) {
-        poniko.projectiles[i].interact(&madotsuki);
+      game::Projectile *p_proj = poniko.getProjectileAt(i);
+      if (p_proj->getState() != game::STATE_NONE) {
+        p_proj->interact(&madotsuki);
       }
     }
   }
@@ -444,17 +463,19 @@ void scene::Fight::think() {
       if (!--game_timer) {
         timer_ko = 1 * sys::FPS;
         ko_type = 1;
-        if (madotsuki.hp == poniko.hp) {
+        int m_hp = madotsuki.getHp();
+        int p_hp = poniko.getHp();
+        if (m_hp == p_hp) {
           ko_player = 3;
         }
-        else if (madotsuki.hp < poniko.hp) {
+        else if (m_hp < p_hp) {
           ko_player = 1;
         }
         else {
           ko_player = 2;
         }
 
-        if (madotsuki.flags & game::F_ON_GROUND && madotsuki.isDashing()) {
+        if (madotsuki.getFlags() & game::F_ON_GROUND && madotsuki.isDashing()) {
           if (madotsuki.inStandardState(game::STATE_DASH_FORWARD)) {
             madotsuki.setStandardState(game::STATE_DASH_FORWARD_END);
           }
@@ -462,7 +483,7 @@ void scene::Fight::think() {
             madotsuki.setStandardState(game::STATE_DASH_BACK_END);
           }
         }
-        if (poniko.flags & game::F_ON_GROUND && poniko.isDashing()) {
+        if (poniko.getFlags() & game::F_ON_GROUND && poniko.isDashing()) {
           if (poniko.inStandardState(game::STATE_DASH_FORWARD)) {
             poniko.setStandardState(game::STATE_DASH_FORWARD_END);
           }
@@ -475,35 +496,37 @@ void scene::Fight::think() {
 
     // Combo counters
     // LEFT
+    int m_comboCounter = madotsuki.getComboCounter();
     if (!ko_player) {
-      if (madotsuki.comboCounter) {
-        if (madotsuki.comboCounter == 1) {
+      if (m_comboCounter) {
+        if (m_comboCounter == 1) {
           comboLeftOff = 0;
           comboLeftTimer = 0;
         }
-        else if (madotsuki.comboCounter >= 2) {
-          if (comboLeftLast < madotsuki.comboCounter) {
+        else if (m_comboCounter >= 2) {
+          if (comboLeftLast < m_comboCounter) {
             comboLeftTimer = sys::FPS;
           }
-          else if (comboLeftLast > madotsuki.comboCounter) {
+          else if (comboLeftLast > m_comboCounter) {
             comboLeftOff = 0;
             comboLeftTimer = sys::FPS;
           }
         }
-        comboLeftLast = madotsuki.comboCounter;
+        comboLeftLast = m_comboCounter;
       }
     }
 
     if (comboLeftTimer) {
       comboLeftTimer--;
-      if (comboLeftOff < comboLeft.w) {
+      unsigned int comboLeftW = comboLeft.getW();
+      if (comboLeftOff < comboLeftW) {
         comboLeftOff += 16;
       }
-      if (comboLeftOff > comboLeft.w) {
-        comboLeftOff = comboLeft.w;
+      if (comboLeftOff > comboLeftW) {
+        comboLeftOff = comboLeftW;
       }
     }
-    else if (comboLeftOff && (madotsuki.comboCounter < 2 || ko_player)) {
+    else if (comboLeftOff && (m_comboCounter < 2 || ko_player)) {
       if (comboLeftOff > 0) {
         comboLeftOff -= 16;
       }
@@ -514,27 +537,29 @@ void scene::Fight::think() {
     }
 
     // RIGHT
-    if (poniko.comboCounter > 1 && !ko_player) {
-      if (comboRightLast < poniko.comboCounter) {
+    int p_comboCounter = poniko.getComboCounter();
+    if (p_comboCounter > 1 && !ko_player) {
+      if (comboRightLast < p_comboCounter) {
         comboRightTimer = sys::FPS;
       }
-      else if (comboRightLast > poniko.comboCounter) {
+      else if (comboRightLast > p_comboCounter) {
         comboRightOff = 0;
         comboRightTimer = sys::FPS;
       }
-      comboRightLast = poniko.comboCounter;
+      comboRightLast = p_comboCounter;
     }
 
     if (comboRightTimer) {
       comboRightTimer--;
-      if (comboRightOff < comboRight.w) {
+      unsigned int comboRightW = comboRight.getW();
+      if (comboRightOff < comboRightW) {
         comboRightOff += 16;
       }
-      if (comboRightOff > comboRight.w) {
-        comboRightOff = comboRight.w;
+      if (comboRightOff > comboRightW) {
+        comboRightOff = comboRightW;
       }
     }
-    else if (comboRightOff && (poniko.comboCounter < 2 || ko_player)) {
+    else if (comboRightOff && (p_comboCounter < 2 || ko_player)) {
       if (comboRightOff > 0) {
         comboRightOff -= 16;
       }
@@ -545,7 +570,7 @@ void scene::Fight::think() {
     }
 
     // ROUND INTROS
-    if (!Options::optionEpilepsy && (timer_round_out || timer_round_in)) {
+    if (!Options::isEpilepsy() && (timer_round_out || timer_round_in)) {
       if (!timer_flash && !util::roll(64)) {
         staticSnd->play();
         timer_flash = 5;
@@ -576,15 +601,17 @@ void scene::Fight::think() {
     if (timer_round_out) {
       timer_round_out--;
       if (timer_round_out == (int)(3.8 * sys::FPS)) {
+        uint32_t m_flags = madotsuki.getFlags();
+        uint32_t p_flags = poniko.getFlags();
         if (ko_player == 2) {
-          if (!(poniko.flags & game::F_DEAD)) {
+          if (!(p_flags & game::F_DEAD)) {
             poniko.setStandardState(game::STATE_DEFEAT);
           }
           madotsuki.setStandardState(game::STATE_VICTORY);
           win_types[0][wins[0]++] = 0;
         }
         else if (ko_player == 1) {
-          if (!(madotsuki.flags & game::F_DEAD)) {
+          if (!(m_flags & game::F_DEAD)) {
             madotsuki.setStandardState(game::STATE_DEFEAT);
           }
           poniko.setStandardState(game::STATE_VICTORY);
@@ -597,10 +624,10 @@ void scene::Fight::think() {
             ko_type = 2;
           }
           else {
-            if (!(madotsuki.flags & game::F_DEAD)) {
+            if (!(m_flags & game::F_DEAD)) {
               madotsuki.setStandardState(game::STATE_DEFEAT);
             }
-            if (!(poniko.flags & game::F_DEAD)) {
+            if (!(p_flags & game::F_DEAD)) {
               poniko.setStandardState(game::STATE_DEFEAT);
             }
             win_types[0][wins[0]++] = 1;
@@ -611,7 +638,8 @@ void scene::Fight::think() {
       }
       else if (!timer_round_out) {
         // See if someone's won
-        if (wins[0] >= Options::optionWins || wins[1] >= Options::optionWins) {
+        int winReq = Options::getWins();
+        if (wins[0] >= winReq || wins[1] >= winReq) {
           // Count up the wins
           int wins_p1 = 0;
           int wins_p2 = 0;
@@ -640,7 +668,7 @@ void scene::Fight::think() {
         }
         timer_round_in = 4.0 * sys::FPS;
         ko_player = 0;
-        game_timer = Options::optionTime * sys::FPS - 1;
+        game_timer = Options::getTime() * sys::FPS - 1;
         if (game_timer < 0) {
           game_timer = 0;
         }
@@ -654,23 +682,23 @@ void scene::Fight::think() {
     if (ko_player && !timer_ko && !timer_round_out) {
       // Make sure everyone's still
       bool _condition = false;
+      uint32_t m_flags = madotsuki.getFlags();
+      uint32_t p_flags = poniko.getFlags();
       if (ko_type == 0) {
         if (ko_player == 2) {
-          _condition = madotsuki.isIdle() &&
-                       (madotsuki.flags & game::F_ON_GROUND) &&
+          _condition = madotsuki.isIdle() && (m_flags & game::F_ON_GROUND) &&
                        (poniko.inStandardState(game::STATE_PRONE) ||
                         poniko.inStandardState(game::STATE_ON_BACK));
         }
         else if (ko_player == 1) {
-          _condition = poniko.isIdle() && (poniko.flags & game::F_ON_GROUND) &&
+          _condition = poniko.isIdle() && (p_flags & game::F_ON_GROUND) &&
                        (madotsuki.inStandardState(game::STATE_PRONE) ||
                         madotsuki.inStandardState(game::STATE_ON_BACK));
         }
       }
       else if (ko_type == 1) {
-        _condition = poniko.isIdle() && (poniko.flags & game::F_ON_GROUND) &&
-                     madotsuki.isIdle() &&
-                     (madotsuki.flags & game::F_ON_GROUND);
+        _condition = poniko.isIdle() && (p_flags & game::F_ON_GROUND) &&
+                     madotsuki.isIdle() && (m_flags & game::F_ON_GROUND);
       }
       else if (ko_type == 2) {
         _condition = true;
@@ -689,13 +717,13 @@ void scene::Fight::draw() const {
   madotsuki.drawSpecial();
   poniko.drawSpecial();
 
-  if (Stage::stage != 3) {
+  if (Stage::getStageIndex() != 3) {
     madotsuki.draw(true);
     poniko.draw(true);
   }
 
   // Which order do we draw these in?
-  if (madotsuki.drawPriorityFrame < poniko.drawPriorityFrame) {
+  if (madotsuki.getDrawPriorityFrame() < poniko.getDrawPriorityFrame()) {
     madotsuki.draw(false);
     poniko.draw(false);
   }
@@ -706,11 +734,13 @@ void scene::Fight::draw() const {
 
   // Draw projectiles
   for (int i = 0; i < game::MAX_PROJECTILES; i++) {
-    if (madotsuki.projectiles[i].state != game::STATE_NONE) {
-      madotsuki.projectiles[i].draw();
+    const game::Projectile *m_proj = madotsuki.getProjectileAt(i);
+    if (m_proj->getState() != game::STATE_NONE) {
+      m_proj->draw();
     }
-    if (poniko.projectiles[i].state != game::STATE_NONE) {
-      poniko.projectiles[i].draw();
+    const game::Projectile *p_proj = poniko.getProjectileAt(i);
+    if (p_proj->getState() != game::STATE_NONE) {
+      p_proj->draw();
     }
   }
 
@@ -720,6 +750,8 @@ void scene::Fight::draw() const {
 
   Scene::draw();
 
+  const game::Fighter *m_fighter = madotsuki.getcFighter();
+  const game::Fighter *p_fighter = poniko.getcFighter();
   if (winner) {
     win.draw<renderer::Texture2DRenderer>(0, 0);
 
@@ -734,15 +766,17 @@ void scene::Fight::draw() const {
   }
   else {
     hud.draw<renderer::Texture2DRenderer>(0, 0);
-    hud.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - hud.w, 0, true);
+    hud.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - hud.getW(), 0,
+                                          true);
 
     // DRAW METERS
 
-    meterHp.draw(madotsuki.hp / (float)madotsuki.getMaxHp(), false, false);
-    meterHp.draw(poniko.hp / (float)poniko.getMaxHp(), true, false);
+    meterHp.draw(madotsuki.getHp() / (float)madotsuki.getMaxHp(), false, false);
+    meterHp.draw(poniko.getHp() / (float)poniko.getMaxHp(), true, false);
 
-    meterSuper.draw(madotsuki.super / (float)game::SUPER_MAX, false, false);
-    meterSuper.draw(poniko.super / (float)game::SUPER_MAX, true, false);
+    meterSuper.draw(madotsuki.getSuper() / (float)game::SUPER_MAX, false,
+                    false);
+    meterSuper.draw(poniko.getSuper() / (float)game::SUPER_MAX, true, false);
 
     // meterTag.draw(1, false, false);
     // meterTag.draw(1, true, false);
@@ -756,15 +790,16 @@ void scene::Fight::draw() const {
     meterDpm.draw(1, false, false);
     meterDpm.draw(1, true, false);
 
+    unsigned int shineW = shine.getW();
     portraits.draw<renderer::Texture2DRenderer>(0, 0);
-    portraits.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shine.w, 0,
+    portraits.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shineW, 0,
                                                 true);
 
     timer.draw<renderer::Texture2DRenderer>(0, 0);
 
     if (FIGHT->gametype != GAMETYPE_TRAINING) {
       // Round orbs
-      for (int i = 0; i < Options::optionWins; i++) {
+      for (int i = 0; i < Options::getWins(); i++) {
         int x = orb_pos.x - i * 18;
         if (i < wins[0]) {
           if (win_types[0][i]) {
@@ -808,7 +843,7 @@ void scene::Fight::draw() const {
     }
 
     shine.draw<renderer::Texture2DRenderer>(0, 0);
-    shine.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shine.w, 0,
+    shine.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - shineW, 0,
                                             true);
 
     round_hud[round].draw<renderer::Texture2DRenderer>(x_round_hud,
@@ -817,8 +852,8 @@ void scene::Fight::draw() const {
     // Draw combo counters
     // LEFT
     if (comboLeftOff) {
-      comboLeft.draw<renderer::Texture2DRenderer>(comboLeftOff - comboLeft.w,
-                                                  131);
+      comboLeft.draw<renderer::Texture2DRenderer>(
+          comboLeftOff - comboLeft.getW(), 131);
       char buff[8];
       sprintf(buff, "%d", comboLeftLast);
       int w = combo->getTextWidth(buff);
@@ -837,25 +872,27 @@ void scene::Fight::draw() const {
     }
 
     // Draw character portraits
-    if (graphics::shader_support) {
-      graphics::setPalette(madotsuki.fighter->palettes[madotsuki.palette], 1.0f,
-                           0.0f, 0.0f, 0.0f, 0.0f);
+    bool shader_support = graphics::hasShaderSupport();
+    if (shader_support) {
+      graphics::setPalette(m_fighter->getcrPalettes()[madotsuki.getPalette()],
+                           1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
     }
-    madotsuki.fighter->portrait_ui.draw<renderer::FighterRenderer>(
+    m_fighter->getcImagePortraitUI()->draw<renderer::FighterRenderer>(
         portraitPos.x, portraitPos.y);
-    if (graphics::shader_support) {
-      graphics::setPalette(poniko.fighter->palettes[poniko.palette], 1.0f, 0.0f,
-                           0.0f, 0.0f, 0.0f);
+    if (shader_support) {
+      graphics::setPalette(p_fighter->getcrPalettes()[poniko.getPalette()],
+                           1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
     }
     else {
       renderer::FighterRenderer::setColor(150 / 255.0f, 150 / 255.0f,
                                           150 / 255.0f);
       renderer::FighterRenderer::setAlpha(1.0f);
     }
-    poniko.fighter->portrait_ui.draw<renderer::FighterRenderer>(
-        sys::WINDOW_WIDTH - portraitPos.x - poniko.fighter->portrait_ui.w,
-        portraitPos.y, true);
-    if (graphics::shader_support) {
+    const Image *p_portraitUI = p_fighter->getcImagePortraitUI();
+    p_portraitUI->draw<renderer::FighterRenderer>(
+        sys::WINDOW_WIDTH - portraitPos.x - p_portraitUI->getW(), portraitPos.y,
+        true);
+    if (shader_support) {
       renderer::ShaderProgram::unuse();
     }
 
@@ -892,80 +929,78 @@ void scene::Fight::draw() const {
       }
 
       if (timer_round_in <= 1.4 * sys::FPS) {
+        unsigned int splashW = round_splash[round].getW();
+        unsigned int splashH = round_splash[round].getH();
         if (timer_round_in > 1.3 * sys::FPS) {
           float scalar =
               (timer_round_in - 1.3 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
           graphics::setScale(scalar);
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - round_splash[round].w * scalar / 2 -
-                  util::roll(10, 30),
-              sys::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 -
+              sys::WINDOW_WIDTH / 2 - splashW * scalar / 2 - util::roll(10, 30),
+              sys::WINDOW_HEIGHT / 2 - splashH * scalar / 2 -
                   util::roll(10, 30));
         }
         else if (timer_round_in < 0.1 * sys::FPS) {
           float scalar = timer_round_in / (0.1 * sys::FPS);
           renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - round_splash[round].w / 2,
-              sys::WINDOW_HEIGHT / 2 - round_splash[round].h / 2);
+              sys::WINDOW_WIDTH / 2 - splashW / 2,
+              sys::WINDOW_HEIGHT / 2 - splashH / 2);
           renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
           scalar = 1.0f - scalar + 1.0f;
           float xscalar = 1 / scalar;
           graphics::setScale(xscalar, scalar);
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - round_splash[round].w * xscalar / 2 -
+              sys::WINDOW_WIDTH / 2 - splashW * xscalar / 2 -
                   util::roll(10, 30),
-              sys::WINDOW_HEIGHT / 2 - round_splash[round].h * scalar / 2 -
+              sys::WINDOW_HEIGHT / 2 - splashH * scalar / 2 -
                   util::roll(10, 30));
         }
         else {
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - round_splash[round].w / 2 -
-                  util::roll(5, 15),
-              sys::WINDOW_HEIGHT / 2 - round_splash[round].h / 2 -
-                  util::roll(5, 15));
+              sys::WINDOW_WIDTH / 2 - splashW / 2 - util::roll(5, 15),
+              sys::WINDOW_HEIGHT / 2 - splashH / 2 - util::roll(5, 15));
         }
       }
     }
 
     if (timer_ko) {
+      unsigned int koImgW = ko[ko_type].getW();
+      unsigned int koImgH = ko[ko_type].getH();
       if (timer_ko > 0.8 * sys::FPS) {
         float scalar = (timer_ko - 0.8 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
         graphics::setScale(scalar);
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - ko[ko_type].w * scalar / 2 -
-                util::roll(10, 30),
-            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 -
-                util::roll(10, 30));
+            sys::WINDOW_WIDTH / 2 - koImgW * scalar / 2 - util::roll(10, 30),
+            sys::WINDOW_HEIGHT / 2 - koImgH * scalar / 2 - util::roll(10, 30));
       }
       else if (timer_ko < 0.1 * sys::FPS) {
         float scalar = timer_ko / (0.1 * sys::FPS);
         renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - ko[ko_type].w / 2,
-            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2);
+            sys::WINDOW_WIDTH / 2 - koImgW / 2,
+            sys::WINDOW_HEIGHT / 2 - koImgH / 2);
         renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
         scalar = 1.0f - scalar + 1.0f;
         float xscalar = 1 / scalar;
         graphics::setScale(xscalar, scalar);
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - ko[ko_type].w * xscalar / 2 -
-                util::roll(10, 30),
-            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h * scalar / 2 -
-                util::roll(10, 30));
+            sys::WINDOW_WIDTH / 2 - koImgW * xscalar / 2 - util::roll(10, 30),
+            sys::WINDOW_HEIGHT / 2 - koImgH * scalar / 2 - util::roll(10, 30));
       }
       else {
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - ko[ko_type].w / 2 - util::roll(5, 15),
-            sys::WINDOW_HEIGHT / 2 - ko[ko_type].h / 2 - util::roll(5, 15));
+            sys::WINDOW_WIDTH / 2 - koImgW / 2 - util::roll(5, 15),
+            sys::WINDOW_HEIGHT / 2 - koImgH / 2 - util::roll(5, 15));
       }
     }
   }
 
   // From main.cpp
-  ((Select *)scenes[SCENE_SELECT].get())
-      ->drawEffect(0, madotsuki.fighter->group, madotsuki.pos.x,
-                   madotsuki.pos.y + madotsuki.fighter->height, true);
+  const util::Vectorf &m_pos = madotsuki.getcrPos();
+  reinterpret_cast<Select *>(getSceneFromIndex(SCENE_SELECT))
+      ->drawEffect(0, m_fighter->getGroup(), m_pos.x,
+                   m_pos.y + m_fighter->getHeight(), true);
 }
 
 void scene::Fight::reset() {
@@ -986,7 +1021,7 @@ void scene::Fight::reset() {
   comboLeftLast = comboRightLast = 0;
   comboLeftTimer = comboRightTimer = 0;
 
-  game_timer = Options::optionTime * sys::FPS - 1;
+  game_timer = Options::getTime() * sys::FPS - 1;
   if (game_timer < 0) {
     game_timer = 0;
   }
@@ -1002,7 +1037,7 @@ void scene::Fight::knockout(int player) {
   timer_ko = 1 * sys::FPS;
   ko_type = 0;
 
-  if (madotsuki.flags & game::F_ON_GROUND && madotsuki.isDashing()) {
+  if (madotsuki.getFlags() & game::F_ON_GROUND && madotsuki.isDashing()) {
     if (madotsuki.inStandardState(game::STATE_DASH_FORWARD)) {
       madotsuki.setStandardState(game::STATE_DASH_FORWARD_END);
     }
@@ -1010,7 +1045,7 @@ void scene::Fight::knockout(int player) {
       madotsuki.setStandardState(game::STATE_DASH_BACK_END);
     }
   }
-  if (poniko.flags & game::F_ON_GROUND && poniko.isDashing()) {
+  if (poniko.getFlags() & game::F_ON_GROUND && poniko.isDashing()) {
     if (poniko.inStandardState(game::STATE_DASH_FORWARD)) {
       poniko.setStandardState(game::STATE_DASH_FORWARD_END);
     }
@@ -1019,3 +1054,11 @@ void scene::Fight::knockout(int player) {
     }
   }
 }
+
+int scene::Fight::getTimerRoundIn() const { return timer_round_in; }
+int scene::Fight::getTimerRoundOut() const { return timer_round_out; }
+int scene::Fight::getTimerKO() const { return timer_ko; }
+int scene::Fight::getKOPlayer() const { return ko_player; }
+int scene::Fight::getRound() const { return round; }
+int scene::Fight::getGameType() const { return gametype; }
+void scene::Fight::setGameType(int gametype) { this->gametype = gametype; }

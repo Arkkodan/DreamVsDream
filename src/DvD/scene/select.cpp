@@ -54,15 +54,19 @@ void scene::Select::think() {
     }
   }
 
+  game::Player &p0 = Fight::getrPlayerAt(0);
+  game::Player &p1 = Fight::getrPlayerAt(1);
+
   // Move cursor
+  int gametype = FIGHT->getGameType();
   if (cursors[0].lockState != Cursor::CURSOR_LOCKED ||
       cursors[1].lockState != Cursor::CURSOR_LOCKED) {
     for (int cur = 0; cur < 2; cur++) {
-      uint16_t input = Fight::madotsuki.frameInput;
+      uint16_t input = p0.getFrameInput();
       if (cur == 1) {
-        input = Fight::poniko.frameInput;
+        input = p1.getFrameInput();
       }
-      if (FIGHT->gametype == Fight::GAMETYPE_TRAINING) {
+      if (gametype == Fight::GAMETYPE_TRAINING) {
         if (cursors[0].lockState == Cursor::CURSOR_LOCKED) {
           cur = 1;
         }
@@ -156,10 +160,10 @@ void scene::Select::think() {
         if (input & game::INPUT_A) {
           if (gridFighters[cursors[cur].pos] >= 0) {
             if (cur == 0) {
-              Fight::madotsuki.palette = 0;
+              p0.setPalette(0);
             }
             else {
-              Fight::poniko.palette = 0;
+              p1.setPalette(0);
             }
             cursors[cur].lockState = Cursor::CURSOR_COLORSWAP;
             newEffect(cur, group);
@@ -170,25 +174,27 @@ void scene::Select::think() {
         }
       }
       else if (cursors[cur].lockState == Cursor::CURSOR_COLORSWAP) {
+        int nPalettes =
+            fighters[gridFighters[cursors[cur].pos]]->getPaletteCount();
+        int m_palette = p0.getPalette();
+        int p_palette = p1.getPalette();
         if (input & game::INPUT_LEFT) {
           sndMenu->play();
 
           if (cur == 0) {
-            if (Fight::madotsuki.palette == 0) {
-              Fight::madotsuki.palette =
-                  fighters[gridFighters[cursors[0].pos]]->nPalettes - 1;
+            if (m_palette == 0) {
+              p0.setPalette(nPalettes - 1);
             }
             else {
-              Fight::madotsuki.palette--;
+              p0.setPalette(m_palette - 1);
             }
           }
           else {
-            if (Fight::poniko.palette == 0) {
-              Fight::poniko.palette =
-                  fighters[gridFighters[cursors[1].pos]]->nPalettes - 1;
+            if (p_palette == 0) {
+              p1.setPalette(nPalettes - 1);
             }
             else {
-              Fight::poniko.palette--;
+              p1.setPalette(p_palette - 1);
             }
           }
         }
@@ -196,21 +202,19 @@ void scene::Select::think() {
           sndMenu->play();
 
           if (cur == 0) {
-            if (Fight::madotsuki.palette ==
-                fighters[gridFighters[cursors[0].pos]]->nPalettes - 1) {
-              Fight::madotsuki.palette = 0;
+            if (m_palette == nPalettes - 1) {
+              p0.setPalette(0);
             }
             else {
-              Fight::madotsuki.palette++;
+              p0.setPalette(m_palette + 1);
             }
           }
           else {
-            if (Fight::poniko.palette ==
-                fighters[gridFighters[cursors[1].pos]]->nPalettes - 1) {
-              Fight::poniko.palette = 0;
+            if (p_palette == nPalettes - 1) {
+              p1.setPalette(0);
             }
             else {
-              Fight::poniko.palette++;
+              p1.setPalette(p_palette + 1);
             }
           }
         }
@@ -222,7 +226,7 @@ void scene::Select::think() {
       }
 
       if (input & game::INPUT_B) {
-        if (FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING) {
+        if (gametype == scene::Fight::GAMETYPE_TRAINING) {
           if (cursors[0].lockState == Cursor::CURSOR_UNLOCKED) {
             sndBack->play();
             setScene(SCENE_TITLE);
@@ -256,7 +260,7 @@ void scene::Select::think() {
             }
           }
           else {
-            if (!net::connected) {
+            if (!net::isConnected()) {
               sndBack->play();
               setScene(SCENE_TITLE);
             }
@@ -264,7 +268,7 @@ void scene::Select::think() {
         }
       }
 
-      if (FIGHT->gametype == scene::Fight::GAMETYPE_TRAINING) {
+      if (gametype == scene::Fight::GAMETYPE_TRAINING) {
         break;
       }
     }
@@ -275,9 +279,10 @@ void scene::Select::think() {
       cursor_stage_offset = 0.0f;
     }
 
-    int size = Stage::stages.size();
+    const auto &stages = Stage::getcrStages();
+    int size = stages.size();
     int exists =
-        std::count_if(Stage::stages.cbegin(), Stage::stages.cend(),
+        std::count_if(stages.cbegin(), stages.cend(),
                       [](const Stage *stage) { return stage->isExists(); });
     if (size > 0 && exists > 0) {
       int dx = (input(game::INPUT_LEFT) ? -1 : 0) +
@@ -298,8 +303,7 @@ void scene::Select::think() {
             cursor_stage--;
             cursor_stage_offset -= STAGE_ICON_WIDTH;
           }
-        } while (cursor_stage >= size ||
-                 !Stage::stages[cursor_stage]->isExists());
+        } while (cursor_stage >= size || !stages[cursor_stage]->isExists());
         break;
       case 1: // Right
         sndMenu->play();
@@ -313,8 +317,7 @@ void scene::Select::think() {
             cursor_stage++;
             cursor_stage_offset += STAGE_ICON_WIDTH;
           }
-        } while (cursor_stage >= size ||
-                 !Stage::stages[cursor_stage]->isExists());
+        } while (cursor_stage >= size || !stages[cursor_stage]->isExists());
         break;
       }
 
@@ -333,8 +336,7 @@ void scene::Select::think() {
           else {
             cursor_stage -= STAGES_PER_ROW;
           }
-        } while (cursor_stage >= size ||
-                 !Stage::stages[cursor_stage]->isExists());
+        } while (cursor_stage >= size || !stages[cursor_stage]->isExists());
         break;
       case 1: // Down
         sndMenu->play();
@@ -344,13 +346,12 @@ void scene::Select::think() {
             // Wrap-around, into first row
             cursor_stage %= STAGES_PER_ROW;
           }
-        } while (cursor_stage >= size ||
-                 !Stage::stages[cursor_stage]->isExists());
+        } while (cursor_stage >= size || !stages[cursor_stage]->isExists());
         break;
       }
     }
 
-    if (FIGHT->gametype == Fight::GAMETYPE_TRAINING) {
+    if (gametype == Fight::GAMETYPE_TRAINING) {
       if (input(game::INPUT_B)) {
         cursors[1].lockState = Cursor::CURSOR_COLORSWAP;
 
@@ -379,18 +380,17 @@ void scene::Select::think() {
     }
 
     if (input(game::INPUT_A)) {
-      if (cursor_stage < size && Stage::stages[cursor_stage]->isExists()) {
+      if (cursor_stage < size && stages[cursor_stage]->isExists()) {
         // Start game!
-        Fight::madotsuki.fighter = fighters[gridFighters[cursors[0].pos]];
-        Fight::poniko.fighter = fighters[gridFighters[cursors[1].pos]];
+        p0.setFighter(fighters[gridFighters[cursors[0].pos]]);
+        p1.setFighter(fighters[gridFighters[cursors[1].pos]]);
 
-        (reinterpret_cast<Versus *>(scenes[SCENE_VERSUS].get()))->portraits[0] =
-            &Fight::madotsuki.fighter->portrait;
+        Versus *versus =
+            reinterpret_cast<Versus *>(getSceneFromIndex(SCENE_VERSUS));
+        versus->setPortraitAt(0, p0.getcFighter()->getcImagePortrait());
+        versus->setPortraitAt(1, p1.getcFighter()->getcImagePortrait());
 
-        (reinterpret_cast<Versus *>(scenes[SCENE_VERSUS].get()))->portraits[1] =
-            &Fight::poniko.fighter->portrait;
-
-        Stage::stage = cursor_stage;
+        Stage::setStageIndex(cursor_stage);
         setScene(SCENE_VERSUS);
         sndSelect->play();
       }
@@ -415,7 +415,7 @@ void scene::Select::reset() {
 
   cursor_stage = 0;
   // Find the first stage that exists
-  for (const auto &stage : Stage::stages) {
+  for (const auto &stage : Stage::getcrStages()) {
     if (stage->isExists()) {
       break;
     }
@@ -427,52 +427,54 @@ void scene::Select::draw() const {
   Scene::draw();
 
   // Draw portraits first
+  int gametype = FIGHT->getGameType();
   if (cursors[0].lockState == Cursor::CURSOR_LOCKED ||
-      FIGHT->gametype == Fight::GAMETYPE_VERSUS) {
+      gametype == Fight::GAMETYPE_VERSUS) {
     if (cursors[1].timerPortrait) {
       if (gridFighters[cursors[1].posOld] >= 0) {
+        const Image *portrait =
+            fighters[gridFighters[cursors[1].posOld]]->getcImagePortrait();
         renderer::Texture2DRenderer::setColor(
             1.0f, 1.0f, 1.0f,
             static_cast<float>(cursors[1].timerPortrait) / PORTRAIT_FADE);
-        fighters[gridFighters[cursors[1].posOld]]
-            ->portrait.draw<renderer::Texture2DRenderer>(
-                sys::WINDOW_WIDTH -
-                    fighters[gridFighters[cursors[1].posOld]]->portrait.w +
-                    (PORTRAIT_FADE - cursors[1].timerPortrait),
-                0, true);
+        portrait->draw<renderer::Texture2DRenderer>(
+            sys::WINDOW_WIDTH - portrait->getW() +
+                (PORTRAIT_FADE - cursors[1].timerPortrait),
+            0, true);
       }
     }
     if (gridFighters[cursors[1].pos] >= 0) {
+      const Image *portrait =
+          fighters[gridFighters[cursors[1].pos]]->getcImagePortrait();
       renderer::Texture2DRenderer::setColor(
           1.0f, 1.0f, 1.0f,
           static_cast<float>(PORTRAIT_FADE - cursors[1].timerPortrait) /
               PORTRAIT_FADE);
-      fighters[gridFighters[cursors[1].pos]]
-          ->portrait.draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH -
-                  fighters[gridFighters[cursors[1].pos]]->portrait.w +
-                  cursors[1].timerPortrait,
-              0, true);
+      portrait->draw<renderer::Texture2DRenderer>(
+          sys::WINDOW_WIDTH - portrait->getW() + cursors[1].timerPortrait, 0,
+          true);
     }
   }
   if (cursors[0].timerPortrait) {
     if (gridFighters[cursors[0].posOld] >= 0) {
+      const Image *portrait =
+          fighters[gridFighters[cursors[0].posOld]]->getcImagePortrait();
       renderer::Texture2DRenderer::setColor(
           1.0f, 1.0f, 1.0f,
           static_cast<float>(cursors[0].timerPortrait) / PORTRAIT_FADE);
-      fighters[gridFighters[cursors[0].posOld]]
-          ->portrait.draw<renderer::Texture2DRenderer>(
-              0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
+      portrait->draw<renderer::Texture2DRenderer>(
+          0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
     }
   }
   if (gridFighters[cursors[0].pos] >= 0) {
+    const Image *portrait =
+        fighters[gridFighters[cursors[0].pos]]->getcImagePortrait();
     renderer::Texture2DRenderer::setColor(
         1.0f, 1.0f, 1.0f,
         static_cast<float>(PORTRAIT_FADE - cursors[0].timerPortrait) /
             PORTRAIT_FADE);
-    fighters[gridFighters[cursors[0].pos]]
-        ->portrait.draw<renderer::Texture2DRenderer>(
-            0 - cursors[0].timerPortrait, 0);
+    portrait->draw<renderer::Texture2DRenderer>(0 - cursors[0].timerPortrait,
+                                                0);
   }
 
   // Now the GUI
@@ -482,30 +484,33 @@ void scene::Select::draw() const {
   if (cursors[1].lockState >= Cursor::CURSOR_COLORSWAP) {
     if (gridFighters[cursors[1].pos] >= 0) {
       game::Fighter *fighter = fighters[gridFighters[cursors[1].pos]];
-      sprite::Sprite &spr = fighter->sprites[0];
-      AtlasSprite sprAtlas =
-          fighter->sprites[0].atlas->getSprite(spr.atlas_sprite);
+      const sprite::Sprite *spr = fighter->getcSpriteAt(0);
+      int atlas_sprite = spr->getAtlasSprite();
+      const Atlas *atlas = spr->getcAtlas();
+      AtlasSprite sprAtlas = atlas->getSprite(atlas_sprite);
 
-      graphics::setPalette(fighter->palettes[Fight::poniko.palette], 1.0f, 1.0f,
-                           1.0f, 1.0f, 0.0f);
-      fighter->sprites[0].atlas->draw(
-          spr.atlas_sprite, sys::WINDOW_WIDTH - 50 + spr.x - sprAtlas.w,
-          sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, true);
+      graphics::setPalette(
+          fighter->getcrPalettes()[Fight::getrPlayerAt(1).getPalette()], 1.0f,
+          1.0f, 1.0f, 1.0f, 0.0f);
+      atlas->draw(atlas_sprite,
+                  sys::WINDOW_WIDTH - 50 + spr->getX() - sprAtlas.w,
+                  sys::WINDOW_HEIGHT - 40 - spr->getY() - sprAtlas.h, true);
       renderer::ShaderProgram::unuse();
     }
   }
   if (cursors[0].lockState >= Cursor::CURSOR_COLORSWAP) {
     if (gridFighters[cursors[0].pos] >= 0) {
       game::Fighter *fighter = fighters[gridFighters[cursors[0].pos]];
-      sprite::Sprite &spr = fighter->sprites[0];
-      AtlasSprite sprAtlas =
-          fighter->sprites[0].atlas->getSprite(spr.atlas_sprite);
+      const sprite::Sprite *spr = fighter->getcSpriteAt(0);
+      int atlas_sprite = spr->getAtlasSprite();
+      const Atlas *atlas = spr->getcAtlas();
+      AtlasSprite sprAtlas = atlas->getSprite(atlas_sprite);
 
-      graphics::setPalette(fighter->palettes[Fight::madotsuki.palette], 1.0f,
-                           1.0f, 1.0f, 1.0f, 0.0f);
-      fighter->sprites[0].atlas->draw(
-          spr.atlas_sprite, 50 - spr.x,
-          sys::WINDOW_HEIGHT - 40 - spr.y - sprAtlas.h, false);
+      graphics::setPalette(
+          fighter->getcrPalettes()[Fight::getrPlayerAt(0).getPalette()], 1.0f,
+          1.0f, 1.0f, 1.0f, 0.0f);
+      atlas->draw(atlas_sprite, 50 - spr->getX(),
+                  sys::WINDOW_HEIGHT - 40 - spr->getY() - sprAtlas.h, false);
       renderer::ShaderProgram::unuse();
     }
   }
@@ -513,8 +518,9 @@ void scene::Select::draw() const {
   // Draw the select sprites
   for (int i = 0; i < gridC; i++) {
     if (gridFighters[i] >= 0) {
-      fighters[gridFighters[i]]->select.draw<renderer::Texture2DRenderer>(
-          grid[i].x, grid[i].y);
+      fighters[gridFighters[i]]
+          ->getcImageSelect()
+          ->draw<renderer::Texture2DRenderer>(grid[i].x, grid[i].y);
     }
   }
 
@@ -522,7 +528,7 @@ void scene::Select::draw() const {
   // Get the current group
   if (!curData.empty()) {
     int count = 1;
-    if (FIGHT->gametype == Fight::GAMETYPE_TRAINING &&
+    if (gametype == Fight::GAMETYPE_TRAINING &&
         cursors[0].lockState != Cursor::CURSOR_LOCKED) {
       count = 0;
     }
@@ -556,23 +562,25 @@ void scene::Select::draw() const {
 
     // Draw the stage list
     constexpr auto STAGE_ICON_PADDING = 8;
-    for (int i = 0, size = Stage::stages.size(); i < size; i++) {
+    const auto &stages = Stage::getcrStages();
+    for (int i = 0, size = stages.size(); i < size; i++) {
       int x = static_cast<int>(
           (STAGE_ICON_WIDTH + STAGE_ICON_PADDING) *
               (i % STAGES_PER_ROW + 3 - cursor_stage % STAGES_PER_ROW) +
           STAGE_ICON_WIDTH / 2 + cursor_stage_offset);
       int y = 150 + (STAGE_ICON_PADDING + 50) * (i / STAGES_PER_ROW);
-      auto *stage = Stage::stages[i];
+      auto *stage = stages[i];
       if (stage->isExists()) {
-        if (!stage->thumbnail.isPlaying())
-          stage->thumbnail.setPlaying(true);
+        Animation *thumbnail = stage->getThumbnail();
+        if (!thumbnail->isPlaying())
+          thumbnail->setPlaying(true);
         if (cursor_stage == i) {
           renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f);
-          stage->thumbnail.draw(x, y);
+          thumbnail->draw(x, y);
         }
         else {
           renderer::Texture2DRenderer::setColor(0.5f, 0.5f, 0.5f, 1.0f);
-          stage->thumbnail.draw(x, y);
+          thumbnail->draw(x, y);
         }
       }
     }
@@ -598,7 +606,8 @@ void scene::Select::drawEffect(int player, int group, int _x, int _y,
     if (curData[group].grow) {
       scale += (cursors[player].frame - 1) * 0.1f;
     }
-    int x = (cursors[player].frame - 1) % (curData[group].imgSelect.h / 96);
+    int x =
+        (cursors[player].frame - 1) % (curData[group].imgSelect.getH() / 96);
 
     graphics::setRect(0, x * 96, 96, 96);
     renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, alpha);
@@ -690,7 +699,7 @@ void scene::Select::parseLine(Parser &parser) {
 
     // Get fighter
     for (int i = 0, fightersSize = fighters.size(); i < fightersSize; i++) {
-      if (!fighters[i]->name.compare(parser.getArg(1))) {
+      if (!fighters[i]->getDataName().compare(parser.getArg(1))) {
         gridFighters[gridC] = i;
         break;
       }
@@ -816,7 +825,7 @@ void scene::Select::parseJSON(const nlohmann::ordered_json &j_obj) {
 
       std::string name = charI.at("name");
       for (int j = 0, fightersSize = fighters.size(); j < fightersSize; j++) {
-        if (!fighters[j]->name.compare(name)) {
+        if (!fighters[j]->getDataName().compare(name)) {
           gridFighters[i] = j;
           break;
         }
@@ -872,49 +881,6 @@ void scene::Select::parseJSON(const nlohmann::ordered_json &j_obj) {
     }
   }
   Scene::parseJSON(j_obj);
-}
-
-// CURSOR DATA
-scene::CursorData::CursorData() {
-  frameC = 0;
-  speed = 0;
-  grow = false;
-  sndSelect = sndDeselect = nullptr;
-}
-
-scene::CursorData::~CursorData() {}
-
-scene::CursorData::CursorData(CursorData &&other) noexcept
-    : off(std::move(other.off)), img(std::move(other.img)),
-      imgSelect(std::move(other.imgSelect)), sndSelect(other.sndSelect),
-      sndDeselect(other.sndDeselect), frameC(other.frameC), speed(other.speed),
-      grow(other.grow) {}
-
-scene::CursorData &scene::CursorData::operator=(CursorData &other) noexcept {
-  off = std::move(other.off);
-  img = std::move(other.img);
-  imgSelect = std::move(other.imgSelect);
-  sndSelect = other.sndSelect;
-  sndDeselect = other.sndDeselect;
-
-  frameC = other.frameC;
-  speed = other.speed;
-  grow = other.grow;
-
-  return *this;
-}
-
-// CURSOR
-scene::Cursor::Cursor() {
-  pos = posOld = posDefault = 0;
-  frame = 0;
-  timer = 0;
-
-  timerPortrait = 0;
-
-  lockState = CURSOR_UNLOCKED;
-
-  r = g = b = 0;
 }
 
 int scene::Cursor::getGroup(int w, int gW, int gH) const {

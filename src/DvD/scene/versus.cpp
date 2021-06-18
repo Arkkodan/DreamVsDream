@@ -79,11 +79,11 @@ void scene::Versus::draw() const {
         1.0f, 1.0f, 1.0f,
         0.5f); // MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f))
     graphics::setScale(2.0f);
+    unsigned int p1W = portraits[1]->getW();
     portraits[1]->draw<renderer::Texture2DRenderer>(
-        sys::WINDOW_WIDTH - portraits[1]->w * 1.5 - timer2 + timerF, -120,
-        true);
+        sys::WINDOW_WIDTH - p1W * 1.5 - timer2 + timerF, -120, true);
     portraits[1]->draw<renderer::Texture2DRenderer>(
-        sys::WINDOW_WIDTH - portraits[1]->w + timer4 - timerF, 0, true);
+        sys::WINDOW_WIDTH - p1W + timer4 - timerF, 0, true);
   }
 
   if (portraits[0]) {
@@ -91,10 +91,15 @@ void scene::Versus::draw() const {
         1.0f, 1.0f, 1.0f,
         0.5f); // MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f));
     graphics::setScale(2.0f);
+    unsigned int p0W = portraits[0]->getW();
     portraits[0]->draw<renderer::Texture2DRenderer>(
-        portraits[0]->w * -0.5 + timer2 - timerF, -120);
+        p0W * -0.5 + timer2 - timerF, -120);
     portraits[0]->draw<renderer::Texture2DRenderer>(0 - timer4 + timerF, 0);
   }
 }
 
 void scene::Versus::parseLine(Parser &parser) { Scene::parseLine(parser); }
+
+void scene::Versus::setPortraitAt(int index, const Image *portrait) {
+  portraits[index] = portrait;
+}

@@ -21,7 +21,7 @@ std::vector<std::string> scene::Title::menuChoicesVersus = {
     "Versus Player", "Versus CPU", "Tag Team", "2v2 Team", "Return",
 };
 
-std::array<std::vector<std::string> *, scene::Title::TM_MAX>
+const std::array<std::vector<std::string> *, scene::Title::TM_MAX>
     scene::Title::menuChoices = {
         &menuChoicesMain,
         &menuChoicesVersus,
@@ -141,7 +141,7 @@ void scene::Title::think() {
         break;
       case CHOICE_TRAINING:
         sndSelect->play();
-        FIGHT->gametype = Fight::GAMETYPE_TRAINING;
+        FIGHT->setGameType(Fight::GAMETYPE_TRAINING);
         setScene(SCENE_SELECT);
         break;
       default:
@@ -169,7 +169,7 @@ void scene::Title::think() {
       switch (choice) {
       case CHOICE_VS_PLR:
         sndSelect->play();
-        FIGHT->gametype = Fight::GAMETYPE_VERSUS;
+        FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
         setScene(SCENE_SELECT);
         break;
       default:
@@ -234,19 +234,19 @@ void scene::Title::draw() const {
         }
       }
 
+      unsigned int fontH = menuFont->getcImage()->getH();
       if (i == choice) {
         menuFont->drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer),
-                           menuY + menuFont->img.h * i,
-                           menuChoices[submenu]->at(i), aR / gray, aG / gray,
-                           aB / gray, 1.0f);
+                           menuY + fontH * i, menuChoices[submenu]->at(i),
+                           aR / gray, aG / gray, aB / gray, 1.0f);
       }
       else if (i == choiceLast) {
-        menuFont->drawText(
-            menuX + i * menuXOffset + choiceTimer, menuY + menuFont->img.h * i,
-            menuChoices[submenu]->at(i), iR / gray, iG / gray, iB / gray, 1.0f);
+        menuFont->drawText(menuX + i * menuXOffset + choiceTimer,
+                           menuY + fontH * i, menuChoices[submenu]->at(i),
+                           iR / gray, iG / gray, iB / gray, 1.0f);
       }
       else {
-        menuFont->drawText(menuX + i * menuXOffset, menuY + menuFont->img.h * i,
+        menuFont->drawText(menuX + i * menuXOffset, menuY + fontH * i,
                            menuChoices[submenu]->at(i), iR / gray, iG / gray,
                            iB / gray, 1.0f);
       }

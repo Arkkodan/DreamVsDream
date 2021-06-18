@@ -11,13 +11,13 @@
 #include <array>
 
 namespace effect {
-  constexpr auto EFFECT_MAX = 256;
+  static constexpr auto EFFECT_MAX = 256;
 
   // VARIABLES
-  int nEffectAnims = 0;
+  static int nEffectAnims = 0;
   static std::vector<EffectAnimation *> effectAnims;
 
-  std::array<Effect, EFFECT_MAX> effects;
+  static std::array<Effect, EFFECT_MAX> effects;
 
   // EFFECT ANIMATION
   EffectAnimation::EffectAnimation() {
@@ -127,7 +127,7 @@ namespace effect {
       this->speed = speed;
 
       // Calculate the start and end frames
-      this->frameStart = sys::frame;
+      this->frameStart = sys::getFrame();
       this->frameEnd = this->frameStart +
                        (unsigned int)(anim->getNumFrames() * nLoops * speed);
     }
@@ -137,20 +137,21 @@ namespace effect {
 
   unsigned int Effect::getCreationFrame() const { return frameStart; }
 
-  bool Effect::exists() const { return frameEnd > sys::frame; }
+  bool Effect::exists() const { return frameEnd > sys::getFrame(); }
 
   void Effect::draw() const {
     if (!exists())
       return;
 
-    Image *frame = anim->getFrame((sys::frame - frameStart) / speed);
+    Image *frame = anim->getFrame((sys::getFrame() - frameStart) / speed);
 
-    int x1 = x - frame->w / 2;
-    int y1 = y - frame->h / 2;
+    int x1 = x - frame->getW() / 2;
+    int y1 = y - frame->getH() / 2;
 
     if (parent) {
-      x1 += parent->pos.x;
-      y1 += parent->pos.y;
+      const util::Vectorf &pos = parent->getcrPos();
+      x1 += pos.x;
+      y1 += pos.y;
     }
 
     graphics::setRender(Image::Render::ADDITIVE);

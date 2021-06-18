@@ -109,7 +109,7 @@ end:
 void Animation::setPlaying(bool playing) {
   this->playing = playing;
   if (playing) {
-    startFrame = sys::frame;
+    startFrame = sys::getFrame();
   }
 }
 
@@ -125,7 +125,7 @@ void Animation::draw(int x, int y) const {
     }
 
     // Determine the frame we must be on
-    int time = (sys::frame - startFrame) % total;
+    int time = (sys::getFrame() - startFrame) % total;
     for (int i = 0; i < nFrames; i++) {
       if (time < frameTimes[i]) {
         frame = i;

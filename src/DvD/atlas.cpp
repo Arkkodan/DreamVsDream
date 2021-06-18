@@ -76,8 +76,3 @@ AtlasSprite Atlas::getSprite(int sprite_) const {
   }
   return sprites[sprite_];
 }
-
-AtlasSprite::AtlasSprite() {
-  atlas = 0;
-  x = y = w = h = 0;
-}

@@ -17,7 +17,7 @@ static void error::w32_messageBox(const char *title, const char *text,
                                   int flags) {
   SDL_SysWMinfo info;
   SDL_VERSION(&info.version);
-  if (SDL_GetWindowWMInfo(sys::window, &info)) {
+  if (SDL_GetWindowWMInfo(sys::getWindow(), &info)) {
     wchar_t *title16 = util::utf8to16(title);
     wchar_t *text16 = util::utf8to16(text);
     MessageBoxW(info.info.win.window, text16, title16, flags);

@@ -64,11 +64,12 @@ void Font::drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b,
     }
   }
   renderer::Texture2DRenderer::setColor(r / 255.0f, g / 255.0f, b / 255.0f, a);
+  unsigned imgH = img.getH();
   if (mono) {
-    graphics::setRect(pos[(uint8_t)c], 0, mono, img.h);
+    graphics::setRect(pos[(uint8_t)c], 0, mono, imgH);
   }
   else {
-    graphics::setRect(pos[(uint8_t)c], 0, width[(uint8_t)c], img.h);
+    graphics::setRect(pos[(uint8_t)c], 0, width[(uint8_t)c], imgH);
   }
   graphics::setScale(xscale, yscale);
   img.draw<renderer::Texture2DRenderer>(x, y);
@@ -83,6 +84,7 @@ void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g,
   }
 
   int origX = x;
+  unsigned int imgH = img.getH();
 
   for (int i = 0; text[i]; i++) {
     if (text[i] == ' ') {
@@ -95,10 +97,10 @@ void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g,
     }
     else if (text[i] == '\n') {
       x = origX;
-      y += img.h * yscale;
+      y += imgH * yscale;
     }
     else if (text[i] == '\t') {
-      x += (img.h - (x - origX) % img.h) * xscale;
+      x += (imgH - (x - origX) % imgH) * xscale;
     }
     else {
       char c = text[i];
@@ -110,10 +112,10 @@ void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g,
       renderer::Texture2DRenderer::setColor(r / 255.0f, g / 255.0f, b / 255.0f,
                                             a);
       if (mono) {
-        graphics::setRect(pos[(uint8_t)c], 0, mono, img.h);
+        graphics::setRect(pos[(uint8_t)c], 0, mono, imgH);
       }
       else {
-        graphics::setRect(pos[(uint8_t)c], 0, width[(uint8_t)c], img.h);
+        graphics::setRect(pos[(uint8_t)c], 0, width[(uint8_t)c], imgH);
       }
       graphics::setScale(xscale, yscale);
       img.draw<renderer::Texture2DRenderer>(x, y);
@@ -158,3 +160,5 @@ void Font::setScale(float _xscale, float _yscale) {
   xscale = _xscale;
   yscale = _yscale;
 }
+
+const Image *Font::getcImage() const { return &img; }

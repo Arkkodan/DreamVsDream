@@ -6,13 +6,8 @@
 #include <vector>
 
 /// @brief Data structure to hold information about a parsed line from Parser
-class ParserLine {
-public:
+struct ParserLine {
   static constexpr auto ARGV_SIZE = 32;
-
-public:
-  ParserLine();
-  ~ParserLine();
 
   bool group;
   int argc;
@@ -53,7 +48,7 @@ public:
 
   bool is(std::string szTest, int argc) const;
 
-protected:
+private:
   int iLine;
   int nLines;
   std::vector<std::string> szLines;

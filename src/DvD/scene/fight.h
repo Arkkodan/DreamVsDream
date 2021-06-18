@@ -12,11 +12,7 @@
 namespace scene {
 
   /// @brief Helper object for drawing meters, primarily for SceneFight
-  class SceneMeter {
-  public:
-    SceneMeter();
-    ~SceneMeter();
-
+  struct SceneMeter {
     void draw(float pct, bool mirror, bool flip) const;
 
     Image img;
@@ -26,17 +22,13 @@ namespace scene {
   /// @brief Fighting game scene
   class Fight : public Scene {
   public:
-    static game::Player madotsuki;
-    static game::Player poniko;
-    static util::Vector cameraPos;
-    static util::Vector idealCameraPos;
-    static util::Vector cameraShake;
-
-    static int framePauseTimer;
-    static int frameShakeTimer;
-
     static void pause(int frames);
     static void shake(int frames);
+
+    static game::Player &getrPlayerAt(int index);
+    static util::Vector &getrCameraPos();
+    static util::Vector &getrIdealCameraPos();
+    static int getFramePauseTimer();
 
   public:
     enum {
@@ -50,6 +42,35 @@ namespace scene {
 
     void init() override final;
 
+    // Functions
+    void think() override final;
+    void draw() const override final;
+    void reset() override final;
+
+    void knockout(int player);
+
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
+
+    int getTimerRoundIn() const;
+    int getTimerRoundOut() const;
+    int getTimerKO() const;
+    int getKOPlayer() const;
+    int getRound() const;
+    int getGameType() const;
+    void setGameType(int gametype);
+
+  private:
+    static game::Player madotsuki;
+    static game::Player poniko;
+    static util::Vector cameraPos;
+    static util::Vector idealCameraPos;
+    static util::Vector cameraShake;
+
+    static int framePauseTimer;
+    static int frameShakeTimer;
+
+  private:
     Image hud;
     Image hud_tag;
     Image portraits;
@@ -120,17 +141,6 @@ namespace scene {
     int game_timer; // this is the actual game timer
 
     int gametype;
-
-  public:
-    // Functions
-    void think() override final;
-    void draw() const override final;
-    void reset() override final;
-
-    void knockout(int player);
-
-    void parseLine(Parser &parser) override final;
-    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
   };
 } // namespace scene
 

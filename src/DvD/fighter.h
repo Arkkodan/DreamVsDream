@@ -24,9 +24,6 @@ namespace game {
   /// @brief Deinit
   void deinit();
 
-  extern audio::Sound *sndTransformYn;
-  extern audio::Sound *sndTransform2kki;
-  extern audio::Sound *sndTransformFlow;
 #endif
   enum {
     SBOOL_UNDEFINED = -1,
@@ -45,21 +42,14 @@ namespace game {
   };
 
   /// @brief Data structure containing a command target
-  class CommandTarget {
-  public:
-    CommandTarget();
-
+  struct CommandTarget {
     int state;
     int conditionC;
     uint8_t conditions[16];
   };
 
   /// @brief Data structure containing a command
-  class Command {
-  public:
-    Command();
-    ~Command();
-
+  struct Command {
     int comboC;
     uint16_t combo[16];
     uint16_t generic;
@@ -69,11 +59,7 @@ namespace game {
 
 #ifndef SPRTOOL
   /// @brief Data structure containing a group of sounds
-  class SoundGroup {
-  public:
-    SoundGroup();
-    ~SoundGroup();
-
+  struct SoundGroup {
     void init(int _size);
 
     int size;
@@ -86,11 +72,7 @@ namespace game {
   };
 
   /// @brief Data structure containing a group of voice sounds
-  class VoiceGroup {
-  public:
-    VoiceGroup();
-    ~VoiceGroup();
-
+  struct VoiceGroup {
     void init(int _size);
 
     int size;
@@ -105,11 +87,7 @@ namespace game {
 #endif
 
   /// @brief Data structure containing a state
-  class State {
-  public:
-    State();
-    ~State();
-
+  struct State {
 #ifdef COMPILER
     std::string name;
 #endif
@@ -123,12 +101,9 @@ namespace game {
   constexpr auto SVT_VAR = 1;
   constexpr auto SVT_GLOBAL = 2;
   /// @brief Unused
-  class StepVar {
-  public:
+  struct StepVar {
     int8_t type;
     float value;
-
-    float getValue();
   };
 
   enum {
@@ -245,8 +220,6 @@ namespace game {
     STATE_MAX,
   };
 
-  extern const std::array<std::string, STATE_MAX> stateNames;
-
   constexpr auto STATE_NONE = UINT_MAX;
 
   /// @brief Fighter class containing data of different fighters and helper
@@ -254,6 +227,63 @@ namespace game {
   /// @details Do not confuse with Projectile or Player
   class Fighter {
   public:
+    Fighter();
+    ~Fighter();
+
+    Fighter(Fighter &&other) noexcept = default;
+    Fighter &operator=(Fighter &&other) noexcept = default;
+
+    void create(std::string name);
+
+#ifdef SPRTOOL
+    void saveSpr();
+#endif
+
+#ifndef COMPILER
+    void draw(int sprite, int x, int y, bool mirror, float scale,
+              unsigned int palette, float alpha, float r, float g, float b,
+              float pct) const;
+    void drawShadow(int sprite, int x, bool mirror, float scale) const;
+#endif
+
+    std::string getDataName() const;
+    std::string getDisplayName() const;
+    int getGroup() const;
+    float getDefense() const;
+    int getHeight() const;
+    int getWidthLeft() const;
+    int getWidthRight() const;
+    float getGravity() const;
+    int getPaletteCount() const;
+#ifdef COMPILER
+    const std::vector<uint8_t> &getcrPalettes() const;
+#else  // !COMPILER
+    const std::vector<renderer::Texture2D> &getcrPalettes() const;
+#endif // !COMPILER
+    int getSpriteCount() const;
+    const sprite::Sprite *getcSpriteAt(int index) const;
+    sprite::Sprite *getSpriteAt(int index);
+#ifndef SPRTOOL
+    int getSoundGroupCount() const;
+    const SoundGroup *getcSoundGroupAt(int index) const;
+    int getVoiceGroupCount() const;
+    const VoiceGroup *getcVoiceGroupAt(int index) const;
+    int getCommandCount() const;
+    const Command *getcCommandAt(int index) const;
+    int getStateCount() const;
+    const State *getcStateAt(int index) const;
+    unsigned int getStateStandardAt(int index) const;
+#endif // !SPRTOOL
+#ifdef GAME
+    // Portraits
+    const Image *getcImageSelect() const;
+    const Image *getcImagePortrait() const;
+    const Image *getcImageSpecial() const;
+    const Image *getcImageEnder() const;
+    const Image *getcImagePortraitUI() const;
+#endif // GAME
+
+  private:
     // General fighter stuff
     std::string name;  // Data name
     std::string dname; // Display name
@@ -306,27 +336,6 @@ namespace game {
     Image ender;
     Image portrait_ui;
 #endif
-
-    Fighter();
-    ~Fighter();
-
-    Fighter(Fighter &&other) noexcept = default;
-    Fighter &operator=(Fighter &&other) noexcept = default;
-
-    void create(std::string name);
-
-#ifdef SPRTOOL
-    void saveSpr();
-#endif
-
-#ifndef COMPILER
-    void draw(int sprite, int x, int y, bool mirror, float scale,
-              unsigned int palette, float alpha, float r, float g, float b,
-              float pct) const;
-    void drawShadow(int sprite, int x, bool mirror, float scale) const;
-#endif
-
-  protected:
   };
 
   /// @brief Set a boolean output parameter based on an enum input parameter
