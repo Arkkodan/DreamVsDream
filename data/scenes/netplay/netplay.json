@@ -1,0 +1,31 @@
+{
+    "bgm": {
+        "idle": "bgm",
+        "wait": "waiting"
+    },
+    "sfx_connect": {
+        "start": "get1",
+        "success": "get2"
+    },
+    "sound": {
+        "menu": "menu",
+        "select": "select",
+        "back": "back",
+        "invalid": "*invalid"
+    },
+    "menu": {
+        "font": "nes",
+        "cursorImage": "cursor"
+    },
+    "logo": "neslogo",
+    "sfx_tv": {
+        "on": "on",
+        "off": "off"
+    },
+    "scanlines": {
+        "image": {
+            "scanlines": "scanlines",
+            "static": "static"
+        }
+    }
+}

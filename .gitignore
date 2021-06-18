@@ -8,6 +8,7 @@ Thumbs.db
 #Projects
 codelite/
 codeblocks/
+.vscode/
 
 #Binary files
 obj/
@@ -26,7 +27,6 @@ COMPILE/chars/*/atlas/
 
 #Generated files
 *.atlas.*
-*.char
 *.bak
 
 #OSX/Windows binaries

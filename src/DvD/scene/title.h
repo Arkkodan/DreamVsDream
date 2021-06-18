@@ -7,77 +7,79 @@
 
 namespace scene {
 
-	/// @brief Scene for the title menu
-	class Title : public Scene {
-	public:
-		enum {
-			TM_MAIN,
-			TM_VERSUS,
+  /// @brief Scene for the title menu
+  class Title : public Scene {
+  public:
+    Title();
+    ~Title();
 
-			TM_MAX
-		};
+    void init() override final;
 
-		enum {
-			CHOICE_ARCADE,
-			CHOICE_STORY,
-			CHOICE_VERSUS,
-			CHOICE_SURVIVAL,
-			CHOICE_TRAINING,
-	#ifndef NO_NETWORK
-			CHOICE_NETPLAY,
-	#endif
-			CHOICE_OPTIONS,
-			CHOICE_QUIT,
+    // Functions
+    void think() override final;
+    void reset() override final;
+    void draw() const override final;
 
-			CHOICE_MAX
-		};
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
-		enum {
-			CHOICE_VS_PLR,
-			CHOICE_VS_CPU,
-			CHOICE_VS_TAG,
-			CHOICE_VS_TEAM,
+  private:
+    enum {
+      TM_MAIN,
+      TM_VERSUS,
 
-			CHOICE_VS_RETURN,
+      TM_MAX
+    };
 
-			CHOICE_VS_MAX
-		};
+    enum {
+      CHOICE_ARCADE,
+      CHOICE_STORY,
+      CHOICE_VERSUS,
+      CHOICE_SURVIVAL,
+      CHOICE_TRAINING,
+#ifndef NO_NETWORK
+      CHOICE_NETPLAY,
+#endif
+      CHOICE_OPTIONS,
+      CHOICE_QUIT,
 
-	private:
-		static std::vector<std::string> menuChoicesMain;
-		static std::vector<std::string> menuChoicesVersus;
-		static std::array<std::vector<std::string>*, TM_MAX> menuChoices;
-		static const std::array<int, TM_MAX> menuChoicesMax;
+      CHOICE_MAX
+    };
 
-	public:
-		Title();
-		~Title();
+    enum {
+      CHOICE_VS_PLR,
+      CHOICE_VS_CPU,
+      CHOICE_VS_TAG,
+      CHOICE_VS_TEAM,
 
-		void init() override final;
+      CHOICE_VS_RETURN,
 
-		std::vector<std::string> themes;
-		int nThemes;
+      CHOICE_VS_MAX
+    };
 
-		//Members
-		int menuX, menuY;
-		Font menuFont;
-		int menuXOffset;
+  private:
+    static std::vector<std::string> menuChoicesMain;
+    static std::vector<std::string> menuChoicesVersus;
+    static const std::array<std::vector<std::string> *, TM_MAX> menuChoices;
+    static const std::array<int, TM_MAX> menuChoicesMax;
 
-		uint8_t iR, iG, iB, aR, aG, aB;
-		int aXOffset;
+  private:
+    std::vector<std::string> themes;
+    int nThemes;
 
-		int choiceTimer;
-		uint8_t choiceLast;
-		uint8_t choice;
-		uint8_t submenu;
+    // Members
+    int menuX, menuY;
+    Font *menuFont;
+    int menuXOffset;
 
-		//Functions
-		void think() override final;
-		void reset() override final;
-		void draw() const override final;
+    uint8_t iR, iG, iB, aR, aG, aB;
+    int aXOffset;
 
-		void parseLine(Parser& parser) override final;
-	};
-}
+    int choiceTimer;
+    uint8_t choiceLast;
+    uint8_t choice;
+    uint8_t submenu;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_TITLE_H

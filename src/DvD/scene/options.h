@@ -5,74 +5,89 @@
 
 #include "../font.h"
 
-#include <vector>
-
 namespace scene {
 
-	/// @brief Scene for modifying options
-	class Options : public Scene {
-	private:
-		enum {
-			OPTION_DIFFICULTY,
-			OPTION_WINS,
-			OPTION_TIME,
-			OPTION_SFX_VOLUME,
-			OPTION_MUS_VOLUME,
-			OPTION_VOICE_VOLUME,
-			OPTION_EPILEPSY,
-			OPTION_CREDITS,
+  /// @brief Scene for modifying options
+  class Options : public Scene {
+  public:
+    static int getDifficulty();
+    static void setDifficulty(int difficulty);
+    static int getWins();
+    static void setWins(int wins);
+    static int getTime();
+    static void setTime(int time);
+    static int getSfxVolume();
+    static void setSfxVolume(int sfxVolume);
+    static int getMusVolume();
+    static void setMusVolume(int musVolume);
+    static int getVoiceVolume();
+    static void setVoiceVolume(int voiceVolume);
+    static bool isEpilepsy();
+    static void setEpilepsy(bool epilepsy);
 
-			OPTION_MAX,
-		};
+  public:
+    Options();
+    ~Options();
 
-	public:
-		static int optionDifficulty;
-		static int optionWins;
-		static int optionTime;
-		static int optionSfxVolume;
-		static int optionMusVolume;
-		static int optionVoiceVolume;
-		static bool optionEpilepsy;
+    void init() override final;
 
-	public:
-		Options();
-		~Options();
+    // Functions
+    void think() override final;
+    void reset() override final;
+    void draw() const override final;
 
-		void init() override final;
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
-		//Members
-		Font menuFont;
+  private:
+    enum {
+      OPTION_DIFFICULTY,
+      OPTION_WINS,
+      OPTION_TIME,
+      OPTION_SFX_VOLUME,
+      OPTION_MUS_VOLUME,
+      OPTION_VOICE_VOLUME,
+      OPTION_EPILEPSY,
+      OPTION_CREDITS,
 
-		uint8_t cursor;
-		uint8_t cursorLast;
-		int cursorTimer;
+      OPTION_MAX,
+    };
 
-		int madoPos;
-		int madoDir;
-		int madoFrame;
+    static int optionDifficulty;
+    static int optionWins;
+    static int optionTime;
+    static int optionSfxVolume;
+    static int optionMusVolume;
+    static int optionVoiceVolume;
+    static bool optionEpilepsy;
 
-		Image madoImg;
-		audio::Sound madoSfxStep;
-		audio::Sound madoSfxPinch;
+  private:
+    // Members
+    Font *menuFont;
 
-		audio::Voice dame;
-		audio::Voice muri;
+    uint8_t cursor;
+    uint8_t cursorLast;
+    int cursorTimer;
 
-		int madoWakeTimer;
+    int madoPos;
+    int madoDir;
+    int madoFrame;
 
-		uint8_t iR, iG, iB, aR, aG, aB;
-		int aXOffset;
+    Image madoImg;
+    audio::Sound *madoSfxStep;
+    audio::Sound *madoSfxPinch;
 
-		std::vector<std::string> themes;
-		int nThemes;
+    audio::Voice *dame;
+    audio::Voice *muri;
 
-		//Functions
-		void think() override final;
-		void reset() override final;
-		void draw() const override final;
+    int madoWakeTimer;
 
-		void parseLine(Parser& parser) override final;
-	};
-}
+    uint8_t iR, iG, iB, aR, aG, aB;
+    int aXOffset;
+
+    std::vector<std::string> themes;
+    int nThemes;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_OPTIONS_H

@@ -1,57 +1,78 @@
-#ifndef STAGE_H_INCLUDED
-#define STAGE_H_INCLUDED
+#ifndef DVD_STAGE_H
+#define DVD_STAGE_H
 
-#include "scene/scene_base.h"
 #include "animation.h"
+#include "scene/scene_base.h"
 
-#include <array>
 #include <list>
 #include <string>
+#include <vector>
 
-#define STAGE Stage::stages[Stage::stage]
+#define STAGE Stage::getStage()
 
 /// @brief Stage class including creation, logic, and drawing
 class Stage {
-public:
-	static int stage;
-	static constexpr auto STAGES_MAX = 20;
-	static std::array<Stage, STAGES_MAX> stages;
+private:
+  static int stage;
+  static std::vector<Stage *> stages;
 
 public:
-	std::string name;
-	std::list<scene::SceneImage> imagesAbove;
-	std::list<scene::SceneImage> imagesBelow;
-	audio::Music bgm;
-	audio::Music bgm2;
+  Stage();
+  // Stage(const char* name);
+  ~Stage();
 
-	Animation thumbnail;
+  Stage(Stage &&other) = default;
+  Stage &operator=(Stage &&other) = default;
 
-	bool initialized;
+  void create(std::string name);
 
-	int width;
-	int height;
-	int widthAbs;
-	int heightAbs;
+  void init();
 
-	Stage();
-	//Stage(const char* name);
-	~Stage();
+  void think();
+  void reset();
+  void draw(bool above) const;
 
-	void create(std::string name);
+  void bgmPlay();
 
-	void init();
+  void parseFile(const std::string &szFileName);
+  bool parseJSON(const std::string &name);
+  std::string getResource(const std::string &szFileName,
+                          const std::string &extension) const;
 
-	void think();
-	void reset();
-	void draw(bool above) const;
+  Animation *getThumbnail();
 
-	void bgmPlay();
+  bool isExists() const;
+  bool isInitialized() const;
 
-	void parseFile(const std::string& szFileName);
-	std::string getResource(const std::string& szFileName, const std::string& extension) const;
+  int getEntWidth() const;
+  int getEntHeight() const;
+  int getCamWidth() const;
+  int getCamHeight() const;
 
-	static void ginit();
-	static void deinit();
+public:
+  static void ginit();
+  static void deinit();
+  static int getStageIndex();
+  static void setStageIndex(int index);
+  static Stage *getStage();
+  static const std::vector<Stage *> &getcrStages();
+
+private:
+  std::string name;
+  std::list<scene::SceneImage> imagesAbove;
+  std::list<scene::SceneImage> imagesBelow;
+  audio::Music bgm;
+  audio::Music bgm2;
+
+  Animation thumbnail;
+
+  bool exists;
+  bool initialized;
+
+  int width;
+  int height;
+  int widthAbs;
+  int heightAbs;
 };
 
-#endif // STAGE_H_INCLUDED
+#endif // DVD_STAGE_H

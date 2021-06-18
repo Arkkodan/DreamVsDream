@@ -4,106 +4,96 @@
 #include "scene_base.h"
 
 #include "../../util/vec2.h"
+#include "../fighter.h"
 #include "../font.h"
-
-#include <vector>
 
 namespace scene {
 
-	/// @brief Helper data structure for SceneSelect
-	class CursorData {
-	public:
-		util::Vector off;
-		Image img;
-		Image imgSelect;
-		audio::Sound sndSelect;
-		audio::Sound sndDeselect;
+  /// @brief Helper data structure for SceneSelect
+  struct CursorData {
+    util::Vector off;
+    Image img;
+    Image imgSelect;
+    audio::Sound *sndSelect;
+    audio::Sound *sndDeselect;
 
-		int frameC;
-		int speed;
-		bool grow;
+    int frameC;
+    int speed;
+    bool grow;
+  };
 
-		CursorData();
-		~CursorData();
+  /// @brief Helper object for SceneSelect
+  struct Cursor {
+    enum {
+      CURSOR_UNLOCKED,
+      CURSOR_COLORSWAP,
+      CURSOR_LOCKED,
+    };
 
-		CursorData(const CursorData& other) = delete;
-		CursorData& operator=(const CursorData& other) = delete;
+    int pos;
+    int posOld;
+    int posDefault;
 
-		CursorData(CursorData&& other) noexcept;
-		CursorData& operator=(CursorData& other) noexcept;
-	};
+    mutable int frame;
+    mutable int timer;
 
-	/// @brief Helper object for SceneSelect
-	class Cursor {
-	public:
-		enum {
-			CURSOR_UNLOCKED,
-			CURSOR_COLORSWAP,
-			CURSOR_LOCKED,
-		};
+    int timerPortrait;
 
-	public:
-		int pos;
-		int posOld;
-		int posDefault;
+    int lockState;
 
-		mutable int frame;
-		mutable int timer;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
 
-		int timerPortrait;
+    // int sprFrame;
+    // int sprTimer;
 
-		int lockState;
+    int getGroup(int w, int gW, int gH) const;
+  };
 
-		uint8_t r;
-		uint8_t g;
-		uint8_t b;
+  /// @brief Character and stage selection
+  class Select : public Scene {
+  public:
+    Select();
+    ~Select();
 
-		//int sprFrame;
-		//int sprTimer;
+    void init() override final;
 
-		Cursor();
+    // Functions
+    void think() override final;
+    void reset() override final;
+    void draw() const override final;
 
-		int getGroup(int w, int gW, int gH) const;
-	};
+    void newEffect(int player, int group);
+    void drawEffect(int player, int group, int _x, int _y,
+                    bool spr = false) const;
 
-	/// @brief Character and stage selection
-	class Select : public Scene {
-	private:
-		static constexpr auto PORTRAIT_FADE = 50;
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
-	public:
-		Select();
-		~Select();
+  private:
+    static constexpr auto PORTRAIT_FADE = 50;
 
-		void init() override final;
+  private:
+    // Members
+    int width, height;
+    int gWidth, gHeight;
+    // Image* sprites;
+    std::list<SceneImage> gui;
+    std::vector<util::Vector> grid;
+    std::vector<int> gridFighters;
+    int gridC;
 
-		//Members
-		int width, height;
-		int gWidth, gHeight;
-		//Image* sprites;
-		std::list<SceneImage> gui;
-		std::vector<util::Vector> grid;
-		std::vector<int> gridFighters;
-		int gridC;
+    std::array<Cursor, 2> cursors;
 
-		std::array<Cursor, 2> cursors;
+    std::vector<CursorData> curData;
 
-		std::vector<CursorData> curData;
+    Font *font_stage;
+    int cursor_stage;
+    float cursor_stage_offset;
 
-		Font font_stage;
-		int cursor_stage;
-		mutable float cursor_stage_offset;
-
-		//Functions
-		void think() override final;
-		void reset() override final;
-		void draw() const override final;
-
-		void newEffect(int player, int group);
-		void drawEffect(int player, int group, int _x, int _y, bool spr = false) const;
-
-		void parseLine(Parser& parser) override final;
-	};
-}
+    std::vector<game::Fighter *> fighters;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_SELECT_H

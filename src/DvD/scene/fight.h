@@ -11,123 +11,137 @@
 
 namespace scene {
 
-	/// @brief Helper object for drawing meters, primarily for SceneFight
-	class SceneMeter {
-	public:
-		SceneMeter();
-		~SceneMeter();
+  /// @brief Helper object for drawing meters, primarily for SceneFight
+  struct SceneMeter {
+    void draw(float pct, bool mirror, bool flip) const;
 
-		void draw(float pct, bool mirror, bool flip) const;
+    Image img;
+    util::Vector pos;
+  };
 
-		Image img;
-		util::Vector pos;
-	};
+  /// @brief Fighting game scene
+  class Fight : public Scene {
+  public:
+    static void pause(int frames);
+    static void shake(int frames);
 
-	/// @brief Fighting game scene
-	class Fight : public Scene {
-	public:
-		static game::Player madotsuki;
-		static game::Player poniko;
-		static util::Vector cameraPos;
-		static util::Vector idealCameraPos;
-		static util::Vector cameraShake;
+    static game::Player &getrPlayerAt(int index);
+    static util::Vector &getrCameraPos();
+    static util::Vector &getrIdealCameraPos();
+    static int getFramePauseTimer();
 
-		static int framePauseTimer;
-		static int frameShakeTimer;
+  public:
+    enum {
+      GAMETYPE_VERSUS,
+      GAMETYPE_TRAINING,
+    };
 
-		static void pause(int frames);
-		static void shake(int frames);
+  public:
+    Fight();
+    ~Fight();
 
-	public:
-		enum {
-			GAMETYPE_VERSUS,
-			GAMETYPE_TRAINING,
-		};
+    void init() override final;
 
-	public:
-		Fight();
-		~Fight();
+    // Functions
+    void think() override final;
+    void draw() const override final;
+    void reset() override final;
 
-		void init() override final;
+    void knockout(int player);
 
-		Image hud;
-		Image hud_tag;
-		Image portraits;
-		Image portraits_tag;
-		Image timer;
-		Font timer_font;
-		Image shine;
-		Image shine_tag;
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
-		//Bars and stuff
-		SceneMeter meterHp;
-		SceneMeter meterSuper;
-		SceneMeter meterTag;
-		SceneMeter meterStun;
-		SceneMeter meterGuard;
-		SceneMeter meterDpm;
+    int getTimerRoundIn() const;
+    int getTimerRoundOut() const;
+    int getTimerKO() const;
+    int getKOPlayer() const;
+    int getRound() const;
+    int getGameType() const;
+    void setGameType(int gametype);
 
-		Image staticImg;
-		audio::Sound staticSnd;
-		audio::Sound fadeinSnd;
-		audio::Sound fadeoutSnd;
+  private:
+    static game::Player madotsuki;
+    static game::Player poniko;
+    static util::Vector cameraPos;
+    static util::Vector idealCameraPos;
+    static util::Vector cameraShake;
 
-		std::array<Image, 5> round_splash;
-		Image round_hud[5];
-		int x_round_hud;
-		int y_round_hud;
+    static int framePauseTimer;
+    static int frameShakeTimer;
 
-		std::array<Image, 3> ko; // KO, timeout, draw
+  private:
+    Image hud;
+    Image hud_tag;
+    Image portraits;
+    Image portraits_tag;
+    Image timer;
+    Font *timer_font;
+    Image shine;
+    Image shine_tag;
 
-		Font combo;
-		Image comboLeft;
-		Image comboRight;
-		unsigned int comboLeftOff;
-		unsigned int comboRightOff;
-		int comboLeftLast;
-		int comboRightLast;
-		int comboLeftTimer;
-		int comboRightTimer;
+    // Bars and stuff
+    SceneMeter meterHp;
+    SceneMeter meterSuper;
+    SceneMeter meterTag;
+    SceneMeter meterStun;
+    SceneMeter meterGuard;
+    SceneMeter meterDpm;
 
-		util::Vector portraitPos;
+    Image staticImg;
+    audio::Sound *staticSnd;
+    audio::Sound *fadeinSnd;
+    audio::Sound *fadeoutSnd;
 
-		Image win;
-		Font win_font;
-		audio::Music win_bgm;
+    std::array<Image, 5> round_splash;
+    Image round_hud[5];
+    int x_round_hud;
+    int y_round_hud;
 
-		Image orb_null;
-		Image orb_win;
-		Image orb_draw;
-		util::Vector orb_pos;
+    std::array<Image, 3> ko; // KO, timeout, draw
 
-		//Timers for various effects
-		mutable int timer_flash;
-		int timer_round_in;
-		int timer_round_out;
-		int timer_ko; //timeout/draw too
+    Font *combo;
+    Image comboLeft;
+    Image comboRight;
+    unsigned int comboLeftOff;
+    unsigned int comboRightOff;
+    int comboLeftLast;
+    int comboRightLast;
+    int comboLeftTimer;
+    int comboRightTimer;
 
-		//Logic
-		int round; //What round is it?
-		std::array<int, 2> wins; // How many times each player has won (including draws)
-		std::array<std::array<int, 3>, 2> win_types; // What type of win was it? Win or draw?
-		int winner; //Who won the game?
+    util::Vector portraitPos;
 
-		int ko_player; //Which player was ko'd/lost? 2 = draw
-		int ko_type;   //Was it a ko or was it a timeout?
+    Image win;
+    Font *win_font;
+    audio::Music win_bgm;
 
-		int game_timer; //this is the actual game timer
+    Image orb_null;
+    Image orb_win;
+    Image orb_draw;
+    util::Vector orb_pos;
 
-		int gametype;
+    // Timers for various effects
+    mutable int timer_flash;
+    int timer_round_in;
+    int timer_round_out;
+    int timer_ko; // timeout/draw too
 
-		//Functions
-		void think() override final;
-		void draw() const override final;
-		void reset() override final;
+    // Logic
+    int round; // What round is it?
+    std::array<int, 2>
+        wins; // How many times each player has won (including draws)
+    std::array<std::array<int, 3>, 2>
+        win_types; // What type of win was it? Win or draw?
+    int winner;    // Who won the game?
 
-		void knockout(int player);
+    int ko_player; // Which player was ko'd/lost? 2 = draw
+    int ko_type;   // Was it a ko or was it a timeout?
 
-		void parseLine(Parser& parser) override final;
-	};
-}
+    int game_timer; // this is the actual game timer
+
+    int gametype;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_FIGHT_H

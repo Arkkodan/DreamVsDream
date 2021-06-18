@@ -1,0 +1,286 @@
+{
+    "bgm": {
+        "intro": "intro",
+        "loop": "loop"
+    },
+    "sound": {
+        "menu": "*menu",
+        "select": "*select",
+        "back": "*back",
+        "invalid": "*invalid"
+    },
+    "images": [
+        {
+            "image": "bg",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "renderType": "normal",
+            "vel": {
+                "x": 0.5,
+                "y": 0.5
+            },
+            "wrap": true
+        }
+    ],
+    "select": [
+        {
+            "image": "select",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "renderType": "normal"
+        }
+    ],
+    "grid": {
+        "w": 4,
+        "h": 6,
+        "w_group": 2,
+        "h_group": 3
+    },
+    "cursors": [
+        {
+            "image": "cursor_yn",
+            "offset": {
+                "x": -6,
+                "y": -6
+            },
+            "effect": {
+                "image": "select_yn",
+                "frameCount": 12,
+                "speed": 1,
+                "grow": true
+            },
+            "sound": {
+                "select": "select_yn",
+                "deselect": "deselect_yn"
+            }
+        },
+        {
+            "image": "cursor_y2",
+            "offset": {
+                "x": -6,
+                "y": -6
+            },
+            "effect": {
+                "image": "select_y2",
+                "frameCount": 5,
+                "speed": 2,
+                "grow": false
+            },
+            "sound": {
+                "select": "select_y2",
+                "deselect": "deselect_y2"
+            }
+        },
+        {
+            "image": "cursor_fl",
+            "offset": {
+                "x": -6,
+                "y": -6
+            },
+            "effect": {
+                "image": "select_fl",
+                "frameCount": 12,
+                "speed": 1,
+                "grow": true
+            },
+            "sound": {
+                "select": "select_fl",
+                "deselect": "deselect_fl"
+            }
+        },
+        {
+            "image": "cursor_yn",
+            "offset": {
+                "x": -6,
+                "y": -6
+            },
+            "effect": {
+                "image": "select_etc",
+                "frameCount": 15,
+                "speed": 1,
+                "grow": true
+            },
+            "sound": {
+                "select": "select_etc",
+                "deselect": "deselect_etc"
+            }
+        }
+    ],
+    "players": [
+        {
+            "posDefault": {
+                "x": 0,
+                "y": 1
+            },
+            "color": {
+                "r": 180,
+                "g": 120,
+                "b": 190
+            }
+        },
+        {
+            "posDefault": {
+                "x": 3,
+                "y": 1
+            },
+            "color": {
+                "r": 180,
+                "g": 120,
+                "b": 190
+            }
+        }
+    ],
+    "chars": [
+        null,
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 290,
+                "y": 133
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 330,
+                "y": 133
+            }
+        },
+        null,
+        {
+            "name": "madotsuki",
+            "pos": {
+                "x": 251,
+                "y": 166
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 290,
+                "y": 174
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 330,
+                "y": 174
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 369,
+                "y": 166
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 251,
+                "y": 207
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 290,
+                "y": 215
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 330,
+                "y": 215
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 369,
+                "y": 207
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 251,
+                "y": 265
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 290,
+                "y": 257
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 330,
+                "y": 257
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 369,
+                "y": 265
+            }
+        },
+        {
+            "name": "sabitsuki",
+            "pos": {
+                "x": 251,
+                "y": 306
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 290,
+                "y": 298
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 330,
+                "y": 298
+            }
+        },
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 369,
+                "y": 306
+            }
+        },
+        null,
+        {
+            "name": "nothing",
+            "pos": {
+                "x": 290,
+                "y": 339
+            }
+        },
+        {
+            "name": "maddysucky",
+            "pos": {
+                "x": 330,
+                "y": 339
+            }
+        },
+        null
+    ],
+    "stages": {
+        "font": "*32x32"
+    }
+}
