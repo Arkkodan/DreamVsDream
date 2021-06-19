@@ -3,6 +3,8 @@
 
 #include "menu_interface.h"
 
+#include "../sound.h"
+
 #include <functional>
 #include <string>
 
@@ -13,6 +15,7 @@ namespace menu {
   class ButtonA : virtual public IMenuElement {
   public:
     ButtonA();
+    virtual ~ButtonA();
 
     virtual void think() override;
 
@@ -27,8 +30,14 @@ namespace menu {
     /// @details Will automatically set enabled to true
     virtual void setAction(std::function<void(void)> action) final;
 
+    virtual void setSelectSound(const audio::Sound *sndSelect) final;
+    virtual void setInvalidSound(const audio::Sound *sndInvalid) final;
+
   protected:
     std::function<void(void)> action;
+
+    const audio::Sound *sndSelect;
+    const audio::Sound *sndInvalid;
   };
 
   /// @brief Same as ButtonA but renders text
@@ -36,6 +45,7 @@ namespace menu {
                             virtual public ITextMenuElement {
   public:
     TextButtonA();
+    virtual ~TextButtonA();
 
     virtual void think() override final;
 

@@ -38,6 +38,8 @@ namespace app {
   static bool fullscreen = false;
   static int input_delay = 0;
 
+  static bool doQuit = false;
+
   static void optionsLoad();
   static void optionsSave();
   static void init();
@@ -55,7 +57,7 @@ void app::run() {
   p1.setPlayerNumber(1);
   p1.getrSpeaker().init();
 
-  for (;;) {
+  while (!doQuit) {
     sys::refresh();
 
     SCENE->think();
@@ -63,6 +65,8 @@ void app::run() {
     scene::drawFade();
   }
 }
+
+void app::quit() { doQuit = true; }
 
 static void app::optionsLoad() {
   File file;

@@ -5,6 +5,7 @@
 
 #include "../../fileIO/json.h"
 #include "../../util/fileIO.h"
+#include "../app.h"
 #include "../error.h"
 #include "../graphics.h"
 #include "../resource_manager.h"
@@ -110,7 +111,7 @@ void scene::Scene::think() {
         // Are we quitting?
         int sceneNew = getSceneNewIndex();
         if (sceneNew == SCENE_QUIT) {
-          exit(0);
+          app::quit();
         }
         setIMSceneIndex(sceneNew);
 

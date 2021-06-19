@@ -10,15 +10,20 @@
 namespace menu {
   /// @brief A MenuElement object is anything that a Menu object can contain
   class IMenuElement {
+  protected:
+    IMenuElement();
+
   public:
-    virtual void think() = 0;
+    virtual ~IMenuElement();
 
-    virtual void doInput(uint16_t input) = 0;
-    virtual void doInput(uint16_t input, uint8_t playerIndex) = 0;
+    virtual void think(); // override
 
-    virtual void reset() = 0;
+    virtual void doInput(uint16_t input);                      // override
+    virtual void doInput(uint16_t input, uint8_t playerIndex); // override
 
-    virtual void draw() const = 0;
+    virtual void reset(); // override
+
+    virtual void draw() const; // override
 
     virtual bool isActive() const final;
     virtual void setActive(bool active) final;
@@ -31,7 +36,12 @@ namespace menu {
   };
 
   class ITextMenuElement : virtual public IMenuElement {
+  protected:
+    ITextMenuElement();
+
   public:
+    virtual ~ITextMenuElement();
+
     virtual void think() override;
 
     virtual void reset() override;
@@ -55,6 +65,8 @@ namespace menu {
   /// @brief A Menu object has the same interface as a MenuElement object
   class IMenu {
   public:
+    virtual ~IMenu();
+
     virtual void think() = 0;
 
     virtual void doInput(uint16_t input) = 0;

@@ -1,12 +1,25 @@
 #include "button.h"
 
-menu::ButtonA::ButtonA() : action() { active = enabled = false; }
+menu::ButtonA::ButtonA() : action(), sndSelect(nullptr), sndInvalid(nullptr) {
+  active = enabled = false;
+}
+menu::ButtonA::~ButtonA() {}
 
 void menu::ButtonA::think() {}
 
 void menu::ButtonA::doInput(uint16_t input) {
-  if (enabled && (input & game::INPUT_A)) {
-    action();
+  if (input & game::INPUT_A) {
+    if (enabled) {
+      action();
+      if (sndSelect) {
+        sndSelect->play();
+      }
+    }
+    else {
+      if (sndInvalid) {
+        sndInvalid->play();
+      }
+    }
   }
 }
 
@@ -23,12 +36,21 @@ void menu::ButtonA::setAction(std::function<void(void)> action) {
   enabled = true;
 }
 
+void menu::ButtonA::setSelectSound(const audio::Sound *sndSelect) {
+  this->sndSelect = sndSelect;
+}
+void menu::ButtonA::setInvalidSound(const audio::Sound *sndInvalid) {
+  this->sndInvalid = sndInvalid;
+}
+
 menu::TextButtonA::TextButtonA() : text("") {
   font = nullptr;
   x = y = restX = activeShiftX = 0;
   aR = aG = aB = 255;
   iR = iG = iB = 127;
 }
+
+menu::TextButtonA::~TextButtonA() {}
 
 void menu::TextButtonA::think() {
   ButtonA::think();
