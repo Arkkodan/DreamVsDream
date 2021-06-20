@@ -59,7 +59,6 @@ set(DVD_MENU_FILES
   DvD/menu/submenu.h
   DvD/menu/button.cpp
   DvD/menu/button.h
-  DvD/menu/selector.cpp
   DvD/menu/selector.h
 )
 set(DVD_SCENE_FILES

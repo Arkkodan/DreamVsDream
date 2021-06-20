@@ -97,6 +97,13 @@ void menu::Submenu::setMenuSound(const audio::Sound *sndMenu) {
   this->sndMenu = sndMenu;
 }
 
+int menu::Submenu::getIndex() const { return elementIndex; }
+void menu::Submenu::setIndex(int index) { this->elementIndex = index; }
+
+const menu::IMenuElement *menu::Submenu::getcElementAt(int index) const {
+  return elements[index].get();
+}
+
 menu::MainSubmenuB::MainSubmenuB()
     : breadcrumbs(), action(), actionSet(false), sndBack(nullptr) {}
 

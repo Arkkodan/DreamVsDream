@@ -4,6 +4,7 @@
 #include "scene_base.h"
 
 #include "../font.h"
+#include "../menu/submenu.h"
 
 namespace scene {
 
@@ -65,9 +66,7 @@ namespace scene {
     // Members
     Font *menuFont;
 
-    uint8_t cursor;
-    uint8_t cursorLast;
-    int cursorTimer;
+    menu::MainSubmenuB submenu;
 
     int madoPos;
     int madoDir;

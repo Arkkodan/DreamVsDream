@@ -35,6 +35,10 @@ namespace menu {
 
     virtual void setMenuSound(const audio::Sound *sndMenu) final;
 
+    virtual int getIndex() const final;
+    virtual void setIndex(int index) final;
+    virtual const IMenuElement *getcElementAt(int index) const final;
+
   protected:
     std::vector<std::unique_ptr<IMenuElement>> elements;
 
