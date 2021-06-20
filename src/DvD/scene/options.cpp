@@ -26,6 +26,17 @@ int scene::Options::optionMusVolume = 100;
 int scene::Options::optionVoiceVolume = 100;
 bool scene::Options::optionEpilepsy = false;
 
+const std::array<std::string, scene::Options::OPTION_MAIN_MAX>
+    scene::Options::submenuMainStrings = {"Game Options", "Audio Options",
+                                          "Video Options", "Credits"};
+const std::array<std::string, scene::Options::OPTION_GAME_MAX>
+    scene::Options::submenuGameStrings = {"Difficulty:", "Wins:", "Time:"};
+const std::array<std::string, scene::Options::OPTION_AUDIO_MAX>
+    scene::Options::submenuAudioStrings = {
+        "Sound Volume:", "Music Volume:", "Voice Volume:"};
+const std::array<std::string, scene::Options::OPTION_VIDEO_MAX>
+    scene::Options::submenuVideoStrings = {"Photosensitivity Mode:"};
+
 int scene::Options::getDifficulty() { return optionDifficulty; }
 void scene::Options::setDifficulty(int difficulty) {
   optionDifficulty = difficulty;
@@ -67,9 +78,9 @@ scene::Options::~Options() {}
 void scene::Options::think() {
   Scene::think();
 
-  submenu.think();
+  submenuMain.think();
 
-  int cursor = submenu.getIndex();
+  int cursor = submenuMain.getActiveSubmenuIndex();
 
   // Move/animate Madotsuki
   if (madoWakeTimer) {
@@ -133,42 +144,42 @@ void scene::Options::think() {
     }
 
     for (int i = 0; i < 2; i++) {
-      submenu.doInput(Fight::getrPlayerAt(i).getFrameInput(), i);
+      submenuMain.doInput(Fight::getrPlayerAt(i).getFrameInput(), i);
     }
 
     // Update values
     const auto *e_difficulty = dynamic_cast<const menu::SelectorLR<int> *>(
-        submenu.getcElementAt(OPTION_DIFFICULTY));
+        submenuGame.getcElementAt(OPTION_GAME_DIFFICULTY));
     if (e_difficulty) {
       optionDifficulty = e_difficulty->getValue();
     }
     const auto *e_wins = dynamic_cast<const menu::SelectorLR<int> *>(
-        submenu.getcElementAt(OPTION_WINS));
+        submenuGame.getcElementAt(OPTION_GAME_WINS));
     if (e_wins) {
       optionWins = e_wins->getValue();
     }
     const auto *e_time = dynamic_cast<const menu::SelectorLR<int> *>(
-        submenu.getcElementAt(OPTION_TIME));
+        submenuGame.getcElementAt(OPTION_GAME_TIME));
     if (e_time) {
       optionTime = e_time->getValue();
     }
     const auto *e_sfxVol = dynamic_cast<const menu::SelectorLR<int> *>(
-        submenu.getcElementAt(OPTION_SFX_VOLUME));
+        submenuAudio.getcElementAt(OPTION_AUDIO_SFX_VOLUME));
     if (e_sfxVol) {
       optionSfxVolume = e_sfxVol->getValue();
     }
     const auto *e_musVol = dynamic_cast<const menu::SelectorLR<int> *>(
-        submenu.getcElementAt(OPTION_MUS_VOLUME));
+        submenuAudio.getcElementAt(OPTION_AUDIO_MUS_VOLUME));
     if (e_musVol) {
       optionMusVolume = e_musVol->getValue();
     }
     const auto *e_voiceVol = dynamic_cast<const menu::SelectorLR<int> *>(
-        submenu.getcElementAt(OPTION_VOICE_VOLUME));
+        submenuAudio.getcElementAt(OPTION_AUDIO_VOICE_VOLUME));
     if (e_voiceVol) {
       optionVoiceVolume = e_voiceVol->getValue();
     }
     const auto *e_epilepsy = dynamic_cast<const menu::SelectorLR<bool> *>(
-        submenu.getcElementAt(OPTION_EPILEPSY));
+        submenuVideo.getcElementAt(OPTION_VIDEO_EPILEPSY));
     if (e_epilepsy) {
       optionEpilepsy = e_epilepsy->getValue();
     }
@@ -178,8 +189,14 @@ void scene::Options::think() {
 void scene::Options::reset() {
   Scene::reset();
 
-  submenu.setIndex(0);
-  submenu.reset();
+  submenuMain.setIndex(0);
+  submenuMain.reset();
+  submenuGame.setIndex(0);
+  submenuGame.reset();
+  submenuAudio.setIndex(0);
+  submenuAudio.reset();
+  submenuVideo.setIndex(0);
+  submenuVideo.reset();
 
   madoPos = 0;
   madoFrame = 1;
@@ -190,7 +207,7 @@ void scene::Options::reset() {
 void scene::Options::draw() const {
   Scene::draw();
 
-  submenu.draw();
+  submenuMain.draw();
 
   int xoff = madoFrame * 16;
   if (madoFrame == 3) {
@@ -225,23 +242,52 @@ void scene::Options::init() {
     }
   }
 
-  {
+  { // Game
     std::vector<std::unique_ptr<menu::IMenuElement>> elements;
     auto e_difficulty = std::make_unique<menu::TextSelectorLR<int>>();
-    e_difficulty->setLabel("Difficulty:");
     e_difficulty->setValuePairs({1, 2, 3, 4, 5}, {"1", "2", "3", "4", "5"});
     e_difficulty->setIndexByValue(optionDifficulty);
     elements.emplace_back(std::move(e_difficulty));
     auto e_wins = std::make_unique<menu::TextSelectorLR<int>>();
-    e_wins->setLabel("Wins:");
     e_wins->setValuePairs({1, 2, 3}, {"1", "2", "3"});
     e_wins->setIndexByValue(optionWins);
     elements.emplace_back(std::move(e_wins));
     auto e_time = std::make_unique<menu::TextSelectorLR<int>>();
-    e_time->setLabel("Time:");
     e_time->setValuePairs({60, 99, 0}, {"60", "99", "Unlimited"});
     e_time->setIndexByValue(optionTime);
     elements.emplace_back(std::move(e_time));
+    for (int i = 0; i < OPTION_GAME_MAX; i++) {
+      auto *element = elements[i].get();
+      auto *textElement = dynamic_cast<menu::ITextMenuElement *>(element);
+      if (textElement) {
+        textElement->setFont(menuFont);
+        textElement->setPos(64, 64 + i * menuFont->getcImage()->getH(),
+                            aXOffset);
+        textElement->setColorActive(aR, aG, aB);
+        textElement->setColorInctive(iR, iG, iB);
+      }
+      auto *selectorInt = dynamic_cast<menu::TextSelectorLR<int> *>(element);
+      if (selectorInt) {
+        selectorInt->setMenuSounds(sndMenu);
+        selectorInt->setLabel(submenuGameStrings[i]);
+      }
+      auto *selectorBool = dynamic_cast<menu::TextSelectorLR<bool> *>(element);
+      if (selectorBool) {
+        selectorBool->setMenuSounds(sndMenu);
+        selectorBool->setLabel(submenuGameStrings[i]);
+      }
+      auto *button = dynamic_cast<menu::TextButtonA *>(element);
+      if (button) {
+        button->setSelectSound(sndSelect);
+        button->setText(submenuGameStrings[i]);
+      }
+    }
+    submenuGame.setElements(std::move(elements));
+    submenuGame.setInputMask(game::INPUT_DOWN, game::INPUT_UP);
+    submenuGame.setMenuSound(sndMenu);
+  }
+  { // Audio
+    std::vector<std::unique_ptr<menu::IMenuElement>> elements;
     std::vector<int> volumeOptions(11);
     std::generate(volumeOptions.begin(), volumeOptions.end(),
                   [vol = -10]() mutable {
@@ -253,34 +299,20 @@ void scene::Options::init() {
                    volumeStrings.begin(),
                    [](int vol) { return std::to_string(vol) + '%'; });
     auto e_sfxVol = std::make_unique<menu::TextSelectorLR<int>>();
-    e_sfxVol->setLabel("Sound Volume:");
     e_sfxVol->setValuePairs(volumeOptions, volumeStrings);
     e_sfxVol->setIndexByValue(optionSfxVolume);
     elements.emplace_back(std::move(e_sfxVol));
     auto e_musVol = std::make_unique<menu::TextSelectorLR<int>>();
-    e_musVol->setLabel("Music Volume:");
     e_musVol->setValuePairs(volumeOptions, volumeStrings);
     e_musVol->setIndexByValue(optionMusVolume);
     elements.emplace_back(std::move(e_musVol));
     auto e_voiceVol = std::make_unique<menu::TextSelectorLR<int>>();
-    e_voiceVol->setLabel("Voice Volume:");
     e_voiceVol->setValuePairs(volumeOptions, volumeStrings);
     e_voiceVol->setIndexByValue(optionVoiceVolume);
     elements.emplace_back(std::move(e_voiceVol));
-    auto e_epilepsy = std::make_unique<menu::TextSelectorLR<bool>>();
-    e_epilepsy->setLabel("Photosensitivity Mode:");
-    e_epilepsy->setValuePairs({true, false}, {"On", "Off"});
-    e_epilepsy->setWrap(true);
-    e_epilepsy->setIndexByValue(optionEpilepsy);
-    elements.emplace_back(std::move(e_epilepsy));
-    auto e_credits = std::make_unique<menu::TextButtonA>();
-    e_credits->setText("Credits");
-    e_credits->setAction([]() { setScene(SCENE_CREDITS); });
-    elements.emplace_back(std::move(e_credits));
-
-    for (int i = 0, size = elements.size(); i < size; i++) {
-      auto *textElement =
-          dynamic_cast<menu::ITextMenuElement *>(elements[i].get());
+    for (int i = 0; i < OPTION_AUDIO_MAX; i++) {
+      auto *element = elements[i].get();
+      auto *textElement = dynamic_cast<menu::ITextMenuElement *>(element);
       if (textElement) {
         textElement->setFont(menuFont);
         textElement->setPos(64, 64 + i * menuFont->getcImage()->getH(),
@@ -288,39 +320,123 @@ void scene::Options::init() {
         textElement->setColorActive(aR, aG, aB);
         textElement->setColorInctive(iR, iG, iB);
       }
-      auto *selectorInt =
-          dynamic_cast<menu::SelectorLR<int> *>(elements[i].get());
+      auto *selectorInt = dynamic_cast<menu::TextSelectorLR<int> *>(element);
       if (selectorInt) {
         switch (i) {
-        case OPTION_MUS_VOLUME:
+        case OPTION_AUDIO_MUS_VOLUME:
           selectorInt->setMenuSounds(nullptr);
           break;
-        case OPTION_VOICE_VOLUME:
+        case OPTION_AUDIO_VOICE_VOLUME:
           selectorInt->setMenuSounds(dame, muri, true);
           break;
         default:
           selectorInt->setMenuSounds(sndMenu);
           break;
         }
+        selectorInt->setLabel(submenuAudioStrings[i]);
       }
-      auto *selectorBool =
-          dynamic_cast<menu::SelectorLR<bool> *>(elements[i].get());
+      auto *selectorBool = dynamic_cast<menu::TextSelectorLR<bool> *>(element);
       if (selectorBool) {
         selectorBool->setMenuSounds(sndMenu);
+        selectorBool->setLabel(submenuAudioStrings[i]);
       }
-      auto *button = dynamic_cast<menu::TextButtonA *>(elements[i].get());
+      auto *button = dynamic_cast<menu::TextButtonA *>(element);
       if (button) {
         button->setSelectSound(sndSelect);
+        button->setText(submenuAudioStrings[i]);
       }
     }
-    submenu.setElements(std::move(elements));
-    submenu.setAction([this]() {
+    submenuAudio.setElements(std::move(elements));
+    submenuAudio.setInputMask(game::INPUT_DOWN, game::INPUT_UP);
+    submenuAudio.setMenuSound(sndMenu);
+  }
+  { // Video
+    std::vector<std::unique_ptr<menu::IMenuElement>> elements;
+    auto e_epilepsy = std::make_unique<menu::TextSelectorLR<bool>>();
+    e_epilepsy->setValuePairs({true, false}, {"On", "Off"});
+    e_epilepsy->setWrap(true);
+    e_epilepsy->setIndexByValue(optionEpilepsy);
+    elements.emplace_back(std::move(e_epilepsy));
+    for (int i = 0; i < OPTION_VIDEO_MAX; i++) {
+      auto *element = elements[i].get();
+      auto *textElement = dynamic_cast<menu::ITextMenuElement *>(element);
+      if (textElement) {
+        textElement->setFont(menuFont);
+        textElement->setPos(64, 64 + i * menuFont->getcImage()->getH(),
+                            aXOffset);
+        textElement->setColorActive(aR, aG, aB);
+        textElement->setColorInctive(iR, iG, iB);
+      }
+      auto *selectorInt = dynamic_cast<menu::TextSelectorLR<int> *>(element);
+      if (selectorInt) {
+        selectorInt->setMenuSounds(sndMenu);
+        selectorInt->setLabel(submenuVideoStrings[i]);
+      }
+      auto *selectorBool = dynamic_cast<menu::TextSelectorLR<bool> *>(element);
+      if (selectorBool) {
+        selectorBool->setMenuSounds(sndMenu);
+        selectorBool->setLabel(submenuVideoStrings[i]);
+      }
+      auto *button = dynamic_cast<menu::TextButtonA *>(element);
+      if (button) {
+        button->setSelectSound(sndSelect);
+        button->setText(submenuVideoStrings[i]);
+      }
+    }
+    submenuVideo.setElements(std::move(elements));
+    submenuVideo.setInputMask(game::INPUT_DOWN, game::INPUT_UP);
+    submenuVideo.setMenuSound(sndMenu);
+  }
+  { // Main
+    std::vector<std::unique_ptr<menu::IMenuElement>> elements;
+    auto e_game = std::make_unique<menu::TextButtonA>();
+    e_game->setAction([this]() { submenuMain.pushSubmenu(&submenuGame); });
+    elements.emplace_back(std::move(e_game));
+    auto e_audio = std::make_unique<menu::TextButtonA>();
+    e_audio->setAction([this]() { submenuMain.pushSubmenu(&submenuAudio); });
+    elements.emplace_back(std::move(e_audio));
+    auto e_video = std::make_unique<menu::TextButtonA>();
+    e_video->setAction([this]() { submenuMain.pushSubmenu(&submenuVideo); });
+    elements.emplace_back(std::move(e_video));
+    auto e_credits = std::make_unique<menu::TextButtonA>();
+    e_credits->setAction([]() { setScene(SCENE_CREDITS); });
+    elements.emplace_back(std::move(e_credits));
+
+    for (int i = 0; i < OPTION_MAIN_MAX; i++) {
+      auto *element = elements[i].get();
+      auto *textElement = dynamic_cast<menu::ITextMenuElement *>(element);
+      if (textElement) {
+        textElement->setFont(menuFont);
+        textElement->setPos(64, 64 + i * menuFont->getcImage()->getH(),
+                            aXOffset);
+        textElement->setColorActive(aR, aG, aB);
+        textElement->setColorInctive(iR, iG, iB);
+      }
+      auto *selectorInt = dynamic_cast<menu::TextSelectorLR<int> *>(element);
+      if (selectorInt) {
+        selectorInt->setMenuSounds(sndMenu);
+        selectorInt->setLabel(submenuMainStrings[i]);
+      }
+      auto *selectorBool = dynamic_cast<menu::TextSelectorLR<bool> *>(element);
+      if (selectorBool) {
+        selectorBool->setMenuSounds(sndMenu);
+        selectorBool->setLabel(submenuMainStrings[i]);
+      }
+      auto *button = dynamic_cast<menu::TextButtonA *>(element);
+      if (button) {
+        button->setSelectSound(sndSelect);
+        button->setText(submenuMainStrings[i]);
+      }
+    }
+    submenuMain.setElements(std::move(elements));
+    submenuMain.setAction([this]() {
       madoDir = 4;
       madoFrame = 0;
       madoWakeTimer = 40;
     });
-    submenu.setInputMask(game::INPUT_DOWN, game::INPUT_UP);
-    submenu.setMenuSound(sndMenu);
+    submenuMain.setInputMask(game::INPUT_DOWN, game::INPUT_UP);
+    submenuMain.setMenuSound(sndMenu);
+    submenuMain.setBackSound(sndBack);
   }
 }
 

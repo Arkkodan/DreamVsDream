@@ -13,19 +13,15 @@
 
 #include <memory>
 
-std::array<std::string, scene::Title::CHOICE_MAX>
-    scene::Title::menuChoicesMain = {
-        "Arcade",  "Story", "Versus", "Survival", "Training",
-#ifndef NO_NETWORK
-        "Netplay",
-#endif
-        "Options", "Quit",
-};
-
-std::array<std::string, scene::Title::CHOICE_VS_MAX>
-    scene::Title::menuChoicesVersus = {
-        "Versus Player", "Versus CPU", "Tag Team", "2v2 Team", "Return",
-};
+const std::array<std::string, scene::Title::TITLE_MAIN_MAX>
+    scene::Title::submenuMainStrings = {"Single-Player", "Multiplayer",
+                                        "Options", "Quit"};
+const std::array<std::string, scene::Title::TITLE_SINGLEPLAYER_MAX>
+    scene::Title::submenuSPStrings = {"Arcade", "Story", "Versus CPU",
+                                      "Survival", "Training"};
+const std::array<std::string, scene::Title::TITLE_MULTIPLAYER_MAX>
+    scene::Title::submenuMPStrings = {"Versus Player", "Tag Team", "2v2 Team",
+                                      "Netplay"};
 
 scene::Title::Title() : Scene("title") {
   menuX = menuY = 0;
@@ -82,29 +78,25 @@ void scene::Title::init() {
     down |= game::INPUT_RIGHT;
   }
 
-  {
+  { // Single-Player
     std::vector<std::unique_ptr<menu::IMenuElement>> elements;
-    for (int i = 0, size = menuChoicesVersus.size(); i < size; i++) {
+    for (int i = 0; i < TITLE_SINGLEPLAYER_MAX; i++) {
       auto textButton = std::make_unique<menu::TextButtonA>();
       textButton->setFont(menuFont);
       textButton->setPos(menuX + i * menuXOffset,
                          menuY + i * menuFont->getcImage()->getH(), aXOffset);
       textButton->setColorActive(aR, aG, aB);
       textButton->setColorInctive(iR, iG, iB);
-      textButton->setText(menuChoicesVersus[i]);
+      textButton->setText(submenuSPStrings[i]);
       textButton->setSelectSound(sndSelect);
       textButton->setInvalidSound(sndInvalid);
 
       switch (i) {
-      case CHOICE_VS_PLR:
+      case TITLE_SINGLEPLAYER_TRAINING:
         textButton->setAction([this]() {
-          FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
+          FIGHT->setGameType(Fight::GAMETYPE_TRAINING);
           setScene(SCENE_SELECT);
         });
-        break;
-      case CHOICE_VS_RETURN:
-        textButton->setAction([this]() { submenuMain.popSubmenu(); });
-        textButton->setSelectSound(sndBack);
         break;
       default:
         break;
@@ -112,42 +104,70 @@ void scene::Title::init() {
 
       elements.emplace_back(std::move(textButton));
     }
-    submenuVersus.setElements(std::move(elements));
-    submenuVersus.setInputMask(down, up);
-    submenuVersus.setMenuSound(sndMenu);
+    submenuSP.setElements(std::move(elements));
+    submenuSP.setInputMask(down, up);
+    submenuSP.setMenuSound(sndMenu);
   }
-  {
+  { // Multiplayer
     std::vector<std::unique_ptr<menu::IMenuElement>> elements;
-    for (int i = 0, size = menuChoicesMain.size(); i < size; i++) {
+    for (int i = 0; i < TITLE_MULTIPLAYER_MAX; i++) {
       auto textButton = std::make_unique<menu::TextButtonA>();
       textButton->setFont(menuFont);
       textButton->setPos(menuX + i * menuXOffset,
                          menuY + i * menuFont->getcImage()->getH(), aXOffset);
       textButton->setColorActive(aR, aG, aB);
       textButton->setColorInctive(iR, iG, iB);
-      textButton->setText(menuChoicesMain[i]);
+      textButton->setText(submenuMPStrings[i]);
       textButton->setSelectSound(sndSelect);
       textButton->setInvalidSound(sndInvalid);
 
       switch (i) {
-      case CHOICE_VERSUS:
-        textButton->setAction(
-            [this]() { submenuMain.pushSubmenu(&submenuVersus); });
-        break;
-      case CHOICE_TRAINING:
+      case TITLE_MULTIPLAYER_VS_PLAYER:
         textButton->setAction([this]() {
-          FIGHT->setGameType(Fight::GAMETYPE_TRAINING);
+          FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
           setScene(SCENE_SELECT);
         });
         break;
-      case CHOICE_NETPLAY:
+      case TITLE_MULTIPLAYER_NETPLAY:
         textButton->setAction([this]() { setScene(SCENE_NETPLAY); });
         break;
-      case CHOICE_OPTIONS:
-        textButton->setAction([this]() { setScene(SCENE_OPTIONS); });
+      default:
         break;
-      case CHOICE_QUIT:
-        textButton->setAction([this]() {
+      }
+
+      elements.emplace_back(std::move(textButton));
+    }
+    submenuMP.setElements(std::move(elements));
+    submenuMP.setInputMask(down, up);
+    submenuMP.setMenuSound(sndMenu);
+  }
+  { // Main
+    std::vector<std::unique_ptr<menu::IMenuElement>> elements;
+    for (int i = 0; i < TITLE_MAIN_MAX; i++) {
+      auto textButton = std::make_unique<menu::TextButtonA>();
+      textButton->setFont(menuFont);
+      textButton->setPos(menuX + i * menuXOffset,
+                         menuY + i * menuFont->getcImage()->getH(), aXOffset);
+      textButton->setColorActive(aR, aG, aB);
+      textButton->setColorInctive(iR, iG, iB);
+      textButton->setText(submenuMainStrings[i]);
+      textButton->setSelectSound(sndSelect);
+      textButton->setInvalidSound(sndInvalid);
+
+      switch (i) {
+      case TITLE_MAIN_SINGLEPLAYER:
+        textButton->setAction(
+            [this]() { submenuMain.pushSubmenu(&submenuSP); });
+        break;
+      case TITLE_MAIN_MULTIPLAYER:
+        textButton->setAction(
+            [this]() { submenuMain.pushSubmenu(&submenuMP); });
+        break;
+      case TITLE_MAIN_OPTIONS:
+        textButton->setAction([]() { setScene(SCENE_OPTIONS); });
+        break;
+      case TITLE_MAIN_QUIT:
+        textButton->setAction([]() {
           setScene(SCENE_QUIT);
           app::quit();
         });
@@ -182,8 +202,9 @@ void scene::Title::think() {
 
 void scene::Title::reset() {
   Scene::reset();
-  submenuVersus.reset();
   submenuMain.reset();
+  submenuSP.reset();
+  submenuMP.reset();
 }
 
 void scene::Title::draw() const {

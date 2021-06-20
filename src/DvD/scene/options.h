@@ -6,6 +6,8 @@
 #include "../font.h"
 #include "../menu/submenu.h"
 
+#include <array>
+
 namespace scene {
 
   /// @brief Scene for modifying options
@@ -42,17 +44,37 @@ namespace scene {
 
   private:
     enum {
-      OPTION_DIFFICULTY,
-      OPTION_WINS,
-      OPTION_TIME,
-      OPTION_SFX_VOLUME,
-      OPTION_MUS_VOLUME,
-      OPTION_VOICE_VOLUME,
-      OPTION_EPILEPSY,
-      OPTION_CREDITS,
+      OPTION_MAIN_GAME,
+      OPTION_MAIN_AUDIO,
+      OPTION_MAIN_VIDEO,
+      OPTION_MAIN_CREDITS,
 
-      OPTION_MAX,
+      OPTION_MAIN_MAX
     };
+    enum {
+      OPTION_GAME_DIFFICULTY,
+      OPTION_GAME_WINS,
+      OPTION_GAME_TIME,
+
+      OPTION_GAME_MAX
+    };
+    enum {
+      OPTION_AUDIO_SFX_VOLUME,
+      OPTION_AUDIO_MUS_VOLUME,
+      OPTION_AUDIO_VOICE_VOLUME,
+
+      OPTION_AUDIO_MAX
+    };
+    enum {
+      OPTION_VIDEO_EPILEPSY,
+
+      OPTION_VIDEO_MAX
+    };
+
+    static const std::array<std::string, OPTION_MAIN_MAX> submenuMainStrings;
+    static const std::array<std::string, OPTION_GAME_MAX> submenuGameStrings;
+    static const std::array<std::string, OPTION_AUDIO_MAX> submenuAudioStrings;
+    static const std::array<std::string, OPTION_VIDEO_MAX> submenuVideoStrings;
 
     static int optionDifficulty;
     static int optionWins;
@@ -66,7 +88,10 @@ namespace scene {
     // Members
     Font *menuFont;
 
-    menu::MainSubmenuB submenu;
+    menu::MainSubmenuB submenuMain;
+    menu::Submenu submenuGame;
+    menu::Submenu submenuAudio;
+    menu::Submenu submenuVideo;
 
     int madoPos;
     int madoDir;
