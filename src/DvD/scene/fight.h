@@ -3,9 +3,10 @@
 
 #include "scene_base.h"
 
-#include "../../util/vec2.h"
 #include "../font.h"
 #include "../player.h"
+
+#include <glm/vec2.hpp>
 
 #include <array>
 
@@ -16,7 +17,7 @@ namespace scene {
     void draw(float pct, bool mirror, bool flip) const;
 
     Image img;
-    util::Vector pos;
+    glm::ivec2 pos;
   };
 
   /// @brief Fighting game scene
@@ -26,8 +27,8 @@ namespace scene {
     static void shake(int frames);
 
     static game::Player &getrPlayerAt(int index);
-    static util::Vector &getrCameraPos();
-    static util::Vector &getrIdealCameraPos();
+    static glm::ivec2 &getrCameraPos();
+    static glm::ivec2 &getrIdealCameraPos();
     static int getFramePauseTimer();
 
   public:
@@ -63,9 +64,9 @@ namespace scene {
   private:
     static game::Player madotsuki;
     static game::Player poniko;
-    static util::Vector cameraPos;
-    static util::Vector idealCameraPos;
-    static util::Vector cameraShake;
+    static glm::ivec2 cameraPos;
+    static glm::ivec2 idealCameraPos;
+    static glm::ivec2 cameraShake;
 
     static int framePauseTimer;
     static int frameShakeTimer;
@@ -110,7 +111,7 @@ namespace scene {
     int comboLeftTimer;
     int comboRightTimer;
 
-    util::Vector portraitPos;
+    glm::ivec2 portraitPos;
 
     Image win;
     Font *win_font;
@@ -119,7 +120,7 @@ namespace scene {
     Image orb_null;
     Image orb_win;
     Image orb_draw;
-    util::Vector orb_pos;
+    glm::ivec2 orb_pos;
 
     // Timers for various effects
     mutable int timer_flash;

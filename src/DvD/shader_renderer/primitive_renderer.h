@@ -3,6 +3,10 @@
 
 #include "../../renderer/renderer_base_api.h"
 
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
+
 namespace renderer {
   class PrimitiveRenderer : public Renderer {
   private:
@@ -11,7 +15,7 @@ namespace renderer {
 
   private:
     struct Vertex {
-      GLfloat pos[2];
+      glm::vec2 pos;
     };
 
   public:
@@ -25,8 +29,8 @@ namespace renderer {
     static void setPosRect(GLfloat x1, GLfloat x2, GLfloat y1, GLfloat y2);
 
     // Uniforms for vertex shader
-    static void setMVPMatrix(GLfloat *mvp);
-    static void setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
+    static void setMVPMatrix(const glm::mat4x4 &mvp);
+    static void setColor(const glm::vec4 &color);
 
     static void draw();
 

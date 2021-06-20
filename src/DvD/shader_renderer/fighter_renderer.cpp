@@ -4,6 +4,8 @@
 #include "../../util/fileIO.h"
 #include "../error.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <array>
 
 renderer::FighterRenderer::FighterRenderer()
@@ -50,15 +52,16 @@ void renderer::FighterRenderer::setTexRect(GLfloat s1, GLfloat s2, GLfloat t1,
   s_->t2 = t2;
 }
 
-void renderer::FighterRenderer::setMVPMatrix(GLfloat *mvp) {
+void renderer::FighterRenderer::setMVPMatrix(const glm::mat4x4 &mvp) {
   s_->shaderProgram->use();
-  s_->shaderProgram->setUniformMatrix4fv(U_MVP, mvp);
+  s_->shaderProgram->setUniformMatrix4fv(U_MVP, glm::value_ptr(mvp));
 }
 
-void renderer::FighterRenderer::setColor(GLfloat r, GLfloat g, GLfloat b) {
+void renderer::FighterRenderer::setColor(const glm::vec3 &color) {
   s_->shaderProgram->use();
-  const float u_color[4] = {r, g, b, 1.0f}; // We do not care about alpha here
-  s_->shaderProgram->setUniform4fv(U_COLOR, u_color);
+  // We do not care about alpha here
+  s_->shaderProgram->setUniform4fv(U_COLOR,
+                                   glm::value_ptr(glm::vec4(color, 1.0f)));
 }
 
 void renderer::FighterRenderer::setTexture2D(const Texture2D &texture,
@@ -103,13 +106,11 @@ void renderer::FighterRenderer::setPixelSize(GLint pixelSize) {
 
 void renderer::FighterRenderer::draw() {
   s_->shaderProgram->use();
-  std::array<Vertex, 4> vertices = {s_->x2, s_->y1, s_->s2, s_->t1,
-
-                                    s_->x2, s_->y2, s_->s2, s_->t2,
-
-                                    s_->x1, s_->y1, s_->s1, s_->t1,
-
-                                    s_->x1, s_->y2, s_->s1, s_->t2};
+  std::array<Vertex, 4> vertices = {
+      glm::vec2(s_->x2, s_->y1), glm::vec2(s_->s2, s_->t1),
+      glm::vec2(s_->x2, s_->y2), glm::vec2(s_->s2, s_->t2),
+      glm::vec2(s_->x1, s_->y1), glm::vec2(s_->s1, s_->t1),
+      glm::vec2(s_->x1, s_->y2), glm::vec2(s_->s1, s_->t2)};
 
   s_->vertexArray->bind();
   s_->vertexBuffer->bindData(sizeof(vertices), vertices.data(),
@@ -119,6 +120,6 @@ void renderer::FighterRenderer::draw() {
 }
 
 void renderer::FighterRenderer::resetColor() {
-  setColor(1.0f, 1.0f, 1.0f);
+  setColor({1.0f, 1.0f, 1.0f});
   setAlpha(1.0f);
 }

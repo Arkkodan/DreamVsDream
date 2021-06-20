@@ -5,14 +5,15 @@
 #include "../renderer/gl_loader.h"
 
 #include <SDL_keycode.h>
+#include <glm/vec2.hpp>
 
 extern game::Fighter fighter;
 extern int frame;
 extern int anim;
 
 namespace input {
-  static util::Vector screenOffset;
-  static util::Vector screenSize;
+  static glm::ivec2 screenOffset;
+  static glm::ivec2 screenSize;
 
   void resize(int w, int h) {
     if (h == 0) {
@@ -45,11 +46,11 @@ namespace input {
 
   static bool blackBG = true;
 
-  static util::Vector mousePos;
+  static glm::ivec2 mousePos;
   static bool mouse1Down = false;
   static sprite::HitBox *selectBox = nullptr;
   static bool selectBoxAttack = false;
-  static util::Vector selectBoxOffset;
+  static glm::ivec2 selectBoxOffset;
 
   static bool selectAll = false;
 

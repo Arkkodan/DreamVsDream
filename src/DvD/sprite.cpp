@@ -45,10 +45,10 @@ namespace sprite {
     _y = sys::FLIP(_y);
 
     if (attack) {
-      renderer::PrimitiveRenderer::setColor(1.0f, 0.0f, 0.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor({1.0f, 0.0f, 0.0f, 1.0f});
     }
     else {
-      renderer::PrimitiveRenderer::setColor(0.5f, 0.5f, 1.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor({0.5f, 0.5f, 1.0f, 1.0f});
     }
 
     drwbx(_x + pos.x, _y - pos.y, size.x, 1);              // Bottom
@@ -57,10 +57,10 @@ namespace sprite {
     drwbx(_x + pos.x + size.x - 1, _y - pos.y, 1, size.y); // Right
     if (selected) {
       if (attack) {
-        renderer::PrimitiveRenderer::setColor(1.0f, 0.0f, 0.0f, 0.5f);
+        renderer::PrimitiveRenderer::setColor({1.0f, 0.0f, 0.0f, 0.5f});
       }
       else {
-        renderer::PrimitiveRenderer::setColor(0.5f, 0.5f, 1.0f, 0.5f);
+        renderer::PrimitiveRenderer::setColor({0.5f, 0.5f, 1.0f, 0.5f});
       }
       drwbx(_x + pos.x, _y - pos.y, size.x, size.y);
     }
@@ -68,7 +68,7 @@ namespace sprite {
     renderer::ShaderProgram::unuse();
   }
 
-  bool HitBox::collideOther(HitBox *other, util::Vector *colpos,
+  bool HitBox::collideOther(HitBox *other, glm::ivec2 *colpos,
                             bool allowOutOfBounds) const {
     if (pos.x + size.x < other->pos.x) {
       return false;
@@ -136,7 +136,7 @@ namespace sprite {
 
   int Sprite::collide(int x1, int y1, int x2, int y2, bool m1, bool m2,
                       float scale1, float scale2, const Sprite *other,
-                      util::Vector *colpos, bool allowOutOfBounds) const {
+                      glm::ivec2 *colpos, bool allowOutOfBounds) const {
     // Check for attack hitbox collision with other sprite
     for (int i = 0; i < aHitBoxes.size; i++) {
       HitBox me = aHitBoxes.boxes[i].adjust(x1, y1, m1, scale1);
@@ -212,7 +212,7 @@ namespace sprite {
     else {
       _x -= x * scale;
     }
-    renderer::FighterRenderer::setColor(0.0f, 0.0f, 0.0f);
+    renderer::FighterRenderer::setColor({0.0f, 0.0f, 0.0f});
     renderer::FighterRenderer::setAlpha(0.5f);
     graphics::setScale(scale, 0.2f * scale);
     atlas->drawSprite(atlas_sprite, _x, 0, mirror);
@@ -317,7 +317,7 @@ namespace sprite {
   HitBox *HitBoxGroup::newHitbox() {
     boxes.resize(size + 1);
 
-    boxes[size].size = util::Vector(15, 15);
+    boxes[size].size = glm::ivec2(15, 15);
     return &boxes[size++];
   }
 

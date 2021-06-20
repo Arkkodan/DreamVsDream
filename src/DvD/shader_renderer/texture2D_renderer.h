@@ -5,6 +5,10 @@
 
 #include "../../renderer/texture2D.h"
 
+#include <glm/mat4x4.hpp>
+#include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
+
 namespace renderer {
   class Texture2DRenderer : public Renderer {
   private:
@@ -13,8 +17,8 @@ namespace renderer {
 
   private:
     struct Vertex {
-      GLfloat pos[2];
-      GLfloat texCoord[2];
+      glm::vec2 pos;
+      glm::vec2 texCoord;
     };
 
   public:
@@ -29,8 +33,8 @@ namespace renderer {
     static void setTexRect(GLfloat s1, GLfloat s2, GLfloat t1, GLfloat t2);
 
     // Uniforms for vertex shader
-    static void setMVPMatrix(GLfloat *mvp);
-    static void setColor(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
+    static void setMVPMatrix(const glm::mat4x4 &mvp);
+    static void setColor(const glm::vec4 &color);
 
     // Uniforms for fragment shader
     static void setTexture2D(const Texture2D &texture,

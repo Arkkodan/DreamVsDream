@@ -207,12 +207,12 @@ namespace game {
     }
     else {
       if (palette) {
-        renderer::FighterRenderer::setColor(150 / 255.0f, 150 / 255.0f,
-                                            150 / 255.0f);
+        renderer::FighterRenderer::setColor(
+            {150 / 255.0f, 150 / 255.0f, 150 / 255.0f});
         renderer::FighterRenderer::setAlpha(alpha);
       }
       else {
-        renderer::FighterRenderer::setColor(1.0f, 1.0f, 1.0f);
+        renderer::FighterRenderer::setColor({1.0f, 1.0f, 1.0f});
         renderer::FighterRenderer::setAlpha(alpha);
       }
       sprites[sprite].draw(x, y, mirror, scale);
@@ -226,7 +226,7 @@ namespace game {
       renderer::ShaderProgram::unuse();
     }
     else {
-      renderer::FighterRenderer::setColor(0.0f, 0.0f, 0.0f);
+      renderer::FighterRenderer::setColor({0.0f, 0.0f, 0.0f});
       renderer::FighterRenderer::setAlpha(0.5f);
       sprites[sprite].drawShadow(x, mirror, scale);
     }

@@ -4,6 +4,8 @@
 #include "../../util/fileIO.h"
 #include "../error.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include <array>
 
 renderer::PrimitiveRenderer::PrimitiveRenderer() : x1(0), x2(0), y1(0), y2(0) {}
@@ -37,28 +39,23 @@ void renderer::PrimitiveRenderer::setPosRect(GLfloat x1, GLfloat x2, GLfloat y1,
   s_->y2 = y2;
 }
 
-void renderer::PrimitiveRenderer::setMVPMatrix(GLfloat *mvp) {
+void renderer::PrimitiveRenderer::setMVPMatrix(const glm::mat4x4 &mvp) {
   s_->shaderProgram->use();
-  s_->shaderProgram->setUniformMatrix4fv(U_MVP, mvp);
+  s_->shaderProgram->setUniformMatrix4fv(U_MVP, glm::value_ptr(mvp));
 }
 
-void renderer::PrimitiveRenderer::setColor(GLfloat r, GLfloat g, GLfloat b,
-                                           GLfloat a) {
+void renderer::PrimitiveRenderer::setColor(const glm::vec4 &color) {
   s_->shaderProgram->use();
-  const float u_color[4] = {r, g, b, a};
-  s_->shaderProgram->setUniform4fv(U_COLOR, u_color);
+  s_->shaderProgram->setUniform4fv(U_COLOR, glm::value_ptr(color));
 }
 
 void renderer::PrimitiveRenderer::draw() {
   s_->shaderProgram->use();
   std::array<Vertex, 4> vertices = {
-      s_->x2, s_->y1,
-
-      s_->x2, s_->y2,
-
-      s_->x1, s_->y1,
-
-      s_->x1, s_->y2,
+      glm::vec2(s_->x2, s_->y1),
+      glm::vec2(s_->x2, s_->y2),
+      glm::vec2(s_->x1, s_->y1),
+      glm::vec2(s_->x1, s_->y2),
   };
 
   s_->vertexArray->bind();

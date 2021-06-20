@@ -22,6 +22,8 @@
 #include <memory>
 #endif // GAME
 
+#include <glm/gtc/matrix_transform.hpp>
+
 // Macro option to use high-res timer
 // Undef to use original 16 mspf (62.5 fps)
 #define EXACT_60_FPS
@@ -49,6 +51,10 @@ namespace graphics {
   static unsigned int max_texture_size = 0;
   static bool shader_support = false;
 
+  static auto projectionMatrix =
+      glm::ortho(0.0f, static_cast<float>(sys::WINDOW_WIDTH),
+                 static_cast<float>(sys::WINDOW_HEIGHT), 0.0f);
+
   Image::Render getRender() { return render; }
 
   int &getrSourceX() { return srcX; }
@@ -61,6 +67,8 @@ namespace graphics {
 
   unsigned int getMaxTextureSize() { return max_texture_size; }
   bool hasShaderSupport() { return shader_support; }
+
+  const glm::mat4x4 &getcrProjectionMatrix() { return projectionMatrix; }
 
 #ifdef EXACT_60_FPS
 #define timer_t uint64_t
@@ -88,25 +96,8 @@ namespace graphics {
     renderer::Texture2DRenderer::init();
 
     // OpenGL's matrices are column-major
-    float u_mvp[16] = {2.0f / sys::WINDOW_WIDTH,
-                       0.0f,
-                       0.0f,
-                       0.0f,
 
-                       0.0f,
-                       -2.0f / sys::WINDOW_HEIGHT,
-                       0.0f,
-                       0.0f,
-
-                       0.0f,
-                       0.0f,
-                       1.0f,
-                       0.0f,
-
-                       -1.0f,
-                       1.0f,
-                       0.0f,
-                       1.0f};
+    auto u_mvp = projectionMatrix;
 
     renderer::FighterRenderer::setMVPMatrix(u_mvp);
     renderer::PrimitiveRenderer::setMVPMatrix(u_mvp);
@@ -273,7 +264,7 @@ namespace graphics {
     }
     renderer::FighterRenderer::setShift(u_shift);
 
-    renderer::FighterRenderer::setColor(r, g, b);
+    renderer::FighterRenderer::setColor({r, g, b});
     renderer::FighterRenderer::setPercent(pct);
 
     renderer::FighterRenderer::setAlpha(alpha);

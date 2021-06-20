@@ -195,10 +195,10 @@ int main(int argc, char **argv)
 
     // Draw a crosshair
     if (input::isBlackBG()) {
-      renderer::PrimitiveRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor({1.0f, 1.0f, 1.0f, 1.0f});
     }
     else {
-      renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor({0.0f, 0.0f, 0.0f, 1.0f});
     }
     renderer::PrimitiveRenderer::setPosRect(
         sys::WINDOW_WIDTH / 2 - 100, sys::WINDOW_WIDTH / 2 + 99,

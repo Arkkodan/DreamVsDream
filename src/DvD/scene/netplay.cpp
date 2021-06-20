@@ -555,7 +555,7 @@ void scene::Netplay::draw() const {
     } break;
     }
 
-    renderer::PrimitiveRenderer::setColor(1.0f, 1.0f, 1.0f, 0.1f);
+    renderer::PrimitiveRenderer::setColor({1.0f, 1.0f, 1.0f, 0.1f});
     renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
                                             barPos + NET_BAR_SIZE, barPos);
     // TODO: Replace with a renderer that can do gradients:
@@ -591,7 +591,7 @@ void scene::Netplay::draw() const {
                          (float)(NET_FADE_TIME / speed);
     }
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    renderer::PrimitiveRenderer::setColor(1.0f, 1.0f, 1.0f, alpha);
+    renderer::PrimitiveRenderer::setColor({1.0f, 1.0f, 1.0f, alpha});
     renderer::PrimitiveRenderer::setPosRect(
         sys::WINDOW_WIDTH / 2 - xoff, sys::WINDOW_WIDTH / 2 + xoff,
         sys::WINDOW_HEIGHT / 2 + yoff, sys::WINDOW_HEIGHT / 2 - yoff);

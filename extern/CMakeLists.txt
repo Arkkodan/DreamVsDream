@@ -37,6 +37,12 @@ set(GLAD_REPRODUCIBLE ON CACHE BOOL "glad: Reproducible build" FORCE)
 add_subdirectory("glad" EXCLUDE_FROM_ALL)
 
 
+# glm
+message(STATUS "Library: glm")
+set(GLM_TEST_ENABLE OFF CACHE BOOL "glm: Build unit tests" FORCE)
+add_subdirectory("glm" EXCLUDE_FROM_ALL)
+
+
 # zlib
 message(STATUS "Library: zlib")
 conditional_set_BUILD_SHARED_LIBS(zlib)
@@ -134,6 +140,7 @@ conditional_set_BUILD_SHARED_LIBS(sndfile)
 set(BUILD_PROGRAMS OFF CACHE BOOL "libsndfile: Build programs" FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "libsndfile: Build examples" FORCE)
 add_subdirectory("libsndfile" EXCLUDE_FROM_ALL)
+
 
 # json
 message(STATUS "Library: json")

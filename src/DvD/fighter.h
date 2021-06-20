@@ -1,7 +1,6 @@
 #ifndef DVD_FIGHTER_H
 #define DVD_FIGHTER_H
 
-#include "../util/vec2.h"
 #include "sprite.h"
 #ifdef GAME
 #include "atlas.h"
@@ -11,6 +10,8 @@
 #ifndef COMPILER
 #include "../renderer/texture2D.h"
 #endif // COMPILER
+
+#include <glm/vec2.hpp>
 
 #include <array>
 #include <string>
@@ -155,12 +156,12 @@ namespace game {
   /// @brief Data structure containing information about a shoot action
   struct StepShoot {
     unsigned int state;
-    util::Vectorf force;
+    glm::vec2 force;
   };
 
   /// @brief Data structure containing information about a bounce action
   struct StepBounce {
-    util::Vectorf force;
+    glm::vec2 force;
     int pause;
   };
 

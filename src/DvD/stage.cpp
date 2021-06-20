@@ -89,7 +89,7 @@ void Stage::think() {
 
 void Stage::draw(bool _above) const {
   if (_above) {
-    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, 0.5f);
+    renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, 0.5f});
     std::for_each(imagesAbove.cbegin(), imagesAbove.cend(),
                   [](const scene::SceneImage &si) { si.draw(true); });
   }

@@ -17,9 +17,9 @@
 
 game::Player scene::Fight::madotsuki;
 game::Player scene::Fight::poniko;
-util::Vector scene::Fight::cameraPos(0, 0);
-util::Vector scene::Fight::idealCameraPos(0, 0);
-util::Vector scene::Fight::cameraShake(0, 0);
+glm::ivec2 scene::Fight::cameraPos(0, 0);
+glm::ivec2 scene::Fight::idealCameraPos(0, 0);
+glm::ivec2 scene::Fight::cameraShake(0, 0);
 
 int scene::Fight::framePauseTimer = 0;
 int scene::Fight::frameShakeTimer = 0;
@@ -38,8 +38,8 @@ game::Player &scene::Fight::getrPlayerAt(int index) {
     throw std::out_of_range("invalid Player index: " + std::to_string(index));
   }
 }
-util::Vector &scene::Fight::getrCameraPos() { return cameraPos; }
-util::Vector &scene::Fight::getrIdealCameraPos() { return idealCameraPos; }
+glm::ivec2 &scene::Fight::getrCameraPos() { return cameraPos; }
+glm::ivec2 &scene::Fight::getrIdealCameraPos() { return idealCameraPos; }
 int scene::Fight::getFramePauseTimer() { return framePauseTimer; }
 
 void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
@@ -351,8 +351,8 @@ void scene::Fight::parseJSON(const nlohmann::ordered_json &j_obj) {
 }
 
 void scene::Fight::think() {
-  const util::Vectorf &m_pos = madotsuki.getcrPos();
-  const util::Vectorf &p_pos = poniko.getcrPos();
+  const glm::vec2 &m_pos = madotsuki.getcrPos();
+  const glm::vec2 &p_pos = poniko.getcrPos();
 
   if (frameShakeTimer) {
     cameraShake.x = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
@@ -884,8 +884,8 @@ void scene::Fight::draw() const {
                            1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
     }
     else {
-      renderer::FighterRenderer::setColor(150 / 255.0f, 150 / 255.0f,
-                                          150 / 255.0f);
+      renderer::FighterRenderer::setColor(
+          {150 / 255.0f, 150 / 255.0f, 150 / 255.0f});
       renderer::FighterRenderer::setAlpha(1.0f);
     }
     const Image *p_portraitUI = p_fighter->getcImagePortraitUI();
@@ -898,8 +898,8 @@ void scene::Fight::draw() const {
 
     // Draw round transitions
     if (timer_flash) {
-      renderer::Texture2DRenderer::setColor(180 / 255.0f, 120 / 255.0f,
-                                            190 / 255.0f, timer_flash / 5.0f);
+      renderer::Texture2DRenderer::setColor(
+          {180 / 255.0f, 120 / 255.0f, 190 / 255.0f, timer_flash / 5.0f});
       staticImg.draw<renderer::Texture2DRenderer>(
           -util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
       timer_flash--;
@@ -913,8 +913,8 @@ void scene::Fight::draw() const {
       else if (timer_round_out < 1.5 * sys::FPS) {
         alpha = 1.0 - ((timer_round_out - 0.5 * sys::FPS) / (1.0 * sys::FPS));
       }
-      renderer::Texture2DRenderer::setColor(180 / 255.0f, 120 / 255.0f,
-                                            190 / 255.0f, alpha);
+      renderer::Texture2DRenderer::setColor(
+          {180 / 255.0f, 120 / 255.0f, 190 / 255.0f, alpha});
       staticImg.draw<renderer::Texture2DRenderer>(
           -util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
     }
@@ -922,8 +922,8 @@ void scene::Fight::draw() const {
     if (timer_round_in) {
       if (timer_round_in > 1.0 * sys::FPS) {
         renderer::Texture2DRenderer::setColor(
-            180 / 255.0f, 120 / 255.0f, 190 / 255.0f,
-            ((timer_round_in - 1.0 * sys::FPS) / (3.0 * sys::FPS)));
+            {180 / 255.0f, 120 / 255.0f, 190 / 255.0f,
+             ((timer_round_in - 1.0 * sys::FPS) / (3.0 * sys::FPS))});
         staticImg.draw<renderer::Texture2DRenderer>(
             -util::roll(sys::WINDOW_WIDTH), -util::roll(sys::WINDOW_HEIGHT));
       }
@@ -942,11 +942,11 @@ void scene::Fight::draw() const {
         }
         else if (timer_round_in < 0.1 * sys::FPS) {
           float scalar = timer_round_in / (0.1 * sys::FPS);
-          renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
+          renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, scalar});
           round_splash[round].draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH / 2 - splashW / 2,
               sys::WINDOW_HEIGHT / 2 - splashH / 2);
-          renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
+          renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, scalar});
           scalar = 1.0f - scalar + 1.0f;
           float xscalar = 1 / scalar;
           graphics::setScale(xscalar, scalar);
@@ -976,11 +976,11 @@ void scene::Fight::draw() const {
       }
       else if (timer_ko < 0.1 * sys::FPS) {
         float scalar = timer_ko / (0.1 * sys::FPS);
-        renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
+        renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, scalar});
         ko[ko_type].draw<renderer::Texture2DRenderer>(
             sys::WINDOW_WIDTH / 2 - koImgW / 2,
             sys::WINDOW_HEIGHT / 2 - koImgH / 2);
-        renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
+        renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, scalar});
         scalar = 1.0f - scalar + 1.0f;
         float xscalar = 1 / scalar;
         graphics::setScale(xscalar, scalar);
@@ -997,7 +997,7 @@ void scene::Fight::draw() const {
   }
 
   // From main.cpp
-  const util::Vectorf &m_pos = madotsuki.getcrPos();
+  const glm::vec2 &m_pos = madotsuki.getcrPos();
   reinterpret_cast<Select *>(getSceneFromIndex(SCENE_SELECT))
       ->drawEffect(0, m_fighter->getGroup(), m_pos.x,
                    m_pos.y + m_fighter->getHeight(), true);

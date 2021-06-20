@@ -63,10 +63,10 @@ void scene::setScene(int _scene) {
   if (_scene == SCENE_FIGHT) {
     Fight::getrPlayerAt(0).reset();
     Fight::getrPlayerAt(1).reset();
-    util::Vector &cameraPos = Fight::getrCameraPos();
+    glm::ivec2 &cameraPos = Fight::getrCameraPos();
     cameraPos.x = 0;
     cameraPos.y = 0;
-    util::Vector &idealCameraPos = Fight::getrIdealCameraPos();
+    glm::ivec2 &idealCameraPos = Fight::getrIdealCameraPos();
     idealCameraPos.x = 0;
     idealCameraPos.y = 0;
   }
@@ -83,10 +83,10 @@ bool scene::input(uint16_t in) {
 void scene::drawFade() {
   // Draw fade!
   if (fadeIn) {
-    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, fade);
+    renderer::PrimitiveRenderer::setColor({0.0f, 0.0f, 0.0f, fade});
   }
   else {
-    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, 1.0f - fade);
+    renderer::PrimitiveRenderer::setColor({0.0f, 0.0f, 0.0f, 1.0f - fade});
   }
   renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
                                           sys::WINDOW_HEIGHT, 0.0f);
