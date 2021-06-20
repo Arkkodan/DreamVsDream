@@ -3,15 +3,16 @@
 
 #include "scene_base.h"
 
-#include "../../util/vec2.h"
 #include "../fighter.h"
 #include "../font.h"
+
+#include <glm/vec2.hpp>
 
 namespace scene {
 
   /// @brief Helper data structure for SceneSelect
   struct CursorData {
-    util::Vector off;
+    glm::ivec2 off;
     Image img;
     Image imgSelect;
     audio::Sound *sndSelect;
@@ -80,7 +81,7 @@ namespace scene {
     int gWidth, gHeight;
     // Image* sprites;
     std::list<SceneImage> gui;
-    std::vector<util::Vector> grid;
+    std::vector<glm::ivec2> grid;
     std::vector<int> gridFighters;
     int gridC;
 

@@ -17,9 +17,9 @@
 
 game::Player scene::Fight::madotsuki;
 game::Player scene::Fight::poniko;
-util::Vector scene::Fight::cameraPos(0, 0);
-util::Vector scene::Fight::idealCameraPos(0, 0);
-util::Vector scene::Fight::cameraShake(0, 0);
+glm::ivec2 scene::Fight::cameraPos(0, 0);
+glm::ivec2 scene::Fight::idealCameraPos(0, 0);
+glm::ivec2 scene::Fight::cameraShake(0, 0);
 
 int scene::Fight::framePauseTimer = 0;
 int scene::Fight::frameShakeTimer = 0;
@@ -38,8 +38,8 @@ game::Player &scene::Fight::getrPlayerAt(int index) {
     throw std::out_of_range("invalid Player index: " + std::to_string(index));
   }
 }
-util::Vector &scene::Fight::getrCameraPos() { return cameraPos; }
-util::Vector &scene::Fight::getrIdealCameraPos() { return idealCameraPos; }
+glm::ivec2 &scene::Fight::getrCameraPos() { return cameraPos; }
+glm::ivec2 &scene::Fight::getrIdealCameraPos() { return idealCameraPos; }
 int scene::Fight::getFramePauseTimer() { return framePauseTimer; }
 
 void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
@@ -351,8 +351,8 @@ void scene::Fight::parseJSON(const nlohmann::ordered_json &j_obj) {
 }
 
 void scene::Fight::think() {
-  const util::Vectorf &m_pos = madotsuki.getcrPos();
-  const util::Vectorf &p_pos = poniko.getcrPos();
+  const glm::vec2 &m_pos = madotsuki.getcrPos();
+  const glm::vec2 &p_pos = poniko.getcrPos();
 
   if (frameShakeTimer) {
     cameraShake.x = (util::roll(frameShakeTimer * 2)) - frameShakeTimer;
@@ -997,7 +997,7 @@ void scene::Fight::draw() const {
   }
 
   // From main.cpp
-  const util::Vectorf &m_pos = madotsuki.getcrPos();
+  const glm::vec2 &m_pos = madotsuki.getcrPos();
   reinterpret_cast<Select *>(getSceneFromIndex(SCENE_SELECT))
       ->drawEffect(0, m_fighter->getGroup(), m_pos.x,
                    m_pos.y + m_fighter->getHeight(), true);

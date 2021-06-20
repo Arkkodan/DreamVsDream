@@ -68,7 +68,7 @@ namespace sprite {
     renderer::ShaderProgram::unuse();
   }
 
-  bool HitBox::collideOther(HitBox *other, util::Vector *colpos,
+  bool HitBox::collideOther(HitBox *other, glm::ivec2 *colpos,
                             bool allowOutOfBounds) const {
     if (pos.x + size.x < other->pos.x) {
       return false;
@@ -136,7 +136,7 @@ namespace sprite {
 
   int Sprite::collide(int x1, int y1, int x2, int y2, bool m1, bool m2,
                       float scale1, float scale2, const Sprite *other,
-                      util::Vector *colpos, bool allowOutOfBounds) const {
+                      glm::ivec2 *colpos, bool allowOutOfBounds) const {
     // Check for attack hitbox collision with other sprite
     for (int i = 0; i < aHitBoxes.size; i++) {
       HitBox me = aHitBoxes.boxes[i].adjust(x1, y1, m1, scale1);
@@ -317,7 +317,7 @@ namespace sprite {
   HitBox *HitBoxGroup::newHitbox() {
     boxes.resize(size + 1);
 
-    boxes[size].size = util::Vector(15, 15);
+    boxes[size].size = glm::ivec2(15, 15);
     return &boxes[size++];
   }
 

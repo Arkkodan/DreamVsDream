@@ -149,7 +149,7 @@ namespace effect {
     int y1 = y - frame->getH() / 2;
 
     if (parent) {
-      const util::Vectorf &pos = parent->getcrPos();
+      const glm::vec2 &pos = parent->getcrPos();
       x1 += pos.x;
       y1 += pos.y;
     }

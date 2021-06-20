@@ -35,8 +35,6 @@ set(UTIL_MODULES
   util/fileIO.h
   util/rng.cpp
   util/rng.h
-  util/vec2.cpp
-  util/vec2.h
 )
 
 # Atlas
@@ -188,7 +186,6 @@ add_executable(Compiler
   DvD/sprite.cpp
   fileIO/text.cpp
   util/fileIO.cpp
-  util/vec2.cpp
 )
 target_compile_definitions(Compiler
   PRIVATE VERSION="${DreamVsDream_VERSION}"
@@ -229,7 +226,6 @@ add_executable(Sprtool
   ${DVD_SHADER_RENDERER_FILES}
   fileIO/text.cpp
   util/fileIO.cpp
-  util/vec2.cpp
 )
 target_compile_definitions(Sprtool
   PRIVATE VERSION="${DreamVsDream_VERSION}"
@@ -275,16 +271,17 @@ target_link_libraries(Atlas
   PRIVATE ${libpng_LIBRARY}
 )
 
-# target_include_directories(Compiler
-  # ...
-# )
-# target_link_libraries(Compiler
-  # ...
-# )
+target_include_directories(Compiler
+  PRIVATE glm
+)
+target_link_libraries(Compiler
+  PRIVATE glm
+)
 
 target_include_directories(DvD
   PRIVATE SDL2
   PRIVATE glad
+  PRIVATE glm
   PRIVATE ${zlib_LIBRARY}
   PRIVATE ${libpng_INCLUDE_DIRS}
   PRIVATE stb_image
@@ -294,6 +291,7 @@ target_include_directories(DvD
 target_link_libraries(DvD
   PRIVATE SDL2
   PRIVATE glad
+  PRIVATE glm
   PRIVATE ${zlib_LIBRARY}
   PRIVATE ${libpng_LIBRARY}
   PRIVATE stb_image
@@ -311,11 +309,13 @@ target_link_libraries(DvD
 target_include_directories(Sprtool
   PRIVATE SDL2
   PRIVATE glad
+  PRIVATE glm
   PRIVATE ${libpng_INCLUDE_DIRS}
 )
 target_link_libraries(Sprtool
   PRIVATE SDL2
   PRIVATE glad
+  PRIVATE glm
   PRIVATE ${libpng_LIBRARY}
 )
 

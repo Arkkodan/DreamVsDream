@@ -356,7 +356,7 @@ namespace game {
   void Projectile::setPalette(int palette) { this->palette = palette; }
   const Fighter *Projectile::getcFighter() const { return fighter; }
   void Projectile::setFighter(Fighter *fighter) { this->fighter = fighter; }
-  const util::Vectorf &Projectile::getcrPos() const { return pos; }
+  const glm::vec2 &Projectile::getcrPos() const { return pos; }
   void Projectile::setPos(float x, float y) {
     pos.x = x;
     pos.y = y;
@@ -1008,7 +1008,7 @@ namespace game {
         mirror2 = -1;
       }
 
-      util::Vector hotspot;
+      glm::ivec2 hotspot;
       hotspot.x = hitBoxes.boxes[0].pos.x + hitBoxes.boxes[0].size.x / 2;
       hotspot.y = hitBoxes.boxes[0].pos.y + hitBoxes.boxes[0].size.y / 2;
 
@@ -1044,7 +1044,7 @@ namespace game {
         other->fighter->getcSpriteAt(other->sprite);
     if (s_sprite->getcrAHitBoxes().size && !(other->flags & F_INVINCIBLE)) {
       if (!frameHit && (attack.damage || stunOther)) {
-        util::Vector colpos;
+        glm::ivec2 colpos;
         int hit = s_sprite->collide((int)pos.x, (int)pos.y, (int)other->pos.x,
                                     (int)other->pos.y, isMirrored(),
                                     other->isMirrored(), scale, other->scale,
@@ -1280,7 +1280,7 @@ namespace game {
         you.pos.x = other->pos.x - y_widthRight;
       }
 
-      util::Vector c;
+      glm::ivec2 c;
       if (me.collideOther(&you, &c, true)) {
         // Move us away from each other
         if (me.pos.x < you.pos.x) {

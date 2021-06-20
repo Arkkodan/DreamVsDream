@@ -2,9 +2,10 @@
 #define DVD_PLAYER_H
 
 #ifndef COMPILER
-#include "../util/vec2.h"
 #include "fighter.h"
 #include "sound.h"
+
+#include <glm/vec2.hpp>
 
 #include <array>
 #include <cstdint>
@@ -107,7 +108,7 @@ namespace game {
     void setPalette(int palette);
     const Fighter *getcFighter() const;
     void setFighter(Fighter *fighter);
-    const util::Vectorf &getcrPos() const;
+    const glm::vec2 &getcrPos() const;
     void setPos(float x, float y);
     void setVel(float x, float y);
     void setDirection(char dir);
@@ -121,8 +122,8 @@ namespace game {
     int palette;
     Fighter *fighter;
 
-    util::Vectorf pos;
-    util::Vectorf vel;
+    glm::vec2 pos;
+    glm::vec2 vel;
 
     char dir;
     uint32_t flags;

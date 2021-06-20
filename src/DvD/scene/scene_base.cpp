@@ -407,7 +407,7 @@ void scene::SceneImage::draw(bool _stage) const {
       graphics::setRender(render);
       if (_stage) {
         if (!round || round - 1 == FIGHT->getRound()) {
-          const util::Vector &cameraPos = Fight::getrCameraPos();
+          const glm::ivec2 &cameraPos = Fight::getrCameraPos();
           image.draw<renderer::Texture2DRenderer>(
               x - imageW / 2 + sys::WINDOW_WIDTH / 2 - cameraPos.x * parallax,
               (sys::WINDOW_HEIGHT - y) - imageH + cameraPos.y * parallax);

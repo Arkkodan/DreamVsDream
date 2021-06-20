@@ -63,10 +63,10 @@ void scene::setScene(int _scene) {
   if (_scene == SCENE_FIGHT) {
     Fight::getrPlayerAt(0).reset();
     Fight::getrPlayerAt(1).reset();
-    util::Vector &cameraPos = Fight::getrCameraPos();
+    glm::ivec2 &cameraPos = Fight::getrCameraPos();
     cameraPos.x = 0;
     cameraPos.y = 0;
-    util::Vector &idealCameraPos = Fight::getrIdealCameraPos();
+    glm::ivec2 &idealCameraPos = Fight::getrIdealCameraPos();
     idealCameraPos.x = 0;
     idealCameraPos.y = 0;
   }

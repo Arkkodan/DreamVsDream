@@ -1,13 +1,14 @@
 #ifndef DVD_SPRITE_H
 #define DVD_SPRITE_H
 
-#include "../util/vec2.h"
 #ifdef GAME
 #include "atlas.h"
 #endif // GAME
 #ifdef SPRTOOL
 #include "image.h"
 #endif // SPRTOOL
+
+#include <glm/vec2.hpp>
 
 #include <vector>
 #ifndef GAME
@@ -23,13 +24,13 @@ namespace sprite {
   /// @brief Data structure containing a hitbox with some methods
   /// @details A hitbox is either an attacking hitbox or a defending hurtbox
   struct HitBox {
-    util::Vector pos;
-    util::Vector size;
+    glm::ivec2 pos;
+    glm::ivec2 size;
 
     HitBox();
     HitBox(int x, int y, int w, int h);
 
-    bool collideOther(HitBox *other, util::Vector *colpos,
+    bool collideOther(HitBox *other, glm::ivec2 *colpos,
                       bool allowOutOfBounds) const;
 
     HitBox adjust(int x, int y, bool m, float scale) const;
@@ -75,7 +76,7 @@ namespace sprite {
 #endif
 
     int collide(int x1, int y1, int x2, int y2, bool m1, bool m2, float scale1,
-                float scale2, const Sprite *other, util::Vector *colpos,
+                float scale2, const Sprite *other, glm::ivec2 *colpos,
                 bool allowOutOfBounds) const;
 
     int getX() const;
