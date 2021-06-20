@@ -14,6 +14,8 @@
 
 #include <algorithm>
 
+#define DVD_ENABLE_NES_PALETTES
+
 namespace {
   static constexpr auto STAGES_PER_ROW = 10;
   static constexpr auto STAGE_ICON_WIDTH = 76;
@@ -181,8 +183,8 @@ void scene::Select::thinkCharacterSelect() {
       if (input & game::INPUT_LEFT) {
         sndMenu->play();
 
-        if (palette == 0) {
-          pl[cur]->setPalette(nPalettes - 1);
+        if (palette % nPalettes == 0) {
+          pl[cur]->setPalette(palette - 1 + nPalettes);
         }
         else {
           pl[cur]->setPalette(palette - 1);
@@ -191,13 +193,20 @@ void scene::Select::thinkCharacterSelect() {
       else if (input & game::INPUT_RIGHT) {
         sndMenu->play();
 
-        if (palette == nPalettes - 1) {
-          pl[cur]->setPalette(0);
+        if (palette % nPalettes == nPalettes - 1) {
+          pl[cur]->setPalette(palette + 1 - nPalettes);
         }
         else {
           pl[cur]->setPalette(palette + 1);
         }
       }
+#ifdef DVD_ENABLE_NES_PALETTES
+      if (input & (game::INPUT_UP | game::INPUT_DOWN)) {
+        sndInvalid->play();
+        palette = (palette + nPalettes) % (2 * nPalettes);
+        pl[cur]->setPalette(palette);
+      }
+#endif // DVD_ENABLE_NES_PALETTES
 
       if (input & game::INPUT_A) {
         sndSelect->play();
