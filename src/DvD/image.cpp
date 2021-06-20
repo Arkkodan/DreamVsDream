@@ -17,6 +17,10 @@
 
 #include <png.h>
 
+#ifdef GAME
+#include <glm/gtc/matrix_transform.hpp>
+#endif
+
 Image::Image()
     : w(0), h(0),
 #ifdef COMPILER
@@ -615,9 +619,14 @@ template <typename T> void Image::drawSprite(int x, int y, bool mirror) const {
   draw<T>(x + sys::WINDOW_WIDTH / 2, sys::FLIP(y) - srcH * yscale, mirror);
 #else  // !SPRTOOL
   const glm::ivec2 &cameraPos = scene::Fight::getrCameraPos();
-  draw<T>(x + sys::WINDOW_WIDTH / 2 - cameraPos.x,
-          sys::FLIP(y) - srcH * yscale - STAGE->getEntHeight() + cameraPos.y,
-          mirror);
+  glm::mat4 view = glm::translate(glm::mat4(1.0f),
+                                  glm::vec3(-cameraPos.x, cameraPos.y, 0.0f));
+  const glm::mat4 &proj = graphics::getcrProjectionMatrix();
+  glm::mat4 u_mvp = proj * view;
+  T::setMVPMatrix(u_mvp);
+  draw<T>(x + sys::WINDOW_WIDTH / 2,
+          sys::FLIP(y) - srcH * yscale - STAGE->getEntHeight(), mirror);
+  T::setMVPMatrix(proj);
 #endif // SPRTOOL
 }
 template void Image::drawSprite<renderer::Texture2DRenderer>(int x, int y,

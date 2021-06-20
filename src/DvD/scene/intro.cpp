@@ -52,21 +52,21 @@ void scene::Intro::draw() const {
   if (state % 2 == 0) {
     _alpha = 1.0 - _alpha;
   }
-  renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
+  renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, _alpha});
   if (state < 2) {
-    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
+    renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, _alpha});
     instructions.draw<renderer::Texture2DRenderer>(0, 0);
   }
   else if (state < 4) {
-    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
+    renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, _alpha});
     disclaimer_en.draw<renderer::Texture2DRenderer>(0, 0);
   }
   else if (state < 6) {
-    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
+    renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, _alpha});
     disclaimer_ja.draw<renderer::Texture2DRenderer>(0, 0);
   }
   else if (state < 8 && !graphics::hasShaderSupport()) {
-    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, _alpha);
+    renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, _alpha});
     shader_error.draw<renderer::Texture2DRenderer>(0, 0);
   }
 }

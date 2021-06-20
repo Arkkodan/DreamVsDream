@@ -76,8 +76,8 @@ void scene::Versus::draw() const {
 
   if (portraits[1]) {
     renderer::Texture2DRenderer::setColor(
-        1.0f, 1.0f, 1.0f,
-        0.5f); // MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f))
+        {1.0f, 1.0f, 1.0f,
+         0.5f}); // MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f))
     graphics::setScale(2.0f);
     unsigned int p1W = portraits[1]->getW();
     portraits[1]->draw<renderer::Texture2DRenderer>(
@@ -88,8 +88,8 @@ void scene::Versus::draw() const {
 
   if (portraits[0]) {
     renderer::Texture2DRenderer::setColor(
-        1.0f, 1.0f, 1.0f,
-        0.5f); // MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f));
+        {1.0f, 1.0f, 1.0f,
+         0.5f}); // MIN(1.0f, (FPS * 2 + FPS / 2 - timer6) / 60.0f));
     graphics::setScale(2.0f);
     unsigned int p0W = portraits[0]->getW();
     portraits[0]->draw<renderer::Texture2DRenderer>(

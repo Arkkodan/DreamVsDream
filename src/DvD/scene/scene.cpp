@@ -83,10 +83,10 @@ bool scene::input(uint16_t in) {
 void scene::drawFade() {
   // Draw fade!
   if (fadeIn) {
-    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, fade);
+    renderer::PrimitiveRenderer::setColor({0.0f, 0.0f, 0.0f, fade});
   }
   else {
-    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, 1.0f - fade);
+    renderer::PrimitiveRenderer::setColor({0.0f, 0.0f, 0.0f, 1.0f - fade});
   }
   renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
                                           sys::WINDOW_HEIGHT, 0.0f);

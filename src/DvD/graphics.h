@@ -7,6 +7,8 @@
 
 #include "../renderer/texture2D.h"
 
+#include <glm/mat4x4.hpp>
+
 #include <cstdint>
 
 namespace graphics {
@@ -43,6 +45,8 @@ namespace graphics {
 
   unsigned int getMaxTextureSize();
   bool hasShaderSupport();
+
+  const glm::mat4x4 &getcrProjectionMatrix();
 } // namespace graphics
 
 #endif // COMPILER

@@ -435,8 +435,8 @@ void scene::Select::draw() const {
         const Image *portrait =
             fighters[gridFighters[cursors[1].posOld]]->getcImagePortrait();
         renderer::Texture2DRenderer::setColor(
-            1.0f, 1.0f, 1.0f,
-            static_cast<float>(cursors[1].timerPortrait) / PORTRAIT_FADE);
+            {1.0f, 1.0f, 1.0f,
+             static_cast<float>(cursors[1].timerPortrait) / PORTRAIT_FADE});
         portrait->draw<renderer::Texture2DRenderer>(
             sys::WINDOW_WIDTH - portrait->getW() +
                 (PORTRAIT_FADE - cursors[1].timerPortrait),
@@ -447,9 +447,9 @@ void scene::Select::draw() const {
       const Image *portrait =
           fighters[gridFighters[cursors[1].pos]]->getcImagePortrait();
       renderer::Texture2DRenderer::setColor(
-          1.0f, 1.0f, 1.0f,
-          static_cast<float>(PORTRAIT_FADE - cursors[1].timerPortrait) /
-              PORTRAIT_FADE);
+          {1.0f, 1.0f, 1.0f,
+           static_cast<float>(PORTRAIT_FADE - cursors[1].timerPortrait) /
+               PORTRAIT_FADE});
       portrait->draw<renderer::Texture2DRenderer>(
           sys::WINDOW_WIDTH - portrait->getW() + cursors[1].timerPortrait, 0,
           true);
@@ -460,8 +460,8 @@ void scene::Select::draw() const {
       const Image *portrait =
           fighters[gridFighters[cursors[0].posOld]]->getcImagePortrait();
       renderer::Texture2DRenderer::setColor(
-          1.0f, 1.0f, 1.0f,
-          static_cast<float>(cursors[0].timerPortrait) / PORTRAIT_FADE);
+          {1.0f, 1.0f, 1.0f,
+           static_cast<float>(cursors[0].timerPortrait) / PORTRAIT_FADE});
       portrait->draw<renderer::Texture2DRenderer>(
           0 - (PORTRAIT_FADE - cursors[0].timerPortrait), 0);
     }
@@ -470,9 +470,9 @@ void scene::Select::draw() const {
     const Image *portrait =
         fighters[gridFighters[cursors[0].pos]]->getcImagePortrait();
     renderer::Texture2DRenderer::setColor(
-        1.0f, 1.0f, 1.0f,
-        static_cast<float>(PORTRAIT_FADE - cursors[0].timerPortrait) /
-            PORTRAIT_FADE);
+        {1.0f, 1.0f, 1.0f,
+         static_cast<float>(PORTRAIT_FADE - cursors[0].timerPortrait) /
+             PORTRAIT_FADE});
     portrait->draw<renderer::Texture2DRenderer>(0 - cursors[0].timerPortrait,
                                                 0);
   }
@@ -537,9 +537,9 @@ void scene::Select::draw() const {
       ;
 
       if (cursors[i].lockState == Cursor::CURSOR_UNLOCKED) {
-        renderer::Texture2DRenderer::setColor(cursors[i].r / 255.0f,
-                                              cursors[i].g / 255.0f,
-                                              cursors[i].b / 255.0f, 1.0f);
+        renderer::Texture2DRenderer::setColor({cursors[i].r / 255.0f,
+                                               cursors[i].g / 255.0f,
+                                               cursors[i].b / 255.0f, 1.0f});
       }
       curData[group].img.draw<renderer::Texture2DRenderer>(
           grid[cursors[i].pos].x + curData[group].off.x,
@@ -554,7 +554,7 @@ void scene::Select::draw() const {
   if (cursors[0].lockState == Cursor::CURSOR_LOCKED &&
       cursors[1].lockState == Cursor::CURSOR_LOCKED) {
     // Darken background
-    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, 0.7f);
+    renderer::PrimitiveRenderer::setColor({0.0f, 0.0f, 0.0f, 0.7f});
     renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
                                             sys::WINDOW_HEIGHT, 0.0f);
     renderer::PrimitiveRenderer::draw();
@@ -575,11 +575,11 @@ void scene::Select::draw() const {
         if (!thumbnail->isPlaying())
           thumbnail->setPlaying(true);
         if (cursor_stage == i) {
-          renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f);
+          renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, 1.0f});
           thumbnail->draw(x, y);
         }
         else {
-          renderer::Texture2DRenderer::setColor(0.5f, 0.5f, 0.5f, 1.0f);
+          renderer::Texture2DRenderer::setColor({0.5f, 0.5f, 0.5f, 1.0f});
           thumbnail->draw(x, y);
         }
       }
@@ -610,7 +610,7 @@ void scene::Select::drawEffect(int player, int group, int _x, int _y,
         (cursors[player].frame - 1) % (curData[group].imgSelect.getH() / 96);
 
     graphics::setRect(0, x * 96, 96, 96);
-    renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, alpha);
+    renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, alpha});
 
     if (spr) {
       graphics::setScale(scale * 2);

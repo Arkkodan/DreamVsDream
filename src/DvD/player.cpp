@@ -1380,7 +1380,7 @@ namespace game {
           1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF)) * 0.5 - 0.5;
     }
 
-    renderer::PrimitiveRenderer::setColor(0.0f, 0.0f, 0.0f, alpha);
+    renderer::PrimitiveRenderer::setColor({0.0f, 0.0f, 0.0f, alpha});
     renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
                                             sys::WINDOW_HEIGHT, 0.0f);
     renderer::PrimitiveRenderer::draw();
@@ -1395,7 +1395,7 @@ namespace game {
     unsigned int specialH = specialImg->getH();
     if (special > 2200 * sys::SPF) {
       float scalar = (special - 2200 * sys::SPF) / (300 * sys::SPF);
-      renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, 1.0f - scalar);
+      renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, 1.0f - scalar});
       graphics::setScale(1.0 + scalar * 0.5);
       if (ender) {
         if (dir == RIGHT) {
@@ -1447,7 +1447,7 @@ namespace game {
     }
     else {
       float scalar = 1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF));
-      renderer::Texture2DRenderer::setColor(1.0f, 1.0f, 1.0f, scalar);
+      renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, scalar});
       if (ender) {
         if (dir == RIGHT) {
           enderImg->draw<renderer::Texture2DRenderer>(

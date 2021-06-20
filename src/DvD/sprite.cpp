@@ -45,10 +45,10 @@ namespace sprite {
     _y = sys::FLIP(_y);
 
     if (attack) {
-      renderer::PrimitiveRenderer::setColor(1.0f, 0.0f, 0.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor({1.0f, 0.0f, 0.0f, 1.0f});
     }
     else {
-      renderer::PrimitiveRenderer::setColor(0.5f, 0.5f, 1.0f, 1.0f);
+      renderer::PrimitiveRenderer::setColor({0.5f, 0.5f, 1.0f, 1.0f});
     }
 
     drwbx(_x + pos.x, _y - pos.y, size.x, 1);              // Bottom
@@ -57,10 +57,10 @@ namespace sprite {
     drwbx(_x + pos.x + size.x - 1, _y - pos.y, 1, size.y); // Right
     if (selected) {
       if (attack) {
-        renderer::PrimitiveRenderer::setColor(1.0f, 0.0f, 0.0f, 0.5f);
+        renderer::PrimitiveRenderer::setColor({1.0f, 0.0f, 0.0f, 0.5f});
       }
       else {
-        renderer::PrimitiveRenderer::setColor(0.5f, 0.5f, 1.0f, 0.5f);
+        renderer::PrimitiveRenderer::setColor({0.5f, 0.5f, 1.0f, 0.5f});
       }
       drwbx(_x + pos.x, _y - pos.y, size.x, size.y);
     }
@@ -212,7 +212,7 @@ namespace sprite {
     else {
       _x -= x * scale;
     }
-    renderer::FighterRenderer::setColor(0.0f, 0.0f, 0.0f);
+    renderer::FighterRenderer::setColor({0.0f, 0.0f, 0.0f});
     renderer::FighterRenderer::setAlpha(0.5f);
     graphics::setScale(scale, 0.2f * scale);
     atlas->drawSprite(atlas_sprite, _x, 0, mirror);

@@ -63,7 +63,8 @@ void Font::drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b,
       c += 'a' - 'A';
     }
   }
-  renderer::Texture2DRenderer::setColor(r / 255.0f, g / 255.0f, b / 255.0f, a);
+  renderer::Texture2DRenderer::setColor(
+      {r / 255.0f, g / 255.0f, b / 255.0f, a});
   unsigned imgH = img.getH();
   if (mono) {
     graphics::setRect(pos[(uint8_t)c], 0, mono, imgH);
@@ -109,8 +110,8 @@ void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g,
           c += 'a' - 'A';
         }
       }
-      renderer::Texture2DRenderer::setColor(r / 255.0f, g / 255.0f, b / 255.0f,
-                                            a);
+      renderer::Texture2DRenderer::setColor(
+          {r / 255.0f, g / 255.0f, b / 255.0f, a});
       if (mono) {
         graphics::setRect(pos[(uint8_t)c], 0, mono, imgH);
       }
