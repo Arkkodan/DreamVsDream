@@ -57,7 +57,7 @@ void scene::ginit() {
 void scene::deinit() {}
 
 void scene::setScene(int _scene) {
-  if (_scene == scene) {
+  if (_scene == scene || _scene == sceneNew) {
     return;
   }
   if (_scene == SCENE_FIGHT) {
