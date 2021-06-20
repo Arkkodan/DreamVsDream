@@ -1,5 +1,6 @@
 #include "sys.h"
 
+#include "app.h"
 #include "error.h"
 #include "graphics.h"
 #include "input.h"
@@ -74,11 +75,19 @@ namespace sys {
     SDL_Event e;
     while (SDL_PollEvent(&e)) {
       if (e.type == SDL_QUIT) {
+#ifdef GAME
+        app::quit();
+#else
         exit(0);
+#endif
       }
       else if (e.type == SDL_KEYDOWN) {
         if (e.key.keysym.sym == SDLK_ESCAPE) {
+#ifdef GAME
+          app::quit();
+#else
           exit(0);
+#endif
         }
         else if (!e.key.repeat) {
           input::keyPress(e.key.keysym.sym, true);

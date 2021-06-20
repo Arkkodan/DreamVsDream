@@ -6,6 +6,8 @@
 namespace app {
   void run();
 
+  void quit();
+
   std::string getConfigPath();
 } // namespace app
 

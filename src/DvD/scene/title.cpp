@@ -6,30 +6,25 @@
 #include "../../fileIO/json.h"
 #include "../../util/fileIO.h"
 #include "../../util/rng.h"
+#include "../app.h"
 #include "../error.h"
+#include "../menu/button.h"
 #include "../player.h"
 
-std::vector<std::string> scene::Title::menuChoicesMain = {
-    "Arcade",  "Story", "Versus", "Survival", "Training",
+#include <memory>
+
+std::array<std::string, scene::Title::CHOICE_MAX>
+    scene::Title::menuChoicesMain = {
+        "Arcade",  "Story", "Versus", "Survival", "Training",
 #ifndef NO_NETWORK
-    "Netplay",
+        "Netplay",
 #endif
-    "Options", "Quit",
+        "Options", "Quit",
 };
 
-std::vector<std::string> scene::Title::menuChoicesVersus = {
-    "Versus Player", "Versus CPU", "Tag Team", "2v2 Team", "Return",
-};
-
-const std::array<std::vector<std::string> *, scene::Title::TM_MAX>
-    scene::Title::menuChoices = {
-        &menuChoicesMain,
-        &menuChoicesVersus,
-};
-
-const std::array<int, scene::Title::TM_MAX> scene::Title::menuChoicesMax = {
-    CHOICE_MAX,
-    CHOICE_VS_MAX,
+std::array<std::string, scene::Title::CHOICE_VS_MAX>
+    scene::Title::menuChoicesVersus = {
+        "Versus Player", "Versus CPU", "Tag Team", "2v2 Team", "Return",
 };
 
 scene::Title::Title() : Scene("title") {
@@ -37,9 +32,6 @@ scene::Title::Title() : Scene("title") {
   menuXOffset = 0;
   iR = iG = iB = aR = aG = aB = 255;
   aXOffset = 0;
-
-  choice = choiceLast = choiceTimer = 0;
-  submenu = 0;
 
   nThemes = 0;
   menuFont = nullptr;
@@ -77,19 +69,6 @@ void scene::Title::init() {
       parseFile(getResource(themes[i], Parser::EXT_SCRIPT));
     }
   }
-}
-
-void scene::Title::think() {
-  Scene::think();
-
-  if (choiceTimer) {
-    if (choiceTimer == 1 || choiceTimer == -1) {
-      choiceTimer = 0;
-    }
-    else {
-      choiceTimer /= 2;
-    }
-  }
 
   uint16_t up = game::INPUT_UP;
   uint16_t down = game::INPUT_DOWN;
@@ -103,155 +82,114 @@ void scene::Title::think() {
     down |= game::INPUT_RIGHT;
   }
 
-  if (input(up)) {
-    sndMenu->play();
+  {
+    std::vector<std::unique_ptr<menu::IMenuElement>> elements;
+    for (int i = 0, size = menuChoicesVersus.size(); i < size; i++) {
+      auto textButton = std::make_unique<menu::TextButtonA>();
+      textButton->setFont(menuFont);
+      textButton->setPos(menuX + i * menuXOffset,
+                         menuY + i * menuFont->getcImage()->getH(), aXOffset);
+      textButton->setColorActive(aR, aG, aB);
+      textButton->setColorInctive(iR, iG, iB);
+      textButton->setText(menuChoicesVersus[i]);
+      textButton->setSelectSound(sndSelect);
+      textButton->setInvalidSound(sndInvalid);
 
-    choiceTimer = aXOffset;
-    choiceLast = choice;
-    if (choice == 0) {
-      choice = menuChoicesMax[submenu] - 1;
-    }
-    else {
-      choice--;
-    }
-  }
-  else if (input(down)) {
-    sndMenu->play();
-
-    choiceTimer = aXOffset;
-    choiceLast = choice;
-    if (choice >= menuChoicesMax[submenu] - 1) {
-      choice = 0;
-    }
-    else {
-      choice++;
-    }
-  }
-  else if (input(game::INPUT_A)) {
-    // Enter the new menu
-    switch (submenu) {
-    case TM_MAIN:
-      switch (choice) {
-      case CHOICE_VERSUS:
-        sndSelect->play();
-        choice = 0;
-        choiceLast = 0;
-        choiceTimer = 0;
-        submenu = TM_VERSUS;
-        break;
-      case CHOICE_TRAINING:
-        sndSelect->play();
-        FIGHT->setGameType(Fight::GAMETYPE_TRAINING);
-        setScene(SCENE_SELECT);
-        break;
-      default:
-        // if(sndSelect) sndSelect->play();
-        // setScene(SCENE_SELECT);
-        sndInvalid->play();
-        break;
-#ifndef NO_NETWORK
-      case CHOICE_NETPLAY:
-        sndSelect->play();
-        setScene(SCENE_NETPLAY);
-        break;
-#endif
-      case CHOICE_OPTIONS:
-        sndSelect->play();
-        setScene(SCENE_OPTIONS);
-        break;
-      case CHOICE_QUIT:
-        setScene(SCENE_QUIT);
-        break;
-      }
-      break;
-
-    case TM_VERSUS:
-      switch (choice) {
+      switch (i) {
       case CHOICE_VS_PLR:
-        sndSelect->play();
-        FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
-        setScene(SCENE_SELECT);
-        break;
-      default:
-        // if(sndSelect) sndSelect->play();
-        // setScene(SCENE_SELECT);
-        sndInvalid->play();
+        textButton->setAction([this]() {
+          FIGHT->setGameType(Fight::GAMETYPE_VERSUS);
+          setScene(SCENE_SELECT);
+        });
         break;
       case CHOICE_VS_RETURN:
-        sndBack->play();
-        choice = CHOICE_VERSUS;
-        choiceLast = choice;
-        choiceTimer = 0;
-        submenu = TM_MAIN;
+        textButton->setAction([this]() { submenuMain.popSubmenu(); });
+        textButton->setSelectSound(sndBack);
+        break;
+      default:
         break;
       }
-      break;
+
+      elements.emplace_back(std::move(textButton));
     }
+    submenuVersus.setElements(std::move(elements));
+    submenuVersus.setInputMask(down, up);
+    submenuVersus.setMenuSound(sndMenu);
   }
-  else if (input(game::INPUT_B)) {
-    if (submenu == TM_MAIN) {
+  {
+    std::vector<std::unique_ptr<menu::IMenuElement>> elements;
+    for (int i = 0, size = menuChoicesMain.size(); i < size; i++) {
+      auto textButton = std::make_unique<menu::TextButtonA>();
+      textButton->setFont(menuFont);
+      textButton->setPos(menuX + i * menuXOffset,
+                         menuY + i * menuFont->getcImage()->getH(), aXOffset);
+      textButton->setColorActive(aR, aG, aB);
+      textButton->setColorInctive(iR, iG, iB);
+      textButton->setText(menuChoicesMain[i]);
+      textButton->setSelectSound(sndSelect);
+      textButton->setInvalidSound(sndInvalid);
+
+      switch (i) {
+      case CHOICE_VERSUS:
+        textButton->setAction(
+            [this]() { submenuMain.pushSubmenu(&submenuVersus); });
+        break;
+      case CHOICE_TRAINING:
+        textButton->setAction([this]() {
+          FIGHT->setGameType(Fight::GAMETYPE_TRAINING);
+          setScene(SCENE_SELECT);
+        });
+        break;
+      case CHOICE_NETPLAY:
+        textButton->setAction([this]() { setScene(SCENE_NETPLAY); });
+        break;
+      case CHOICE_OPTIONS:
+        textButton->setAction([this]() { setScene(SCENE_OPTIONS); });
+        break;
+      case CHOICE_QUIT:
+        textButton->setAction([this]() {
+          setScene(SCENE_QUIT);
+          app::quit();
+        });
+        break;
+      default:
+        break;
+      }
+
+      elements.emplace_back(std::move(textButton));
+    }
+    submenuMain.setElements(std::move(elements));
+    submenuMain.setInputMask(down, up);
+    submenuMain.setAction([]() {
       // Quit
+      app::quit();
       setScene(SCENE_QUIT);
-    }
-    else if (submenu == TM_VERSUS) {
-      // Return
-      sndBack->play();
-      choice = CHOICE_VERSUS;
-      choiceLast = choice;
-      choiceTimer = 0;
-      submenu = TM_MAIN;
-    }
+    });
+    submenuMain.setMenuSound(sndMenu);
+    submenuMain.setBackSound(sndBack);
   }
 }
 
-void scene::Title::reset() { Scene::reset(); }
+void scene::Title::think() {
+  Scene::think();
+
+  submenuMain.think();
+
+  for (int i = 0; i < 2; i++) {
+    submenuMain.doInput(Fight::getrPlayerAt(i).getFrameInput(), i);
+  }
+}
+
+void scene::Title::reset() {
+  Scene::reset();
+  submenuVersus.reset();
+  submenuMain.reset();
+}
 
 void scene::Title::draw() const {
   Scene::draw();
 
-  if (menuFont->exists()) {
-    for (int i = 0; i < menuChoicesMax[submenu]; i++) {
-      int gray = 2;
-      if (submenu == TM_MAIN) {
-        switch (i) {
-        case CHOICE_VERSUS:
-        case CHOICE_TRAINING:
-        case CHOICE_OPTIONS:
-#ifndef NO_NETWORK
-        case CHOICE_NETPLAY:
-#endif
-        case CHOICE_QUIT:
-          gray = 1;
-          break;
-        }
-      }
-      else if (submenu == TM_VERSUS) {
-        switch (i) {
-        case CHOICE_VS_PLR:
-        case CHOICE_VS_RETURN:
-          gray = 1;
-          break;
-        }
-      }
-
-      unsigned int fontH = menuFont->getcImage()->getH();
-      if (i == choice) {
-        menuFont->drawText(menuX + i * menuXOffset + (aXOffset - choiceTimer),
-                           menuY + fontH * i, menuChoices[submenu]->at(i),
-                           aR / gray, aG / gray, aB / gray, 1.0f);
-      }
-      else if (i == choiceLast) {
-        menuFont->drawText(menuX + i * menuXOffset + choiceTimer,
-                           menuY + fontH * i, menuChoices[submenu]->at(i),
-                           iR / gray, iG / gray, iB / gray, 1.0f);
-      }
-      else {
-        menuFont->drawText(menuX + i * menuXOffset, menuY + fontH * i,
-                           menuChoices[submenu]->at(i), iR / gray, iG / gray,
-                           iB / gray, 1.0f);
-      }
-    }
-  }
+  submenuMain.draw();
 }
 
 void scene::Title::parseLine(Parser &parser) {

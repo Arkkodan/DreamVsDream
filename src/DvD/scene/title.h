@@ -4,6 +4,9 @@
 #include "scene_base.h"
 
 #include "../font.h"
+#include "../menu/submenu.h"
+
+#include <array>
 
 namespace scene {
 
@@ -24,13 +27,6 @@ namespace scene {
     void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
   private:
-    enum {
-      TM_MAIN,
-      TM_VERSUS,
-
-      TM_MAX
-    };
-
     enum {
       CHOICE_ARCADE,
       CHOICE_STORY,
@@ -58,10 +54,8 @@ namespace scene {
     };
 
   private:
-    static std::vector<std::string> menuChoicesMain;
-    static std::vector<std::string> menuChoicesVersus;
-    static const std::array<std::vector<std::string> *, TM_MAX> menuChoices;
-    static const std::array<int, TM_MAX> menuChoicesMax;
+    static std::array<std::string, CHOICE_MAX> menuChoicesMain;
+    static std::array<std::string, CHOICE_VS_MAX> menuChoicesVersus;
 
   private:
     std::vector<std::string> themes;
@@ -72,13 +66,11 @@ namespace scene {
     Font *menuFont;
     int menuXOffset;
 
+    menu::MainSubmenuB submenuMain;
+    menu::Submenu submenuVersus;
+
     uint8_t iR, iG, iB, aR, aG, aB;
     int aXOffset;
-
-    int choiceTimer;
-    uint8_t choiceLast;
-    uint8_t choice;
-    uint8_t submenu;
   };
 } // namespace scene
 

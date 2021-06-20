@@ -8,11 +8,15 @@
 #include "../../util/rng.h"
 #include "../error.h"
 #include "../graphics.h"
+#include "../menu/button.h"
+#include "../menu/selector.h"
 #include "../player.h"
 #include "../resource_manager.h"
 #include "../shader_renderer/texture2D_renderer.h"
 
+#include <algorithm>
 #include <cstring>
+#include <memory>
 
 int scene::Options::optionDifficulty = 3;
 int scene::Options::optionWins = 2;
@@ -46,7 +50,6 @@ bool scene::Options::isEpilepsy() { return optionEpilepsy; }
 void scene::Options::setEpilepsy(bool epilepsy) { optionEpilepsy = epilepsy; }
 
 scene::Options::Options() : Scene("options") {
-  cursor = cursorLast = cursorTimer = 0;
   madoPos = 0;
   madoFrame = 1;
   madoDir = 2;
@@ -64,15 +67,9 @@ scene::Options::~Options() {}
 void scene::Options::think() {
   Scene::think();
 
-  // Cursor stuff
-  if (cursorTimer) {
-    if (cursorTimer == 1 || cursorTimer == -1) {
-      cursorTimer = 0;
-    }
-    else {
-      cursorTimer /= 2;
-    }
-  }
+  submenu.think();
+
+  int cursor = submenu.getIndex();
 
   // Move/animate Madotsuki
   if (madoWakeTimer) {
@@ -126,29 +123,6 @@ void scene::Options::think() {
       stopped = true;
     }
 
-    if (input(game::INPUT_UP | game::INPUT_DOWN)) {
-      cursorTimer = aXOffset;
-      cursorLast = cursor;
-    }
-
-    if (input(game::INPUT_UP)) {
-      sndMenu->play();
-      if (cursor) {
-        cursor--;
-      }
-      else {
-        cursor = OPTION_MAX - 1;
-      }
-    }
-    else if (input(game::INPUT_DOWN)) {
-      sndMenu->play();
-      if (cursor < OPTION_MAX - 1) {
-        cursor++;
-      }
-      else {
-        cursor = 0;
-      }
-    }
     if (stopped) {
       if (input(game::INPUT_LEFT)) {
         madoDir = 3;
@@ -158,121 +132,45 @@ void scene::Options::think() {
       }
     }
 
-    // Change option
-    if (input(game::INPUT_LEFT) || input(game::INPUT_RIGHT)) {
-      if (cursor != OPTION_VOICE_VOLUME) {
-        sndMenu->play();
-      }
-
-      switch (cursor) {
-      case OPTION_DIFFICULTY:
-        if (input(game::INPUT_LEFT)) {
-          if (optionDifficulty > 1) {
-            optionDifficulty--;
-          }
-        }
-        else {
-          if (optionDifficulty < 5) {
-            optionDifficulty++;
-          }
-        }
-        break;
-
-      case OPTION_WINS:
-        if (input(game::INPUT_LEFT)) {
-          if (optionWins > 1) {
-            optionWins--;
-          }
-        }
-        else {
-          if (optionWins < 3) {
-            optionWins++;
-          }
-        }
-        break;
-
-      case OPTION_TIME:
-        if (input(game::INPUT_LEFT)) {
-          if (optionTime == 0) {
-            optionTime = 99;
-          }
-          else if (optionTime == 99) {
-            optionTime = 60;
-          }
-        }
-        else {
-          if (optionTime == 60) {
-            optionTime = 99;
-          }
-          else if (optionTime == 99) {
-            optionTime = 0;
-          }
-        }
-        break;
-
-      case OPTION_SFX_VOLUME:
-        if (input(game::INPUT_LEFT)) {
-          if (optionSfxVolume > 0) {
-            optionSfxVolume -= 10;
-          }
-        }
-        else {
-          if (optionSfxVolume < 100) {
-            optionSfxVolume += 10;
-          }
-        }
-        break;
-
-      case OPTION_MUS_VOLUME:
-        if (input(game::INPUT_LEFT)) {
-          if (optionMusVolume > 0) {
-            optionMusVolume -= 10;
-          }
-        }
-        else {
-          if (optionMusVolume < 100) {
-            optionMusVolume += 10;
-          }
-        }
-        break;
-
-      case OPTION_VOICE_VOLUME: {
-        const audio::Speaker &speaker = Fight::getrPlayerAt(0).getcrSpeaker();
-        if (input(game::INPUT_LEFT)) {
-          if (optionVoiceVolume > 0) {
-            optionVoiceVolume -= 10;
-          }
-          speaker.play(dame);
-        }
-        else {
-          if (optionVoiceVolume < 100) {
-            optionVoiceVolume += 10;
-          }
-          speaker.play(muri);
-        }
-        break;
-      }
-
-      case OPTION_EPILEPSY:
-        if (input(game::INPUT_LEFT | game::INPUT_RIGHT)) {
-          optionEpilepsy = !optionEpilepsy;
-        }
-        break;
-      }
+    for (int i = 0; i < 2; i++) {
+      submenu.doInput(Fight::getrPlayerAt(i).getFrameInput(), i);
     }
 
-    if (input(game::INPUT_A)) {
-      if (cursor == OPTION_CREDITS) {
-        sndSelect->play();
-        setScene(SCENE_CREDITS);
-      }
+    // Update values
+    const auto *e_difficulty = dynamic_cast<const menu::SelectorLR<int> *>(
+        submenu.getcElementAt(OPTION_DIFFICULTY));
+    if (e_difficulty) {
+      optionDifficulty = e_difficulty->getValue();
     }
-
-    // Pinch thyself awake, Madotsuki
-    if (input(game::INPUT_B)) {
-      madoDir = 4;
-      madoFrame = 0;
-      madoWakeTimer = 40;
+    const auto *e_wins = dynamic_cast<const menu::SelectorLR<int> *>(
+        submenu.getcElementAt(OPTION_WINS));
+    if (e_wins) {
+      optionWins = e_wins->getValue();
+    }
+    const auto *e_time = dynamic_cast<const menu::SelectorLR<int> *>(
+        submenu.getcElementAt(OPTION_TIME));
+    if (e_time) {
+      optionTime = e_time->getValue();
+    }
+    const auto *e_sfxVol = dynamic_cast<const menu::SelectorLR<int> *>(
+        submenu.getcElementAt(OPTION_SFX_VOLUME));
+    if (e_sfxVol) {
+      optionSfxVolume = e_sfxVol->getValue();
+    }
+    const auto *e_musVol = dynamic_cast<const menu::SelectorLR<int> *>(
+        submenu.getcElementAt(OPTION_MUS_VOLUME));
+    if (e_musVol) {
+      optionMusVolume = e_musVol->getValue();
+    }
+    const auto *e_voiceVol = dynamic_cast<const menu::SelectorLR<int> *>(
+        submenu.getcElementAt(OPTION_VOICE_VOLUME));
+    if (e_voiceVol) {
+      optionVoiceVolume = e_voiceVol->getValue();
+    }
+    const auto *e_epilepsy = dynamic_cast<const menu::SelectorLR<bool> *>(
+        submenu.getcElementAt(OPTION_EPILEPSY));
+    if (e_epilepsy) {
+      optionEpilepsy = e_epilepsy->getValue();
     }
   }
 }
@@ -280,7 +178,9 @@ void scene::Options::think() {
 void scene::Options::reset() {
   Scene::reset();
 
-  cursor = cursorLast = cursorTimer = 0;
+  submenu.setIndex(0);
+  submenu.reset();
+
   madoPos = 0;
   madoFrame = 1;
   madoDir = 2;
@@ -290,66 +190,7 @@ void scene::Options::reset() {
 void scene::Options::draw() const {
   Scene::draw();
 
-  // Draw the menu options
-  if (menuFont->exists()) {
-    for (int i = 0; i < OPTION_MAX; i++) {
-      char buff[80];
-      switch (i) {
-      case OPTION_DIFFICULTY:
-        sprintf(buff, "Difficulty:\t%d", optionDifficulty);
-        break;
-
-      case OPTION_WINS:
-        sprintf(buff, "Wins:\t%d", optionWins);
-        break;
-
-      case OPTION_TIME:
-        if (optionTime) {
-          sprintf(buff, "Time:\t%d", optionTime);
-        }
-        else {
-          sprintf(buff, "Time:\tUnlimited");
-        }
-        break;
-
-      case OPTION_SFX_VOLUME:
-        sprintf(buff, "Sound Volume:\t%d%%", optionSfxVolume);
-        break;
-
-      case OPTION_MUS_VOLUME:
-        sprintf(buff, "Music Volume:\t%d%%", optionMusVolume);
-        break;
-
-      case OPTION_VOICE_VOLUME:
-        sprintf(buff, "Voice Volume:\t%d%%", optionVoiceVolume);
-        break;
-
-      case OPTION_EPILEPSY:
-        if (optionEpilepsy) {
-          strcpy(buff, "Photosensitivity Mode:\tOn");
-        }
-        else {
-          strcpy(buff, "Photosensitivity Mode:\tOff");
-        }
-        break;
-
-      case OPTION_CREDITS:
-        strcpy(buff, "Credits");
-        break;
-      }
-
-      if (i == cursor) {
-        menuFont->drawText(64 + (aXOffset - cursorTimer), 64 + i * 32, buff, aR,
-                           aG, aB);
-      }
-      else if (i == cursorLast) {
-        menuFont->drawText(64 + cursorTimer, 64 + i * 32, buff, iR, iG, iB);
-      }
-      else {
-        menuFont->drawText(64, 64 + i * 32, buff, iR, iG, iB);
-      }
-    }
-  }
+  submenu.draw();
 
   int xoff = madoFrame * 16;
   if (madoFrame == 3) {
@@ -382,6 +223,104 @@ void scene::Options::init() {
                    themes[i] + ".ubu");
       parseFile(getResource(themes[i], Parser::EXT_SCRIPT));
     }
+  }
+
+  {
+    std::vector<std::unique_ptr<menu::IMenuElement>> elements;
+    auto e_difficulty = std::make_unique<menu::TextSelectorLR<int>>();
+    e_difficulty->setLabel("Difficulty:");
+    e_difficulty->setValuePairs({1, 2, 3, 4, 5}, {"1", "2", "3", "4", "5"});
+    e_difficulty->setIndexByValue(optionDifficulty);
+    elements.emplace_back(std::move(e_difficulty));
+    auto e_wins = std::make_unique<menu::TextSelectorLR<int>>();
+    e_wins->setLabel("Wins:");
+    e_wins->setValuePairs({1, 2, 3}, {"1", "2", "3"});
+    e_wins->setIndexByValue(optionWins);
+    elements.emplace_back(std::move(e_wins));
+    auto e_time = std::make_unique<menu::TextSelectorLR<int>>();
+    e_time->setLabel("Time:");
+    e_time->setValuePairs({60, 99, 0}, {"60", "99", "Unlimited"});
+    e_time->setIndexByValue(optionTime);
+    elements.emplace_back(std::move(e_time));
+    std::vector<int> volumeOptions(11);
+    std::generate(volumeOptions.begin(), volumeOptions.end(),
+                  [vol = -10]() mutable {
+                    vol += 10;
+                    return vol;
+                  });
+    std::vector<std::string> volumeStrings(11);
+    std::transform(volumeOptions.cbegin(), volumeOptions.cend(),
+                   volumeStrings.begin(),
+                   [](int vol) { return std::to_string(vol) + '%'; });
+    auto e_sfxVol = std::make_unique<menu::TextSelectorLR<int>>();
+    e_sfxVol->setLabel("Sound Volume:");
+    e_sfxVol->setValuePairs(volumeOptions, volumeStrings);
+    e_sfxVol->setIndexByValue(optionSfxVolume);
+    elements.emplace_back(std::move(e_sfxVol));
+    auto e_musVol = std::make_unique<menu::TextSelectorLR<int>>();
+    e_musVol->setLabel("Music Volume:");
+    e_musVol->setValuePairs(volumeOptions, volumeStrings);
+    e_musVol->setIndexByValue(optionMusVolume);
+    elements.emplace_back(std::move(e_musVol));
+    auto e_voiceVol = std::make_unique<menu::TextSelectorLR<int>>();
+    e_voiceVol->setLabel("Voice Volume:");
+    e_voiceVol->setValuePairs(volumeOptions, volumeStrings);
+    e_voiceVol->setIndexByValue(optionVoiceVolume);
+    elements.emplace_back(std::move(e_voiceVol));
+    auto e_epilepsy = std::make_unique<menu::TextSelectorLR<bool>>();
+    e_epilepsy->setLabel("Photosensitivity Mode:");
+    e_epilepsy->setValuePairs({true, false}, {"On", "Off"});
+    e_epilepsy->setWrap(true);
+    e_epilepsy->setIndexByValue(optionEpilepsy);
+    elements.emplace_back(std::move(e_epilepsy));
+    auto e_credits = std::make_unique<menu::TextButtonA>();
+    e_credits->setText("Credits");
+    e_credits->setAction([]() { setScene(SCENE_CREDITS); });
+    elements.emplace_back(std::move(e_credits));
+
+    for (int i = 0, size = elements.size(); i < size; i++) {
+      auto *textElement =
+          dynamic_cast<menu::ITextMenuElement *>(elements[i].get());
+      if (textElement) {
+        textElement->setFont(menuFont);
+        textElement->setPos(64, 64 + i * menuFont->getcImage()->getH(),
+                            aXOffset);
+        textElement->setColorActive(aR, aG, aB);
+        textElement->setColorInctive(iR, iG, iB);
+      }
+      auto *selectorInt =
+          dynamic_cast<menu::SelectorLR<int> *>(elements[i].get());
+      if (selectorInt) {
+        switch (i) {
+        case OPTION_MUS_VOLUME:
+          selectorInt->setMenuSounds(nullptr);
+          break;
+        case OPTION_VOICE_VOLUME:
+          selectorInt->setMenuSounds(dame, muri, true);
+          break;
+        default:
+          selectorInt->setMenuSounds(sndMenu);
+          break;
+        }
+      }
+      auto *selectorBool =
+          dynamic_cast<menu::SelectorLR<bool> *>(elements[i].get());
+      if (selectorBool) {
+        selectorBool->setMenuSounds(sndMenu);
+      }
+      auto *button = dynamic_cast<menu::TextButtonA *>(elements[i].get());
+      if (button) {
+        button->setSelectSound(sndSelect);
+      }
+    }
+    submenu.setElements(std::move(elements));
+    submenu.setAction([this]() {
+      madoDir = 4;
+      madoFrame = 0;
+      madoWakeTimer = 40;
+    });
+    submenu.setInputMask(game::INPUT_DOWN, game::INPUT_UP);
+    submenu.setMenuSound(sndMenu);
   }
 }
 
