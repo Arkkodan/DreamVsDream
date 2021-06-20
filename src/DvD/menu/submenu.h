@@ -74,6 +74,8 @@ namespace menu {
 
     virtual void setBackSound(const audio::Sound *sndMenu) final;
 
+    virtual int getActiveSubmenuIndex() const final;
+
   protected:
     std::list<Submenu *> breadcrumbs;
 

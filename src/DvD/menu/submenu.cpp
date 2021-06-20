@@ -159,9 +159,9 @@ void menu::MainSubmenuB::doInput(uint16_t input, uint8_t playerIndex) {
     }
     else {
       breadcrumbs.pop_back();
-    }
-    if (sndBack) {
-      sndBack->play();
+      if (sndBack) {
+        sndBack->play();
+      }
     }
   }
   else {
@@ -190,4 +190,13 @@ void menu::MainSubmenuB::setAction(std::function<void(void)> action) {
 
 void menu::MainSubmenuB::setBackSound(const audio::Sound *sndBack) {
   this->sndBack = sndBack;
+}
+
+int menu::MainSubmenuB::getActiveSubmenuIndex() const {
+  if (breadcrumbs.empty()) {
+    return elementIndex;
+  }
+  else {
+    return breadcrumbs.back()->getIndex();
+  }
 }
