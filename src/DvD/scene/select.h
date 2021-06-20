@@ -73,6 +73,12 @@ namespace scene {
     void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
   private:
+    void thinkCharacterSelect();
+    void thinkStageSelect();
+    void drawCharacterSelect() const;
+    void drawStageSelect() const;
+
+  private:
     static constexpr auto PORTRAIT_FADE = 50;
 
   private:
