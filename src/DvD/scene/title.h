@@ -28,34 +28,37 @@ namespace scene {
 
   private:
     enum {
-      CHOICE_ARCADE,
-      CHOICE_STORY,
-      CHOICE_VERSUS,
-      CHOICE_SURVIVAL,
-      CHOICE_TRAINING,
-#ifndef NO_NETWORK
-      CHOICE_NETPLAY,
-#endif
-      CHOICE_OPTIONS,
-      CHOICE_QUIT,
+      TITLE_MAIN_SINGLEPLAYER,
+      TITLE_MAIN_MULTIPLAYER,
+      TITLE_MAIN_OPTIONS,
+      TITLE_MAIN_QUIT,
 
-      CHOICE_MAX
+      TITLE_MAIN_MAX
     };
-
     enum {
-      CHOICE_VS_PLR,
-      CHOICE_VS_CPU,
-      CHOICE_VS_TAG,
-      CHOICE_VS_TEAM,
+      TITLE_SINGLEPLAYER_ARCADE,
+      TITLE_SINGLEPLAYER_STORY,
+      TITLE_SINGLEPLAYER_VS_CPU,
+      TITLE_SINGLEPLAYER_SURVIVAL,
+      TITLE_SINGLEPLAYER_TRAINING,
 
-      CHOICE_VS_RETURN,
+      TITLE_SINGLEPLAYER_MAX
+    };
+    enum {
+      TITLE_MULTIPLAYER_VS_PLAYER,
+      TITLE_MULTIPLAYER_TAG,
+      TITLE_MULTIPLAYER_TEAM,
+      TITLE_MULTIPLAYER_NETPLAY,
 
-      CHOICE_VS_MAX
+      TITLE_MULTIPLAYER_MAX
     };
 
   private:
-    static std::array<std::string, CHOICE_MAX> menuChoicesMain;
-    static std::array<std::string, CHOICE_VS_MAX> menuChoicesVersus;
+    static const std::array<std::string, TITLE_MAIN_MAX> submenuMainStrings;
+    static const std::array<std::string, TITLE_SINGLEPLAYER_MAX>
+        submenuSPStrings;
+    static const std::array<std::string, TITLE_MULTIPLAYER_MAX>
+        submenuMPStrings;
 
   private:
     std::vector<std::string> themes;
@@ -67,7 +70,8 @@ namespace scene {
     int menuXOffset;
 
     menu::MainSubmenuB submenuMain;
-    menu::Submenu submenuVersus;
+    menu::Submenu submenuSP;
+    menu::Submenu submenuMP;
 
     uint8_t iR, iG, iB, aR, aG, aB;
     int aXOffset;
