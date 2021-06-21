@@ -105,20 +105,14 @@ namespace effect {
     anim = nullptr;
 
     // Look up the animation
-    int i = 0;
-    for (; i < nEffectAnims; i++) {
-      if (name == effectAnims[i]->getName()) {
-        anim = effectAnims[i];
+    for (const auto &effectAnim : effectAnims) {
+      if (name == effectAnim->getName()) {
+        anim = effectAnim;
         break;
       }
     }
 
-    // We failed to find the animation
-    if (i == nEffectAnims) {
-      error::error("Could not find the effect animation \"" + name + "\".");
-      this->x = this->y = this->frameEnd = this->frameStart = 0;
-    }
-    else {
+    if (anim) {
       // Create object
       this->x = x;
       this->y = y;
@@ -130,6 +124,11 @@ namespace effect {
       this->frameStart = sys::getFrame();
       this->frameEnd = this->frameStart +
                        (unsigned int)(anim->getNumFrames() * nLoops * speed);
+    }
+    else {
+      // We failed to find the animation
+      error::error("Could not find the effect animation \"" + name + "\".");
+      this->x = this->y = this->frameEnd = this->frameStart = 0;
     }
   }
 
@@ -150,15 +149,17 @@ namespace effect {
 
     if (parent) {
       const glm::vec2 &pos = parent->getcrPos();
-      x1 += pos.x;
-      y1 += pos.y;
+      x1 += static_cast<int>(pos.x);
+      y1 += static_cast<int>(pos.y);
     }
 
     graphics::setRender(Image::Render::ADDITIVE);
-    if (moveWithCamera)
+    if (moveWithCamera) {
       frame->drawSprite<renderer::Texture2DRenderer>(x1, y1, mirror);
-    else
+    }
+    else {
       frame->draw<renderer::Texture2DRenderer>(x1, y1, mirror);
+    }
   }
 
   // MISC FUNCS

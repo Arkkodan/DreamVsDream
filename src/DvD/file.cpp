@@ -77,7 +77,7 @@ int32_t File::readDword() const {
 float File::readFloat() const {
   int32_t _value_int = 0;
   read(&_value_int, 4);
-  return _value_int / (float)sys::FLOAT_ACCURACY;
+  return _value_int / (float)sys::FLOAT_FIXED_ACCURACY;
 }
 
 std::string File::readStr() const {
@@ -108,12 +108,12 @@ bool File::writeWord(int16_t value) const { return write(&value, 2); }
 bool File::writeDword(int32_t value) const { return write(&value, 4); }
 
 bool File::writeFloat(float value) const {
-  int32_t valueInt = value * sys::FLOAT_ACCURACY;
+  int32_t valueInt = static_cast<int32_t>(value * sys::FLOAT_FIXED_ACCURACY);
   return write(&valueInt, 4);
 }
 
 bool File::writeStr(const std::string &value) const {
-  uint8_t size = value.length();
+  uint8_t size = static_cast<uint8_t>(value.length());
   if (!write(&size, 1)) {
     return false;
   }

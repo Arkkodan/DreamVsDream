@@ -53,9 +53,9 @@ void scene::Intro::think() {
 
 void scene::Intro::draw() const {
   // Draw our own fade
-  float _alpha = timer / (float)(sys::FPS / 2);
+  float _alpha = static_cast<float>(timer) / sys::FPS * 2;
   if (state % 2 == 0) {
-    _alpha = 1.0 - _alpha;
+    _alpha = 1.0f - _alpha;
   }
   renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, _alpha});
   if (state < 2) {

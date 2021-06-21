@@ -41,7 +41,7 @@ void menu::Submenu::doInput(uint16_t input) {
   }
 }
 
-void menu::Submenu::doInput(uint16_t input, uint8_t playerIndex) {
+void menu::Submenu::doInputP(uint16_t input, uint8_t playerIndex) {
   if (elements.empty()) {
     return;
   }
@@ -63,7 +63,7 @@ void menu::Submenu::doInput(uint16_t input, uint8_t playerIndex) {
     }
   }
   else {
-    elements[elementIndex]->doInput(input, playerIndex);
+    elements[elementIndex]->doInputP(input, playerIndex);
   }
 }
 
@@ -157,7 +157,7 @@ void menu::MainSubmenuB::doInput(uint16_t input) {
   }
 }
 
-void menu::MainSubmenuB::doInput(uint16_t input, uint8_t playerIndex) {
+void menu::MainSubmenuB::doInputP(uint16_t input, uint8_t playerIndex) {
   if (input & game::INPUT_B) {
     if (breadcrumbs.empty()) {
       if (actionSet) {
@@ -173,10 +173,10 @@ void menu::MainSubmenuB::doInput(uint16_t input, uint8_t playerIndex) {
   }
   else {
     if (breadcrumbs.empty()) {
-      Submenu::doInput(input, playerIndex);
+      Submenu::doInputP(input, playerIndex);
     }
     else {
-      breadcrumbs.back()->doInput(input, playerIndex);
+      breadcrumbs.back()->doInputP(input, playerIndex);
     }
   }
 }

@@ -201,12 +201,16 @@ int main(int argc, char **argv)
       renderer::PrimitiveRenderer::setColor({0.0f, 0.0f, 0.0f, 1.0f});
     }
     renderer::PrimitiveRenderer::setPosRect(
-        sys::WINDOW_WIDTH / 2 - 100, sys::WINDOW_WIDTH / 2 + 99,
-        sys::FLIP(sys::EDIT_OFFSET) + 1, sys::FLIP(sys::EDIT_OFFSET));
+        static_cast<float>(sys::WINDOW_WIDTH / 2 - 100),
+        static_cast<float>(sys::WINDOW_WIDTH / 2 + 99),
+        static_cast<float>(sys::FLIP(sys::EDIT_OFFSET) + 1),
+        static_cast<float>(sys::FLIP(sys::EDIT_OFFSET)));
     renderer::PrimitiveRenderer::draw();
     renderer::PrimitiveRenderer::setPosRect(
-        sys::WINDOW_WIDTH / 2 - 1, sys::WINDOW_WIDTH / 2 + 1,
-        sys::FLIP(sys::EDIT_OFFSET) + 5, sys::FLIP(sys::EDIT_OFFSET) - 4);
+        static_cast<float>(sys::WINDOW_WIDTH / 2 - 1),
+        static_cast<float>(sys::WINDOW_WIDTH / 2 + 1),
+        static_cast<float>(sys::FLIP(sys::EDIT_OFFSET) + 5),
+        static_cast<float>(sys::FLIP(sys::EDIT_OFFSET) - 4));
     renderer::PrimitiveRenderer::draw();
     renderer::ShaderProgram::unuse();
 

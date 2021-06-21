@@ -23,7 +23,7 @@ void menu::ButtonA::doInput(uint16_t input) {
   }
 }
 
-void menu::ButtonA::doInput(uint16_t input, uint8_t playerIndex) {
+void menu::ButtonA::doInputP(uint16_t input, uint8_t playerIndex) {
   doInput(input);
 }
 

@@ -64,7 +64,7 @@ bool Parser::open(std::string szFileName) {
               szLines[i].substr(start, end - start);
 
           // End if we've reached a null
-          if (end > szLines[i].size()) {
+          if (end > static_cast<int>(szLines[i].size())) {
             break;
           }
         }

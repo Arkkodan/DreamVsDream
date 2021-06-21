@@ -61,7 +61,7 @@ namespace game {
 
   constexpr auto DEFAULT_HP_MAX = 1000;
   constexpr auto SUPER_MAX = 1000;
-  constexpr auto SUPER_DEFAULT = SUPER_MAX * 0.20;
+  constexpr auto SUPER_DEFAULT = static_cast<int>(SUPER_MAX * 0.20);
 
   void initTransformSounds();
   void deinitTransformSounds();

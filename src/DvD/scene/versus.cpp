@@ -31,13 +31,13 @@ void scene::Versus::think() {
     timer1--;
   }
   else if (timer2 > 0) {
-    timer2 *= 0.90;
+    timer2 = static_cast<int>(timer2 * 0.90);
   }
   else if (timer3 > 0) {
     timer3--;
   }
   else if (timer4 > 0) {
-    timer4 *= 0.90;
+    timer4 = static_cast<int>(timer4 * 0.90);
   }
   else if (timer5 > 0) {
     timer5--;
@@ -66,7 +66,7 @@ void scene::Versus::reset() {
   timer3 = sys::FPS * 1;
   timer4 = 1000;
   timer5 = sys::FPS * 2;
-  timer6 = sys::FPS * 1.5;
+  timer6 = static_cast<int>(sys::FPS * 1.5);
 
   timerF = 0.0f;
 }
@@ -81,9 +81,10 @@ void scene::Versus::draw() const {
     graphics::setScale(2.0f);
     unsigned int p1W = portraits[1]->getW();
     portraits[1]->draw<renderer::Texture2DRenderer>(
-        sys::WINDOW_WIDTH - p1W * 1.5 - timer2 + timerF, -120, true);
+        static_cast<int>(sys::WINDOW_WIDTH - p1W * 1.5 - timer2 + timerF), -120,
+        true);
     portraits[1]->draw<renderer::Texture2DRenderer>(
-        sys::WINDOW_WIDTH - p1W + timer4 - timerF, 0, true);
+        static_cast<int>(sys::WINDOW_WIDTH - p1W + timer4 - timerF), 0, true);
   }
 
   if (portraits[0]) {
@@ -93,8 +94,9 @@ void scene::Versus::draw() const {
     graphics::setScale(2.0f);
     unsigned int p0W = portraits[0]->getW();
     portraits[0]->draw<renderer::Texture2DRenderer>(
-        p0W * -0.5 + timer2 - timerF, -120);
-    portraits[0]->draw<renderer::Texture2DRenderer>(0 - timer4 + timerF, 0);
+        static_cast<int>(p0W * -0.5 + timer2 - timerF), -120);
+    portraits[0]->draw<renderer::Texture2DRenderer>(
+        static_cast<int>(0 - timer4 + timerF), 0);
   }
 }
 

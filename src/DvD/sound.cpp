@@ -260,7 +260,7 @@ namespace audio {
 #ifndef NO_SOUND
     if (scene::getSceneIndex() == scene::SCENE_FIGHT &&
         Stage::getStageIndex() == 3) {
-      float amplitude = FIGHT->getRound() * 0.1;
+      float amplitude = FIGHT->getRound() * 0.1f;
       music_frequency = 1.0f + util::rollf() * amplitude - amplitude / 2;
     }
     else {
@@ -337,7 +337,7 @@ namespace audio {
       }
 
       // Get size of buffer and allocate memory
-      c_samples = info.frames;
+      c_samples = static_cast<unsigned int>(info.frames);
       channels = info.channels;
       sample_rate = info.samplerate;
       samples.resize(c_samples * channels);
@@ -392,13 +392,14 @@ namespace audio {
     vio_Stream *stream = (vio_Stream *)data;
     switch (whence) {
     case SEEK_CUR:
-      stream->file->seek(stream->file->tell() + offset);
+      stream->file->seek(static_cast<long>(stream->file->tell() + offset));
       return stream->file->tell() - stream->origin;
     case SEEK_SET:
-      stream->file->seek(stream->origin + offset);
+      stream->file->seek(static_cast<long>(stream->origin + offset));
       return offset;
     case SEEK_END:
-      stream->file->seek(stream->size + stream->origin + offset);
+      stream->file->seek(
+          static_cast<long>(stream->size + stream->origin + offset));
       return stream->file->tell() - stream->origin;
     }
     return 0;
@@ -410,7 +411,7 @@ namespace audio {
     if (stream->file->tell() + count > stream->origin + stream->size)
       count = (stream->origin + stream->size) - stream->file->tell();
 
-    stream->file->read(ptr, count);
+    stream->file->read(ptr, static_cast<size_t>(count));
     return count;
   }
 
@@ -443,7 +444,7 @@ namespace audio {
       goto end;
 
     // Read audio data
-    c_samples = info.frames;
+    c_samples = static_cast<unsigned int>(info.frames);
     channels = info.channels;
     sample_rate = info.samplerate;
     samples.resize(c_samples * channels);
@@ -462,7 +463,7 @@ namespace audio {
       sf_close(stream);
 
     // Make sure file's in the right spot for the next thing
-    file.seek(vio.origin + vio.size);
+    file.seek(static_cast<long>(vio.origin + vio.size));
   }
 
   bool Sound::exists() const {
@@ -613,7 +614,7 @@ namespace audio {
 
         // float freq = 1.0f;
         // if(randomize)
-        float freq = 1.0f + util::rollf() * 0.1f - 0.05;
+        float freq = 1.0f + util::rollf() * 0.1f - 0.05f;
         speaker_sources[i].frequency = freq;
         break;
       }

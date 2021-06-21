@@ -20,7 +20,7 @@ namespace menu {
     virtual void think() override;
 
     virtual void doInput(uint16_t input) override final;
-    virtual void doInput(uint16_t input, uint8_t playerIndex) override final;
+    virtual void doInputP(uint16_t input, uint8_t playerIndex) override final;
 
     virtual void reset() override;
 

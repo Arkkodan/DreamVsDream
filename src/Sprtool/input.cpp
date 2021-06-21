@@ -23,13 +23,13 @@ namespace input {
     int x = w;
     int y = h;
 
-    float ratio1 = 1.0 * w / h;
-    const float ratio2 = 1.0 * sys::WINDOW_WIDTH / sys::WINDOW_HEIGHT;
+    float ratio1 = 1.0f * w / h;
+    const float ratio2 = 1.0f * sys::WINDOW_WIDTH / sys::WINDOW_HEIGHT;
     if (ratio1 > ratio2) {
-      x = h * ratio2;
+      x = static_cast<int>(h * ratio2);
     }
     else if (ratio1 < ratio2) {
-      y = w / ratio2;
+      y = static_cast<int>(w / ratio2);
     }
 
     screenSize.x = x;
@@ -535,8 +535,8 @@ namespace input {
     else if (screenOffset.y) {
       ratio = (float)sys::WINDOW_WIDTH / screenSize.x;
     }
-    mousePos.x = (x - screenOffset.x) * ratio;
-    mousePos.y = (y - screenOffset.y) * ratio;
+    mousePos.x = static_cast<int>((x - screenOffset.x) * ratio);
+    mousePos.y = static_cast<int>((y - screenOffset.y) * ratio);
     if (mousePos.x < 0) {
       mousePos.x = 0;
     }

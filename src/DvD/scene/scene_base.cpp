@@ -95,7 +95,7 @@ void scene::Scene::think() {
     //	fade = 0.0f;
     //} else {
     if (sceneIndex == SCENE_FIGHT) {
-      fade -= 0.02;
+      fade -= 0.02f;
     }
     else {
       fade -= 0.1f;
@@ -409,12 +409,15 @@ void scene::SceneImage::draw(bool _stage) const {
         if (!round || round - 1 == FIGHT->getRound()) {
           const glm::ivec2 &cameraPos = Fight::getrCameraPos();
           image.draw<renderer::Texture2DRenderer>(
-              x - imageW / 2 + sys::WINDOW_WIDTH / 2 - cameraPos.x * parallax,
-              (sys::WINDOW_HEIGHT - y) - imageH + cameraPos.y * parallax);
+              static_cast<int>(x - imageW / 2 + sys::WINDOW_WIDTH / 2 -
+                               cameraPos.x * parallax),
+              static_cast<int>((sys::WINDOW_HEIGHT - y) - imageH +
+                               cameraPos.y * parallax));
         }
       }
       else {
-        image.draw<renderer::Texture2DRenderer>(x, y);
+        image.draw<renderer::Texture2DRenderer>(static_cast<int>(x),
+                                                static_cast<int>(y));
       }
     }
   }

@@ -5,7 +5,7 @@ menu::IMenuElement::~IMenuElement() {}
 
 void menu::IMenuElement::think() {}
 void menu::IMenuElement::doInput(uint16_t input) {}
-void menu::IMenuElement::doInput(uint16_t input, uint8_t playerIndex) {}
+void menu::IMenuElement::doInputP(uint16_t input, uint8_t playerIndex) {}
 void menu::IMenuElement::reset() {}
 void menu::IMenuElement::draw() const {}
 

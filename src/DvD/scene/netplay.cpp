@@ -176,81 +176,112 @@ void scene::Netplay::think() {
             sndSelect->play();
 
             // Copy IP and port from clipboard
-            char _sz_input[80];
             std::string clipboard = sys::getClipboard();
-            strncpy(_sz_input, clipboard.c_str(), sizeof(_sz_input));
+            bool hasIP = false;
+            std::array<uint8_t, 4> octets{0};
+            int octet_index = -1;
+            auto isDigit = [](char c) { return c >= '0' && c <= '9'; };
+            auto it = clipboard.cbegin();
+            auto end = clipboard.cend();
 
-            char *_sz_ip = nullptr;
-            char *_sz_port = nullptr;
-
-            // Find the start of the IP and port, if they exist
-            // Skip stuff until we reach a digit, that's the IP
-            // Find a colon or a null, that's the port
-            bool _success = true;
-            int _octet_count = 0;
-            for (int i = 0;; i++) {
-              if (!_sz_input[i]) {
-                if (!_sz_ip) {
-                  _success = false;
-                }
-                else if (!_sz_port) {
-                  _sz_port = _sz_input + i;
-                }
+            // Find IP
+            for (; it != end; /* Manually change it */) {
+              octet_index++;
+              if (!isDigit(*it)) {
+                // Fail if it does not point to a digit
                 break;
               }
-              if (_sz_input[i] >= '0' && _sz_input[i] <= '9') {
-                if (!_sz_ip) {
-                  _sz_ip = _sz_input + i;
+
+              // Find octet
+              bool validOctet = true;
+              auto jt = it + 1;
+              for (; jt != end; jt++) {
+                char c = *jt;
+                if (octet_index < 3 && c == '.') {
+                  // Break when next '.' is found and is not last octet
+                  break;
+                }
+                else if (octet_index == 3 && c == ':') {
+                  // Break if ':' is found and is last octet
+                  break;
+                }
+                else if (!isDigit(c)) {
+                  // Break if non-digit it reached
+                  if (octet_index < 3) {
+                    // Fail if not last octet
+                    validOctet = false;
+                  }
+                  break;
                 }
               }
-              else if (_sz_input[i] == ':') {
-                _sz_port = _sz_input + i + 1;
-                _sz_input[i] = 0;
+              if (jt == end && octet_index < 3) {
+                // Fail if jt reaches end and is not last octet
                 break;
               }
-              else if (_sz_input[i] == '.') {
-                _octet_count++;
+              if (!validOctet) {
+                // Fail if not a valid octet
+                break;
+              }
+
+              // Generate octet
+              std::string octet_candidate(it, jt);
+              int octet = std::strtol(octet_candidate.c_str(), nullptr, 10);
+              if (octet >= 0 && octet < 256) {
+                octets[octet_index] = static_cast<uint8_t>(octet);
+                if (jt != end) {
+                  it = jt + 1;
+                }
+                if (octet_index == 3) {
+                  // Pass if all 4 octets have been generated
+                  hasIP = true;
+                  break;
+                }
               }
               else {
-                // This isn't an ip!
-                _success = false;
+                // Fail if "octet" is out of range
                 break;
               }
             }
 
-            if (_success && _octet_count == 3) {
-              // Update port
-              port = atoi(_sz_port);
-              if (port == 0) {
-                port = net::DEFAULT_PORT;
-              }
-              updatePort(false);
-
-              // Initialize IP
+            if (hasIP) {
               ip = 0;
-
-              // Parse IP (sigh)
-              const char *_sz_octet = _sz_ip;
-              int _i_octet = 0;
-              for (int i = 0;; i++) {
-                if (_sz_ip[i] == '.' || !_sz_ip[i]) {
-                  _sz_ip[i] = 0;
-
-                  // Get the current octet
-                  int _octet = atoi(_sz_octet);
-                  if (_octet > 255) {
-                    _octet = 255;
-                  }
-                  ip |= (uint8_t)_octet << (8 * _i_octet);
-
-                  _sz_octet = _sz_ip + i + 1;
-                  _i_octet++;
-                }
-                if (_i_octet == 4) {
-                  break;
-                }
+              for (size_t i = 0; i < octets.size(); i++) {
+                ip |= octets[i] << (8 * i);
               }
               updateIp(false);
+
+              // Find port
+              if (it >= end || *(it - 1) != ':') {
+                // Missing port info or garbage data
+                port = net::DEFAULT_PORT;
+              }
+              else if (*(it - 1) == ':') {
+                if (!isDigit(*it)) {
+                  // Not a digit after ':'
+                  port = net::DEFAULT_PORT;
+                }
+                else {
+                  // Find port
+                  auto jt = it + 1;
+                  for (; jt != end; jt++) {
+                    if (!isDigit(*jt)) {
+                      break;
+                    }
+                  }
+                  std::string port_candidate(it, jt);
+                  long port_unsanitized =
+                      std::strtol(port_candidate.c_str(), nullptr, 10);
+                  if (port_unsanitized > 0 && port_unsanitized < 65536) {
+                    port = static_cast<uint16_t>(port_unsanitized);
+                  }
+                  else {
+                    // "Port" is out of range
+                    port = net::DEFAULT_PORT;
+                  }
+                }
+              }
+
+              updatePort(false);
             }
           }
           else {
@@ -400,7 +431,8 @@ void scene::Netplay::draw() const {
 
     graphics::setScale(NET_SCALE * xscale, NET_SCALE);
     imgLogo.draw<renderer::Texture2DRenderer>(
-        sys::WINDOW_WIDTH / 2 - imgLogo.getW() * NET_SCALE * xscale / 2,
+        static_cast<int>(sys::WINDOW_WIDTH / 2 -
+                         imgLogo.getW() * NET_SCALE * xscale / 2),
         sys::WINDOW_HEIGHT / 4 - imgLogo.getH() * NET_SCALE / 2 + drawShake);
 
     // Main menu
@@ -410,17 +442,19 @@ void scene::Netplay::draw() const {
     case net::MODE_NONE: {
       if (menuFont->exists()) {
         Font::setScale(NET_SCALE * xscale, NET_SCALE);
-        menuFont->drawText(sys::WINDOW_WIDTH / 2 -
-                               (8 * 8 * NET_SCALE * xscale / 2),
+        menuFont->drawText(static_cast<int>(sys::WINDOW_WIDTH / 2 -
+                                            (8 * 8 * NET_SCALE * xscale / 2)),
                            sys::WINDOW_HEIGHT / 3 * 2 + drawShake, "Server");
         Font::setScale(NET_SCALE * xscale, NET_SCALE);
-        menuFont->drawText(
-            sys::WINDOW_WIDTH / 2 - (8 * 8 * NET_SCALE * xscale / 2),
-            sys::WINDOW_HEIGHT / 3 * 2 + 32 + drawShake, "Client");
+        menuFont->drawText(static_cast<int>(sys::WINDOW_WIDTH / 2 -
+                                            (8 * 8 * NET_SCALE * xscale / 2)),
+                           sys::WINDOW_HEIGHT / 3 * 2 + 32 + drawShake,
+                           "Client");
       }
       graphics::setScale(xscale, NET_SCALE);
       imgCursor.draw<renderer::Texture2DRenderer>(
-          sys::WINDOW_WIDTH / 2 - (10 * 8 * NET_SCALE * xscale / 2),
+          static_cast<int>(sys::WINDOW_WIDTH / 2 -
+                           (10 * 8 * NET_SCALE * xscale / 2)),
           sys::WINDOW_HEIGHT / 3 * 2 + 32 * choice + drawShake);
     } break;
 
@@ -556,8 +590,9 @@ void scene::Netplay::draw() const {
     }
 
     renderer::PrimitiveRenderer::setColor({1.0f, 1.0f, 1.0f, 0.1f});
-    renderer::PrimitiveRenderer::setPosRect(0.0f, sys::WINDOW_WIDTH,
-                                            barPos + NET_BAR_SIZE, barPos);
+    renderer::PrimitiveRenderer::setPosRect(
+        0.0f, static_cast<float>(sys::WINDOW_WIDTH),
+        static_cast<float>(barPos + NET_BAR_SIZE), static_cast<float>(barPos));
     // TODO: Replace with a renderer that can do gradients:
     // glColor4f(1.0f, 1.0f, 1.0f, 0.0f);
     // glVertex3f(sys::WINDOW_WIDTH, barPos, 0);
@@ -593,8 +628,10 @@ void scene::Netplay::draw() const {
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     renderer::PrimitiveRenderer::setColor({1.0f, 1.0f, 1.0f, alpha});
     renderer::PrimitiveRenderer::setPosRect(
-        sys::WINDOW_WIDTH / 2 - xoff, sys::WINDOW_WIDTH / 2 + xoff,
-        sys::WINDOW_HEIGHT / 2 + yoff, sys::WINDOW_HEIGHT / 2 - yoff);
+        static_cast<float>(sys::WINDOW_WIDTH / 2 - xoff),
+        static_cast<float>(sys::WINDOW_WIDTH / 2 + xoff),
+        static_cast<float>(sys::WINDOW_HEIGHT / 2 + yoff),
+        static_cast<float>(sys::WINDOW_HEIGHT / 2 - yoff));
     renderer::PrimitiveRenderer::draw();
     renderer::ShaderProgram::unuse();
   }

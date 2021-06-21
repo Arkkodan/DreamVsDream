@@ -549,7 +549,7 @@ template <typename T> void Image::draw(int x, int y, bool mirror) const {
         x1 = x + (_x_offset + (u - _x1_tex - 1) * w_subtexture) * xscale;
       }
       else {
-        x1 = x;
+        x1 = static_cast<float>(x);
       }
 
       // Y1
@@ -557,7 +557,7 @@ template <typename T> void Image::draw(int x, int y, bool mirror) const {
         y1 = y + (_y_offset + (v - _y1_tex - 1) * h_subtexture) * yscale;
       }
       else {
-        y1 = y;
+        y1 = static_cast<float>(y);
       }
 
       // X2
@@ -616,7 +616,8 @@ template <typename T> void Image::drawSprite(int x, int y, bool mirror) const {
     srcH = h;
   }
 #ifdef SPRTOOL
-  draw<T>(x + sys::WINDOW_WIDTH / 2, sys::FLIP(y) - srcH * yscale, mirror);
+  draw<T>(x + sys::WINDOW_WIDTH / 2,
+          static_cast<int>(sys::FLIP(y) - srcH * yscale), mirror);
 #else  // !SPRTOOL
   const glm::ivec2 &cameraPos = scene::Fight::getrCameraPos();
   glm::mat4 view = glm::translate(glm::mat4(1.0f),
@@ -624,8 +625,10 @@ template <typename T> void Image::drawSprite(int x, int y, bool mirror) const {
   const glm::mat4 &proj = graphics::getcrProjectionMatrix();
   glm::mat4 u_mvp = proj * view;
   T::setMVPMatrix(u_mvp);
-  draw<T>(x + sys::WINDOW_WIDTH / 2,
-          sys::FLIP(y) - srcH * yscale - STAGE->getEntHeight(), mirror);
+  draw<T>(
+      x + sys::WINDOW_WIDTH / 2,
+      static_cast<int>(sys::FLIP(y) - srcH * yscale - STAGE->getEntHeight()),
+      mirror);
   T::setMVPMatrix(proj);
 #endif // SPRTOOL
 }

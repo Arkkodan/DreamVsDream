@@ -124,7 +124,7 @@ void stepWriteDword(int *index, void *buffer, int32_t value) {
 }
 
 void stepWriteFloat(int *index, void *buffer, float value) {
-  *((int32_t *)((char *)buffer + *index)) = value * sys::FLOAT_ACCURACY;
+  *((int32_t *)((char *)buffer + *index)) = value * sys::FLOAT_FIXED_ACCURACY;
   *index += 4;
 }
 

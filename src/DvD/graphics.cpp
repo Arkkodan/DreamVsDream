@@ -192,8 +192,9 @@ namespace graphics {
     if (static_cast<signed_t>(delta - frequency / sys::FPS) < 0) {
       if (static_cast<signed_t>(delta - frequency * FPS_BUFFER / sys::FPS) >
           0) {
-        sys::sleep((static_cast<signed_t>(frequency / sys::FPS - delta) * 1000 /
-                    frequency));
+        sys::sleep(static_cast<unsigned int>(
+            static_cast<signed_t>(frequency / sys::FPS - delta) * 1000 /
+            frequency));
       }
       for (;;) {
         counter = getTimeFunc();

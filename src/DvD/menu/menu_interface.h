@@ -18,8 +18,8 @@ namespace menu {
 
     virtual void think(); // override
 
-    virtual void doInput(uint16_t input);                      // override
-    virtual void doInput(uint16_t input, uint8_t playerIndex); // override
+    virtual void doInput(uint16_t input);                       // override
+    virtual void doInputP(uint16_t input, uint8_t playerIndex); // override
 
     virtual void reset(); // override
 
@@ -70,7 +70,7 @@ namespace menu {
     virtual void think() = 0;
 
     virtual void doInput(uint16_t input) = 0;
-    virtual void doInput(uint16_t input, uint8_t playerIndex) = 0;
+    virtual void doInputP(uint16_t input, uint8_t playerIndex) = 0;
 
     virtual void reset() = 0;
 
