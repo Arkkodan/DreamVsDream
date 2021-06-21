@@ -1,0 +1,9 @@
+{
+    "font": "*32x32",
+    "sound": {
+        "menu": "*menu",
+        "select": "*select",
+        "back": "*back",
+        "invalid": "*invalid"
+    }
+}

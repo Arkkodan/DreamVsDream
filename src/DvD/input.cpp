@@ -4,6 +4,7 @@
 #include "app.h"
 #include "network.h"
 #include "player.h"
+#include "scene/controls.h"
 #include "scene/fight.h"
 #include "scene/scene.h"
 
@@ -42,7 +43,7 @@ namespace input {
       SDLK_f,    SDLK_h,     SDLK_t,  SDLK_g,    SDLK_a, SDLK_s, SDLK_d,
   };
 
-  static constexpr auto KEY_CFG_FILE = "keys.cfg";
+  std::array<int, 2 * KEY_INPUT_MAX> &getrKeyConfig() { return key_config; }
 
   void init() {
     // Read controls from file
@@ -76,6 +77,10 @@ namespace input {
     game::Player &p0 = scene::Fight::getrPlayerAt(0);
     game::Player &p1 = scene::Fight::getrPlayerAt(1);
     if (press) {
+      if (scene::getSceneIndex() == scene::SCENE_CONTROLS) {
+        dynamic_cast<scene::Controls *>(scene::getScene())->applyInput(key);
+        return;
+      }
       for (int i = 0; i < static_cast<int>(Key::KEY_MAX); i++) {
         if (isConnected && i >= static_cast<int>(KEY_1_MAX)) {
           break;
@@ -107,6 +112,11 @@ namespace input {
       case SDLK_F2:
         if (!isConnected) {
           scene::setScene(scene::SCENE_CREDITS);
+        }
+        break;
+      case SDLK_F8:
+        if (!isConnected) {
+          scene::setScene(scene::SCENE_CONTROLS);
         }
         break;
       }

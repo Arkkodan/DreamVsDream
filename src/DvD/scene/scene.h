@@ -28,6 +28,8 @@ namespace scene {
 
     SCENE_CREDITS,
 
+    SCENE_CONTROLS,
+
     SCENE_MAX,
 
     SCENE_QUIT, // Dummy scene for quitting

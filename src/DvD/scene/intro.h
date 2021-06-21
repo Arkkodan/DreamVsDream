@@ -11,6 +11,8 @@ namespace scene {
     Intro();
     ~Intro();
 
+    void reset() override final;
+
     void think() override final;
     void draw() const override final;
 

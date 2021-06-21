@@ -80,6 +80,8 @@ set(DVD_SCENE_FILES
   DvD/scene/netplay.h
   DvD/scene/credits.cpp
   DvD/scene/credits.h
+  DvD/scene/controls.cpp
+  DvD/scene/controls.h
 )
 
 set(DVD_SHADER_RENDERER_FILES

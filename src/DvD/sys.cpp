@@ -82,14 +82,7 @@ namespace sys {
 #endif
       }
       else if (e.type == SDL_KEYDOWN) {
-        if (e.key.keysym.sym == SDLK_ESCAPE) {
-#ifdef GAME
-          app::quit();
-#else
-          exit(0);
-#endif
-        }
-        else if (!e.key.repeat) {
+        if (!e.key.repeat) {
           input::keyPress(e.key.keysym.sym, true);
         }
       }
