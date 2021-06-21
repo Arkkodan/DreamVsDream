@@ -27,8 +27,9 @@ int scene::Options::optionVoiceVolume = 100;
 bool scene::Options::optionEpilepsy = false;
 
 const std::array<std::string, scene::Options::OPTION_MAIN_MAX>
-    scene::Options::submenuMainStrings = {"Game Options", "Audio Options",
-                                          "Video Options", "Credits"};
+    scene::Options::submenuMainStrings = {"Game Options",  "Audio Options",
+                                          "Video Options", "Credits",
+                                          "Intro",         "Controls"};
 const std::array<std::string, scene::Options::OPTION_GAME_MAX>
     scene::Options::submenuGameStrings = {"Difficulty:", "Wins:", "Time:"};
 const std::array<std::string, scene::Options::OPTION_AUDIO_MAX>
@@ -401,6 +402,12 @@ void scene::Options::init() {
     auto e_credits = std::make_unique<menu::TextButtonA>();
     e_credits->setAction([]() { setScene(SCENE_CREDITS); });
     elements.emplace_back(std::move(e_credits));
+    auto e_intro = std::make_unique<menu::TextButtonA>();
+    e_intro->setAction([]() { setScene(SCENE_INTRO); });
+    elements.emplace_back(std::move(e_intro));
+    auto e_controls = std::make_unique<menu::TextButtonA>();
+    e_controls->setAction([]() { setScene(SCENE_CONTROLS); });
+    elements.emplace_back(std::move(e_controls));
 
     for (int i = 0; i < OPTION_MAIN_MAX; i++) {
       auto *element = elements[i].get();

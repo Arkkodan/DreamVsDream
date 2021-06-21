@@ -98,9 +98,16 @@ void menu::Submenu::setMenuSound(const audio::Sound *sndMenu) {
 }
 
 int menu::Submenu::getIndex() const { return elementIndex; }
-void menu::Submenu::setIndex(int index) { this->elementIndex = index; }
+void menu::Submenu::setIndex(int index) {
+  elements[this->elementIndex]->setActive(false);
+  this->elementIndex = index;
+  elements[this->elementIndex]->setActive(true);
+}
 
 const menu::IMenuElement *menu::Submenu::getcElementAt(int index) const {
+  return elements[index].get();
+}
+menu::IMenuElement *menu::Submenu::getElementAt(int index) {
   return elements[index].get();
 }
 

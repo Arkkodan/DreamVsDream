@@ -1,5 +1,6 @@
 #include "scene.h"
 
+#include "controls.h"
 #include "credits.h"
 #include "fight.h"
 #include "intro.h"
@@ -48,6 +49,7 @@ void scene::ginit() {
   scenes[SCENE_NETPLAY] = std::make_unique<Netplay>();
 #endif
   scenes[SCENE_CREDITS] = std::make_unique<Credits>();
+  scenes[SCENE_CONTROLS] = std::make_unique<Controls>();
 
   scenes[SCENE_FIGHT]->init();
   scenes[SCENE_VERSUS]->init();

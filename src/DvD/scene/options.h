@@ -48,6 +48,8 @@ namespace scene {
       OPTION_MAIN_AUDIO,
       OPTION_MAIN_VIDEO,
       OPTION_MAIN_CREDITS,
+      OPTION_MAIN_INTRO,
+      OPTION_MAIN_CONTROLS,
 
       OPTION_MAIN_MAX
     };

@@ -17,6 +17,11 @@ scene::Intro::Intro() : Scene("intro") {
 
 scene::Intro::~Intro() {}
 
+void scene::Intro::reset() {
+  timer = sys::FPS / 2;
+  state = 0;
+}
+
 void scene::Intro::think() {
   Scene::think();
 
