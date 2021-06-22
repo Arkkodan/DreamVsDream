@@ -21,7 +21,7 @@ namespace sys {
   constexpr auto SPF = 1.0 / FPS;
   constexpr auto MSPF = 1000 / FPS;
 
-  constexpr auto FLOAT_ACCURACY = 65536;
+  constexpr auto FLOAT_FIXED_ACCURACY = 65536;
 
   // SPRITE TOOL STUFF
 #ifdef SPRTOOL

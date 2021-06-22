@@ -47,16 +47,19 @@ void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
     unsigned int imgW = img.getW();
     unsigned int imgH = img.getH();
     if (flip) {
-      graphics::setRect(0, 0, imgW * pct, imgH);
+      graphics::setRect(0, 0, static_cast<int>(imgW * pct), imgH);
     }
     else {
-      graphics::setRect(imgW * (1 - pct), 0, imgW * pct + 1, imgH);
+      graphics::setRect(static_cast<int>(imgW * (1 - pct)), 0,
+                        static_cast<int>(imgW * pct + 1), imgH);
     }
 
     if (mirror) {
       if (flip) {
         img.draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH - imgW - pos.x + imgW * (1 - pct), pos.y, true);
+            static_cast<int>(sys::WINDOW_WIDTH - imgW - pos.x +
+                             imgW * (1 - pct)),
+            pos.y, true);
       }
       else {
         // Hack
@@ -75,7 +78,8 @@ void scene::SceneMeter::draw(float pct, bool mirror, bool flip) const {
         img.draw<renderer::Texture2DRenderer>(pos.x, pos.y);
       }
       else {
-        img.draw<renderer::Texture2DRenderer>(pos.x + imgW * (1 - pct), pos.y);
+        img.draw<renderer::Texture2DRenderer>(
+            static_cast<int>(pos.x + imgW * (1 - pct)), pos.y);
       }
     }
   }
@@ -363,8 +367,8 @@ void scene::Fight::think() {
     cameraShake.x = cameraShake.y = 0;
   }
 
-  idealCameraPos.x = (m_pos.x + p_pos.x) / 2;
-  idealCameraPos.y = (m_pos.y + p_pos.y) / 3 - 30;
+  idealCameraPos.x = static_cast<int>((m_pos.x + p_pos.x) / 2);
+  idealCameraPos.y = static_cast<int>((m_pos.y + p_pos.y) / 3 - 30);
 
   int heightAbs = STAGE->getCamHeight();
   int widthAbs = STAGE->getCamWidth();
@@ -382,8 +386,8 @@ void scene::Fight::think() {
     idealCameraPos.x = widthAbs / 2 - sys::WINDOW_WIDTH / 2;
   }
 
-  cameraPos.x = (cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
-  cameraPos.y = (cameraPos.y * 0.8 + idealCameraPos.y * 0.2);
+  cameraPos.x = static_cast<int>(cameraPos.x * 0.8 + idealCameraPos.x * 0.2);
+  cameraPos.y = static_cast<int>(cameraPos.y * 0.8 + idealCameraPos.y * 0.2);
 
   cameraPos.x += cameraShake.x;
   cameraPos.y += cameraShake.y;
@@ -666,7 +670,7 @@ void scene::Fight::think() {
         if (winner) {
           win_bgm.play();
         }
-        timer_round_in = 4.0 * sys::FPS;
+        timer_round_in = 4 * sys::FPS;
         ko_player = 0;
         game_timer = Options::getTime() * sys::FPS - 1;
         if (game_timer < 0) {
@@ -755,14 +759,14 @@ void scene::Fight::draw() const {
   if (winner) {
     win.draw<renderer::Texture2DRenderer>(0, 0);
 
-    char _b_sz[256];
+    std::string sz;
     if (winner == 3) {
-      strcpy(_b_sz, "Draw!");
+      sz = "Draw!";
     }
     else {
-      sprintf(_b_sz, "Player %d wins!", winner);
+      sz = "Player " + std::to_string(winner) + " wins!";
     }
-    win_font->drawText(32, sys::FLIP(32), _b_sz);
+    win_font->drawText(32, sys::FLIP(32), sz);
   }
   else {
     hud.draw<renderer::Texture2DRenderer>(0, 0);
@@ -830,16 +834,17 @@ void scene::Fight::draw() const {
       }
 
       // Draw timer
-      char b_timer_text[8];
+      std::string timer_text;
       if (game_timer) {
-        sprintf(b_timer_text, "%02d", (game_timer / sys::FPS) + 1);
+        std::string time = std::to_string(game_timer / sys::FPS + 1);
+        timer_text = std::string(2 - time.size(), '0') + time;
       }
       else {
-        strcpy(b_timer_text, "00");
+        timer_text = "00";
       }
-      int w_timer_text = timer_font->getTextWidth(b_timer_text);
+      int w_timer_text = timer_font->getTextWidth(timer_text);
       timer_font->drawText((sys::WINDOW_WIDTH - w_timer_text) / 2, 30,
-                           b_timer_text);
+                           timer_text);
     }
 
     shine.draw<renderer::Texture2DRenderer>(0, 0);
@@ -854,21 +859,19 @@ void scene::Fight::draw() const {
     if (comboLeftOff) {
       comboLeft.draw<renderer::Texture2DRenderer>(
           comboLeftOff - comboLeft.getW(), 131);
-      char buff[8];
-      sprintf(buff, "%d", comboLeftLast);
-      int w = combo->getTextWidth(buff);
-      combo->drawText(comboLeftOff - w / 2 - 100, 131 + 35, buff);
+      std::string str = std::to_string(comboLeftLast);
+      int w = combo->getTextWidth(str);
+      combo->drawText(comboLeftOff - w / 2 - 100, 131 + 35, str);
     }
 
     // RIGHT
     if (comboRightOff) {
       comboRight.draw<renderer::Texture2DRenderer>(
           sys::WINDOW_WIDTH - comboRightOff, 131);
-      char buff[8];
-      sprintf(buff, "%d", comboRightLast);
-      int w = combo->getTextWidth(buff);
+      std::string str = std::to_string(comboRightLast);
+      int w = combo->getTextWidth(str);
       combo->drawText(sys::WINDOW_WIDTH - comboRightOff - w / 2 + 100, 131 + 35,
-                      buff);
+                      str);
     }
 
     // Draw character portraits
@@ -911,7 +914,8 @@ void scene::Fight::draw() const {
         alpha = 1.0f;
       }
       else if (timer_round_out < 1.5 * sys::FPS) {
-        alpha = 1.0 - ((timer_round_out - 0.5 * sys::FPS) / (1.0 * sys::FPS));
+        alpha =
+            1.0f - ((timer_round_out - 0.5f * sys::FPS) / (1.0f * sys::FPS));
       }
       renderer::Texture2DRenderer::setColor(
           {180 / 255.0f, 120 / 255.0f, 190 / 255.0f, alpha});
@@ -933,15 +937,16 @@ void scene::Fight::draw() const {
         unsigned int splashH = round_splash[round].getH();
         if (timer_round_in > 1.3 * sys::FPS) {
           float scalar =
-              (timer_round_in - 1.3 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
+              (timer_round_in - 1.3f * sys::FPS) / (0.1f * sys::FPS) + 1.0f;
           graphics::setScale(scalar);
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - splashW * scalar / 2 - util::roll(10, 30),
-              sys::WINDOW_HEIGHT / 2 - splashH * scalar / 2 -
-                  util::roll(10, 30));
+              static_cast<int>(sys::WINDOW_WIDTH / 2 - splashW * scalar / 2 -
+                               util::roll(10, 30)),
+              static_cast<int>(sys::WINDOW_HEIGHT / 2 - splashH * scalar / 2 -
+                               util::roll(10, 30)));
         }
         else if (timer_round_in < 0.1 * sys::FPS) {
-          float scalar = timer_round_in / (0.1 * sys::FPS);
+          float scalar = timer_round_in / (0.1f * sys::FPS);
           renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, scalar});
           round_splash[round].draw<renderer::Texture2DRenderer>(
               sys::WINDOW_WIDTH / 2 - splashW / 2,
@@ -951,10 +956,10 @@ void scene::Fight::draw() const {
           float xscalar = 1 / scalar;
           graphics::setScale(xscalar, scalar);
           round_splash[round].draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH / 2 - splashW * xscalar / 2 -
-                  util::roll(10, 30),
-              sys::WINDOW_HEIGHT / 2 - splashH * scalar / 2 -
-                  util::roll(10, 30));
+              static_cast<int>(sys::WINDOW_WIDTH / 2 - splashW * xscalar / 2 -
+                               util::roll(10, 30)),
+              static_cast<int>(sys::WINDOW_HEIGHT / 2 - splashH * scalar / 2 -
+                               util::roll(10, 30)));
         }
         else {
           round_splash[round].draw<renderer::Texture2DRenderer>(
@@ -968,14 +973,16 @@ void scene::Fight::draw() const {
       unsigned int koImgW = ko[ko_type].getW();
       unsigned int koImgH = ko[ko_type].getH();
       if (timer_ko > 0.8 * sys::FPS) {
-        float scalar = (timer_ko - 0.8 * sys::FPS) / (0.1 * sys::FPS) + 1.0;
+        float scalar = (timer_ko - 0.8f * sys::FPS) / (0.1f * sys::FPS) + 1.0f;
         graphics::setScale(scalar);
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - koImgW * scalar / 2 - util::roll(10, 30),
-            sys::WINDOW_HEIGHT / 2 - koImgH * scalar / 2 - util::roll(10, 30));
+            static_cast<int>(sys::WINDOW_WIDTH / 2 - koImgW * scalar / 2 -
+                             util::roll(10, 30)),
+            static_cast<int>(sys::WINDOW_HEIGHT / 2 - koImgH * scalar / 2 -
+                             util::roll(10, 30)));
       }
       else if (timer_ko < 0.1 * sys::FPS) {
-        float scalar = timer_ko / (0.1 * sys::FPS);
+        float scalar = timer_ko / (0.1f * sys::FPS);
         renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, scalar});
         ko[ko_type].draw<renderer::Texture2DRenderer>(
             sys::WINDOW_WIDTH / 2 - koImgW / 2,
@@ -985,8 +992,10 @@ void scene::Fight::draw() const {
         float xscalar = 1 / scalar;
         graphics::setScale(xscalar, scalar);
         ko[ko_type].draw<renderer::Texture2DRenderer>(
-            sys::WINDOW_WIDTH / 2 - koImgW * xscalar / 2 - util::roll(10, 30),
-            sys::WINDOW_HEIGHT / 2 - koImgH * scalar / 2 - util::roll(10, 30));
+            static_cast<int>(sys::WINDOW_WIDTH / 2 - koImgW * xscalar / 2 -
+                             util::roll(10, 30)),
+            static_cast<int>(sys::WINDOW_HEIGHT / 2 - koImgH * scalar / 2 -
+                             util::roll(10, 30)));
       }
       else {
         ko[ko_type].draw<renderer::Texture2DRenderer>(
@@ -999,8 +1008,8 @@ void scene::Fight::draw() const {
   // From main.cpp
   const glm::vec2 &m_pos = madotsuki.getcrPos();
   reinterpret_cast<Select *>(getSceneFromIndex(SCENE_SELECT))
-      ->drawEffect(0, m_fighter->getGroup(), m_pos.x,
-                   m_pos.y + m_fighter->getHeight(), true);
+      ->drawEffect(0, m_fighter->getGroup(), static_cast<int>(m_pos.x),
+                   static_cast<int>(m_pos.y + m_fighter->getHeight()), true);
 }
 
 void scene::Fight::reset() {
@@ -1008,7 +1017,7 @@ void scene::Fight::reset() {
   ko_type = 0;
 
   timer_flash = 0;
-  timer_round_in = 4.0 * sys::FPS;
+  timer_round_in = 4 * sys::FPS;
   timer_round_out = 0;
   timer_ko = 0;
 

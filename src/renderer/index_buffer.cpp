@@ -28,7 +28,7 @@ void renderer::IndexBuffer::bindQuadData(unsigned int quadCount, GLenum usage,
   switch (type) {
   case GL_UNSIGNED_INT: {
     // Using triangle strips to draw quads
-    int vCount = quadCount * 4;
+    unsigned int vCount = quadCount * 4;
     std::vector<GLuint> elements;
     elements.reserve(vCount);
     for (GLuint index = 0; index < vCount; index += 4) {

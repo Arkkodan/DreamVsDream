@@ -145,7 +145,7 @@ void scene::Options::think() {
     }
 
     for (int i = 0; i < 2; i++) {
-      submenuMain.doInput(Fight::getrPlayerAt(i).getFrameInput(), i);
+      submenuMain.doInputP(Fight::getrPlayerAt(i).getFrameInput(), i);
     }
 
     // Update values

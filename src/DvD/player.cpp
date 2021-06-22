@@ -76,8 +76,8 @@ namespace game {
         flags(F_VISIBLE), scale(1.0f), idealScale(1.0f), spriteAlpha(1.0f),
         idealAlpha(1.0f), sprite(0), wait(0), timer(0), frameHit(false),
         state(STATE_NONE), onhit(STATE_NONE), step(0), type('N'), movetype('S'),
-        knockdownOther(false), stunOther(0), drawPriorityFrame(0), flash(0.0f),
-        attack() {}
+        shoot(), bounce(), bounceOther(), knockdownOther(false), stunOther(0),
+        drawPriorityFrame(0), flash(0.0f), attack() {}
 
   void Projectile::think() {
     advanceFrame();
@@ -258,10 +258,11 @@ namespace game {
       int loops = readByte();
       bool realMirror =
           (type > 0 && ((dir == LEFT) != mirror)) || (type == 0 && mirror);
-      effect::newEffect(effect,
-                        x * (realMirror ? -1 : 1) + (type == 1 ? pos.x : 0),
-                        y + (type == 1 ? pos.y : 0), type > 0, realMirror,
-                        speed, loops, type == 2 ? this : nullptr);
+      effect::newEffect(
+          effect,
+          static_cast<int>(x * (realMirror ? -1 : 1) + (type == 1 ? pos.x : 0)),
+          static_cast<int>(y + (type == 1 ? pos.y : 0)), type > 0, realMirror,
+          speed, loops, type == 2 ? this : nullptr);
     } break;
     case STEP_Knockdown:
       knockdownOther = true;
@@ -279,8 +280,9 @@ namespace game {
 
   void Projectile::draw() const {
     if (flags & F_VISIBLE) {
-      fighter->draw(sprite, pos.x, pos.y, isMirrored(), scale, palette,
-                    spriteAlpha, 0.0f, 0.0f, 0.0f, 0.0f);
+      fighter->draw(sprite, static_cast<int>(pos.x), static_cast<int>(pos.y),
+                    isMirrored(), scale, palette, spriteAlpha, 0.0f, 0.0f, 0.0f,
+                    0.0f);
     }
   }
 
@@ -375,8 +377,8 @@ namespace game {
   void Projectile::setFlash(float flash) { this->flash = flash; }
 
   Player::Player()
-      : Projectile(), playerNum(0), nInputs(0), frameInput(0), input(0),
-        netBuffCounter(0),
+      : Projectile(), playerNum(0), nInputs(0), inputs(), frameInput(0),
+        input(0), netBuff(), netBuffCounter(0),
 
         juggle(1.0f), hitstun(0), pausestun(0),
 
@@ -637,10 +639,10 @@ namespace game {
 
         int mirror = (dir == RIGHT ? 1 : -1);
         if (input & INPUT_LEFT) {
-          vel.x = TECH_GROUND_FORCE_X * -mirror;
+          vel.x = static_cast<float>(TECH_GROUND_FORCE_X * -mirror);
         }
         else if (input & INPUT_RIGHT) {
-          vel.x = TECH_GROUND_FORCE_X * mirror;
+          vel.x = static_cast<float>(TECH_GROUND_FORCE_X * mirror);
         }
         else {
           vel.x = 0;
@@ -655,8 +657,8 @@ namespace game {
         setStandardStateByInput(STATE_JTECH);
         techstun = TECHSTUN;
         flags |= F_INVINCIBLE;
-        vel.x = TECH_FORCE_X * (dir == RIGHT ? -1 : 1);
-        vel.y = TECH_FORCE_Y;
+        vel.x = static_cast<float>(TECH_FORCE_X * (dir == RIGHT ? -1 : 1));
+        vel.y = static_cast<float>(TECH_FORCE_Y);
 
         flags &= ~F_OTG;
       }
@@ -681,13 +683,13 @@ namespace game {
         int stageEWidth = STAGE->getEntWidth();
         if (pos.x + w + STAGE_BUFFER > stageEWidth) {
           // vel.x = 0.0f;
-          pos.x = stageEWidth - widthRight - STAGE_BUFFER;
+          pos.x = static_cast<float>(stageEWidth - widthRight - STAGE_BUFFER);
         }
 
         w = (dir == LEFT ? widthRight : widthLeft);
         if (pos.x - w - STAGE_BUFFER < -stageEWidth) {
           // vel.x = 0.0f;
-          pos.x = -stageEWidth + widthLeft + STAGE_BUFFER;
+          pos.x = static_cast<float>(-stageEWidth + widthLeft + STAGE_BUFFER);
         }
 
         if (!(flags & F_ON_GROUND)) {
@@ -707,8 +709,9 @@ namespace game {
           if (pos.y < 0) {
             pos.y = 0;
 
-            effect::newEffect("DustShockWave", pos.x, pos.y, true, dir == LEFT,
-                              1, 1, nullptr);
+            effect::newEffect("DustShockWave", static_cast<int>(pos.x),
+                              static_cast<int>(pos.y), true, dir == LEFT, 1, 1,
+                              nullptr);
             flags |= F_ON_GROUND;
             flags &= ~(F_DOUBLEJUMP | F_AIRDASH);
 
@@ -950,8 +953,8 @@ namespace game {
     case STEP_Super:
       break;
     case STEP_Special: {
-      special = 2500 * sys::SPF;
-      scene::Fight::pause(2500 * sys::SPF);
+      special = static_cast<int>(2500 * sys::SPF);
+      scene::Fight::pause(static_cast<int>(2500 * sys::SPF));
       effect::newEffect("Actionlines", sys::WINDOW_WIDTH / 2,
                         sys::WINDOW_HEIGHT / 2, false, false, 1, 5, nullptr);
       int height = fighter->getHeight();
@@ -1256,14 +1259,14 @@ namespace game {
       int m_height = fighter->getHeight();
       sprite::HitBox me;
       me.size.x = m_widthLeft + m_widthRight;
-      me.pos.y = pos.y;
+      me.pos.y = static_cast<int>(pos.y);
       me.size.y = m_height;
 
       if (dir == RIGHT) {
-        me.pos.x = pos.x - m_widthLeft;
+        me.pos.x = static_cast<int>(pos.x - m_widthLeft);
       }
       else {
-        me.pos.x = pos.x - m_widthRight;
+        me.pos.x = static_cast<int>(pos.x - m_widthRight);
       }
 
       int y_widthLeft = other->fighter->getWidthLeft();
@@ -1271,13 +1274,13 @@ namespace game {
       int y_height = other->fighter->getHeight();
       sprite::HitBox you;
       you.size.x = y_widthLeft + y_widthRight;
-      you.pos.y = other->pos.y;
+      you.pos.y = static_cast<int>(other->pos.y);
       you.size.y = y_height;
       if (other->dir == RIGHT) {
-        you.pos.x = other->pos.x - y_widthLeft;
+        you.pos.x = static_cast<int>(other->pos.x - y_widthLeft);
       }
       else {
-        you.pos.x = other->pos.x - y_widthRight;
+        you.pos.x = static_cast<int>(other->pos.x - y_widthRight);
       }
 
       glm::ivec2 c;
@@ -1286,26 +1289,26 @@ namespace game {
         if (me.pos.x < you.pos.x) {
           // pos.x = other->pos.x - other->fighter->widthLeft * 2 -
           // fighter->widthRight * 2;
-          pos.x = c.x - m_widthRight;
-          other->pos.x = c.x + m_widthLeft;
+          pos.x = static_cast<float>(c.x - m_widthRight);
+          other->pos.x = static_cast<float>(c.x + m_widthLeft);
         }
         else if (me.pos.x > you.pos.x) {
           // pos.x = other->pos.x + other->fighter->widthRight * 2 +
           // fighter->widthLeft * 2;
-          pos.x = c.x + m_widthLeft;
-          other->pos.x = c.x - m_widthRight;
+          pos.x = static_cast<float>(c.x + m_widthLeft);
+          other->pos.x = static_cast<float>(c.x - m_widthRight);
         }
         else {
           // UGLY HACK
           // Whomever is higher gets precedence
           if (me.pos.y > you.pos.y) {
             if (dir == LEFT) {
-              pos.x = c.x - m_widthRight;
-              other->pos.x = c.x + m_widthLeft;
+              pos.x = static_cast<float>(c.x - m_widthRight);
+              other->pos.x = static_cast<float>(c.x + m_widthLeft);
             }
             else {
-              pos.x = c.x + m_widthLeft;
-              other->pos.x = c.x - m_widthRight;
+              pos.x = static_cast<float>(c.x + m_widthLeft);
+              other->pos.x = static_cast<float>(c.x - m_widthRight);
             }
           }
         }
@@ -1355,13 +1358,16 @@ namespace game {
 
     if (flags & F_VISIBLE) {
       if (shadow) {
-        fighter->drawShadow(sprite, pos.x, isMirrored(), scale);
+        fighter->drawShadow(sprite, static_cast<int>(pos.x), isMirrored(),
+                            scale);
       }
       else {
-        fighter->draw(
-            sprite,
-            pos.x + (pausestun % 4) * PAUSE_AMPLITUDE * 2 - PAUSE_AMPLITUDE,
-            pos.y, isMirrored(), scale, palette, spriteAlpha, r, g, b, pct);
+        fighter->draw(sprite,
+                      static_cast<int>(pos.x +
+                                       (pausestun % 4) * PAUSE_AMPLITUDE * 2 -
+                                       PAUSE_AMPLITUDE),
+                      static_cast<int>(pos.y), isMirrored(), scale, palette,
+                      spriteAlpha, r, g, b, pct);
       }
     }
   }
@@ -1373,11 +1379,12 @@ namespace game {
 
     float alpha = 0.5f;
     if (special > 2200 * sys::SPF) {
-      alpha = 1.0 - (special - 2200 * sys::SPF) / (300 * sys::SPF) * 0.5 - 0.5;
+      alpha = static_cast<float>(
+          1.0 - (special - 2200 * sys::SPF) / (300 * sys::SPF) * 0.5 - 0.5);
     }
     else if (special <= 1000 * sys::SPF) {
-      alpha =
-          1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF)) * 0.5 - 0.5;
+      alpha = static_cast<float>(
+          1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF)) * 0.5 - 0.5);
     }
 
     renderer::PrimitiveRenderer::setColor({0.0f, 0.0f, 0.0f, alpha});
@@ -1394,31 +1401,37 @@ namespace game {
     unsigned int specialW = specialImg->getW();
     unsigned int specialH = specialImg->getH();
     if (special > 2200 * sys::SPF) {
-      float scalar = (special - 2200 * sys::SPF) / (300 * sys::SPF);
+      float scalar =
+          static_cast<float>((special - 2200 * sys::SPF) / (300 * sys::SPF));
       renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, 1.0f - scalar});
-      graphics::setScale(1.0 + scalar * 0.5);
+      graphics::setScale(1.0f + scalar * 0.5f);
       if (ender) {
         if (dir == RIGHT) {
           enderImg->draw<renderer::Texture2DRenderer>(
-              40 - (enderW * scalar) / 4,
-              sys::FLIP(46) - enderH - (enderH * scalar) / 4);
+              static_cast<int>(40 - (enderW * scalar) / 4),
+              static_cast<int>(sys::FLIP(46) - enderH - (enderH * scalar) / 4));
         }
         else {
           enderImg->draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH - enderW - (40 - (enderW * scalar) / 4),
-              sys::FLIP(46) - enderH - (enderH * scalar) / 4, true);
+              static_cast<int>(sys::WINDOW_WIDTH - enderW -
+                               (40 - (enderW * scalar) / 4)),
+              static_cast<int>(sys::FLIP(46) - enderH - (enderH * scalar) / 4,
+                               true));
         }
       }
       else {
         if (dir == RIGHT) {
           specialImg->draw<renderer::Texture2DRenderer>(
-              40 - (specialW * scalar) / 4,
-              sys::FLIP(46) - specialH - (specialH * scalar) / 4);
+              static_cast<int>(40 - (specialW * scalar) / 4),
+              static_cast<int>(sys::FLIP(46) - specialH -
+                               (specialH * scalar) / 4));
         }
         else {
           specialImg->draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH - specialW - (40 - (specialW * scalar) / 4),
-              sys::FLIP(46) - specialH - (specialH * scalar) / 4, true);
+              static_cast<int>(sys::WINDOW_WIDTH - specialW -
+                               (40 - (specialW * scalar) / 4)),
+              static_cast<int>(
+                  sys::FLIP(46) - specialH - (specialH * scalar) / 4, true));
         }
       }
     }
@@ -1446,29 +1459,32 @@ namespace game {
       }
     }
     else {
-      float scalar = 1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF));
+      float scalar = static_cast<float>(
+          1.0 - ((1000 * sys::SPF - special) / (500 * sys::SPF)));
       renderer::Texture2DRenderer::setColor({1.0f, 1.0f, 1.0f, scalar});
       if (ender) {
         if (dir == RIGHT) {
           enderImg->draw<renderer::Texture2DRenderer>(
-              40 + (1000 * sys::SPF - special) * 30, sys::FLIP(46) - enderH);
+              static_cast<int>(40 + (1000 * sys::SPF - special) * 30),
+              sys::FLIP(46) - enderH);
         }
         else {
           enderImg->draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH - enderW -
-                  (40 + (1000 * sys::SPF - special) * 30),
+              static_cast<int>(sys::WINDOW_WIDTH - enderW -
+                               (40 + (1000 * sys::SPF - special) * 30)),
               sys::FLIP(46) - enderH, true);
         }
       }
       else {
         if (dir == RIGHT) {
           specialImg->draw<renderer::Texture2DRenderer>(
-              40 + (1000 * sys::SPF - special) * 30, sys::FLIP(46) - specialH);
+              static_cast<int>(40 + (1000 * sys::SPF - special) * 30),
+              sys::FLIP(46) - specialH);
         }
         else {
           specialImg->draw<renderer::Texture2DRenderer>(
-              sys::WINDOW_WIDTH - specialW -
-                  (40 + (1000 * sys::SPF - special) * 30),
+              static_cast<int>(sys::WINDOW_WIDTH - specialW -
+                               (40 + (1000 * sys::SPF - special) * 30)),
               sys::FLIP(46) - specialH, true);
         }
       }
@@ -1479,7 +1495,7 @@ namespace game {
   void Player::takeDamage(float damage) {
     if (damage > 0) {
       if (hp) {
-        hp -= damage * DEFAULT_HP_MAX;
+        hp -= static_cast<int>(damage * DEFAULT_HP_MAX);
         if (hp <= 0) {
           hp = 0;
           if (flags & F_ON_GROUND) {
@@ -1496,7 +1512,7 @@ namespace game {
       }
     }
     else {
-      hp -= damage;
+      hp -= static_cast<int>(damage);
       if (hp > getMaxHp()) {
         hp = getMaxHp();
       }
@@ -1668,7 +1684,7 @@ namespace game {
   }
 
   int Player::getMaxHp() const {
-    return DEFAULT_HP_MAX * fighter->getDefense();
+    return static_cast<int>(DEFAULT_HP_MAX * fighter->getDefense());
   }
 
   int8_t Projectile::readByte() {
@@ -1696,7 +1712,7 @@ namespace game {
     int32_t value =
         *((int32_t *)((char *)&fighter->getcStateAt(state)->steps[step]));
     step += 4;
-    return value / (float)sys::FLOAT_ACCURACY;
+    return value / (float)sys::FLOAT_FIXED_ACCURACY;
   }
 
   std::string Projectile::readString() {

@@ -66,11 +66,12 @@ void Font::drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b,
   renderer::Texture2DRenderer::setColor(
       {r / 255.0f, g / 255.0f, b / 255.0f, a});
   unsigned imgH = img.getH();
+  uint8_t uc = static_cast<uint8_t>(c);
   if (mono) {
-    graphics::setRect(pos[(uint8_t)c], 0, mono, imgH);
+    graphics::setRect(pos[uc], 0, mono, imgH);
   }
   else {
-    graphics::setRect(pos[(uint8_t)c], 0, width[(uint8_t)c], imgH);
+    graphics::setRect(pos[uc], 0, width[uc], imgH);
   }
   graphics::setScale(xscale, yscale);
   img.draw<renderer::Texture2DRenderer>(x, y);
@@ -86,22 +87,23 @@ void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g,
 
   int origX = x;
   unsigned int imgH = img.getH();
+  float fx = static_cast<float>(x), fy = static_cast<float>(y);
 
   for (int i = 0; text[i]; i++) {
     if (text[i] == ' ') {
       if (mono) {
-        x += mono * xscale;
+        fx += mono * xscale;
       }
       else {
-        x += 7 * xscale;
+        fx += 7 * xscale;
       }
     }
     else if (text[i] == '\n') {
-      x = origX;
-      y += imgH * yscale;
+      fx = static_cast<float>(origX);
+      fy += imgH * yscale;
     }
     else if (text[i] == '\t') {
-      x += (imgH - (x - origX) % imgH) * xscale;
+      fx += (imgH - (static_cast<int>(fx) - origX) % imgH) * xscale;
     }
     else {
       char c = text[i];
@@ -112,19 +114,21 @@ void Font::drawText(int x, int y, std::string text, uint8_t r, uint8_t g,
       }
       renderer::Texture2DRenderer::setColor(
           {r / 255.0f, g / 255.0f, b / 255.0f, a});
+      uint8_t uc = static_cast<uint8_t>(c);
       if (mono) {
-        graphics::setRect(pos[(uint8_t)c], 0, mono, imgH);
+        graphics::setRect(pos[uc], 0, mono, imgH);
       }
       else {
-        graphics::setRect(pos[(uint8_t)c], 0, width[(uint8_t)c], imgH);
+        graphics::setRect(pos[uc], 0, width[uc], imgH);
       }
       graphics::setScale(xscale, yscale);
-      img.draw<renderer::Texture2DRenderer>(x, y);
+      img.draw<renderer::Texture2DRenderer>(static_cast<int>(fx),
+                                            static_cast<int>(fy));
       if (mono) {
-        x += mono * xscale;
+        fx += mono * xscale;
       }
       else {
-        x += (width[(uint8_t)c] + 1) * xscale;
+        fx += (width[uc] + 1) * xscale;
       }
     }
   }
@@ -141,7 +145,7 @@ int Font::getTextWidth(std::string text) const {
     }
     return w;
   }
-  return text.length() * mono * xscale;
+  return static_cast<int>(text.length() * mono * xscale);
 }
 
 int Font::getCharWidth(char c) const {
@@ -149,9 +153,9 @@ int Font::getCharWidth(char c) const {
     return mono;
   }
   if (c == ' ') {
-    return 7 * xscale;
+    return static_cast<int>(7 * xscale);
   }
-  return (width[(uint8_t)c] + 1) * xscale;
+  return static_cast<int>((width[(uint8_t)c] + 1) * xscale);
 }
 
 void Font::setScale(float _xscale, float _yscale) {

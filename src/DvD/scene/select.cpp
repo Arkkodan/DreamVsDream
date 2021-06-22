@@ -51,7 +51,8 @@ void scene::Select::think() {
         cursors[i].timerPortrait = 0;
       }
       else {
-        cursors[i].timerPortrait *= 0.8;
+        cursors[i].timerPortrait =
+            static_cast<int>(cursors[i].timerPortrait * 0.8);
       }
     }
   }
@@ -598,12 +599,14 @@ void scene::Select::drawEffect(int player, int group, int _x, int _y,
     if (spr) {
       graphics::setScale(scale * 2);
       curData[group].imgSelect.drawSprite<renderer::Texture2DRenderer>(
-          _x - (96 * scale), _y - (96 * scale));
+          static_cast<int>(_x - (96 * scale)),
+          static_cast<int>(_y - (96 * scale)));
     }
     else {
       graphics::setScale(scale);
       curData[group].imgSelect.draw<renderer::Texture2DRenderer>(
-          _x - (96 / 2 * scale) + 26 / 2, _y - (96 / 2 * scale) + 29 / 2);
+          static_cast<int>(_x - (96 / 2 * scale) + 26 / 2),
+          static_cast<int>(_y - (96 / 2 * scale) + 29 / 2));
     }
 
     if (++cursors[player].timer > curData[group].speed) {

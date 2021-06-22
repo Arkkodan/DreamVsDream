@@ -11,7 +11,7 @@
 
 scene::Credits::Credits() : Scene("credits") {
   oy = 0;
-  timer_start = sys::FPS * 6.35;
+  timer_start = static_cast<int>(sys::FPS * 6.35);
   timer_scroll = sys::FPS;
   secret_alpha = 0.0f;
   done = false;
@@ -61,10 +61,10 @@ void scene::Credits::draw() const {
                      sys::FLIP(fontH * 2), _sz, 255, 255, 255, secret_alpha);
     }
     else {
-      int y = (sys::WINDOW_HEIGHT - logoH) / 4 - oy;
+      float y = (sys::WINDOW_HEIGHT - logoH) / 4 - oy;
       if (y + (int)logoH >= 0) {
         logo.draw<renderer::Texture2DRenderer>(sys::WINDOW_WIDTH - logo.getW(),
-                                               y);
+                                               static_cast<int>(y));
       }
 
       int oy_title = 0;
@@ -91,12 +91,12 @@ void scene::Credits::draw() const {
           std::string out = lines[i].substr(1);
           font->drawText(sys::WINDOW_WIDTH - font->getTextWidth(out) -
                              CREDITS_OFFSET,
-                         y, out, title_r, title_g, title_b);
+                         static_cast<int>(y), out, title_r, title_g, title_b);
         }
         else {
           font->drawText(sys::WINDOW_WIDTH - font->getTextWidth(lines[i]) -
                              CREDITS_OFFSET,
-                         y, lines[i], name_r, name_g, name_b);
+                         static_cast<int>(y), lines[i], name_r, name_g, name_b);
         }
       }
     }
@@ -108,7 +108,7 @@ void scene::Credits::reset() {
 
   done = false;
   oy = 0;
-  timer_start = sys::FPS * 6.35;
+  timer_start = static_cast<int>(sys::FPS * 6.35);
   timer_scroll = sys::FPS;
   secret_alpha = 0.0f;
 }

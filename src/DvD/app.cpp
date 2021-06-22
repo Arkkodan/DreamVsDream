@@ -107,7 +107,7 @@ static void app::optionsSave() {
 static void app::init() {
   atexit(deinit);
 
-  srand(time(nullptr));
+  srand(static_cast<unsigned int>(time(nullptr)));
 
   // Create settings path first
   // Find correct directory

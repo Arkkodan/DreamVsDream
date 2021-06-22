@@ -20,7 +20,7 @@ namespace menu {
     virtual void think() override;
 
     virtual void doInput(uint16_t input) override final;
-    virtual void doInput(uint16_t input, uint8_t playerIndex) override final;
+    virtual void doInputP(uint16_t input, uint8_t playerIndex) override final;
 
     virtual void reset() override;
 
@@ -139,7 +139,7 @@ template <typename T> void menu::SelectorLR<T>::doInput(uint16_t input) {
 }
 
 template <typename T>
-void menu::SelectorLR<T>::doInput(uint16_t input, uint8_t playerIndex) {
+void menu::SelectorLR<T>::doInputP(uint16_t input, uint8_t playerIndex) {
   doInput(input);
 }
 
@@ -156,7 +156,7 @@ void menu::SelectorLR<T>::setValues(const std::vector<T> &values) {
   this->enabled = true;
 }
 template <typename T> void menu::SelectorLR<T>::setIndex(int index) {
-  if (index < 0 || index >= values.size()) {
+  if (index < 0 || index >= static_cast<int>(values.size())) {
     throw std::out_of_range("invalid Selector index: " + std::to_string(index));
   }
   this->index = index;

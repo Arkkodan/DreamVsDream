@@ -36,7 +36,9 @@ namespace sprite {
   }
 
   void drwbx(int x, int y, int w, int h) {
-    renderer::PrimitiveRenderer::setPosRect(x, x + w, y, y - h);
+    renderer::PrimitiveRenderer::setPosRect(
+        static_cast<float>(x), static_cast<float>(x + w), static_cast<float>(y),
+        static_cast<float>(y - h));
     renderer::PrimitiveRenderer::draw();
   }
 
@@ -120,16 +122,16 @@ namespace sprite {
 
   HitBox HitBox::adjust(int _x, int _y, bool m, float scale) const {
     HitBox adj;
-    adj.size.x = size.x * scale;
-    adj.size.y = size.y * scale;
+    adj.size.x = static_cast<int>(size.x * scale);
+    adj.size.y = static_cast<int>(size.y * scale);
 
     if (m) {
-      adj.pos.x = _x + pos.x * -scale + size.x * -scale;
+      adj.pos.x = static_cast<int>(_x + pos.x * -scale + size.x * -scale);
     }
     else {
-      adj.pos.x = _x + pos.x * scale;
+      adj.pos.x = static_cast<int>(_x + pos.x * scale);
     }
-    adj.pos.y = _y + pos.y * scale;
+    adj.pos.y = static_cast<int>(_y + pos.y * scale);
 
     return adj;
   }
@@ -165,22 +167,22 @@ namespace sprite {
     int y2 = _y;
 
     if (mirror) {
-      _x -= (img.getW() - x) * scale;
+      _x -= static_cast<int>((img.getW() - x) * scale);
     }
     else {
-      _x -= x * scale;
+      _x -= static_cast<int>(x * scale);
     }
 #else
     AtlasSprite _atlas_sprite = atlas->getSprite(atlas_sprite);
 
     if (mirror) {
-      _x -= (_atlas_sprite.w - x) * scale;
+      _x -= static_cast<int>((_atlas_sprite.w - x) * scale);
     }
     else {
-      _x -= x * scale;
+      _x -= static_cast<int>(x * scale);
     }
 #endif
-    _y -= y * scale;
+    _y -= static_cast<int>(y * scale);
 
     graphics::setScale(scale);
 #ifdef GAME
@@ -207,10 +209,11 @@ namespace sprite {
 #ifndef SPRTOOL
   void Sprite::drawShadow(int _x, bool mirror, float scale) const {
     if (mirror) {
-      _x -= atlas->getSprite(atlas_sprite).w * scale - x * scale;
+      _x -= static_cast<int>(atlas->getSprite(atlas_sprite).w * scale -
+                             x * scale);
     }
     else {
-      _x -= x * scale;
+      _x -= static_cast<int>(x * scale);
     }
     renderer::FighterRenderer::setColor({0.0f, 0.0f, 0.0f});
     renderer::FighterRenderer::setAlpha(0.5f);
@@ -326,7 +329,7 @@ namespace sprite {
       return;
     }
 
-    int i;
+    unsigned int i;
     for (i = 0; i < boxes.size(); i++) {
       if (&boxes[i] == box) {
         break;

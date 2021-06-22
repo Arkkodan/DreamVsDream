@@ -158,7 +158,8 @@ namespace game {
         commands[i].targets[j].state = file.readWord();
         commands[i].targets[j].conditionC = file.readWord();
         for (int k = 0; k < commands[i].targets[j].conditionC; k++) {
-          commands[i].targets[j].conditions[k] = file.readWord();
+          commands[i].targets[j].conditions[k] =
+              static_cast<uint8_t>(file.readWord());
         }
       }
     }

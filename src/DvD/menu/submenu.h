@@ -19,7 +19,7 @@ namespace menu {
     virtual void think() override;
 
     virtual void doInput(uint16_t input) override;
-    virtual void doInput(uint16_t input, uint8_t playerIndex) override;
+    virtual void doInputP(uint16_t input, uint8_t playerIndex) override;
 
     virtual void reset() override final;
 
@@ -67,7 +67,7 @@ namespace menu {
     virtual void popSubmenu() final;
 
     virtual void doInput(uint16_t input) override final;
-    virtual void doInput(uint16_t input, uint8_t playerIndex) override final;
+    virtual void doInputP(uint16_t input, uint8_t playerIndex) override final;
 
     virtual void draw() const override final;
 

@@ -132,7 +132,8 @@ namespace net {
                       !(buff.flags & NetHeader::NETF_SYN)) {
                     // Calculate the input delay
                     float time = (sys::getTime() - _timer) / 1000.0f;
-                    inputDelay = ceil((time + 0.01) / (2 * sys::SPF));
+                    inputDelay =
+                        static_cast<int>(ceil((time + 0.01) / (2 * sys::SPF)));
                     if (force_input_delay) {
                       inputDelay = force_input_delay;
                     }
