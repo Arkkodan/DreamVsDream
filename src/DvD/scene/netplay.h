@@ -6,58 +6,65 @@
 #include "../font.h"
 #include "../sys.h"
 
-/// @brief Scene for navigating netplay and connections
-class SceneNetplay : public Scene {
-private:
-	static constexpr auto NET_FLASH_TIME = sys::FPS / 2;
-	static constexpr auto NET_FLASH_HOLD_TIME = sys::FPS / 2;
-	static constexpr auto NET_FADE_TIME = sys::FPS;
-	static constexpr auto NET_SCALE = 2;
-	static constexpr auto NET_BAR_SIZE = 120;
+#include <array>
 
-public:
-	SceneNetplay();
-	~SceneNetplay();
+namespace scene {
 
-	int choice;
-	int mode;
-	int digit;
-	bool waiting;
+  /// @brief Scene for navigating netplay and connections
+  class Netplay : public Scene {
+  public:
+    Netplay();
+    ~Netplay();
 
-	char portStr[5];
-	uint16_t port;
-	char ipStr[12];
-	uint32_t ip;
+    // void init();
 
-	int flashTimer;
-	int flashDir;
-	int drawShake;
-	int barPos;
+    void updatePort(bool toint);
+    void updateIp(bool toint);
 
-	Image imgScanlines;
-	Image imgStatic;
-	Image imgLogo;
+    void think() override final;
+    void draw() const override final;
+    void reset() override final;
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
-	Image imgCursor;
-	Font menuFont;
+  private:
+    static constexpr auto NET_FLASH_TIME = sys::FPS / 2;
+    static constexpr auto NET_FLASH_HOLD_TIME = sys::FPS / 2;
+    static constexpr auto NET_FADE_TIME = sys::FPS;
+    static constexpr auto NET_SCALE = 2;
+    static constexpr auto NET_BAR_SIZE = 120;
 
-	audio::Sound sndOn;
-	audio::Sound sndOff;
+  private:
+    int choice;
+    int mode;
+    int digit;
+    bool waiting;
 
-	audio::Sound sndConStart;
-	audio::Sound sndConSuccess;
+    std::array<char, 5> portStr;
+    uint16_t port;
+    std::array<char, 12> ipStr;
+    uint32_t ip;
 
-	audio::Music bgmWait;
+    int flashTimer;
+    int flashDir;
+    int drawShake;
+    int barPos;
 
-	//void init();
+    Image imgScanlines;
+    Image imgStatic;
+    Image imgLogo;
 
-	void updatePort(bool toint);
-	void updateIp(bool toint);
+    Image imgCursor;
+    Font *menuFont;
 
-	void think();
-	void draw();
-	void reset();
-	void parseLine(Parser& parser);
-};
+    audio::Sound *sndOn;
+    audio::Sound *sndOff;
+
+    audio::Sound *sndConStart;
+    audio::Sound *sndConSuccess;
+
+    audio::Music bgmWait;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_NETPLAY_H

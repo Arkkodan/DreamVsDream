@@ -1,20 +1,18 @@
-#ifndef ERROR_H_INCLUDED
-#define ERROR_H_INCLUDED
+#ifndef DVD_ERROR_H
+#define DVD_ERROR_H
 
-#include <errno.h>
 #include <string>
 
 namespace error {
-	/// @brief Report a non-fatal warning
-	void error(const std::string& sz);
+  /// @brief Report a non-fatal warning
+  void error(const std::string &sz);
 
-	/// @brief Report a fatal error and terminate
-	void die(const std::string& sz);
+  /// @brief Report a fatal error and terminate
+  void die(const std::string &sz);
 
 #ifdef DEBUG
-	void debug(const std::string& sz);
+  void debug(const std::string &sz);
 #endif
-}
+} // namespace error
 
-
-#endif // ERROR_H_INCLUDED
+#endif // DVD_ERROR_H

@@ -1,0 +1,61 @@
+{
+    "bgm": [
+        {
+            "intro": "intro",
+            "loop": "loop"
+        }
+    ],
+    "imagesBehind": [
+        {
+            "image": "0.0",
+            "parallax": 0.0
+        },
+        {
+            "image": "tv_blank",
+            "parallax": 0.6000000238418579,
+            "round": 1
+        },
+        {
+            "image": "tv_test",
+            "parallax": 0.6000000238418579,
+            "round": 2
+        },
+        {
+            "image": "tv_eyeball",
+            "parallax": 0.6000000238418579,
+            "round": 3
+        },
+        {
+            "image": "tv_kalimba1",
+            "parallax": 0.6000000238418579,
+            "round": 4
+        },
+        {
+            "image": "tv_kalimba2",
+            "parallax": 0.6000000238418579,
+            "round": 5
+        },
+        {
+            "image": "bg",
+            "parallax": 1.0
+        }
+    ],
+    "imagesAhead": [
+        {
+            "image": "fg",
+            "parallax": 1.0
+        },
+        {
+            "image": "fg2",
+            "parallax": 1.0
+        }
+    ],
+    "entities": {
+        "h_ground": 40,
+        "w_bounds": 320
+    },
+    "camera": {
+        "w": 640,
+        "h": 960
+    }
+}

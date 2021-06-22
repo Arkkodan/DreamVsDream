@@ -1,0 +1,132 @@
+{
+    "hud": {
+        "image": "1"
+    },
+    "hud_tag": {
+        "image": "1_tag"
+    },
+    "portraits": {
+        "image": "3"
+    },
+    "portraits_tag": {
+        "image": "3_tag"
+    },
+    "timer": {
+        "image": "4",
+        "font": "timer"
+    },
+    "shine": {
+        "image": "5"
+    },
+    "shine_tag": {
+        "image": "5_tag"
+    },
+    "hp": {
+        "image": "hp",
+        "pos": {
+            "x": 28,
+            "y": 36
+        }
+    },
+    "super": {
+        "image": "super",
+        "pos": {
+            "x": 69,
+            "y": 67
+        }
+    },
+    "tag": {
+        "image": "tag",
+        "pos": {
+            "x": 128,
+            "y": 79
+        }
+    },
+    "portrait_pos": {
+        "x": 218,
+        "y": 10
+    },
+    "win_orbs": {
+        "image": {
+            "null": "round_null",
+            "win": "round_win",
+            "draw": "round_draw"
+        },
+        "pos": {
+            "x": 195,
+            "y": 75
+        }
+    },
+    "stun": {
+        "image": "stun",
+        "pos": {
+            "x": 221,
+            "y": 97
+        }
+    },
+    "guard": {
+        "image": "guard",
+        "pos": {
+            "x": 255,
+            "y": 97
+        }
+    },
+    "dpm": {
+        "image": "dpm",
+        "pos": {
+            "x": 60,
+            "y": 461
+        }
+    },
+    "static": {
+        "image": "static",
+        "sound": "static"
+    },
+    "fade": {
+        "sound": {
+            "in": "fadein",
+            "out": "fadeout"
+        }
+    },
+    "round_hud": {
+        "image": [
+            "round1",
+            "round2",
+            "round3",
+            "round4",
+            "round5"
+        ],
+        "pos": {
+            "x": 295,
+            "y": 75
+        }
+    },
+    "round_splash": {
+        "image": [
+            "PHASE1",
+            "PHASE2",
+            "PHASE3",
+            "PHASE4",
+            "FINALPHASE"
+        ]
+    },
+    "ko": {
+        "image": {
+            "ko": "KO",
+            "timeout": "timeout",
+            "draw": "draw"
+        }
+    },
+    "combo": {
+        "font": "combo",
+        "image": {
+            "left": "combo0",
+            "right": "combo1"
+        }
+    },
+    "win": {
+        "image": "win",
+        "font": "*32x32",
+        "bgm": "win"
+    }
+}

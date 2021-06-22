@@ -3,43 +3,49 @@
 
 #include "scene_base.h"
 
+#include <vector>
+
 #include "../font.h"
 
-/// @brief In-game credits
-class SceneCredits : public Scene {
-private:
-	static constexpr auto CREDITS_OFFSET = 20;
+namespace scene {
 
-public:
+  /// @brief In-game credits
+  class Credits : public Scene {
+  public:
+    Credits();
+    ~Credits();
 
-	SceneCredits();
-	~SceneCredits();
+    void think() override final;
+    void draw() const override final;
+    void reset() override final;
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
-	//Logic
-	bool done;
-	float oy;
-	int timer_start;
-	int timer_scroll;
-	float secret_alpha;
+  private:
+    static constexpr auto CREDITS_OFFSET = 20;
 
-	//Data
-	Image logo;
-	Font font;
-	int c_lines;
-	char** sz_lines;
+  private:
+    // Logic
+    mutable bool done;
+    float oy;
+    int timer_start;
+    int timer_scroll;
+    float secret_alpha;
 
-	uint8_t title_r;
-	uint8_t title_g;
-	uint8_t title_b;
+    // Data
+    Image logo;
+    Font *font;
+    int c_lines;
+    std::vector<std::string> lines;
 
-	uint8_t name_r;
-	uint8_t name_g;
-	uint8_t name_b;
+    uint8_t title_r;
+    uint8_t title_g;
+    uint8_t title_b;
 
-	void think();
-	void draw();
-	void reset();
-	void parseLine(Parser& parser);
-};
+    uint8_t name_r;
+    uint8_t name_g;
+    uint8_t name_b;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_CREDITS_H

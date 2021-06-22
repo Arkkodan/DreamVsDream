@@ -3,31 +3,37 @@
 
 #include "scene_base.h"
 
-/// @brief Versus splash cutscene
-class SceneVersus : public Scene {
-public:
-	SceneVersus();
-	~SceneVersus();
+namespace scene {
 
-	void init();
+  /// @brief Versus splash cutscene
+  class Versus : public Scene {
+  public:
+    Versus();
+    ~Versus();
 
-	//Members
-	Image* portraits[2];
-	int timer1;
-	int timer2;
-	int timer3;
-	int timer4;
-	int timer5;
-	int timer6;
+    void init() override final;
 
-	float timerF;
+    // Functions
+    void think() override final;
+    void reset() override final;
+    void draw() const override final;
 
-	//Functions
-	void think();
-	void reset();
-	void draw();
+    void parseLine(Parser &parser) override final;
 
-	void parseLine(Parser& parser);
-};
+    void setPortraitAt(int index, const Image *portrait);
+
+  private:
+    // Members
+    std::array<const Image *, 2> portraits;
+    int timer1;
+    int timer2;
+    int timer3;
+    int timer4;
+    int timer5;
+    int timer6;
+
+    float timerF;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_VERSUS_H

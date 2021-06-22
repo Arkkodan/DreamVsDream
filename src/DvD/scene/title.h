@@ -4,76 +4,78 @@
 #include "scene_base.h"
 
 #include "../font.h"
+#include "../menu/submenu.h"
 
-/// @brief Scene for the title menu
-class SceneTitle : public Scene {
-private:
-	enum {
-		TM_MAIN,
-		TM_VERSUS,
+#include <array>
 
-		TM_MAX
-	};
+namespace scene {
 
-	enum {
-		CHOICE_ARCADE,
-		CHOICE_STORY,
-		CHOICE_VERSUS,
-		CHOICE_SURVIVAL,
-		CHOICE_TRAINING,
-#ifndef NO_NETWORK
-		CHOICE_NETPLAY,
-#endif
-		CHOICE_OPTIONS,
-		CHOICE_QUIT,
+  /// @brief Scene for the title menu
+  class Title : public Scene {
+  public:
+    Title();
+    ~Title();
 
-		CHOICE_MAX
-	};
+    void init() override final;
 
-	enum {
-		CHOICE_VS_PLR,
-		CHOICE_VS_CPU,
-		CHOICE_VS_TAG,
-		CHOICE_VS_TEAM,
+    // Functions
+    void think() override final;
+    void reset() override final;
+    void draw() const override final;
 
-		CHOICE_VS_RETURN,
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
-		CHOICE_VS_MAX
-	};
+  private:
+    enum {
+      TITLE_MAIN_SINGLEPLAYER,
+      TITLE_MAIN_MULTIPLAYER,
+      TITLE_MAIN_OPTIONS,
+      TITLE_MAIN_QUIT,
 
-	static const char* menuChoicesMain[CHOICE_MAX];
-	static const char* menuChoicesVersus[CHOICE_VS_MAX];
-	static const char** menuChoices[TM_MAX];
-	static const int menuChoicesMax[TM_MAX];
+      TITLE_MAIN_MAX
+    };
+    enum {
+      TITLE_SINGLEPLAYER_ARCADE,
+      TITLE_SINGLEPLAYER_STORY,
+      TITLE_SINGLEPLAYER_VS_CPU,
+      TITLE_SINGLEPLAYER_SURVIVAL,
+      TITLE_SINGLEPLAYER_TRAINING,
 
-public:
-	SceneTitle();
-	~SceneTitle();
+      TITLE_SINGLEPLAYER_MAX
+    };
+    enum {
+      TITLE_MULTIPLAYER_VS_PLAYER,
+      TITLE_MULTIPLAYER_TAG,
+      TITLE_MULTIPLAYER_TEAM,
+      TITLE_MULTIPLAYER_NETPLAY,
 
-	void init();
+      TITLE_MULTIPLAYER_MAX
+    };
 
-	std::string* themes;
-	int nThemes;
+  private:
+    static const std::array<std::string, TITLE_MAIN_MAX> submenuMainStrings;
+    static const std::array<std::string, TITLE_SINGLEPLAYER_MAX>
+        submenuSPStrings;
+    static const std::array<std::string, TITLE_MULTIPLAYER_MAX>
+        submenuMPStrings;
 
-	//Members
-	int menuX, menuY;
-	Font menuFont;
-	int menuXOffset;
+  private:
+    std::vector<std::string> themes;
+    int nThemes;
 
-	uint8_t iR, iG, iB, aR, aG, aB;
-	int aXOffset;
+    // Members
+    int menuX, menuY;
+    Font *menuFont;
+    int menuXOffset;
 
-	int choiceTimer;
-	uint8_t choiceLast;
-	uint8_t choice;
-	uint8_t submenu;
+    menu::MainSubmenuB submenuMain;
+    menu::Submenu submenuSP;
+    menu::Submenu submenuMP;
 
-	//Functions
-	void think();
-	void reset();
-	void draw();
-
-	void parseLine(Parser& parser);
-};
+    uint8_t iR, iG, iB, aR, aG, aB;
+    int aXOffset;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_TITLE_H

@@ -1,109 +1,92 @@
 #ifndef DVD_SCENE_SCENE_BASE_H
 #define DVD_SCENE_SCENE_BASE_H
 
+#include "../font.h"
 #include "../image.h"
-#include "../sound.h"
 #include "../parser.h"
+#include "../sound.h"
 
-/// @brief Image for displaying, intended for scenes
-class SceneImage {
-public:
-	SceneImage(Image& _image, float _x, float _y, float _parallax, char _render, float _xvel, float _yvel, bool wrap, int round);
-	~SceneImage();
+#include <nlohmann/json.hpp>
 
-	Image image;
-	float x, y;
-	float parallax; //for stages
-	float xOrig, yOrig;
-	float xvel, yvel;
-	char render;
-	bool wrap;
-	int round;
+#include <cstdint>
+#include <list>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
-	SceneImage* next;
+namespace scene {
 
-	void think();
-	void reset();
-	void draw(bool _stage);
-};
+  /// @brief Image for displaying, intended for scenes
+  class SceneImage {
+  public:
+    SceneImage(Image &_image, float _x, float _y, float _parallax,
+               Image::Render _render, float _xvel, float _yvel, bool wrap,
+               int round);
+    ~SceneImage();
 
-/// @brief Scene base class
-class Scene {
-public:
-	enum {
-		SCENE_FIGHT,
+    void think();
+    void reset();
+    void draw(bool _stage) const;
 
-		SCENE_INTRO,
+  private:
+    Image image;
+    float x, y;
+    float parallax; // for stages
+    float xOrig, yOrig;
+    float xvel, yvel;
+    Image::Render render;
+    bool wrap;
+    int round;
+  };
 
-		SCENE_TITLE,
-		SCENE_SELECT,
-		SCENE_VERSUS,
+  /// @brief Scene base class
+  class Scene {
+  public:
+    Scene(std::string name_);
+    virtual ~Scene();
 
-		SCENE_OPTIONS,
+    // Functions
+    virtual void init();
 
-#ifndef NO_NETWORK
-		SCENE_NETPLAY,
-#endif
+    virtual void think();
+    virtual void reset();
+    virtual void draw() const;
 
-		SCENE_CREDITS,
+    void parseFile(std::string szFileName);
+    virtual void parseLine(Parser &parser);
 
-		SCENE_MAX,
+    virtual void parseJSON(const nlohmann::ordered_json &j_obj);
 
-		SCENE_QUIT, // Dummy scene for quitting
-	};
+    std::string getResource(std::string szFileName,
+                            std::string extension) const;
 
-	static Scene* scenes[SCENE_MAX];
-	static int scene;
-	static int sceneNew;
+    /// @brief Template version of getResource
+    template <typename T> T *getResourceT(const std::string &resource);
 
-	static Image imgLoading;
+  protected:
+    // Members
+    std::string name;
+    std::list<SceneImage> images;
 
-public:
-	Scene(std::string name_);
-	virtual ~Scene();
+    bool initialized;
 
-	//Members
-	std::string name;
-	SceneImage* images;
+    audio::Music bgm;
+    bool bgmPlaying;
 
-	bool initialized;
+    // Video
+    // Video* video;
 
-	audio::Music bgm;
-	bool bgmPlaying;
+    // audio::Sounds
+    audio::Sound *sndMenu;
+    audio::Sound *sndSelect;
+    audio::Sound *sndBack;
+    audio::Sound *sndInvalid;
 
-	//Video
-	//Video* video;
-
-	//audio::Sounds
-	audio::Sound sndMenu;
-	audio::Sound sndSelect;
-	audio::Sound sndBack;
-	audio::Sound sndInvalid;
-
-	//Functions
-	virtual void init();
-
-	virtual void think();
-	virtual void reset();
-	virtual void draw();
-
-	void parseFile(std::string szFileName);
-	virtual void parseLine(Parser& parser);
-
-	std::string getResource(std::string szFileName, std::string extension);
-
-	//Static stuff
-	static float fade;
-	static bool fadeIn;
-	static void drawFade();
-
-	static void setScene(int _scene);
-
-	static bool input(uint16_t in);
-
-	//Init/deinit
-	static void ginit();
-	static void deinit();
-};
+  private:
+    std::unordered_map<std::string, std::string> ext2dir;
+    std::vector<Font *> deleteFontVector;
+    std::vector<audio::Sound *> deleteSoundVector;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_SCENE_BASE_H

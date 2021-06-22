@@ -7,6 +7,8 @@ If a library is missing, please contact the project manager.
 | Repo | Checked out | License | Usage |
 | ---- | ----------- | ------- | ----- |
 | [SDL](https://github.com/libsdl-org/SDL.git) | release-2.0.14 | zlib License | SDL2 handles multimedia operations for DvD and Sprtool. |
+| [glad](https://github.com/Dav1dde/glad.git) | v0.1.34 | MIT License (glad source code), Public Domain (glad generated code), Apache License 2.0 (Khronos Specifications) | glad generates a GL loader, making loading GL functions manually unnecessary. Requires Python. |
+| [glm](https://github.com/g-truc/glm.git) | 0.9.9.8 | Happy Bunny License/MIT License | glm is a C++ math library. |
 | [zlib](https://github.com/madler/zlib.git) | v1.2.11 | zlib License | zlib/zlibstatic is a dependency of libpng. DvD also references it. |
 | [libpng](https://github.com/glennrp/libpng.git) | v1.6.37 | libpng License (~zlib License) | png/png_static is used for low level png operations in Atlas, DvD, and Sprtool. |
 | [stb_image](https://github.com/nothings/stb.git) | v2.26 | MIT License/Public Domain (Unlicense) | stb_image.h opens gif animations in a GL-ready format. |
@@ -15,6 +17,7 @@ If a library is missing, please contact the project manager.
 | [flac](https://gitlab.xiph.org/xiph/flac.git) | 1.3.3 | Xiph.org's BSD-like license | FLAC (a.k.a. libFLAC) is a requirement for Xiph support in libsndfile. |
 | [opus](https://gitlab.xiph.org/xiph/opus.git) | v1.3.1 | BSD 3-Clause License | opus is a requirement for Xiph support in libsndfile. |
 | [libsndfile](https://github.com/libsndfile/libsndfile.git) | 1.0.31 | GNU LGPL | sndfile can open sound files of many different formats, including wav and ogg, provided it has the appropriate libraries. Modified: [cmake/SndFileChecks.cmake](../extern/libsndfile/cmake/SndFileChecks.cmake), [src/ogg_opus.c](../extern/libsndfile/src/ogg_opus.c) |
+| [json](https://github.com/nlohmann/json.git) | v3.9.1 | MIT License | nlohmann_json is a JSON parser for C++, replacing .ubu files in Dream vs. Dream with .json files. |
 
 ## SDL
 
@@ -37,6 +40,60 @@ freely, subject to the following restrictions:
 2. Altered source versions must be plainly marked as such, and must not be
    misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
+```
+
+## glad
+
+```MIT License
+The glad source code:
+
+    The MIT License (MIT)
+
+    Copyright (c) 2013-2020 David Herberth
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of
+    this software and associated documentation files (the "Software"), to deal in
+    the Software without restriction, including without limitation the rights to
+    use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+    the Software, and to permit persons to whom the Software is furnished to do so,
+    subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+    FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+    COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+    IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+    CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+```
+
+## glm
+
+```MIT License
+================================================================================
+The MIT License
+--------------------------------------------------------------------------------
+Copyright (c) 2005 - G-Truc Creation
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 ```
 
 ## zlib
@@ -291,4 +348,30 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+```
+
+## json
+
+```MIT License
+MIT License 
+
+Copyright (c) 2013-2020 Niels Lohmann
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 ```

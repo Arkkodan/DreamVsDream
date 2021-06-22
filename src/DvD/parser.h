@@ -1,61 +1,58 @@
-#ifndef PARSER_H_INCLUDED
-#define PARSER_H_INCLUDED
+#ifndef DVD_PARSER_H
+#define DVD_PARSER_H
 
+#include <array>
 #include <string>
+#include <vector>
 
 /// @brief Data structure to hold information about a parsed line from Parser
-class ParserLine {
-public:
-	static constexpr auto ARGV_SIZE = 32;
+struct ParserLine {
+  static constexpr auto ARGV_SIZE = 32;
 
-public:
-	ParserLine();
-	~ParserLine();
-
-	bool group;
-	int argc;
-	char* argv[ARGV_SIZE];
+  bool group;
+  int argc;
+  std::array<std::string, ARGV_SIZE> argv;
 };
 
 /// @brief Parser for a text file
 /// @details Designed for ubu scripts
 class Parser {
 public:
-	static constexpr auto EXT_SCRIPT = "ubu";
+  static constexpr auto EXT_SCRIPT = "ubu";
 
-	static constexpr auto EXT_IMAGE = "png";
-	static constexpr auto EXT_SOUND = "wav";
-	static constexpr auto EXT_MUSIC = "ogg";
-	static constexpr auto EXT_FONT = "rf";
-	static constexpr auto EXT_VIDEO = "avi";
-	static constexpr auto EXT_TEXT = "txt";
+  static constexpr auto EXT_IMAGE = "png";
+  static constexpr auto EXT_SOUND = "wav";
+  static constexpr auto EXT_MUSIC = "ogg";
+  static constexpr auto EXT_FONT = "rf";
+  static constexpr auto EXT_VIDEO = "avi";
+  static constexpr auto EXT_TEXT = "txt";
 
 public:
-	bool open(std::string szFileName);
-	void reset();
-	bool exists();
+  bool open(std::string szFileName);
+  void reset();
+  bool exists() const;
 
-	Parser();
-	Parser(std::string szFileName);
-	~Parser();
+  Parser();
+  Parser(std::string szFileName);
+  ~Parser();
 
-	bool parseLine();
+  bool parseLine();
 
-	bool isGroup();
-	int getArgC();
+  bool isGroup() const;
+  int getArgC() const;
 
-	const char* getArg(int arg);
-	int getArgInt(int arg);
-	float getArgFloat(int arg);
-	bool getArgBool(int arg, bool def);
+  std::string getArg(int arg) const;
+  int getArgInt(int arg) const;
+  float getArgFloat(int arg) const;
+  bool getArgBool(int arg, bool def) const;
 
-	bool is(std::string szTest, int argc);
+  bool is(std::string szTest, int argc) const;
 
-protected:
-	int iLine;
-	int nLines;
-	char** szLines;
-	ParserLine* lines;
+private:
+  int iLine;
+  int nLines;
+  std::vector<std::string> szLines;
+  std::vector<ParserLine> lines;
 };
 
-#endif // PARSER_H_INCLUDED
+#endif // DVD_PARSER_H

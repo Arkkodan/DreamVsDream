@@ -1,0 +1,54 @@
+{
+    "bgm": {
+        "intro": "intro",
+        "loop": "loop"
+    },
+    "logo": "logo",
+    "credits": {
+        "font": "*32x32",
+        "file": "credits"
+    },
+    "color": {
+        "title": {
+            "r": 180,
+            "g": 120,
+            "b": 190
+        },
+        "name": {
+            "r": 255,
+            "g": 255,
+            "b": 255
+        }
+    },
+    "images": [
+        {
+            "image": "bg",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "renderType": "normal"
+        },
+        {
+            "image": "dots",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "renderType": "multiply",
+            "vel": {
+                "x": 0.0,
+                "y": -0.5
+            },
+            "wrap": true
+        },
+        {
+            "image": "fg",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            },
+            "renderType": "normal"
+        }
+    ]
+}

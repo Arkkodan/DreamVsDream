@@ -1,330 +1,280 @@
 #include "graphics.h"
 
-#include "input.h"
+#include "../renderer/gl_loader.h"
+#include "../renderer/renderer.h"
+#include "../util/fileIO.h"
 #include "error.h"
-#include "player.h"
-#include "scene/scene.h"
+#include "input.h"
+#include "shader_renderer/fighter_renderer.h"
+#include "shader_renderer/primitive_renderer.h"
+#include "shader_renderer/texture2D_renderer.h"
+#include "sys.h"
+#ifdef GAME
+#include "../fileIO/text.h"
+#include "../renderer/shader.h"
+#include "../util/rng.h"
 #include "network.h"
-#include "shader.h"
+#include "scene/fight.h"
+#include "scene/options.h"
+#include "scene/scene.h"
 #include "stage.h"
 
-#include "sys.h"
+#include <memory>
+#endif // GAME
 
-#ifndef __APPLE__
-#define LOAD_GL_PROC(name, type) name = (PFN##type##PROC)SDL_GL_GetProcAddress(#name)
-#define LOAD_GL_ARB_PROC(name, type, arbname) name = (PFN##type##PROC)SDL_GL_GetProcAddress(arbname)
+#include <glm/gtc/matrix_transform.hpp>
 
-#ifdef _WIN32
-//1.3
-// SDL_opengl.h already defines glActiveTexture and glBlendEquation
-PFNGLACTIVETEXTUREPROC          glActiveTexture;
-PFNGLBLENDEQUATIONPROC          glBlendEquation;
-#endif
+// Macro option to use high-res timer
+// Undef to use original 16 mspf (62.5 fps)
+#define EXACT_60_FPS
 
-#ifdef GAME
-PFNGLATTACHSHADERPROC			glAttachShader;
-PFNGLCOMPILESHADERPROC			glCompileShader;
-PFNGLCREATEPROGRAMPROC			glCreateProgram;
-PFNGLDELETEPROGRAMPROC			glDeleteProgram;
-PFNGLCREATESHADERPROC			glCreateShader;
-PFNGLDELETESHADERPROC			glDeleteShader;
-PFNGLGETPROGRAMINFOLOGPROC		glGetProgramInfoLog;
-PFNGLGETPROGRAMIVPROC	        glGetProgramiv;
-PFNGLGETPROGRAMINFOLOGPROC	    glGetShaderInfoLog;
-PFNGLGETSHADERIVPROC			glGetShaderiv;
-PFNGLGETUNIFORMLOCATIONPROC	 	glGetUniformLocation;
-PFNGLLINKPROGRAMPROC 			glLinkProgram;
-PFNGLSHADERSOURCEPROC 			glShaderSource;
-PFNGLUNIFORM1IPROC 				glUniform1i;
-PFNGLUNIFORM1FPROC 				glUniform1f;
-PFNGLUNIFORM2FPROC 				glUniform2f;
-PFNGLUNIFORM3FPROC 				glUniform3f;
-PFNGLUNIFORM4FPROC 				glUniform4f;
-PFNGLUSEPROGRAMPROC		 		glUseProgram;
-#endif
-#endif
-
-//double oldTime = 0.0f;
-
-// extern uint8_t* blankTex;
+#define SHOW_FPS
+#ifdef SHOW_FPS
+#include <sstream>
+#endif // SHOW_FPS
 
 namespace graphics {
-	constexpr auto FPS_BUFFER = 2;
+  static constexpr auto FPS_BUFFER = 2;
 
-	//State options
-	int render = 0;
+  // State options
+  static Image::Render render = Image::Render::NORMAL;
 
-	int srcX = 0;
-	int srcY = 0;
-	int srcW = 0;
-	int srcH = 0;
+  static int srcX = 0;
+  static int srcY = 0;
+  static int srcW = 0;
+  static int srcH = 0;
 
-	float xscale = 1.0f;
-	float yscale = 1.0f;
+  static float xscale = 1.0f;
+  static float yscale = 1.0f;
 
-	//Immutable stuff
-	unsigned int max_texture_size = 0;
-	bool force_POT = false;
-	bool shader_support = false;
+  // Immutable stuff
+  static unsigned int max_texture_size = 0;
+  static bool shader_support = false;
 
-	//Timer stuff
-	unsigned long time = 0;
+  static auto projectionMatrix =
+      glm::ortho(0.0f, static_cast<float>(sys::WINDOW_WIDTH),
+                 static_cast<float>(sys::WINDOW_HEIGHT), 0.0f);
+
+  Image::Render getRender() { return render; }
+
+  int &getrSourceX() { return srcX; }
+  int &getrSourceY() { return srcY; }
+  int &getrSourceW() { return srcW; }
+  int &getrSourceH() { return srcH; }
+
+  float &getrXScale() { return xscale; }
+  float &getrYScale() { return yscale; }
+
+  unsigned int getMaxTextureSize() { return max_texture_size; }
+  bool hasShaderSupport() { return shader_support; }
+
+  const glm::mat4x4 &getcrProjectionMatrix() { return projectionMatrix; }
+
+#ifdef EXACT_60_FPS
+#define timer_t uint64_t
+#else
+#define timer_t unsigned long
+#endif // EXACT_60_FPS
+  // Timer stuff
+  static timer_t time = 0;
 
 #ifdef SHOW_FPS
-#define FPS_COUNTER_SIZE 64
-	unsigned int tickValues[FPS_COUNTER_SIZE] = {0};
-	unsigned int tickSum = 0;
-	unsigned int tickIndex = 0;
+  static constexpr auto FPS_COUNTER_SIZE = 64;
+  static timer_t tickValues[FPS_COUNTER_SIZE] = {0};
+  static timer_t tickSum = 0;
+  static unsigned int tickIndex = 0;
 #endif // SHOW_FPS
+#undef timer_t
 
-#ifdef GAME
-	Shader shader_palette;
-#endif
+  void init(bool disable_shaders_, unsigned int max_texture_size_) {
+    if (!renderer::init()) {
+      error::die("Could not initialize OpenGL");
+    }
 
-	void init(bool disable_shaders_, unsigned int max_texture_size_) {
-        //REQUIRE VERSION 1.3
-        GLint versionMajor, versionMinor;
-        glGetIntegerv(GL_MAJOR_VERSION, &versionMajor);
-        glGetIntegerv(GL_MINOR_VERSION, &versionMinor);
-        if(versionMajor == 1 && versionMinor < 3) {
-            error::die("Unsupported version of OpenGL: " + util::toString(versionMajor) + "." + util::toString(versionMinor));
-        }
+    renderer::FighterRenderer::init();
+    renderer::PrimitiveRenderer::init();
+    renderer::Texture2DRenderer::init();
 
-		//OPENGL
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0, sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0, 0, 1);
-		glMatrixMode(GL_MODELVIEW);
+    // OpenGL's matrices are column-major
 
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_LIGHTING);
-		glEnable(GL_CULL_FACE);
+    auto u_mvp = projectionMatrix;
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    renderer::FighterRenderer::setMVPMatrix(u_mvp);
+    renderer::PrimitiveRenderer::setMVPMatrix(u_mvp);
+    renderer::Texture2DRenderer::setMVPMatrix(u_mvp);
 
-		//Get max texture size
-		glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint*)&max_texture_size);
-		if(max_texture_size_ && max_texture_size_ < max_texture_size) {
-			max_texture_size = max_texture_size_;
-		}
-
-#ifdef _WIN32
-		//1.2+ functions are not defined in Windows
-		// SDL_opengl.h already defines glActiveTexture and glBlendEquation
-		LOAD_GL_PROC(glActiveTexture, GLACTIVETEXTURE);
-		LOAD_GL_PROC(glBlendEquation, GLBLENDEQUATION);
-		if(!glBlendEquation)
-            LOAD_GL_ARB_PROC(glBlendEquation, GLBLENDEQUATION, "glBlendEquationARB");
-        if(!glActiveTexture || !glBlendEquation) {
-            error::die("Your OpenGL implementation isn't capable of running Dream vs. Dream.");
-        }
-#endif
+    // Get max texture size
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&max_texture_size);
+    if (max_texture_size_ && max_texture_size_ < max_texture_size) {
+      max_texture_size = max_texture_size_;
+    }
 
 #ifdef SPRTOOL
-        (void)disable_shaders_;
-#else
+    (void)disable_shaders_;
+#else // !SPRTOOL
 #ifdef __APPLE__
-		//These functions are all available in OS X 10.6+
-		shader_support = !disable_shaders_;
-#else
-		//Shader support?
-		if(!disable_shaders_) {
-            //See if we have opengl >= 2.0; this means we have non-arb
-            //shading extensions
-			GLint version;
-			glGetIntegerv(GL_MAJOR_VERSION, &version);
-			if(version >= 2) {
-				LOAD_GL_PROC(glAttachShader, GLATTACHSHADER);
-				LOAD_GL_PROC(glCompileShader, GLCOMPILESHADER);
-				LOAD_GL_PROC(glCreateProgram, GLCREATEPROGRAM);
-				LOAD_GL_PROC(glDeleteProgram, GLDELETEPROGRAM);
-				LOAD_GL_PROC(glCreateShader, GLCREATESHADER);
-				LOAD_GL_PROC(glDeleteShader, GLDELETESHADER);
-				LOAD_GL_PROC(glGetProgramInfoLog, GLGETPROGRAMINFOLOG);
-				LOAD_GL_PROC(glGetProgramiv, GLGETPROGRAMIV);
-				LOAD_GL_PROC(glGetShaderInfoLog, GLGETSHADERINFOLOG);
-				LOAD_GL_PROC(glGetShaderiv, GLGETSHADERIV);
-				LOAD_GL_PROC(glGetUniformLocation, GLGETUNIFORMLOCATION);
-				LOAD_GL_PROC(glLinkProgram, GLLINKPROGRAM);
-				LOAD_GL_PROC(glShaderSource, GLSHADERSOURCE);
-				LOAD_GL_PROC(glUniform1i, GLUNIFORM1I);
-				LOAD_GL_PROC(glUniform1f, GLUNIFORM1F);
-				LOAD_GL_PROC(glUniform2f, GLUNIFORM2F);
-				LOAD_GL_PROC(glUniform3f, GLUNIFORM3F);
-				LOAD_GL_PROC(glUniform4f, GLUNIFORM4F);
-				LOAD_GL_PROC(glUseProgram, GLUSEPROGRAM);
+    // These functions are all available in OS X 10.6+
+    shader_support = !disable_shaders_;
+#else // !__APPLE__
+    // Shader support?
+    if (!disable_shaders_) {
+      // See if we have opengl >= 2.0; this means we have non-arb
+      // shading extensions
+      GLint version;
+      glGetIntegerv(GL_MAJOR_VERSION, &version);
+      if (version >= 2) {
+        shader_support =
+            glAttachShader && glCompileShader && glCreateProgram &&
+            glDeleteProgram && glCreateShader && glDeleteShader &&
+            glGetProgramInfoLog && glGetProgramiv && glGetShaderInfoLog &&
+            glGetShaderiv && glGetUniformLocation && glLinkProgram &&
+            glShaderSource && glUniform1i && glUniform1f && glUniform2f &&
+            glUniform3f && glUniform4f && glUseProgram;
+      }
+    }
 
-                shader_support = glAttachShader && glCompileShader && glCreateProgram && glDeleteProgram &&
-                                 glCreateShader && glDeleteShader && glGetProgramInfoLog && glGetProgramiv &&
-                                 glGetShaderInfoLog && glGetShaderiv && glGetUniformLocation && glLinkProgram &&
-                                 glShaderSource && glUniform1i && glUniform1f && glUniform2f && glUniform3f &&
-                                 glUniform4f && glUseProgram;
-			}
-			if(!shader_support &&
-                SDL_GL_ExtensionSupported("GL_ARB_shader_objects") &&
-                SDL_GL_ExtensionSupported("GL_ARB_shading_language_100") &&
-                SDL_GL_ExtensionSupported("GL_ARB_vertex_shader") &&
-                SDL_GL_ExtensionSupported("GL_ARB_fragment_shader"))
-            {
-                LOAD_GL_ARB_PROC(glAttachShader, GLATTACHSHADER, "glAttachObjectARB");
-                LOAD_GL_ARB_PROC(glCompileShader, GLCOMPILESHADER, "glCompileShaderARB");
-                LOAD_GL_ARB_PROC(glCreateProgram, GLCREATEPROGRAM, "glCreateProgramObjectARB");
-                LOAD_GL_ARB_PROC(glDeleteProgram, GLDELETEPROGRAM, "glDeleteObjectARB");
-                LOAD_GL_ARB_PROC(glCreateShader, GLCREATESHADER, "glCreateShaderObjectARB");
-                LOAD_GL_ARB_PROC(glDeleteShader, GLDELETESHADER, "glDeleteObjectARB");
-                LOAD_GL_ARB_PROC(glGetProgramInfoLog, GLGETPROGRAMINFOLOG, "glGetInfoLogARB");
-                LOAD_GL_ARB_PROC(glGetProgramiv, GLGETPROGRAMIV, "glGetObjectParameterivARB");
-                LOAD_GL_ARB_PROC(glGetUniformLocation, GLGETUNIFORMLOCATION, "glGetUniformLocationARB");
-				LOAD_GL_ARB_PROC(glLinkProgram, GLLINKPROGRAM, "glLinkProgramARB");
-				LOAD_GL_ARB_PROC(glShaderSource, GLSHADERSOURCE, "glShaderSourceARB");
-				LOAD_GL_ARB_PROC(glUniform1i, GLUNIFORM1I, "glUniform1iARB");
-				LOAD_GL_ARB_PROC(glUniform1f, GLUNIFORM1F, "glUniform1fARB");
-				LOAD_GL_ARB_PROC(glUniform2f, GLUNIFORM2F, "glUniform2fARB");
-				LOAD_GL_ARB_PROC(glUniform3f, GLUNIFORM3F, "glUniform3fARB");
-				LOAD_GL_ARB_PROC(glUniform4f, GLUNIFORM4F, "glUniform4fARB");
-				LOAD_GL_ARB_PROC(glUseProgram, GLUSEPROGRAM, "glUseProgramObjectARB");
+    renderer::ShaderProgram::unuse();
 
-                shader_support = glAttachShader && glCompileShader && glCreateProgram && glDeleteProgram &&
-                                 glCreateShader && glDeleteShader && glGetProgramInfoLog && glGetProgramiv &&
-                                 glGetShaderiv && glGetUniformLocation && glLinkProgram && glShaderSource &&
-                                 glUniform1i && glUniform1f && glUniform2f && glUniform3f && glUniform4f &&
-                                 glUseProgram;
-			}
-		}
-		//Load shaders, if possible
-		if(shader_support) {
-			shader_palette.create("shaders/vertex.v.glsl", "shaders/palette.f.glsl");
-		}
-#endif
-#endif
+#endif // !__APPLE__
+#endif // !SPRTOOL
+  }
 
-		//Remove garbage data
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
-
-	void deinit() {
+  void deinit() {
 #ifndef SPRTOOL
-		//delete [] blankTex;
+    // delete [] blankTex;
 #endif
-	}
+  }
 
-	int pixel = 2;
-	int shift = 0;
+  static int pixel = 2;
+  static int shift = 0;
 
-	void refresh() {
+  void refresh() {
 #ifdef GAME
-		if(Stage::stage == 3) {
-			//Update pixel value
-			if(pixel > 2) {
-				pixel--;
-			}
+    if (Stage::getStageIndex() == 3) {
+      // Update pixel value
+      if (pixel > 2) {
+        pixel--;
+      }
 
-			if(FIGHT->round >= 1) {
-				if(!util::roll(64)) {
-					pixel = 2 + 2 * FIGHT->round;
-				}
-			}
-			shift = 0;
+      int round = FIGHT->getRound();
 
-			if(!SceneOptions::optionEpilepsy) {
-				if(FIGHT->round >= 2) {
-					if(!util::roll(64)) {
-						shift = util::roll(1, 2);
-					}
-				}
-			}
-		}
+      if (round >= 1) {
+        if (!util::roll(64)) {
+          pixel = 2 + 2 * round;
+        }
+      }
+      shift = 0;
+
+      if (!scene::Options::isEpilepsy()) {
+        if (round >= 2) {
+          if (!util::roll(64)) {
+            shift = util::roll(1, 2);
+          }
+        }
+      }
+    }
 #endif
 
-		//Calculate fps, wait
-		unsigned long delta = sys::getTime() - time;
-		if(delta < sys::MSPF) {
-			if(delta > FPS_BUFFER) {
-				sys::sleep(sys::MSPF - delta);
-			}
-			for(;;) {
-				if(sys::getTime() - time >= sys::MSPF) {
-					break;
-				}
-			}
-		}
+    // Calculate fps, wait
+#ifdef EXACT_60_FPS
+#define signed_t int64_t
+#define getTimeFunc() sys::getHiResTime()
+    uint64_t counter = getTimeFunc();
+    uint64_t frequency = sys::getHiResFrequency();
+    uint64_t delta = counter - time;
+#else
+#define signed_t long
+#define getTimeFunc() sys::getTime()
+    unsigned long counter = getTimeFunc();
+    unsigned long frequency = 1000; // Resolution of getTime and sleep is 1000
+    unsigned long delta = counter - time;
+#endif // EXACT_60_FPS
+    if (static_cast<signed_t>(delta - frequency / sys::FPS) < 0) {
+      if (static_cast<signed_t>(delta - frequency * FPS_BUFFER / sys::FPS) >
+          0) {
+        sys::sleep(static_cast<unsigned int>(
+            static_cast<signed_t>(frequency / sys::FPS - delta) * 1000 /
+            frequency));
+      }
+      for (;;) {
+        counter = getTimeFunc();
+        if (static_cast<signed_t>(counter - time - frequency / sys::FPS) >= 0) {
+          break;
+        }
+      }
+    }
+#undef getTimeFunc
+#undef signed_t
 
 #ifdef SHOW_FPS
-		delta = sys::getTime() - time;
-		tickSum -= tickValues[tickIndex];
-		tickSum += delta;
-		tickValues[tickIndex] = delta;
-		if(++tickIndex >= FPS_COUNTER_SIZE) {
-			tickIndex = 0;
-		}
-		char buff[256];
-		sprintf8(buff, "[%f] " WINDOW_TITLE, 1000 / ((float)tickSum / FPS_COUNTER_SIZE));
-		sys::setTitle(buff);
+    delta = counter - time;
+    tickSum -= tickValues[tickIndex];
+    tickSum += delta;
+    tickValues[tickIndex] = delta;
+    if (++tickIndex >= FPS_COUNTER_SIZE) {
+      tickIndex = 0;
+    }
+    std::stringstream ss;
+    ss << '['
+       << std::to_string(static_cast<double>(frequency) * FPS_COUNTER_SIZE /
+                         tickSum)
+       << "] " << sys::WINDOW_TITLE;
+    sys::setTitle(ss.str());
 #endif // SHOW_FPS
 
-		time = sys::getTime();
+    time = counter;
 
-		glClear(GL_COLOR_BUFFER_BIT);
-	}
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
 
-	//State stuff
-	void setClearColor(uint8_t r, uint8_t g, uint8_t b) {
-		glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
-	}
+  // State stuff
+  void setClearColor(uint8_t r, uint8_t g, uint8_t b) {
+    glClearColor(r / 255.0f, g / 255.0f, b / 255.0f, 1.0f);
+  }
 
-	void setColor(uint8_t r, uint8_t g, uint8_t b, float a) {
-		glColor4f(r / 255.0f, g / 255.0f, b / 255.0f, a);
-	}
+  void setRect(int sX, int sY, int sW, int sH) {
+    srcX = sX;
+    srcY = sY;
+    srcW = sW;
+    srcH = sH;
+  }
 
-	void setRect(int sX, int sY, int sW, int sH) {
-		srcX = sX;
-		srcY = sY;
-		srcW = sW;
-		srcH = sH;
-	}
+  void setScale(float scale_, float yscale_) {
+    xscale = scale_;
+    if (yscale_) {
+      yscale = yscale_;
+    }
+    else {
+      yscale = scale_;
+    }
+  }
 
-	void setScale(float scale_, float yscale_) {
-		xscale = scale_;
-		if(yscale_) {
-			yscale = yscale_;
-		} else {
-			yscale = scale_;
-		}
-	}
-
-	void setRender(int render_) {
-		render = render_;
-	}
+  void setRender(Image::Render render_) { render = render_; }
 
 #ifdef GAME
-	void setPalette(unsigned int palette, float alpha, float r, float g, float b, float pct) {
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, palette);
-		glActiveTexture(GL_TEXTURE0);
+  void setPalette(const renderer::Texture2D &palette, float alpha, float r,
+                  float g, float b, float pct) {
+    int stageIndex = Stage::getStageIndex();
 
-		shader_palette.use();
+    // u_texture set in image.cpp
+    renderer::FighterRenderer::setPalette(palette, 1);
 
-		shader_palette.setInt("texture", 0);
-		shader_palette.setInt("palette", 1);
+    float u_shift = 0.0f;
+    if (stageIndex == 3 && FIGHT->getRound() >= 2) {
+      u_shift = shift / 256.0f;
+    }
+    renderer::FighterRenderer::setShift(u_shift);
 
-		if(Stage::stage == 3 && FIGHT->round >= 2) {
-			shader_palette.setFloat("shift", shift / 256.0f);
-		} else {
-			shader_palette.setFloat("shift", 0.0f);
-		}
+    renderer::FighterRenderer::setColor({r, g, b});
+    renderer::FighterRenderer::setPercent(pct);
 
-		shader_palette.setVec3("color", r, g, b);
-		shader_palette.setFloat("pct", pct);
+    renderer::FighterRenderer::setAlpha(alpha);
 
-		shader_palette.setFloat("alpha", alpha);
-
-		if(Stage::stage == 3) {
-			shader_palette.setInt("pixel", pixel);
-		} else {
-			shader_palette.setInt("pixel", 1);
-		}
-	}
+    int u_pixel = 1;
+    if (stageIndex == 3) {
+      u_pixel = pixel;
+    }
+    renderer::FighterRenderer::setPixelSize(u_pixel);
+  }
 #endif
-}
+} // namespace graphics

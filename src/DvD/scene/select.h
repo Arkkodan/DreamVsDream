@@ -3,96 +3,104 @@
 
 #include "scene_base.h"
 
-#include "../util.h"
+#include "../fighter.h"
 #include "../font.h"
 
-/// @brief Helper data structure for SceneSelect
-class CursorData {
-public:
-	util::Vector off;
-	Image img;
-	Image imgSelect;
-	audio::Sound sndSelect;
-	audio::Sound sndDeselect;
+#include <glm/vec2.hpp>
 
-	int frameC;
-	int speed;
-	bool grow;
+namespace scene {
 
-	CursorData();
-	~CursorData();
-};
+  /// @brief Helper data structure for SceneSelect
+  struct CursorData {
+    glm::ivec2 off;
+    Image img;
+    Image imgSelect;
+    audio::Sound *sndSelect;
+    audio::Sound *sndDeselect;
 
-/// @brief Helper object for SceneSelect
-class Cursor {
-public:
-	enum {
-		CURSOR_UNLOCKED,
-		CURSOR_COLORSWAP,
-		CURSOR_LOCKED,
-	};
+    int frameC;
+    int speed;
+    bool grow;
+  };
 
-public:
-	int pos;
-	int posOld;
-	int posDefault;
+  /// @brief Helper object for SceneSelect
+  struct Cursor {
+    enum {
+      CURSOR_UNLOCKED,
+      CURSOR_COLORSWAP,
+      CURSOR_LOCKED,
+    };
 
-	int frame;
-	int timer;
+    int pos;
+    int posOld;
+    int posDefault;
 
-	int timerPortrait;
+    mutable int frame;
+    mutable int timer;
 
-	int lockState;
+    int timerPortrait;
 
-	uint8_t r;
-	uint8_t g;
-	uint8_t b;
+    int lockState;
 
-	//int sprFrame;
-	//int sprTimer;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
 
-	Cursor();
+    // int sprFrame;
+    // int sprTimer;
 
-	int getGroup(int w, int gW, int gH);
-};
+    int getGroup(int w, int gW, int gH) const;
+  };
 
-/// @brief Character and stage selection
-class SceneSelect : public Scene {
-private:
-	static constexpr auto PORTRAIT_FADE = 50;
+  /// @brief Character and stage selection
+  class Select : public Scene {
+  public:
+    Select();
+    ~Select();
 
-public:
-	SceneSelect();
-	~SceneSelect();
+    void init() override final;
 
-	void init();
+    // Functions
+    void think() override final;
+    void reset() override final;
+    void draw() const override final;
 
-	//Members
-	int width, height;
-	int gWidth, gHeight;
-	//Image* sprites;
-	SceneImage* gui;
-	util::Vector* grid;
-	int* gridFighters;
-	int gridC;
+    void newEffect(int player, int group);
+    void drawEffect(int player, int group, int _x, int _y,
+                    bool spr = false) const;
 
-	Cursor cursors[2];
+    void parseLine(Parser &parser) override final;
+    void parseJSON(const nlohmann::ordered_json &j_obj) override final;
 
-	CursorData* curData;
+  private:
+    void thinkCharacterSelect();
+    void thinkStageSelect();
+    void drawCharacterSelect() const;
+    void drawStageSelect() const;
 
-	Font font_stage;
-	int cursor_stage;
-	float cursor_stage_offset;
+  private:
+    static constexpr auto PORTRAIT_FADE = 50;
 
-	//Functions
-	void think();
-	void reset();
-	void draw();
+  private:
+    // Members
+    int width, height;
+    int gWidth, gHeight;
+    // Image* sprites;
+    std::list<SceneImage> gui;
+    std::vector<glm::ivec2> grid;
+    std::vector<int> gridFighters;
+    int gridC;
 
-	void newEffect(int player, int group);
-	void drawEffect(int player, int group, int _x, int _y, bool spr = false);
+    std::array<Cursor, 2> cursors;
 
-	void parseLine(Parser& parser);
-};
+    std::vector<CursorData> curData;
+
+    Font *font_stage;
+    int cursor_stage;
+    float cursor_stage_offset;
+
+    std::vector<game::Fighter *> fighters;
+  };
+} // namespace scene
 
 #endif // DVD_SCENE_SELECT_H

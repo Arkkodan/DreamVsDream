@@ -1,36 +1,48 @@
-#ifndef FONT_H_INCLUDED
-#define FONT_H_INCLUDED
+#ifndef DVD_FONT_H
+#define DVD_FONT_H
 
 #include "image.h"
+
+#include <array>
+#include <cstdint>
+#include <string>
 
 /// @brief Font class for rendering
 /// @details Uses Dream vs. Dream's font format
 class Font {
 public:
-	Font();
-	//Font(std::string filename);
-	~Font();
+  static void setScale(float xscale, float yscale = 0.0f);
 
-	void drawChar(int x, int y, char c);
-	void drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b, float a = 1.0f);
-	void drawText(int x, int y, std::string text);
-	void drawText(int x, int y, std::string text, uint8_t r, uint8_t g, uint8_t b, float a = 1.0f);
-	int getTextWidth(std::string text);
-	int getCharWidth(char c);
+public:
+  Font();
+  // Font(std::string filename);
+  ~Font();
 
-	void createFromFile(std::string filename);
-	bool exists();
+  void drawChar(int x, int y, char c) const;
+  void drawChar(int x, int y, char c, uint8_t r, uint8_t g, uint8_t b,
+                float a = 1.0f) const;
+  void drawText(int x, int y, std::string text) const;
+  void drawText(int x, int y, std::string text, uint8_t r, uint8_t g, uint8_t b,
+                float a = 1.0f) const;
+  int getTextWidth(std::string text) const;
+  int getCharWidth(char c) const;
 
-	Image img;
-	uint16_t pos[256];
-	char width[256];
+  void createFromFile(std::string filename);
+  bool exists() const;
 
-	int mono; //Size of monospace characters; 0 is variable width
-	bool sensitive; //Case sensitive?
+  const Image *getcImage() const;
 
-	static float xscale;
-	static float yscale;
-	static void setScale(float xscale, float yscale = 0.0f);
+private:
+  static float xscale;
+  static float yscale;
+
+private:
+  Image img;
+  std::array<uint16_t, 256> pos;
+  std::array<char, 256> width;
+
+  int mono;       // Size of monospace characters; 0 is variable width
+  bool sensitive; // Case sensitive?
 };
 
-#endif // FONT_H_INCLUDED
+#endif // DVD_FONT_H

@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.14.0)
 
 
 project("DreamVsDream"
-  VERSION 0.2.1
+  VERSION 0.2.2
 )
 
 
@@ -29,6 +29,7 @@ endif()
 # First, mark all external libraries as shared
 set(SHARED_LIBRARIES
   SDL2
+  glad
   zlib
   png
   ogg
@@ -64,6 +65,7 @@ set(DREAMVSDREAM_BINARIES
   DvD
   Fontbuild
   Sprtool
+  UBU2JSON
 )
 message(STATUS "Dream Vs. Dream binaries: ${DREAMVSDREAM_BINARIES}")
 

@@ -1,382 +1,424 @@
 #include "scene_base.h"
 
+#include "fight.h"
 #include "scene.h"
 
-#include "../stage.h"
+#include "../../fileIO/json.h"
+#include "../../util/fileIO.h"
+#include "../app.h"
 #include "../error.h"
-
+#include "../graphics.h"
+#include "../resource_manager.h"
+#include "../shader_renderer/texture2D_renderer.h"
+#include "../stage.h"
 #include "../sys.h"
 
-Scene* Scene::scenes[SCENE_MAX] = { nullptr };
-int Scene::scene = SCENE_INTRO;
-int Scene::sceneNew = 0;
+#include <algorithm>
 
-Image Scene::imgLoading;
+// SCENES
+scene::Scene::Scene(std::string name_) {
+  // Copy the name.
+  name = name_;
 
-void Scene::ginit() {
-	scenes[SCENE_INTRO] = new SceneIntro();
-	scenes[SCENE_TITLE] = new SceneTitle();
-	scenes[SCENE_SELECT] = new SceneSelect();
-	scenes[SCENE_VERSUS] = new SceneVersus();
-	scenes[SCENE_FIGHT] = new SceneFight();
-	scenes[SCENE_OPTIONS] = new SceneOptions();
+  initialized = false;
+  bgmPlaying = false;
+  // video = nullptr;
+
+  sndMenu = sndSelect = sndBack = sndInvalid = nullptr;
+
+  ext2dir[Parser::EXT_SCRIPT] = "scripts";
+  ext2dir[Parser::EXT_IMAGE] = "images";
+  ext2dir[Parser::EXT_SOUND] = "sounds";
+  ext2dir[Parser::EXT_MUSIC] = "music";
+  ext2dir[Parser::EXT_FONT] = "fonts";
+  ext2dir[Parser::EXT_VIDEO] = "videos";
+  ext2dir[Parser::EXT_TEXT] = "texts";
+}
+
+scene::Scene::~Scene() {
+  for (const auto *item : deleteFontVector) {
+    delete item;
+  }
+  for (const auto *item : deleteSoundVector) {
+    delete item;
+  }
+  // delete video;
+}
+
+void scene::Scene::init() {
+  initialized = true;
+  // Load the scene data from the file
+  bool jsonSuccess = false;
+  auto j_obj =
+      fileIO::readJSON(util::getPath("scenes/" + name + '/' + name + ".json"));
+  if (j_obj.is_object()) {
+    try {
+      parseJSON(j_obj);
+      jsonSuccess = true;
+    }
+    catch (const nlohmann::detail::out_of_range &e) {
+      error::error(name + ".json error: " + e.what());
+      images.clear();
+    }
+  }
+  if (!jsonSuccess) {
+    error::error("Cannot read " + name + ".json. Falling back to " + name +
+                 ".ubu");
+    parseFile("scenes/" + name + ".ubu");
+  }
+}
+
+void scene::Scene::think() {
+  if (!initialized) {
+    init();
+  }
+
+  int sceneIndex = getSceneIndex();
+  if (!bgmPlaying &&
 #ifndef NO_NETWORK
-	scenes[SCENE_NETPLAY] = new SceneNetplay();
+      sceneIndex != SCENE_NETPLAY &&
 #endif
-	scenes[SCENE_CREDITS] = new SceneCredits();
+      sceneIndex != SCENE_FIGHT) {
+    if (bgm.exists()) {
+      bgm.play();
+    }
+    bgmPlaying = true;
+  }
+  std::for_each(images.begin(), images.end(),
+                [](SceneImage &si) { si.think(); });
+  // if(video) video->think();
 
-	scenes[SCENE_FIGHT]->init();
-	scenes[SCENE_VERSUS]->init();
-	scenes[SCENE_INTRO]->init();
+  // Fade timer
+  float &fade = getrFade();
+  if (fade) {
+    // if(fadeIn && scene == SCENE_VERSUS) {
+    //	fade = 0.0f;
+    //} else {
+    if (sceneIndex == SCENE_FIGHT) {
+      fade -= 0.02f;
+    }
+    else {
+      fade -= 0.1f;
+    }
+    if (fade <= 0.0f) {
+      if (isFadeIn()) {
+        fade = 0.0f;
+      }
+      else {
+        fade = 1.0f;
+        setFadeIn(true);
+
+        // Are we quitting?
+        int sceneNew = getSceneNewIndex();
+        if (sceneNew == SCENE_QUIT) {
+          app::quit();
+        }
+        setIMSceneIndex(sceneNew);
+
+        audio::Music::stop();
+
+        const Image *imgLoading = getLoadingImage();
+        if (!SCENE->initialized) {
+          // Loading graphic
+          imgLoading->draw<renderer::Texture2DRenderer>(0, 0);
+          sys::refresh();
+          SCENE->init();
+        }
+        if (getSceneIndex() == SCENE_FIGHT && !STAGE->isInitialized()) {
+          // Loading graphic
+          imgLoading->draw<renderer::Texture2DRenderer>(0, 0);
+          sys::refresh();
+          STAGE->init();
+        }
+        SCENE->reset();
+      }
+    }
+
+    // Always disable controls during fades
+    Fight::getrPlayerAt(0).setFrameInput(0);
+    //}
+  }
 }
 
-void Scene::deinit() {
-	for (int i = 0; i < SCENE_MAX; i++) {
-		delete scenes[i];
-	}
+void scene::Scene::reset() {
+  std::for_each(images.begin(), images.end(),
+                [](SceneImage &si) { si.reset(); });
+  // if(video) video->reset();
+  bgmPlaying = false;
 }
 
-void Scene::setScene(int _scene) {
-	if (_scene == scene) {
-		return;
-	}
-	if (_scene == SCENE_FIGHT) {
-		SceneFight::madotsuki.reset();
-		SceneFight::poniko.reset();
-		SceneFight::cameraPos.x = 0;
-		SceneFight::cameraPos.y = 0;
-		SceneFight::idealCameraPos.x = 0;
-		SceneFight::idealCameraPos.y = 0;
-	}
-	sceneNew = _scene;
-	fade = 1.0f;
-	fadeIn = false;
+void scene::Scene::draw() const {
+  // if(video) video->draw(0, 0);
+  std::for_each(images.cbegin(), images.cend(),
+                [](const SceneImage &si) { si.draw(false); });
 }
 
-bool Scene::input(uint16_t in) {
-	return (SceneFight::madotsuki.frameInput & in) || (SceneFight::poniko.frameInput & in);
+template <>
+Font *scene::Scene::getResourceT<Font>(const std::string &resource) {
+  if (resource.front() == '*') {
+    return resource_manager::getResource<Font>(
+        resource.substr(1, std::string::npos));
+  }
+  else {
+    Font *res = new Font;
+    res->createFromFile(getResource(resource, Parser::EXT_FONT));
+    deleteFontVector.push_back(res);
+    return res;
+  }
 }
 
-float Scene::fade = 1.0f;
-bool Scene::fadeIn = true;
-
-void Scene::drawFade() {
-	//Draw fade!
-	glBindTexture(GL_TEXTURE_2D, 0);
-	if (fadeIn) {
-		glColor4f(0.0f, 0.0f, 0.0f, fade);
-	}
-	else {
-		glColor4f(0.0f, 0.0f, 0.0f, 1.0f - fade);
-	}
-	glBegin(GL_QUADS);
-	glVertex3f(0.0f, 0.0f, 0.0f);
-	glVertex3f(0.0f, sys::WINDOW_HEIGHT, 0.0f);
-	glVertex3f(sys::WINDOW_WIDTH, sys::WINDOW_HEIGHT, 0.0f);
-	glVertex3f(sys::WINDOW_WIDTH, 0.0f, 0.0f);
-	glEnd();
-	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+template <>
+audio::Sound *
+scene::Scene::getResourceT<audio::Sound>(const std::string &resource) {
+  if (resource.front() == '*') {
+    return resource_manager::getResource<audio::Sound>(
+        resource.substr(1, std::string::npos));
+  }
+  else {
+    audio::Sound *res = new audio::Sound;
+    res->createFromFile(getResource(resource, Parser::EXT_SOUND));
+    deleteSoundVector.push_back(res);
+    return res;
+  }
 }
 
-//SCENES
-Scene::Scene(std::string name_) {
-	//Copy the name.
-	name = name_;
+void scene::Scene::parseLine(Parser &parser) {
+  int argc = parser.getArgC();
+  if (parser.is("IMAGE", 3)) {
+    float x = parser.getArgFloat(2);
+    float y = parser.getArgFloat(3);
+    Image::Render render = Image::Render::NORMAL;
+    float xvel = 0.0f;
+    float yvel = 0.0f;
+    bool wrap = false;
+    if (argc > 4) {
+      std::string szRender = parser.getArg(4);
+      if (!szRender.compare("additive")) {
+        render = Image::Render::ADDITIVE;
+      }
+      else if (!szRender.compare("subtractive")) {
+        render = Image::Render::SUBTRACTIVE;
+      }
+      else if (!szRender.compare("multiply")) {
+        render = Image::Render::MULTIPLY;
+      }
+      if (argc > 5) {
+        xvel = parser.getArgFloat(5);
+        if (argc > 6) {
+          yvel = parser.getArgFloat(6);
+          if (argc > 7) {
+            wrap = parser.getArgBool(7, false);
+          }
+        }
+      }
+    }
 
-	initialized = false;
-	images = nullptr;
-	bgmPlaying = false;
-	//video = nullptr;
+    // Add a new image
+    Image imgData;
+    imgData.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
+    if (!imgData.exists()) {
+      return;
+    }
+    images.emplace_back(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+  }
+  else if (parser.is("BGM", 1)) {
+    if (argc > 2) {
+      std::string intro = getResource(parser.getArg(1), Parser::EXT_MUSIC);
+      std::string loop = getResource(parser.getArg(2), Parser::EXT_MUSIC);
+      bgm.createFromFile(intro, loop);
+    }
+    else {
+      bgm.createFromFile("", getResource(parser.getArg(1), Parser::EXT_MUSIC));
+    }
+  }
+  else if (parser.is("SOUND", 4)) {
+    sndMenu = getResourceT<audio::Sound>(parser.getArg(1));
+    sndSelect = getResourceT<audio::Sound>(parser.getArg(2));
+    sndBack = getResourceT<audio::Sound>(parser.getArg(3));
+    sndInvalid = getResourceT<audio::Sound>(parser.getArg(4));
+  }
+  else if (parser.is("VIDEO", 1)) {
+    // getResource(parser.getArg(1), EXT_VIDEO);
+  }
 }
 
-Scene::~Scene() {
-	delete images;
-	//delete video;
+void scene::Scene::parseFile(std::string szFileName) {
+  Parser parser;
+  std::string path = util::getPath(szFileName);
+  if (!parser.open(path)) {
+    error::die("Cannot parse file \"" + path + "\"");
+  }
+
+  // Get all the data
+  while (parser.parseLine()) {
+    // Parse it
+    parseLine(parser);
+  }
 }
 
-void Scene::init() {
-	initialized = true;
-	//Load the scene data from the file
-	parseFile("scenes/" + name + ".ubu");
+void scene::Scene::parseJSON(const nlohmann::ordered_json &j_obj) {
+  if (j_obj.contains("images")) {
+    for (const auto &image : j_obj["images"]) {
+      // Add a new image
+      Image imgData;
+      imgData.createFromFile(getResource(image["image"], Parser::EXT_IMAGE));
+      if (imgData.exists()) {
+        float x = image.at("pos").at("x");
+        float y = image.at("pos").at("y");
+        std::string szRender = image.value("renderType", "normal");
+        Image::Render render = Image::Render::NORMAL;
+        if (!szRender.compare("additive")) {
+          render = Image::Render::ADDITIVE;
+        }
+        else if (!szRender.compare("subtractive")) {
+          render = Image::Render::SUBTRACTIVE;
+        }
+        else if (!szRender.compare("multiply")) {
+          render = Image::Render::MULTIPLY;
+        }
+        float xvel = 0.0f;
+        float yvel = 0.0f;
+        if (image.contains("vel")) {
+          xvel = image["vel"].value("x", 0.0f);
+          yvel = image["vel"].value("y", 0.0f);
+        }
+        bool wrap = image.value("wrap", false);
+        images.emplace_back(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
+      }
+    }
+  }
+  if (j_obj.contains("bgm")) {
+    std::string loop = getResource(j_obj["bgm"].at("loop"), Parser::EXT_MUSIC);
+    std::string intro = j_obj["bgm"].value("intro", "");
+    if (intro.empty()) {
+      bgm.createFromFile("", loop);
+    }
+    else {
+      bgm.createFromFile(getResource(intro, Parser::EXT_MUSIC), loop);
+    }
+  }
+  if (j_obj.contains("sound")) {
+    sndMenu = getResourceT<audio::Sound>(j_obj["sound"].at("menu"));
+    sndSelect = getResourceT<audio::Sound>(j_obj["sound"].at("select"));
+    sndBack = getResourceT<audio::Sound>(j_obj["sound"].at("back"));
+    sndInvalid = getResourceT<audio::Sound>(j_obj["sound"].at("invalid"));
+  }
+  if (j_obj.contains("video")) {
+    //
+  }
 }
 
-void Scene::think() {
-	if (!initialized) {
-		init();
-	}
-
-	if (!bgmPlaying &&
-#ifndef NO_NETWORK
-		scene != SCENE_NETPLAY &&
-#endif
-		scene != SCENE_FIGHT) {
-		if (bgm.exists()) {
-			bgm.play();
-		}
-		bgmPlaying = true;
-	}
-	if (images) {
-		images->think();
-	}
-	//if(video) video->think();
-
-	//Fade timer
-	if (fade) {
-		//if(fadeIn && scene == SCENE_VERSUS) {
-		//	fade = 0.0f;
-		//} else {
-		if (scene == SCENE_FIGHT) {
-			fade -= 0.02;
-		}
-		else {
-			fade -= 0.1f;
-		}
-		if (fade <= 0.0f) {
-			if (fadeIn) {
-				fade = 0.0f;
-			}
-			else {
-				fade = 1.0f;
-				fadeIn = true;
-
-				//Are we quitting?
-				if (sceneNew == SCENE_QUIT) {
-					exit(0);
-				}
-				scene = sceneNew;
-
-				audio::Music::stop();
-
-				if (!SCENE->initialized) {
-					//Loading graphic
-					imgLoading.draw(0, 0);
-					sys::refresh();
-					SCENE->init();
-				}
-				if (scene == SCENE_FIGHT && !STAGE.initialized) {
-					//Loading graphic
-					imgLoading.draw(0, 0);
-					sys::refresh();
-					STAGE.init();
-				}
-				SCENE->reset();
-			}
-		}
-
-		//Always disable controls during fades
-		SceneFight::madotsuki.frameInput = 0;
-		//}
-	}
+std::string scene::Scene::getResource(std::string resource,
+                                      std::string extension) const {
+  if (*resource.c_str() == '*') {
+    return ext2dir.at(extension) + '/' + resource.substr(1, std::string::npos) +
+           '.' + extension;
+  }
+  else {
+    return "scenes/" + name + "/" + resource + "." + extension;
+  }
 }
 
-void Scene::reset() {
-	if (images) {
-		images->reset();
-	}
-	//if(video) video->reset();
-	bgmPlaying = false;
+// SCENE IMAGE
+
+scene::SceneImage::SceneImage(Image &image_, float x_, float y_,
+                              float parallax_, Image::Render render_,
+                              float xvel_, float yvel_, bool wrap_,
+                              int round_) {
+  image = std::move(image_);
+  x = x_;
+  y = y_;
+  parallax = parallax_;
+  xOrig = x_;
+  yOrig = y_;
+  render = render_;
+  xvel = xvel_;
+  yvel = yvel_;
+  wrap = wrap_;
+  round = round_;
+
+  if (wrap) {
+    unsigned int imageW = image.getW();
+    unsigned int imageH = image.getH();
+    while (x < 0.0f - imageW) {
+      x += imageW;
+    }
+    while (y < 0.0f - imageH) {
+      y += imageH;
+    }
+    while (x >= 0.0f) {
+      x -= imageW;
+    }
+    while (y >= 0.0f) {
+      y -= imageH;
+    }
+  }
 }
 
-void Scene::draw() {
-	//if(video) video->draw(0, 0);
-	if (images) {
-		images->draw(false);
-	}
+scene::SceneImage::~SceneImage() {}
 
+void scene::SceneImage::think() {
+  x += xvel;
+  y += yvel;
 
+  // Wrap the wrapping images
+  if (wrap) {
+    unsigned int imageW = image.getW();
+    unsigned int imageH = image.getH();
+    while (x < 0.0f - imageW) {
+      x += imageW;
+    }
+    while (y < 0.0f - imageH) {
+      y += imageH;
+    }
+    while (x >= 0.0f) {
+      x -= imageW;
+    }
+    while (y >= 0.0f) {
+      y -= imageH;
+    }
+  }
 }
 
-void Scene::parseLine(Parser& parser) {
-	int argc = parser.getArgC();
-	if (parser.is("IMAGE", 3)) {
-		float x = parser.getArgFloat(2);
-		float y = parser.getArgFloat(3);
-		char render = Image::RENDER_NORMAL;
-		float xvel = 0.0f;
-		float yvel = 0.0f;
-		bool wrap = false;
-		if (argc > 4) {
-			const char* szRender = parser.getArg(4);
-			if (!strcmp(szRender, "additive")) {
-				render = Image::RENDER_ADDITIVE;
-			}
-			else if (!strcmp(szRender, "subtractive")) {
-				render = Image::RENDER_SUBTRACTIVE;
-			}
-			else if (!strcmp(szRender, "multiply")) {
-				render = Image::RENDER_MULTIPLY;
-			}
-			if (argc > 5) {
-				xvel = parser.getArgFloat(5);
-				if (argc > 6) {
-					yvel = parser.getArgFloat(6);
-					if (argc > 7) {
-						wrap = parser.getArgBool(7, false);
-					}
-				}
-			}
-		}
-
-		//Add a new image
-		Image imgData;
-		imgData.createFromFile(getResource(parser.getArg(1), Parser::EXT_IMAGE));
-		if (!imgData.exists()) {
-			return;
-		}
-		SceneImage* newImg = new SceneImage(imgData, x, y, 1.0f, render, xvel, yvel, wrap, 0);
-
-		if (images) {
-			SceneImage* img = images;
-			for (; img->next; img = img->next);
-			img->next = newImg;
-		}
-		else {
-			images = newImg;
-		}
-	}
-	else if (parser.is("BGM", 1)) {
-		if (argc > 2) {
-			std::string intro = getResource(parser.getArg(1), Parser::EXT_MUSIC);
-			std::string loop = getResource(parser.getArg(2), Parser::EXT_MUSIC);
-			bgm.createFromFile(intro, loop);
-		}
-		else {
-			bgm.createFromFile("", getResource(parser.getArg(1), Parser::EXT_MUSIC));
-		}
-	}
-	else if (parser.is("SOUND", 4)) {
-		sndMenu.createFromFile(getResource(parser.getArg(1), Parser::EXT_SOUND));
-		sndSelect.createFromFile(getResource(parser.getArg(2), Parser::EXT_SOUND));
-		sndBack.createFromFile(getResource(parser.getArg(3), Parser::EXT_SOUND));
-		sndInvalid.createFromFile(getResource(parser.getArg(4), Parser::EXT_SOUND));
-	}
-	else if (parser.is("VIDEO", 1)) {
-		//getResource(parser.getArg(1), EXT_VIDEO);
-	}
+void scene::SceneImage::reset() {
+  x = xOrig;
+  y = yOrig;
 }
 
-void Scene::parseFile(std::string szFileName) {
-	Parser parser;
-	std::string path = util::getPath(szFileName);
-	if (!parser.open(path)) {
-		error::die("Cannot parse file \"" + path + "\"");
-	}
+void scene::SceneImage::draw(bool _stage) const {
+  unsigned int imageW = image.getW();
+  unsigned int imageH = image.getH();
+  if (image.exists()) {
+    // Draw the image differently if wrapping
+    if (wrap) {
+      // How many of these are needed to fill the screen?
+      int xCount = sys::WINDOW_WIDTH / imageW + 2;
+      int yCount = sys::WINDOW_HEIGHT / imageH + 2;
 
-	//Get all the data
-	while (parser.parseLine()) {
-		//Parse it
-		parseLine(parser);
-	}
-}
-
-std::string Scene::getResource(std::string resource, std::string extension) {
-	if (*resource.c_str() == '*') {
-		return "scenes/common/" + resource.substr(1, std::string::npos) + "." + extension;
-	}
-	else {
-		return "scenes/" + name + "/" + resource + "." + extension;
-	}
-}
-
-//SCENE IMAGE
-
-SceneImage::SceneImage(Image& image_, float x_, float y_, float parallax_, char render_, float xvel_, float yvel_, bool wrap_, int round_) {
-	image = std::move(image_);
-	x = x_;
-	y = y_;
-	parallax = parallax_;
-	xOrig = x_;
-	yOrig = y_;
-	render = render_;
-	xvel = xvel_;
-	yvel = yvel_;
-	wrap = wrap_;
-	round = round_;
-
-	if (wrap) {
-		while (x < 0.0f - image.w) {
-			x += image.w;
-		}
-		while (y < 0.0f - image.h) {
-			y += image.h;
-		}
-		while (x >= 0.0f) {
-			x -= image.w;
-		}
-		while (y >= 0.0f) {
-			y -= image.h;
-		}
-	}
-
-	next = nullptr;
-}
-
-SceneImage::~SceneImage() {
-	delete next;
-}
-
-void SceneImage::think() {
-	x += xvel;
-	y += yvel;
-
-	//Wrap the wrapping images
-	if (wrap) {
-		while (x < 0.0f - image.w) {
-			x += image.w;
-		}
-		while (y < 0.0f - image.h) {
-			y += image.h;
-		}
-		while (x >= 0.0f) {
-			x -= image.w;
-		}
-		while (y >= 0.0f) {
-			y -= image.h;
-		}
-	}
-
-	if (next) {
-		next->think();
-	}
-}
-
-void SceneImage::reset() {
-	x = xOrig;
-	y = yOrig;
-
-	if (next) {
-		next->reset();
-	}
-}
-
-void SceneImage::draw(bool _stage) {
-	if (image.exists()) {
-		//Draw the image differently if wrapping
-		if (wrap) {
-			//How many of these are needed to fill the screen?
-			int xCount = sys::WINDOW_WIDTH / image.w + 2;
-			int yCount = sys::WINDOW_HEIGHT / image.h + 2;
-
-			for (int i = 0; i < xCount; i++) {
-				for (int j = 0; j < yCount; j++) {
-					graphics::setRender(render);
-					image.draw((int)x + i * image.w, (int)y + j * image.h);
-				}
-			}
-		}
-		else {
-			graphics::setRender(render);
-			if (_stage) {
-				if (!round || round - 1 == FIGHT->round) {
-					image.draw(x - image.w / 2 + sys::WINDOW_WIDTH / 2 - SceneFight::cameraPos.x * parallax, (sys::WINDOW_HEIGHT - y) - image.h + SceneFight::cameraPos.y * parallax);
-				}
-			}
-			else {
-				image.draw(x, y);
-			}
-		}
-	}
-	if (next) {
-		next->draw(_stage);
-	}
+      for (int i = 0; i < xCount; i++) {
+        for (int j = 0; j < yCount; j++) {
+          graphics::setRender(render);
+          image.draw<renderer::Texture2DRenderer>((int)x + i * imageW,
+                                                  (int)y + j * imageH);
+        }
+      }
+    }
+    else {
+      graphics::setRender(render);
+      if (_stage) {
+        if (!round || round - 1 == FIGHT->getRound()) {
+          const glm::ivec2 &cameraPos = Fight::getrCameraPos();
+          image.draw<renderer::Texture2DRenderer>(
+              static_cast<int>(x - imageW / 2 + sys::WINDOW_WIDTH / 2 -
+                               cameraPos.x * parallax),
+              static_cast<int>((sys::WINDOW_HEIGHT - y) - imageH +
+                               cameraPos.y * parallax));
+        }
+      }
+      else {
+        image.draw<renderer::Texture2DRenderer>(static_cast<int>(x),
+                                                static_cast<int>(y));
+      }
+    }
+  }
 }

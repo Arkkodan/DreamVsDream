@@ -24,6 +24,7 @@ Please have the following installed on your computer and accessible by your term
 - [git](https://git-scm.com/downloads)
 - [CMake](https://cmake.org/download/)
 - [any generator supported by CMake](https://cmake.org/cmake/help/latest/manual/cmake-generators.7.html)
+- [a recent enough version of Python](https://www.python.org/downloads/) (for glad)
 
 These steps are written for a novice to follow, just to build this project.
 
@@ -121,7 +122,10 @@ If you don't specify the configuration type, your generator will probably select
 ## End of Build instructions
 
 You are technically done with build instructions.
-However, if you want to use the Dream vs. Dream binaries in any meaningful way, you still need to make your .char files in order to play DvD. Continue to step 4.
+In the cache directory of this repo, there are .char files already generated. Simply copy the .char files into the data/chars directory.
+However, they may be incompatible with your DvD executable.
+
+If you want to or need to make your .char files in order to play DvD, continue to step 4.
 
 * * *
 
@@ -157,6 +161,7 @@ The following should be in the same directory:
 - data directory
 - DvD executable
 - SDL2 shared library (if it exists)
+- glad shared library (if it exists)
 - zlib shared library (if it exists)
 - png shared library (if it exists)
 - ogg shared library (if it exists)

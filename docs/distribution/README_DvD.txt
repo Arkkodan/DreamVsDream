@@ -1,4 +1,4 @@
-Dream vs. Dream - DvD
+Dream vs. Dream - DvD v0.2.2
 
 ================================
 
@@ -49,12 +49,14 @@ Player 2's controls are
  F         H     A   S   D
       G
 
-These controls can be changed with a config file "keys.cfg".
+These controls can be changed with a config file "keys.cfg" or with the in-game
+controls configurator.
 
 In addition, there are other keyboard inputs:
 - ESC: Quit the program
 - F1: Go to main menu
 - F2: Go to the credits
+- F8: Go to the controls configurator
 
 ================================
 

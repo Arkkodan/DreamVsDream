@@ -1,0 +1,14 @@
+{
+    "bgm": {
+        "loop": "neon_bgm"
+    },
+    "images": [
+        {
+            "image": "neon_fg",
+            "pos": {
+                "x": 0.0,
+                "y": 0.0
+            }
+        }
+    ]
+}

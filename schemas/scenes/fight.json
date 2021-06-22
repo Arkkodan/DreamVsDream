@@ -1,0 +1,252 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Fight Scene object",
+    "description": "Extends Scene base class",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "./scenes.json#/definitions/SceneBase"
+        }
+    ],
+    "definitions": {
+        "hasImage": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "image"
+            ]
+        },
+        "hasImagePos": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/hasImage"
+                }
+            ],
+            "properties": {
+                "pos": {
+                    "$ref": "../references.json#/definitions/ivec2"
+                }
+            },
+            "required": [
+                "pos"
+            ]
+        }
+    },
+    "properties": {
+        "hud": {
+            "$ref": "#/definitions/hasImage"
+        },
+        "hud_tag": {
+            "$ref": "#/definitions/hasImage"
+        },
+        "portraits": {
+            "$ref": "#/definitions/hasImage"
+        },
+        "portraits_tag": {
+            "$ref": "#/definitions/hasImage"
+        },
+        "timer": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/hasImage"
+                }
+            ],
+            "properties": {
+                "font": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "font"
+            ]
+        },
+        "shine": {
+            "$ref": "#/definitions/hasImage"
+        },
+        "shine_tag": {
+            "$ref": "#/definitions/hasImage"
+        },
+        "hp": {
+            "$ref": "#/definitions/hasImagePos"
+        },
+        "super": {
+            "$ref": "#/definitions/hasImagePos"
+        },
+        "tag": {
+            "$ref": "#/definitions/hasImagePos"
+        },
+        "stun": {
+            "$ref": "#/definitions/hasImagePos"
+        },
+        "guard": {
+            "$ref": "#/definitions/hasImagePos"
+        },
+        "dpm": {
+            "$ref": "#/definitions/hasImagePos"
+        },
+        "static": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "string"
+                },
+                "sound": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "image",
+                "sound"
+            ]
+        },
+        "fade": {
+            "type": "object",
+            "properties": {
+                "sound": {
+                    "type": "object",
+                    "properties": {
+                        "in": {
+                            "type": "string"
+                        },
+                        "out": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "in",
+                        "out"
+                    ]
+                }
+            },
+            "required": [
+                "sound"
+            ]
+        },
+        "round_splash": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 5
+                }
+            },
+            "required": [
+                "image"
+            ]
+        },
+        "round_hud": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 5
+                },
+                "pos": {
+                    "$ref": "../references.json#/definitions/ivec2"
+                }
+            },
+            "required": [
+                "image",
+                "pos"
+            ]
+        },
+        "ko": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "ko": {
+                            "type": "string"
+                        },
+                        "timeout": {
+                            "type": "string"
+                        },
+                        "draw": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "ko",
+                        "timeout",
+                        "draw"
+                    ]
+                }
+            },
+            "required": [
+                "image"
+            ]
+        },
+        "portrait_pos": {
+            "$ref": "../references.json#/definitions/ivec2"
+        },
+        "combo": {
+            "type": "object",
+            "properties": {
+                "font": {
+                    "type": "string"
+                },
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "left": {
+                            "type": "string"
+                        },
+                        "right": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "left",
+                        "right"
+                    ]
+                }
+            },
+            "required": [
+                "font",
+                "image"
+            ]
+        },
+        "win_orbs": {
+            "type": "object",
+            "properties": {
+                "image": {
+                    "type": "object",
+                    "properties": {
+                        "null": {
+                            "type": "string"
+                        },
+                        "win": {
+                            "type": "string"
+                        },
+                        "draw": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "null",
+                        "win",
+                        "draw"
+                    ]
+                },
+                "pos": {
+                    "$ref": "../references.json#/definitions/ivec2"
+                }
+            },
+            "required": [
+                "image",
+                "pos"
+            ]
+        }
+    }
+}

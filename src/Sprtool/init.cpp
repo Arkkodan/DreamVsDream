@@ -1,22 +1,21 @@
-#include "../DvD/graphics.h"
 #include "../DvD/error.h"
 #include "../DvD/fighter.h"
-
+#include "../DvD/graphics.h"
 #include "../DvD/sys.h"
 
 namespace init {
-	void init();
-	void deinit();
-}
+  void init();
+  void deinit();
+} // namespace init
 
 void init::init() {
-	atexit(deinit);
+  atexit(deinit);
 
-	sys::init();
-	graphics::init(false, 0);
+  sys::init();
+  graphics::init(false, 0);
 }
 
 void init::deinit() {
-	graphics::deinit();
-	sys::deinit();
+  graphics::deinit();
+  sys::deinit();
 }
