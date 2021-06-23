@@ -1,5 +1,7 @@
 #include "app.h"
 
+#include <SDL_main.h>
+
 // parseArgs not useful for now
 #define DVD_DISABLE_PARSEARGS
 
@@ -114,6 +116,7 @@ static void parseArgs(int argc, char **argv) {
   }
 }
 #else // DVD_DISABLE_PARSEARGS
+
 int main(int argc, char *argv[]) {
   app::run();
   return 0;

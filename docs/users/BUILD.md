@@ -42,9 +42,12 @@ In an accessible directory where you are able to identify your local git repo, o
 In your terminal, type:
 
 ```console
-git clone https://github.com/Arkkodan/DreamVsDream DreamVsDream
+git clone --recurse-submodules https://github.com/Arkkodan/DreamVsDream DreamVsDream
 cd DreamVsDream
 ```
+
+> Be sure to include the `--recurse-submodules` when cloning since wxWidgets requires it.
+> If you forgot to do so, you can type `git submodule update --init`.
 
 You can, of course, replace the output directory with whatever name you want.
 After this step, you have successfully cloned the repo and are now located there.

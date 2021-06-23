@@ -20,6 +20,8 @@
 #include "../DvD/sys.h"
 #include "../util/fileIO.h"
 
+#include <SDL_main.h>
+
 game::Fighter fighter;
 int frame = 0;
 int anim = 0;

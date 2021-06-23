@@ -147,3 +147,9 @@ message(STATUS "Library: json")
 set(JSON_BuildTests OFF CACHE BOOL "json: Build the unit tests when BUILD_TESTING is enabled." FORCE)
 set(JSON_Install OFF CACHE BOOL "json: Install CMake targets during install step." FORCE)
 add_subdirectory("json" EXCLUDE_FROM_ALL)
+
+
+# wxWidgets
+message(STATUS "Library: wxWidgets")
+conditional_set_BUILD_SHARED_LIBS(wxcore)
+add_subdirectory("wxWidgets" EXCLUDE_FROM_ALL)

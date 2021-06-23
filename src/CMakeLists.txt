@@ -44,6 +44,15 @@ set(ATLAS_FILES
   Atlas/main.cpp
 )
 
+# CharTool
+set(CHARTOOL_FILES
+  CharTool/main.cpp
+  CharTool/app.cpp
+  CharTool/app.h
+  CharTool/frame.cpp
+  CharTool/frame.h
+)
+
 # Compiler
 set(COMPILER_FILES
   Compiler/main.cpp
@@ -167,6 +176,11 @@ set(UBU2JSON_FILES
 
 
 # Add executables
+# Platform specific flags
+set(GUI_EXECUTABLE_FLAG)
+if(WIN32)
+  set(GUI_EXECUTABLE_FLAG WIN32)
+endif()
 
 add_executable(Atlas
   ${ATLAS_FILES}
@@ -177,6 +191,15 @@ target_compile_definitions(Atlas
   PRIVATE VERSION="${DreamVsDream_VERSION}"
   PRIVATE COMPILER
   PRIVATE NO_ZLIB
+)
+
+add_executable(CharTool
+  ${GUI_EXECUTABLE_FLAG}
+  ${CHARTOOL_FILES}
+)
+target_compile_definitions(CharTool
+  PRIVATE WXUSINGDLL
+  PRIVATE DVD_VERSION_STRING="${DreamVsDream_VERSION}"
 )
 
 add_executable(Compiler
@@ -196,6 +219,7 @@ target_compile_definitions(Compiler
 )
 
 add_executable(DvD
+  ${GUI_EXECUTABLE_FLAG}
   ${DVD_FILES}
   ${FILEIO_MODULES}
   ${RENDERER_MODULES}
@@ -216,6 +240,7 @@ target_compile_definitions(Fontbuild
 )
 
 add_executable(Sprtool
+  ${GUI_EXECUTABLE_FLAG}
   ${SPRTOOL_FILES}
   ${RENDERER_MODULES}
   DvD/error.cpp
@@ -273,6 +298,15 @@ target_link_libraries(Atlas
   PRIVATE ${libpng_LIBRARY}
 )
 
+target_include_directories(CharTool
+  PRIVATE wxcore
+  PRIVATE wxbase
+)
+target_link_libraries(CharTool
+  PRIVATE wxcore
+  PRIVATE wxbase
+)
+
 target_include_directories(Compiler
   PRIVATE glm
 )
@@ -282,6 +316,7 @@ target_link_libraries(Compiler
 
 target_include_directories(DvD
   PRIVATE SDL2
+  PRIVATE SDL2main
   PRIVATE glad
   PRIVATE glm
   PRIVATE ${zlib_LIBRARY}
@@ -292,6 +327,7 @@ target_include_directories(DvD
 )
 target_link_libraries(DvD
   PRIVATE SDL2
+  PRIVATE SDL2main
   PRIVATE glad
   PRIVATE glm
   PRIVATE ${zlib_LIBRARY}
@@ -302,20 +338,22 @@ target_link_libraries(DvD
 )
 
 # target_include_directories(Fontbuild
-  # ...
+#   ...
 # )
 # target_link_libraries(Fontbuild
-  # ...
+#   ...
 # )
 
 target_include_directories(Sprtool
   PRIVATE SDL2
+  PRIVATE SDL2main
   PRIVATE glad
   PRIVATE glm
   PRIVATE ${libpng_INCLUDE_DIRS}
 )
 target_link_libraries(Sprtool
   PRIVATE SDL2
+  PRIVATE SDL2main
   PRIVATE glad
   PRIVATE glm
   PRIVATE ${libpng_LIBRARY}
@@ -354,6 +392,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/fileIO" PREFIX "fileIO" FILES ${F
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/renderer" PREFIX "renderer" FILES ${RENDERER_MODULES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/util" PREFIX "util" FILES ${UTIL_MODULES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Atlas" PREFIX "Atlas" FILES ${ATLAS_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/CharTool" PREFIX "CharTool" FILES ${CHARTOOL_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Compiler" PREFIX "Compiler" FILES ${COMPILER_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD" PREFIX "DvD" FILES ${DVD_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD/menu" PREFIX "DvD/menu" FILES ${DVD_MENU_FILES})

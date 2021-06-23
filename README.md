@@ -61,7 +61,7 @@ In accordance with the previous repo, Dream vs. Dream is licensed under the GNU 
 All Dream vs. Dream source files (.cpp and .h under [src](./src)) are licensed under this license _unless otherwise stated_.
 This basically means:
 
-- If you release a distribution of any Dream vs. Dream binary (e.g. DvD), you must disclose its source. Linking back to this repo should be fine.
+- If you release a distribution of any Dream vs. Dream binary under the GNU General Public License v3.0 (e.g. DvD), you must disclose its source. Linking back to this repo should be fine.
 - If you use this code for another project (e.g. a fork), it too must be licensed under the same license.
 
 Please note that further development on Dream vs. Dream should be licensed under the GNU GPL v3 or any other compatible license.

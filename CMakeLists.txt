@@ -38,6 +38,8 @@ set(SHARED_LIBRARIES
   FLAC
   opus
   sndfile
+  wxcore
+  wxbase
 )
 # Then, unmark external libraries that cause problems if shared
 if(MINGW)
@@ -61,6 +63,7 @@ add_subdirectory("src")
 # Set DREAMVSDREAM_BINARIES
 set(DREAMVSDREAM_BINARIES
   Atlas
+  CharTool
   Compiler
   DvD
   Fontbuild
