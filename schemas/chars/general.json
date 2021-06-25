@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Schema for fighter's general.json",
+    "type": "object",
+    "properties": {
+        "displayName": {
+            "type": "string"
+        },
+        "group": {
+            "type": "string",
+            "enum": [
+                "Yume Nikki",
+                "Yume 2kki",
+                ".flow",
+                "Other"
+            ]
+        },
+        "hp": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+        },
+        "collisionBox": {
+            "type": "object",
+            "properties": {
+                "width": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                },
+                "height": {
+                    "type": "integer",
+                    "exclusiveMinimum": 0
+                }
+            },
+            "required": [
+                "width",
+                "height"
+            ]
+        },
+        "gravity": {
+            "type": "number",
+            "minimum": 0.0
+        },
+        "paletteCount": {
+            "type": "integer",
+            "exclusiveMinimum": 0
+        }
+    },
+    "required": [
+        "displayName",
+        "hp",
+        "collisionBox",
+        "gravity",
+        "paletteCount"
+    ]
+}

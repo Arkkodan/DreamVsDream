@@ -1,0 +1,11 @@
+{
+    "displayName": "Maddysucky",
+    "group": "Other",
+    "hp": 1500,
+    "collisionBox": {
+        "width": 30,
+        "height": 100
+    },
+    "gravity": 1.0,
+    "paletteCount": 3
+}

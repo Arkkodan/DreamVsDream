@@ -1,0 +1,11 @@
+{
+    "displayName": "Sabitsuki",
+    "group": ".flow",
+    "hp": 900,
+    "collisionBox": {
+        "width": 30,
+        "height": 100
+    },
+    "gravity": 1.0,
+    "paletteCount": 20
+}

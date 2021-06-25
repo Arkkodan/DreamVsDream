@@ -1,0 +1,11 @@
+{
+    "displayName": "Madotsuki",
+    "group": "Yume Nikki",
+    "hp": 1000,
+    "collisionBox": {
+        "width": 30,
+        "height": 100
+    },
+    "gravity": 1.0,
+    "paletteCount": 18
+}
