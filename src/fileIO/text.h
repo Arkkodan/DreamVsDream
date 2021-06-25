@@ -9,6 +9,8 @@ namespace fileIO {
 
   std::vector<std::string> readTextAsLines(const std::string &file,
                                            bool skipEmpty = true);
+
+  void writeTextToFile(const std::string &file, const std::string &text);
 } // namespace fileIO
 
 #endif // FILEIO_TEXT_H

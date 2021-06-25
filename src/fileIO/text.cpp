@@ -6,7 +6,7 @@
 std::string fileIO::readText(const std::string &file) {
   std::ifstream ifs(file);
   if (!ifs) {
-    // Maybe add error-handling?
+    throw std::runtime_error("Could not read " + file);
     return std::string{};
   }
   std::stringstream ss;
@@ -19,6 +19,7 @@ std::vector<std::string> fileIO::readTextAsLines(const std::string &file,
                                                  bool skipEmpty) {
   std::ifstream ifs(file);
   if (!ifs) {
+    throw std::runtime_error("Could not read " + file);
     return std::vector<std::string>{};
   }
   std::vector<std::string> lines;
@@ -31,4 +32,17 @@ std::vector<std::string> fileIO::readTextAsLines(const std::string &file,
   }
   ifs.close();
   return lines;
+}
+
+void fileIO::writeTextToFile(const std::string &file, const std::string &text) {
+  std::ofstream ofs(file);
+  if (!ofs) {
+    throw std::runtime_error("Could not write to " + file);
+    return;
+  }
+  ofs << text;
+  if (text.back() != '\n') {
+    ofs << '\n';
+  }
+  ofs.close();
 }
