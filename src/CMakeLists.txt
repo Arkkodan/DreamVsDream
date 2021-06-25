@@ -11,6 +11,13 @@ set(FILEIO_MODULES
   fileIO/json.h
 )
 
+# parser
+set(PARSER_MODULES
+  parser/JSON_parser.h
+  parser/chars/general.cpp
+  parser/chars/general.h
+)
+
 # renderer
 set(RENDERER_MODULES
   renderer/gl_loader.h
@@ -45,12 +52,19 @@ set(ATLAS_FILES
 )
 
 # CharTool
+set(CHARTOOL_PAGE_FILES
+  CharTool/page/page_base.h
+  CharTool/page/general.cpp
+  CharTool/page/general.h
+)
+
 set(CHARTOOL_FILES
   CharTool/main.cpp
   CharTool/app.cpp
   CharTool/app.h
   CharTool/frame.cpp
   CharTool/frame.h
+  ${CHARTOOL_PAGE_FILES}
 )
 
 # Compiler
@@ -196,6 +210,8 @@ target_compile_definitions(Atlas
 add_executable(CharTool
   ${GUI_EXECUTABLE_FLAG}
   ${CHARTOOL_FILES}
+  ${FILEIO_MODULES}
+  ${PARSER_MODULES}
 )
 target_compile_definitions(CharTool
   PRIVATE WXUSINGDLL
@@ -274,6 +290,34 @@ target_compile_definitions(UBU2JSON
 )
 
 
+# Specific linking
+if(WIN32)
+  target_link_libraries(Atlas
+    PRIVATE shlwapi
+  )
+  target_link_libraries(Compiler
+    PRIVATE shlwapi
+  )
+  target_link_libraries(DvD
+    PRIVATE ws2_32
+    PRIVATE shlwapi
+  )
+  target_link_libraries(Sprtool
+    PRIVATE shlwapi
+  )
+  target_link_libraries(UBU2JSON
+    PRIVATE shlwapi
+  )
+endif()
+if(MINGW)
+  target_link_libraries(DvD
+    PRIVATE mingw32
+  )
+  target_link_libraries(Sprtool
+    PRIVATE mingw32
+  )
+endif()
+
 # Target includes and links with dependencies
 
 if(zlib IN_LIST SHARED_LIBRARIES)
@@ -299,12 +343,16 @@ target_link_libraries(Atlas
 )
 
 target_include_directories(CharTool
-  PRIVATE wxcore
+  PRIVATE nlohmann_json
   PRIVATE wxbase
+  PRIVATE wxcore
+  PRIVATE wxpropgrid
 )
 target_link_libraries(CharTool
-  PRIVATE wxcore
+  PRIVATE nlohmann_json
   PRIVATE wxbase
+  PRIVATE wxcore
+  PRIVATE wxpropgrid
 )
 
 target_include_directories(Compiler
@@ -315,8 +363,8 @@ target_link_libraries(Compiler
 )
 
 target_include_directories(DvD
-  PRIVATE SDL2
   PRIVATE SDL2main
+  PRIVATE SDL2
   PRIVATE glad
   PRIVATE glm
   PRIVATE ${zlib_LIBRARY}
@@ -326,8 +374,8 @@ target_include_directories(DvD
   PRIVATE nlohmann_json
 )
 target_link_libraries(DvD
-  PRIVATE SDL2
   PRIVATE SDL2main
+  PRIVATE SDL2
   PRIVATE glad
   PRIVATE glm
   PRIVATE ${zlib_LIBRARY}
@@ -366,33 +414,15 @@ target_link_libraries(UBU2JSON
   PRIVATE nlohmann_json
 )
 
-# Platform specific linking
-if(WIN32)
-  target_link_libraries(Atlas
-    PRIVATE shlwapi
-  )
-  target_link_libraries(Compiler
-    PRIVATE shlwapi
-  )
-  target_link_libraries(DvD
-    PRIVATE ws2_32
-    PRIVATE shlwapi
-  )
-  target_link_libraries(Sprtool
-    PRIVATE shlwapi
-  )
-  target_link_libraries(UBU2JSON
-    PRIVATE shlwapi
-  )
-endif()
-
 
 # Organize files for IDEs
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/fileIO" PREFIX "fileIO" FILES ${FILEIO_MODULES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/parser" PREFIX "parser" FILES ${PARSER_MODULES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/renderer" PREFIX "renderer" FILES ${RENDERER_MODULES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/util" PREFIX "util" FILES ${UTIL_MODULES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Atlas" PREFIX "Atlas" FILES ${ATLAS_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/CharTool" PREFIX "CharTool" FILES ${CHARTOOL_FILES})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/CharTool/page" PREFIX "CharTool/page" FILES ${CHARTOOL_PAGE_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/Compiler" PREFIX "Compiler" FILES ${COMPILER_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD" PREFIX "DvD" FILES ${DVD_FILES})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/DvD/menu" PREFIX "DvD/menu" FILES ${DVD_MENU_FILES})

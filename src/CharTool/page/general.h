@@ -1,5 +1,5 @@
-#ifndef CHARTOOL_FRAME_H
-#define CHARTOOL_FRAME_H
+#ifndef CHARTOOL_PAGE_GENERAL_H
+#define CHARTOOL_PAGE_GENERAL_H
 // MIT License
 //
 // Copyright (c) 2021 Arkkodan
@@ -22,47 +22,27 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <wx/frame.h>
-#include <wx/menu.h>
+#include "page_base.h"
+
+#include <nlohmann/json.hpp>
 #include <wx/notebook.h>
+#include <wx/propgrid/propgrid.h>
 
-#include <array>
-#include <string>
+namespace page {
+  class General : public CharToolPage, public wxNotebookPage {
+  public:
+    General(wxNotebook *parent);
 
-class CharToolFrame : public wxFrame {
-public:
-  CharToolFrame();
+  private:
+    void OnPGChanging(wxPropertyGridEvent &event);
 
-public:
-  enum {
-    CHARTOOL_INDEX_GENERAL,
+    void reset() override final;
+    void setFromJSON(const nlohmann::ordered_json &j_obj) override final;
+    nlohmann::ordered_json getJSON() const override final;
 
-    CHARTOOL_INDEX_MAX
+  private:
+    wxPropertyGrid *propGrid;
   };
+} // namespace page
 
-  static const std::array<std::string, CHARTOOL_INDEX_MAX> NOTEBOOK_TAB_LABELS;
-  static const std::array<std::string, CHARTOOL_INDEX_MAX> PAGE_FILE_NAMES;
-
-private:
-  void OnNew(const wxCommandEvent &event);
-  void OnOpen(const wxCommandEvent &event);
-  void OnClose(const wxCommandEvent &event);
-  void OnSaveAll(const wxCommandEvent &event);
-  void OnExit(const wxCommandEvent &event);
-  void OnAbout(const wxCommandEvent &event);
-
-  void resetPages();
-  bool isSaved() const;
-  bool obtainClosePermission();
-  void markAllAsSaved();
-
-private:
-  std::string path;
-  std::array<bool, CHARTOOL_INDEX_MAX> loadArray;
-
-  wxMenu *menuFile;
-
-  wxNotebook *notebook;
-};
-
-#endif // CHARTOOL_FRAME_H
+#endif // CHARTOOL_PAGE_GENERAL_H

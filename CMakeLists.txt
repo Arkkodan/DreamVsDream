@@ -1,5 +1,8 @@
 # CMakeLists.txt
 
+# Known issues:
+# MinGW does not build wxbase
+
 cmake_minimum_required(VERSION 3.14.0)
 
 
@@ -38,8 +41,9 @@ set(SHARED_LIBRARIES
   FLAC
   opus
   sndfile
-  wxcore
   wxbase
+  wxcore
+  wxpropgrid
 )
 # Then, unmark external libraries that cause problems if shared
 if(MINGW)

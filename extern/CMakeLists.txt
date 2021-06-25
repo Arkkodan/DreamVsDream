@@ -151,5 +151,5 @@ add_subdirectory("json" EXCLUDE_FROM_ALL)
 
 # wxWidgets
 message(STATUS "Library: wxWidgets")
-conditional_set_BUILD_SHARED_LIBS(wxcore)
+conditional_set_BUILD_SHARED_LIBS(wxbase)
 add_subdirectory("wxWidgets" EXCLUDE_FROM_ALL)
