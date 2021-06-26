@@ -1,5 +1,5 @@
-#ifndef CHARTOOL_FRAME_H
-#define CHARTOOL_FRAME_H
+#ifndef CHARTOOL_PAGE_SPRITES_H
+#define CHARTOOL_PAGE_SPRITES_H
 // MIT License
 //
 // Copyright (c) 2021 Arkkodan
@@ -22,51 +22,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-#include <wx/filename.h>
-#include <wx/frame.h>
-#include <wx/menu.h>
-#include <wx/notebook.h>
+#include "page_base.h"
 
-#include <array>
-#include <string>
+#include <wx/addremovectrl.h>
+#include <wx/dataview.h>
 
-class CharToolFrame : public wxFrame {
-public:
-  CharToolFrame();
+namespace page {
+  class Sprites : public CharToolPage {
+  public:
+    Sprites(wxNotebook *parent);
 
-public:
-  enum {
-    CHARTOOL_INDEX_GENERAL,
-    CHARTOOL_INDEX_SPRITES,
+    void markAsUnsaved();
 
-    CHARTOOL_INDEX_MAX
+  private:
+    void reset() override final;
+    void setFromJSON(const nlohmann::ordered_json &j_obj) override final;
+    nlohmann::ordered_json getJSON() const override final;
+
+  private:
+    wxAddRemoveCtrl *addRemove;
+    wxDataViewListCtrl *dataView;
   };
 
-  static const std::array<std::string, CHARTOOL_INDEX_MAX> NOTEBOOK_TAB_LABELS;
-  static const std::array<std::string, CHARTOOL_INDEX_MAX> PAGE_FILE_NAMES;
+  class DataViewAddRemoveAdaptor : public wxAddRemoveAdaptor {
+  public:
+    explicit DataViewAddRemoveAdaptor(wxDataViewListCtrl *dataView,
+                                      Sprites *instance);
 
-private:
-  void OnNew(const wxCommandEvent &event);
-  void OnOpen(const wxCommandEvent &event);
-  void OnClose(const wxCommandEvent &event);
-  void OnSaveAll(const wxCommandEvent &event);
-  void OnExit(const wxCommandEvent &event);
-  void OnCloseWindow(const wxCloseEvent &event);
-  void OnAbout(const wxCommandEvent &event);
+    wxWindow *GetItemsCtrl() const override final;
 
-  void resetPages();
-  bool isSaved() const;
-  bool obtainClosePermission();
-  void markAllAsSaved();
+    bool CanAdd() const override final;
+    bool CanRemove() const override final;
+    void OnAdd() override final;
+    void OnRemove() override final;
 
-private:
-  wxFileName path;
+  private:
+    wxDataViewListCtrl *dataView;
 
-  std::array<bool, CHARTOOL_INDEX_MAX> loadArray;
+    Sprites *sprites_instance;
+  };
+} // namespace page
 
-  wxMenu *menuFile;
-
-  wxNotebook *notebook;
-};
-
-#endif // CHARTOOL_FRAME_H
+#endif // CHARTOOL_PAGE_SPRITES_H

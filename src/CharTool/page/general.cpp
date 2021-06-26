@@ -30,7 +30,7 @@
 #include <wx/valnum.h>
 
 page::General::General(wxNotebook *parent)
-    : wxNotebookPage(parent, wxID_ANY),
+    : CharToolPage(parent),
       propGrid(
           new wxPropertyGrid(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
                              wxPG_DEFAULT_STYLE | wxPG_SPLITTER_AUTO_CENTER)) {

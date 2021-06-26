@@ -1,0 +1,8 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "title": "Schema for fighter's sprites.json",
+    "type": "array",
+    "items" : {
+        "type": "string"
+    }
+}

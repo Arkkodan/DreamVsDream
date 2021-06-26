@@ -24,6 +24,7 @@
 
 #include "app.h"
 #include "page/general.h"
+#include "page/sprites.h"
 
 #include "../fileIO/json.h"
 
@@ -33,10 +34,10 @@
 #include <wx/textfile.h>
 
 const std::array<std::string, CharToolFrame::CHARTOOL_INDEX_MAX>
-    CharToolFrame::NOTEBOOK_TAB_LABELS = {"General"};
+    CharToolFrame::NOTEBOOK_TAB_LABELS = {"General", "Sprites"};
 
 const std::array<std::string, CharToolFrame::CHARTOOL_INDEX_MAX>
-    CharToolFrame::PAGE_FILE_NAMES = {"general"};
+    CharToolFrame::PAGE_FILE_NAMES = {"general", "sprites"};
 
 CharToolFrame::CharToolFrame()
     : wxFrame(nullptr, wxID_ANY, CharToolApp::TITLE, wxDefaultPosition,
@@ -65,9 +66,13 @@ CharToolFrame::CharToolFrame()
   notebook->Hide();
   notebook->AddPage(new page::General(notebook),
                     NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_GENERAL]);
+  notebook->AddPage(new page::Sprites(notebook),
+                    NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_SPRITES]);
   resetPages();
 
   Layout();
+
+  wxImage::AddHandler(new wxPNGHandler);
 
   Bind(wxEVT_MENU, &CharToolFrame::OnNew, this, wxID_NEW);
   Bind(wxEVT_MENU, &CharToolFrame::OnOpen, this, wxID_OPEN);
@@ -75,6 +80,8 @@ CharToolFrame::CharToolFrame()
   Bind(wxEVT_MENU, &CharToolFrame::OnSaveAll, this, wxID_SAVE);
   Bind(wxEVT_MENU, &CharToolFrame::OnExit, this, wxID_EXIT);
   Bind(wxEVT_MENU, &CharToolFrame::OnAbout, this, wxID_ABOUT);
+
+  Bind(wxEVT_CLOSE_WINDOW, &CharToolFrame::OnCloseWindow, this);
 }
 
 void CharToolFrame::OnNew(const wxCommandEvent &event) {
@@ -90,12 +97,13 @@ void CharToolFrame::OnNew(const wxCommandEvent &event) {
   do {
     if (dirDialog.ShowModal() == wxID_OK) {
       // Selected directory
-      std::string newpath = dirDialog.GetPath();
+      wxFileName newpath = wxFileName::DirName(dirDialog.GetPath());
 
       loadArray.fill(false);
       for (size_t i = 0; i < CHARTOOL_INDEX_MAX; i++) {
-        std::string filepath = newpath + '/' + PAGE_FILE_NAMES[i] + ".json";
-        if (wxFileExists(filepath)) {
+        wxFileName filepath = wxFileName::FileName(newpath.GetPath() + '/' + PAGE_FILE_NAMES[i] +
+                             ".json");
+        if (filepath.FileExists()) {
           wxMessageDialog msgDialog(
               this,
               "Directory already contains fighter info. Initialize anyway?",
@@ -114,7 +122,7 @@ void CharToolFrame::OnNew(const wxCommandEvent &event) {
       notebook->Show();
       menuFile->Enable(wxID_CLOSE, true);
       menuFile->Enable(wxID_SAVE, true);
-      SetStatusText("Path: \"" + path + "\" was initialized.");
+      SetStatusText("Path: \"" + path.GetPath() + "\" was initialized.");
       success = true;
 
       // Mark all as unsaved
@@ -123,8 +131,7 @@ void CharToolFrame::OnNew(const wxCommandEvent &event) {
             dynamic_cast<page::CharToolPage *>(notebook->GetPage(i));
         if (page && page->isSaved()) {
           page->setSaved(false);
-          notebook->SetPageText(i, NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_GENERAL] +
-                                       '*');
+          notebook->SetPageText(i, NOTEBOOK_TAB_LABELS[i] + '*');
         }
       }
     }
@@ -149,12 +156,13 @@ void CharToolFrame::OnOpen(const wxCommandEvent &event) {
   do {
     if (dirDialog.ShowModal() == wxID_OK) {
       // Selected directory
-      path = dirDialog.GetPath();
+      path = wxFileName::DirName(dirDialog.GetPath());
 
       loadArray.fill(false);
       for (size_t i = 0; i < CHARTOOL_INDEX_MAX; i++) {
-        std::string filepath = path + '/' + PAGE_FILE_NAMES[i] + ".json";
-        if (wxFileExists(filepath)) {
+        wxFileName filepath = wxFileName::FileName(
+            path.GetPath() + '/' + PAGE_FILE_NAMES[i] + ".json");
+        if (filepath.FileExists()) {
           loadArray[i] = true;
         }
       }
@@ -167,15 +175,20 @@ void CharToolFrame::OnOpen(const wxCommandEvent &event) {
           page::CharToolPage *currentPage =
               dynamic_cast<page::CharToolPage *>(notebook->GetPage(i));
           if (currentPage) {
-            currentPage->setFromJSON(
-                fileIO::readJSON(path + '/' + PAGE_FILE_NAMES[i] + ".json"));
+            currentPage->setPath(path);
+            wxFileName filepath = wxFileName::FileName(
+                path.GetPath() + '/' + PAGE_FILE_NAMES[i] + ".json");
+            if (filepath.FileExists()) {
+              currentPage->setFromJSON(
+                  fileIO::readJSON(filepath.GetFullPath().ToStdString()));
+            }
           }
         }
 
         notebook->Show();
         menuFile->Enable(wxID_CLOSE, true);
         menuFile->Enable(wxID_SAVE, true);
-        SetStatusText("Path: \"" + path + "\" was loaded.");
+        SetStatusText("Path: \"" + path.GetPath() + "\" was loaded.");
         success = true;
         markAllAsSaved();
 
@@ -186,8 +199,7 @@ void CharToolFrame::OnOpen(const wxCommandEvent &event) {
                 dynamic_cast<page::CharToolPage *>(notebook->GetPage(i));
             if (page && page->isSaved()) {
               page->setSaved(false);
-              notebook->SetPageText(
-                  i, NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_GENERAL] + '*');
+              notebook->SetPageText(i, NOTEBOOK_TAB_LABELS[i] + '*');
             }
           }
         }
@@ -211,7 +223,7 @@ void CharToolFrame::OnClose(const wxCommandEvent &event) {
     menuFile->Enable(wxID_CLOSE, false);
     menuFile->Enable(wxID_SAVE, false);
     notebook->Hide();
-    path.clear();
+    path.Clear();
     markAllAsSaved();
   }
 }
@@ -222,20 +234,25 @@ void CharToolFrame::OnSaveAll(const wxCommandEvent &event) {
     page::CharToolPage *page =
         dynamic_cast<page::CharToolPage *>(notebook->GetPage(i));
     if (page && !page->isSaved()) {
-      fileIO::writeTextToFile(path + '/' + PAGE_FILE_NAMES[i] + ".json",
+      fileIO::writeTextToFile(path.GetPath().ToStdString() + '/' + PAGE_FILE_NAMES[i] + ".json",
                               page->getJSON().dump(4));
       page->setSaved();
-      notebook->SetPageText(i, NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_GENERAL]);
+      notebook->SetPageText(i, NOTEBOOK_TAB_LABELS[i]);
     }
   }
 
-  SetStatusText("Path: \"" + path + "\" was saved.");
+  SetStatusText("Path: \"" + path.GetPath() + "\" was saved.");
 }
 
 void CharToolFrame::OnExit(const wxCommandEvent &event) {
   if (obtainClosePermission()) {
     Close(true);
     markAllAsSaved();
+  }
+}
+void CharToolFrame::OnCloseWindow(const wxCloseEvent &event) {
+  if (!event.CanVeto() || obtainClosePermission()) {
+    Destroy();
   }
 }
 
@@ -301,7 +318,7 @@ void CharToolFrame::markAllAsSaved() {
         dynamic_cast<page::CharToolPage *>(notebook->GetPage(i));
     if (page && !page->isSaved()) {
       page->setSaved();
-      notebook->SetPageText(i, NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_GENERAL]);
+      notebook->SetPageText(i, NOTEBOOK_TAB_LABELS[i]);
     }
   }
 }

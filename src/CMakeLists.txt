@@ -16,6 +16,8 @@ set(PARSER_MODULES
   parser/JSON_parser.h
   parser/chars/general.cpp
   parser/chars/general.h
+  parser/chars/sprites.cpp
+  parser/chars/sprites.h
 )
 
 # renderer
@@ -56,6 +58,8 @@ set(CHARTOOL_PAGE_FILES
   CharTool/page/page_base.h
   CharTool/page/general.cpp
   CharTool/page/general.h
+  CharTool/page/sprites.cpp
+  CharTool/page/sprites.h
 )
 
 set(CHARTOOL_FILES
@@ -393,15 +397,15 @@ target_link_libraries(DvD
 # )
 
 target_include_directories(Sprtool
-  PRIVATE SDL2
   PRIVATE SDL2main
+  PRIVATE SDL2
   PRIVATE glad
   PRIVATE glm
   PRIVATE ${libpng_INCLUDE_DIRS}
 )
 target_link_libraries(Sprtool
-  PRIVATE SDL2
   PRIVATE SDL2main
+  PRIVATE SDL2
   PRIVATE glad
   PRIVATE glm
   PRIVATE ${libpng_LIBRARY}

@@ -24,12 +24,10 @@
 
 #include "page_base.h"
 
-#include <nlohmann/json.hpp>
-#include <wx/notebook.h>
 #include <wx/propgrid/propgrid.h>
 
 namespace page {
-  class General : public CharToolPage, public wxNotebookPage {
+  class General : public CharToolPage {
   public:
     General(wxNotebook *parent);
 
