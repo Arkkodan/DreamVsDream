@@ -1,0 +1,61 @@
+[
+    {
+        "name": "Block",
+        "sounds": [
+            "block1",
+            "block2",
+            "block3",
+            "block4",
+            "block5"
+        ]
+    },
+    {
+        "name": "HitMid",
+        "sounds": [
+            "mid1",
+            "mid2",
+            "mid4"
+        ]
+    },
+    {
+        "name": "Pipe",
+        "sounds": [
+            "pipe1",
+            "pipe2",
+            "pipe3",
+            "pipe4"
+        ]
+    },
+    {
+        "name": "Swipe",
+        "sounds": [
+            "mSwipe1",
+            "mSwipe2"
+        ]
+    },
+    {
+        "name": "HitDiary",
+        "sounds": [
+            "DiaryHit1",
+            "DiaryHit2"
+        ]
+    },
+    {
+        "name": "Whistle",
+        "sounds": [
+            "whistle"
+        ]
+    },
+    {
+        "name": "Gun",
+        "sounds": [
+            "gun"
+        ]
+    },
+    {
+        "name": "Lazer",
+        "sounds": [
+            "lazer"
+        ]
+    }
+]

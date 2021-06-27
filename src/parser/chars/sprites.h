@@ -3,6 +3,7 @@
 
 #include "../JSON_parser.h"
 
+#include <string>
 #include <vector>
 
 namespace parser {

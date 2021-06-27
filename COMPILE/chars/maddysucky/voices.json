@@ -1,0 +1,30 @@
+[
+    {
+        "name": "Sideways",
+        "percent": 10,
+        "sounds": [
+            "sideways"
+        ]
+    },
+    {
+        "name": "Kick",
+        "percent": 100,
+        "sounds": [
+            "kick"
+        ]
+    },
+    {
+        "name": "Punch",
+        "percent": 100,
+        "sounds": [
+            "punch"
+        ]
+    },
+    {
+        "name": "Stab",
+        "percent": 100,
+        "sounds": [
+            "slash"
+        ]
+    }
+]

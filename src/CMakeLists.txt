@@ -18,6 +18,10 @@ set(PARSER_MODULES
   parser/chars/general.h
   parser/chars/sprites.cpp
   parser/chars/sprites.h
+  parser/chars/sounds.cpp
+  parser/chars/sounds.h
+  parser/chars/voices.cpp
+  parser/chars/voices.h
 )
 
 # renderer
@@ -60,6 +64,10 @@ set(CHARTOOL_PAGE_FILES
   CharTool/page/general.h
   CharTool/page/sprites.cpp
   CharTool/page/sprites.h
+  CharTool/page/sounds.cpp
+  CharTool/page/sounds.h
+  CharTool/page/voices.cpp
+  CharTool/page/voices.h
 )
 
 set(CHARTOOL_FILES

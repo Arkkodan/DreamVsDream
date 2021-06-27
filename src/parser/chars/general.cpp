@@ -31,7 +31,7 @@ parser::parseJSON<parser::GeneralStruct>(const nlohmann::ordered_json &j_obj) {
 template <>
 nlohmann::ordered_json
 parser::parseObject<parser::GeneralStruct>(const GeneralStruct &obj) {
-  nlohmann::ordered_json j_obj;
+  nlohmann::ordered_json j_obj = nlohmann::ordered_json::object();
   j_obj["displayName"] = obj.displayName;
   j_obj["group"] = GROUP_ENUM_STRINGS[obj.group];
   j_obj["hp"] = obj.hp;

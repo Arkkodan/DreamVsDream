@@ -22,8 +22,6 @@
 
 #include "sprites.h"
 
-#include "../frame.h"
-
 #include "../../parser/chars/sprites.h"
 
 #include <wx/filedlg.h>
@@ -33,7 +31,8 @@
 #include <sstream>
 
 page::Sprites::Sprites(wxNotebook *parent)
-    : CharToolPage(parent), addRemove(new wxAddRemoveCtrl(this)),
+    : CharToolPage(parent, CharToolFrame::CHARTOOL_INDEX_SPRITES),
+      addRemove(new wxAddRemoveCtrl(this)),
       dataView(new wxDataViewListCtrl(
           addRemove, wxID_ANY, wxDefaultPosition, wxDefaultSize,
           wxDV_MULTIPLE | wxDV_HORIZ_RULES | wxDV_ROW_LINES |
@@ -95,19 +94,6 @@ nlohmann::ordered_json page::Sprites::getJSON() const {
   }
 
   return parser::parseObject<parser::SpritesStruct>(ss);
-}
-
-void page::Sprites::markAsUnsaved() {
-  if (saved) {
-    saved = false;
-    auto *parent = dynamic_cast<wxNotebook *>(GetParent());
-    if (parent) {
-      parent->SetPageText(CharToolFrame::CHARTOOL_INDEX_SPRITES,
-                          CharToolFrame::NOTEBOOK_TAB_LABELS
-                                  [CharToolFrame::CHARTOOL_INDEX_SPRITES] +
-                              '*');
-    }
-  }
 }
 
 page::DataViewAddRemoveAdaptor::DataViewAddRemoveAdaptor(

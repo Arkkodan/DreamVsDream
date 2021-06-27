@@ -22,6 +22,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+#include "../frame.h"
+
 #include <nlohmann/json.hpp>
 #include <wx/filename.h>
 #include <wx/notebook.h>
@@ -31,7 +33,9 @@
 namespace page {
   class CharToolPage : public wxNotebookPage {
   protected:
-    CharToolPage(wxNotebook *parent) : wxNotebookPage(parent, wxID_ANY) {}
+    CharToolPage(wxNotebook *parent, size_t notebookIndex)
+        : wxNotebookPage(parent, wxID_ANY), notebookIndex(notebookIndex),
+          saved(true), path() {}
 
   public:
     virtual void reset() = 0;
@@ -43,9 +47,22 @@ namespace page {
     wxFileName getPath() const { return path; }
     void setPath(const wxFileName &path) { this->path = path; }
 
+    void markAsUnsaved() {
+      if (saved) {
+        saved = false;
+        auto *parent = dynamic_cast<wxNotebook *>(GetParent());
+        if (parent) {
+          parent->SetPageText(
+              notebookIndex,
+              CharToolFrame::NOTEBOOK_TAB_LABELS[notebookIndex] + '*');
+        }
+      }
+    }
+
   protected:
-    bool saved = true;
-    wxFileName path = "";
+    size_t notebookIndex;
+    bool saved;
+    wxFileName path;
   };
 } // namespace page
 

@@ -1,0 +1,98 @@
+[
+    {
+        "name": "Grunt",
+        "percent": 20,
+        "sounds": [
+            "F_2",
+            "F_5",
+            "ha1",
+            "ha2",
+            "ha3",
+            "ho1",
+            "ho2"
+        ]
+    },
+    {
+        "name": "Hurt",
+        "percent": 10,
+        "sounds": [
+            "F_3",
+            "F_4",
+            "Ow_1",
+            "Ow_2",
+            "Ow_3",
+            "Ow_4"
+        ]
+    },
+    {
+        "name": "Recover",
+        "percent": 20,
+        "sounds": [
+            "Long_1",
+            "Long_4"
+        ]
+    },
+    {
+        "name": "Win",
+        "percent": 100,
+        "sounds": [
+            "dream1",
+            "dream2"
+        ]
+    },
+    {
+        "name": "Lose",
+        "percent": 100,
+        "sounds": [
+            "nightmare1",
+            "nightmare2"
+        ]
+    },
+    {
+        "name": "5Bf",
+        "percent": 20,
+        "sounds": [
+            "here1",
+            "here2"
+        ]
+    },
+    {
+        "name": "5Cf",
+        "percent": 10,
+        "sounds": [
+            "5C",
+            "what5"
+        ]
+    },
+    {
+        "name": "Cold",
+        "percent": 20,
+        "sounds": [
+            "cold1",
+            "cold2"
+        ]
+    },
+    {
+        "name": "Frozen",
+        "percent": 50,
+        "sounds": [
+            "frozen"
+        ]
+    },
+    {
+        "name": "DualKnives",
+        "percent": 1,
+        "sounds": [
+            "dualknives2",
+            "dualknives3",
+            "dualknives4"
+        ]
+    },
+    {
+        "name": "Die",
+        "percent": 100,
+        "sounds": [
+            "die"
+        ]
+    }
+]

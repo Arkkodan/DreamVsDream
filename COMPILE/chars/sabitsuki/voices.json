@@ -1,0 +1,78 @@
+[
+    {
+        "name": "Attack",
+        "percent": 40,
+        "sounds": [
+            "attack1",
+            "hit1",
+            "hit2"
+        ]
+    },
+    {
+        "name": "Hurt",
+        "percent": 30,
+        "sounds": [
+            "cough1",
+            "cough2",
+            "cough3",
+            "cough4"
+        ]
+    },
+    {
+        "name": "Recover",
+        "percent": 30,
+        "sounds": [
+            "hadenough",
+            "cough_short"
+        ]
+    },
+    {
+        "name": "Gun",
+        "percent": 100,
+        "sounds": [
+            "gun"
+        ]
+    },
+    {
+        "name": "Win",
+        "percent": 100,
+        "sounds": [
+            "laugh",
+            "win2",
+            "win3"
+        ]
+    },
+    {
+        "name": "Lose",
+        "percent": 100,
+        "sounds": [
+            "lose1",
+            "lose2"
+        ]
+    },
+    {
+        "name": "GetAway",
+        "percent": 100,
+        "sounds": [
+            "getaway"
+        ]
+    },
+    {
+        "name": "Gotcha",
+        "percent": 100,
+        "sounds": [
+            "gotcha"
+        ]
+    },
+    {
+        "name": "Die",
+        "percent": 100,
+        "sounds": [
+            "dead1",
+            "dead2",
+            "dead3",
+            "thankyou1",
+            "thankyou2"
+        ]
+    }
+]

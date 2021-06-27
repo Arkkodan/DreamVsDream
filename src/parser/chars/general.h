@@ -4,6 +4,7 @@
 #include "../JSON_parser.h"
 
 #include <array>
+#include <string>
 
 namespace parser {
   enum {

@@ -1,5 +1,5 @@
-#ifndef CHARTOOL_PAGE_SPRITES_H
-#define CHARTOOL_PAGE_SPRITES_H
+#ifndef CHARTOOL_PARSER_CHARS_VOICES_H
+#define CHARTOOL_PARSER_CHARS_VOICES_H
 // MIT License
 //
 // Copyright (c) 2021 Arkkodan
@@ -28,37 +28,46 @@
 #include <wx/dataview.h>
 
 namespace page {
-  class Sprites : public CharToolPage {
+  class Voices : public CharToolPage {
   public:
-    Sprites(wxNotebook *parent);
+    static std::string dataToDisplay(const std::string &name, int percent);
+    static bool displayToData(const std::string &display, std::string &name,
+                              int &percent);
+
+  public:
+    Voices(wxNotebook *parent);
+
+  private:
+    class DataViewAddRemoveAdaptor : public wxAddRemoveAdaptor {
+    public:
+      explicit DataViewAddRemoveAdaptor(wxDataViewTreeCtrl *dataView,
+                                        Voices *voices_instance);
+
+      wxWindow *GetItemsCtrl() const override final;
+
+      bool CanAdd() const override final;
+      bool CanRemove() const override final;
+      void OnAdd() override final;
+      void OnRemove() override final;
+
+    private:
+      wxDataViewTreeCtrl *dataView;
+
+      Voices *voices_instance;
+    };
 
   private:
     void reset() override final;
     void setFromJSON(const nlohmann::ordered_json &j_obj) override final;
     nlohmann::ordered_json getJSON() const override final;
 
+    void PreventEditing(wxDataViewEvent &event);
+
   private:
     wxAddRemoveCtrl *addRemove;
-    wxDataViewListCtrl *dataView;
+    wxDataViewTreeCtrl *dataView;
   };
 
-  class DataViewAddRemoveAdaptor : public wxAddRemoveAdaptor {
-  public:
-    explicit DataViewAddRemoveAdaptor(wxDataViewListCtrl *dataView,
-                                      Sprites *instance);
-
-    wxWindow *GetItemsCtrl() const override final;
-
-    bool CanAdd() const override final;
-    bool CanRemove() const override final;
-    void OnAdd() override final;
-    void OnRemove() override final;
-
-  private:
-    wxDataViewListCtrl *dataView;
-
-    Sprites *sprites_instance;
-  };
 } // namespace page
 
-#endif // CHARTOOL_PAGE_SPRITES_H
+#endif // CHARTOOL_PARSER_CHARS_VOICES_H

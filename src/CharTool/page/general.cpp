@@ -22,15 +22,13 @@
 
 #include "general.h"
 
-#include "../frame.h"
-
 #include "../../parser/chars/general.h"
 
 #include <wx/sizer.h>
 #include <wx/valnum.h>
 
 page::General::General(wxNotebook *parent)
-    : CharToolPage(parent),
+    : CharToolPage(parent, CharToolFrame::CHARTOOL_INDEX_GENERAL),
       propGrid(
           new wxPropertyGrid(this, wxID_ANY, wxDefaultPosition, wxDefaultSize,
                              wxPG_DEFAULT_STYLE | wxPG_SPLITTER_AUTO_CENTER)) {
@@ -66,16 +64,7 @@ page::General::General(wxNotebook *parent)
 }
 
 void page::General::OnPGChanging(wxPropertyGridEvent &event) {
-  if (saved) {
-    saved = false;
-    auto *parent = dynamic_cast<wxNotebook *>(GetParent());
-    if (parent) {
-      parent->SetPageText(CharToolFrame::CHARTOOL_INDEX_GENERAL,
-                          CharToolFrame::NOTEBOOK_TAB_LABELS
-                                  [CharToolFrame::CHARTOOL_INDEX_GENERAL] +
-                              '*');
-    }
-  }
+  markAsUnsaved();
 
   const wxVariant value = event.GetValue();
   if (value.IsNull()) {

@@ -24,7 +24,9 @@
 
 #include "app.h"
 #include "page/general.h"
+#include "page/sounds.h"
 #include "page/sprites.h"
+#include "page/voices.h"
 
 #include "../fileIO/json.h"
 
@@ -34,10 +36,11 @@
 #include <wx/textfile.h>
 
 const std::array<std::string, CharToolFrame::CHARTOOL_INDEX_MAX>
-    CharToolFrame::NOTEBOOK_TAB_LABELS = {"General", "Sprites"};
+    CharToolFrame::NOTEBOOK_TAB_LABELS = {"General", "Sprites", "Sounds",
+                                          "Voices"};
 
 const std::array<std::string, CharToolFrame::CHARTOOL_INDEX_MAX>
-    CharToolFrame::PAGE_FILE_NAMES = {"general", "sprites"};
+    CharToolFrame::PAGE_FILE_NAMES = {"general", "sprites", "sounds", "voices"};
 
 CharToolFrame::CharToolFrame()
     : wxFrame(nullptr, wxID_ANY, CharToolApp::TITLE, wxDefaultPosition,
@@ -68,6 +71,10 @@ CharToolFrame::CharToolFrame()
                     NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_GENERAL]);
   notebook->AddPage(new page::Sprites(notebook),
                     NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_SPRITES]);
+  notebook->AddPage(new page::Sounds(notebook),
+                    NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_SOUNDS]);
+  notebook->AddPage(new page::Voices(notebook),
+                    NOTEBOOK_TAB_LABELS[CHARTOOL_INDEX_VOICES]);
   resetPages();
 
   Layout();
@@ -101,8 +108,8 @@ void CharToolFrame::OnNew(const wxCommandEvent &event) {
 
       loadArray.fill(false);
       for (size_t i = 0; i < CHARTOOL_INDEX_MAX; i++) {
-        wxFileName filepath = wxFileName::FileName(newpath.GetPath() + '/' + PAGE_FILE_NAMES[i] +
-                             ".json");
+        wxFileName filepath = wxFileName::FileName(
+            newpath.GetPath() + '/' + PAGE_FILE_NAMES[i] + ".json");
         if (filepath.FileExists()) {
           wxMessageDialog msgDialog(
               this,
@@ -120,6 +127,7 @@ void CharToolFrame::OnNew(const wxCommandEvent &event) {
       path = newpath;
 
       notebook->Show();
+      Layout();
       menuFile->Enable(wxID_CLOSE, true);
       menuFile->Enable(wxID_SAVE, true);
       SetStatusText("Path: \"" + path.GetPath() + "\" was initialized.");
@@ -186,6 +194,7 @@ void CharToolFrame::OnOpen(const wxCommandEvent &event) {
         }
 
         notebook->Show();
+        Layout();
         menuFile->Enable(wxID_CLOSE, true);
         menuFile->Enable(wxID_SAVE, true);
         SetStatusText("Path: \"" + path.GetPath() + "\" was loaded.");
@@ -228,21 +237,7 @@ void CharToolFrame::OnClose(const wxCommandEvent &event) {
   }
 }
 
-void CharToolFrame::OnSaveAll(const wxCommandEvent &event) {
-  // Save all
-  for (size_t i = 0, size = notebook->GetPageCount(); i < size; i++) {
-    page::CharToolPage *page =
-        dynamic_cast<page::CharToolPage *>(notebook->GetPage(i));
-    if (page && !page->isSaved()) {
-      fileIO::writeTextToFile(path.GetPath().ToStdString() + '/' + PAGE_FILE_NAMES[i] + ".json",
-                              page->getJSON().dump(4));
-      page->setSaved();
-      notebook->SetPageText(i, NOTEBOOK_TAB_LABELS[i]);
-    }
-  }
-
-  SetStatusText("Path: \"" + path.GetPath() + "\" was saved.");
-}
+void CharToolFrame::OnSaveAll(const wxCommandEvent &event) { saveAll(); }
 
 void CharToolFrame::OnExit(const wxCommandEvent &event) {
   if (obtainClosePermission()) {
@@ -262,7 +257,9 @@ void CharToolFrame::OnAbout(const wxCommandEvent &event) {
   info.SetVersion(DVD_VERSION_STRING);
   info.SetDescription(
       "This program creates characters for Dream vs. Dream. It is meant to "
-      "replace the older character tools: Atlas, Sprtool, and Compiler.");
+      "replace the older character tools: Atlas, Sprtool, and Compiler.\nThis "
+      "tool is useful for creating a character from a starting point. It is "
+      "not perfect, so you may want to manually edit files as well.");
   info.AddDeveloper("Arkkodan");
 
   wxAboutBox(info);
@@ -301,8 +298,7 @@ bool CharToolFrame::obtainClosePermission() {
         "Unsaved Changes", wxYES_NO | wxCANCEL | wxCENTER);
     switch (msgDialog.ShowModal()) {
     case wxID_YES:
-      // TODO: Save all
-      markAllAsSaved();
+      saveAll();
       // Fallthrough
     case wxID_NO:
       return true;
@@ -310,6 +306,25 @@ bool CharToolFrame::obtainClosePermission() {
 
     return false;
   }
+}
+
+void CharToolFrame::saveAll() {
+  // Save all
+  for (size_t i = 0, size = notebook->GetPageCount(); i < size; i++) {
+    page::CharToolPage *page =
+        dynamic_cast<page::CharToolPage *>(notebook->GetPage(i));
+    if (page && !page->isSaved()) {
+      fileIO::writeTextToFile(path.GetPath().ToStdString() + '/' +
+                                  PAGE_FILE_NAMES[i] + ".json",
+                              page->getJSON().dump(4));
+      page->setSaved();
+      notebook->SetPageText(i, NOTEBOOK_TAB_LABELS[i]);
+    }
+  }
+
+  SetStatusText("Path: \"" + path.GetPath() + "\" was saved.");
+
+  markAllAsSaved();
 }
 
 void CharToolFrame::markAllAsSaved() {

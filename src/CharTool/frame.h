@@ -38,6 +38,8 @@ public:
   enum {
     CHARTOOL_INDEX_GENERAL,
     CHARTOOL_INDEX_SPRITES,
+    CHARTOOL_INDEX_SOUNDS,
+    CHARTOOL_INDEX_VOICES,
 
     CHARTOOL_INDEX_MAX
   };
@@ -57,6 +59,7 @@ private:
   void resetPages();
   bool isSaved() const;
   bool obtainClosePermission();
+  void saveAll();
   void markAllAsSaved();
 
 private:
